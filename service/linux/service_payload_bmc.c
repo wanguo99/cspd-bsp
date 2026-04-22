@@ -300,3 +300,87 @@ int32 PayloadBMC_GetStats(bmc_payload_handle_t handle,
 
     return OS_SUCCESS;
 }
+
+/*
+ * 电源开机
+ */
+int32 BMCPayload_PowerOn(bmc_payload_handle_t handle)
+{
+    if (handle == NULL) {
+        return OS_INVALID_POINTER;
+    }
+
+    /* 构造IPMI电源开机命令 */
+    uint8 ipmi_cmd[] = {0x00, 0x01};  /* Chassis Control - Power On */
+    uint8 response[16];
+    uint32 resp_size;
+
+    int32 ret = PayloadBMC_SendCommand(handle, BMC_PROTOCOL_IPMI,
+                                       ipmi_cmd, sizeof(ipmi_cmd),
+                                       response, sizeof(response),
+                                       &resp_size);
+
+    if (ret == OS_SUCCESS) {
+        LOG_INFO("SVC_BMC", "Power on command sent successfully");
+    } else {
+        LOG_ERROR("SVC_BMC", "Failed to send power on command");
+    }
+
+    return ret;
+}
+
+/*
+ * 电源关机
+ */
+int32 BMCPayload_PowerOff(bmc_payload_handle_t handle)
+{
+    if (handle == NULL) {
+        return OS_INVALID_POINTER;
+    }
+
+    /* 构造IPMI电源关机命令 */
+    uint8 ipmi_cmd[] = {0x00, 0x00};  /* Chassis Control - Power Off */
+    uint8 response[16];
+    uint32 resp_size;
+
+    int32 ret = PayloadBMC_SendCommand(handle, BMC_PROTOCOL_IPMI,
+                                       ipmi_cmd, sizeof(ipmi_cmd),
+                                       response, sizeof(response),
+                                       &resp_size);
+
+    if (ret == OS_SUCCESS) {
+        LOG_INFO("SVC_BMC", "Power off command sent successfully");
+    } else {
+        LOG_ERROR("SVC_BMC", "Failed to send power off command");
+    }
+
+    return ret;
+}
+
+/*
+ * 电源复位
+ */
+int32 BMCPayload_PowerReset(bmc_payload_handle_t handle)
+{
+    if (handle == NULL) {
+        return OS_INVALID_POINTER;
+    }
+
+    /* 构造IPMI电源复位命令 */
+    uint8 ipmi_cmd[] = {0x00, 0x03};  /* Chassis Control - Power Reset */
+    uint8 response[16];
+    uint32 resp_size;
+
+    int32 ret = PayloadBMC_SendCommand(handle, BMC_PROTOCOL_IPMI,
+                                       ipmi_cmd, sizeof(ipmi_cmd),
+                                       response, sizeof(response),
+                                       &resp_size);
+
+    if (ret == OS_SUCCESS) {
+        LOG_INFO("SVC_BMC", "Power reset command sent successfully");
+    } else {
+        LOG_ERROR("SVC_BMC", "Failed to send power reset command");
+    }
+
+    return ret;
+}

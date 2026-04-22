@@ -66,6 +66,15 @@ add_subdirectory(hal)
 add_subdirectory(service)
 add_subdirectory(apps)
 
+# 添加测试（可选，通过BUILD_TESTING控制）
+option(BUILD_TESTING "Build unit tests" ON)
+if(BUILD_TESTING)
+    message(STATUS "Unit tests enabled")
+    add_subdirectory(tests)
+else()
+    message(STATUS "Unit tests disabled")
+endif()
+
 # 主程序
 add_executable(cspd-bsp
     main.c
@@ -97,5 +106,10 @@ message(STATUS "  Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "  C Compiler: ${CMAKE_C_COMPILER}")
 message(STATUS "  C Flags: ${CMAKE_C_FLAGS}")
 message(STATUS "  Install prefix: ${CMAKE_INSTALL_PREFIX}")
+if(BUILD_TESTING)
+message(STATUS "  Unit tests: Enabled")
+else()
+message(STATUS "  Unit tests: Disabled")
+endif()
 message(STATUS "========================================")
 message(STATUS "")

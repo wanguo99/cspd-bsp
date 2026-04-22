@@ -34,6 +34,8 @@ show_help() {
     -d, --debug         Debug模式编译
     -r, --release       Release模式编译 (默认)
     -t, --test          编译后运行测试
+    --no-tests          禁用测试编译
+    --coverage          启用代码覆盖率 (需要Debug模式)
     -i, --install       安装到系统
     --prefix PATH       设置安装路径 (默认: /usr/local)
     --platform PLATFORM 目标平台 (默认: native)
@@ -41,11 +43,18 @@ show_help() {
                         - generic-linux: 标准Linux交叉编译
 
 示例:
-    $0                              # 本地Release模式编译
+    $0                              # 本地Release模式编译（含测试）
     $0 -d                           # 本地Debug模式编译
+    $0 -d --coverage                # Debug模式编译并启用覆盖率
+    $0 -t                           # 编译并运行测试
+    $0 --no-tests                   # 编译但不包含测试
     $0 --platform generic-linux     # 交叉编译到Linux
     $0 -c -r --platform native      # 清理后本地重新编译
     $0 -r -i                        # 编译并安装
+
+测试相关:
+    $0 -d -t                        # Debug模式编译并运行测试
+    $0 -d --coverage -t             # 生成覆盖率报告
 
 EOF
 }
@@ -55,6 +64,8 @@ BUILD_TYPE="Release"
 PLATFORM="native"
 CLEAN=0
 RUN_TEST=0
+BUILD_TESTING=1
+ENABLE_COVERAGE=0
 INSTALL=0
 INSTALL_PREFIX="/usr/local"
 BUILD_DIR="build"
@@ -80,6 +91,15 @@ while [[ $# -gt 0 ]]; do
             ;;
         -t|--test)
             RUN_TEST=1
+            shift
+            ;;
+        --no-tests)
+            BUILD_TESTING=0
+            shift
+            ;;
+        --coverage)
+            ENABLE_COVERAGE=1
+            BUILD_TYPE="Debug"  # 覆盖率需要Debug模式
             shift
             ;;
         -i|--install)
@@ -132,11 +152,20 @@ cd "$BUILD_DIR"
 
 # 运行CMake配置
 print_info "运行CMake配置 (平台: $PLATFORM, 构建类型: $BUILD_TYPE)..."
-cmake .. \
-    -DPLATFORM="$PLATFORM" \
-    -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
-    -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" \
+CMAKE_ARGS=(
+    -DPLATFORM="$PLATFORM"
+    -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
+    -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX"
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+    -DBUILD_TESTING=$BUILD_TESTING
+)
+
+if [ $ENABLE_COVERAGE -eq 1 ]; then
+    CMAKE_ARGS+=(-DENABLE_COVERAGE=ON)
+    print_info "代码覆盖率已启用"
+fi
+
+cmake .. "${CMAKE_ARGS[@]}"
 
 # 编译
 print_info "开始编译..."
@@ -153,8 +182,21 @@ fi
 
 # 运行测试
 if [ $RUN_TEST -eq 1 ]; then
-    print_info "运行测试..."
-    ctest --output-on-failure
+    if [ $BUILD_TESTING -eq 1 ]; then
+        print_info "运行测试..."
+        ctest --output-on-failure
+
+        # 如果启用了覆盖率，生成报告
+        if [ $ENABLE_COVERAGE -eq 1 ]; then
+            print_info "生成覆盖率报告..."
+            make coverage
+            if [ $? -eq 0 ]; then
+                print_info "覆盖率报告已生成: $BUILD_DIR/coverage_html/index.html"
+            fi
+        fi
+    else
+        print_warn "测试已禁用，跳过测试运行"
+    fi
 fi
 
 # 安装
@@ -171,4 +213,15 @@ print_info "构建完成！"
 print_info ""
 print_info "运行程序:"
 print_info "  ./$BUILD_DIR/bin/cspd-bsp"
+if [ $BUILD_TESTING -eq 1 ]; then
+    print_info ""
+    print_info "运行测试:"
+    print_info "  cd $BUILD_DIR && ctest --output-on-failure"
+    print_info "  或: cd $BUILD_DIR && make run_tests"
+fi
+if [ $ENABLE_COVERAGE -eq 1 ]; then
+    print_info ""
+    print_info "查看覆盖率报告:"
+    print_info "  firefox $BUILD_DIR/coverage_html/index.html"
+fi
 print_info ""
