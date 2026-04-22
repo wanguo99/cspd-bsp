@@ -8,6 +8,11 @@
  * 4. 改进资源管理
  ************************************************************************/
 
+/* 必须在所有头文件之前定义，以启用完整的POSIX功能 */
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -17,11 +22,16 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <sys/time.h>
-#include <net/if.h>
+#include <net/if.h>           /* struct ifreq 定义 */
 #include <linux/can.h>
 #include <linux/can/raw.h>
 #include "hal_can.h"
 #include "osal.h"
+
+/* 兼容性定义 */
+#ifndef IFNAMSIZ
+#define IFNAMSIZ IF_NAMESIZE
+#endif
 
 /*
  * CAN句柄结构

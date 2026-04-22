@@ -4,6 +4,11 @@
  * 使用SocketCAN实现CAN通信
  ************************************************************************/
 
+/* 必须在所有头文件之前定义，以启用完整的POSIX功能 */
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -18,6 +23,11 @@
 #include <linux/can/raw.h>
 #include "hal_can.h"
 #include "osal.h"
+
+/* 兼容性定义 */
+#ifndef IFNAMSIZ
+#define IFNAMSIZ IF_NAMESIZE
+#endif
 
 /*
  * CAN句柄结构
@@ -36,7 +46,6 @@ typedef struct
 int32 HAL_CAN_Init(const hal_can_config_t *config __attribute__((unused)),
                    hal_can_handle_t *handle __attribute__((unused)))
 {
-#if 0
     can_handle_impl_t *impl;
     struct sockaddr_can addr;
 
@@ -95,10 +104,8 @@ int32 HAL_CAN_Init(const hal_can_config_t *config __attribute__((unused)),
     *handle = (hal_can_handle_t)impl;
 
     OS_printf("[HAL CAN] 初始化成功: %s\n", config->interface);
+
     return OS_SUCCESS;
-#else
-    return OS_ERROR;
-#endif
 }
 
 /**
