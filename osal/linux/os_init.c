@@ -1,0 +1,47 @@
+/************************************************************************
+ * OSAL Linux实现 - 初始化和版本
+ ************************************************************************/
+
+#include "osal.h"
+#include <unistd.h>
+
+#define OS_VERSION_STRING "CSPD-BSP OSAL v1.0.0"
+
+/* 外部初始化函数声明 */
+extern void OS_TaskTableInit(void);
+extern void OS_QueueTableInit(void);
+extern void OS_MutexTableInit(void);
+
+/* 初始化API */
+int32 OS_API_Init(void)
+{
+    OS_TaskTableInit();
+    OS_QueueTableInit();
+    OS_MutexTableInit();
+    return OS_SUCCESS;
+}
+
+/* 清理API */
+int32 OS_API_Teardown(void)
+{
+    /* 清理资源 */
+    return OS_SUCCESS;
+}
+
+/* 版本API */
+const char *OS_GetVersionString(void)
+{
+    return OS_VERSION_STRING;
+}
+
+/* 空闲循环 */
+int32 OS_IdleLoop(void)
+{
+    while (1)
+    {
+        sleep(1);
+    }
+
+    /* 不应该到达这里 */
+    return OS_ERROR;
+}

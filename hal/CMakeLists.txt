@@ -1,0 +1,29 @@
+# HAL (硬件抽象层) 模块
+
+# HAL源文件
+set(HAL_SOURCES
+    linux/hal_can_linux.c
+    linux/hal_network_linux.c
+    linux/hal_serial_linux.c
+)
+
+# 创建HAL静态库
+add_library(hal STATIC ${HAL_SOURCES})
+
+# 包含目录
+target_include_directories(hal PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/inc
+)
+
+# 依赖OSAL
+target_link_libraries(hal
+    osal
+)
+
+# 设置编译选项
+target_compile_options(hal PRIVATE
+    -Wall
+    -Wextra
+)
+
+message(STATUS "HAL module configured")
