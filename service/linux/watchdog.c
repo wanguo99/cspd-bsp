@@ -86,7 +86,11 @@ static void hw_watchdog_close(watchdog_context_t *ctx)
     if (ctx->hw_watchdog_fd >= 0)
     {
         /* 写入魔术字符关闭看门狗 */
-        write(ctx->hw_watchdog_fd, "V", 1);
+        ssize_t ret = write(ctx->hw_watchdog_fd, "V", 1);
+        if (ret < 0)
+        {
+            OS_printf("[Watchdog] 关闭硬件看门狗失败\n");
+        }
         close(ctx->hw_watchdog_fd);
         ctx->hw_watchdog_fd = -1;
     }
