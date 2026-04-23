@@ -3,6 +3,7 @@
  ************************************************************************/
 
 #include "osal.h"
+#include <stdint.h>
 #include <sys/time.h>
 #include <time.h>
 
@@ -31,7 +32,12 @@ uint32 OS_GetTickCount(void)
 {
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
-    return (ts.tv_sec * 1000) + (ts.tv_nsec / 1000000);
+
+    /* 防止溢出：使用64位计算后再转换 */
+    uint64_t ms = ((uint64_t)ts.tv_sec * 1000ULL) + (ts.tv_nsec / 1000000ULL);
+
+    /* 返回低32位（约49.7天后会回绕） */
+    return (uint32)ms;
 }
 
 int32 OS_Milli2Ticks(uint32 milliseconds, uint32 *ticks)

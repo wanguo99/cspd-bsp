@@ -3,6 +3,7 @@
  ************************************************************************/
 
 #include "osal.h"
+#include <pthread.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
@@ -21,6 +22,7 @@ typedef struct
 
 static file_record_t g_file_table[MAX_FILE_DESCRIPTORS];
 static osal_id_t     g_file_mutex = OS_OBJECT_ID_UNDEFINED;
+static pthread_mutex_t g_file_init_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static int32 convert_mode_to_flags(uint32 mode, uint32 flags)
 {
@@ -73,9 +75,15 @@ int32 OS_FileOpen(osal_id_t *fd, const char *path, uint32 mode, uint32 flags)
         return OS_ERROR;
     }
 
+    /* 线程安全的延迟初始化 */
     if (g_file_mutex == OS_OBJECT_ID_UNDEFINED)
     {
-        OS_MutexCreate(&g_file_mutex, "FILE_MTX", 0);
+        pthread_mutex_lock(&g_file_init_mutex);
+        if (g_file_mutex == OS_OBJECT_ID_UNDEFINED)
+        {
+            OS_MutexCreate(&g_file_mutex, "FILE_MTX", 0);
+        }
+        pthread_mutex_unlock(&g_file_init_mutex);
     }
 
     OS_MutexLock(g_file_mutex);

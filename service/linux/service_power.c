@@ -59,8 +59,15 @@ static void trigger_event(power_service_context_t *ctx, power_event_t event)
 static void timer_task(void *arg)
 {
     power_service_context_t *ctx = (power_service_context_t *)arg;
+    bool running = true;
 
-    while (ctx->scheduled_action != 0) {
+    while (running) {
+        OS_MutexLock(ctx->mutex);
+        running = (ctx->scheduled_action != 0);
+        OS_MutexUnlock(ctx->mutex);
+
+        if (!running)
+            break;
         OS_TaskDelay(1000);  /* 1秒 */
 
         OS_MutexLock(ctx->mutex);

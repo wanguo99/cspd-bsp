@@ -112,18 +112,18 @@ void OS_Log_SetLevel(int32 level)
 static void get_timestamp(char *buffer, size_t size)
 {
     struct timeval tv;
-    struct tm *tm_info;
+    struct tm tm_info;
 
     gettimeofday(&tv, NULL);
-    tm_info = localtime(&tv.tv_sec);
+    localtime_r(&tv.tv_sec, &tm_info);  /* 线程安全版本 */
 
     snprintf(buffer, size, "%04d-%02d-%02d %02d:%02d:%02d.%03ld",
-             tm_info->tm_year + 1900,
-             tm_info->tm_mon + 1,
-             tm_info->tm_mday,
-             tm_info->tm_hour,
-             tm_info->tm_min,
-             tm_info->tm_sec,
+             tm_info.tm_year + 1900,
+             tm_info.tm_mon + 1,
+             tm_info.tm_mday,
+             tm_info.tm_hour,
+             tm_info.tm_min,
+             tm_info.tm_sec,
              (long)(tv.tv_usec / 1000));
 }
 

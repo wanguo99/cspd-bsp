@@ -221,7 +221,7 @@ int32 Watchdog_Init(const watchdog_config_t *config)
     ret = OS_TaskCreate(&g_watchdog_ctx->watchdog_task_id,
                         "WATCHDOG",
                         watchdog_task,
-                        (uint32 *)g_watchdog_ctx,
+                        (void *)g_watchdog_ctx,  /* 修复：使用void*而不是uint32* */
                         32 * 1024,
                         50,  /* 中等优先级 */
                         0);

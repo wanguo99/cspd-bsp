@@ -3,6 +3,7 @@
  ************************************************************************/
 
 #include "osal.h"
+#include <pthread.h>
 #include <sys/socket.h>
 #include <sys/select.h>
 #include <netinet/in.h>
@@ -24,6 +25,7 @@ typedef struct
 
 static socket_record_t g_socket_table[MAX_SOCKETS];
 static osal_id_t       g_socket_mutex = OS_OBJECT_ID_UNDEFINED;
+static pthread_mutex_t g_socket_init_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 int32 OS_SocketOpen(osal_id_t *sock_id, uint32 domain, uint32 type)
 {
@@ -67,9 +69,15 @@ int32 OS_SocketOpen(osal_id_t *sock_id, uint32 domain, uint32 type)
         return OS_ERROR;
     }
 
+    /* 线程安全的延迟初始化 */
     if (g_socket_mutex == OS_OBJECT_ID_UNDEFINED)
     {
-        OS_MutexCreate(&g_socket_mutex, "SOCK_MTX", 0);
+        pthread_mutex_lock(&g_socket_init_mutex);
+        if (g_socket_mutex == OS_OBJECT_ID_UNDEFINED)
+        {
+            OS_MutexCreate(&g_socket_mutex, "SOCK_MTX", 0);
+        }
+        pthread_mutex_unlock(&g_socket_init_mutex);
     }
 
     OS_MutexLock(g_socket_mutex);
@@ -192,7 +200,17 @@ int32 OS_SocketConnect(osal_id_t sock_id, const char *addr, uint16 port, int32 t
     if (timeout != OS_PEND)
     {
         flags = fcntl(native_fd, F_GETFL, 0);
-        fcntl(native_fd, F_SETFL, flags | O_NONBLOCK);
+        if (flags < 0)
+        {
+            OS_printf("[OSAL] fcntl(F_GETFL) 失败, errno=%d\n", errno);
+            return OS_ERROR;
+        }
+
+        if (fcntl(native_fd, F_SETFL, flags | O_NONBLOCK) < 0)
+        {
+            OS_printf("[OSAL] fcntl(F_SETFL) 失败, errno=%d\n", errno);
+            return OS_ERROR;
+        }
     }
 
     result = connect(native_fd, (struct sockaddr *)&sockaddr, sizeof(sockaddr));
@@ -341,8 +359,11 @@ int32 OS_SocketAccept(osal_id_t sock_id, osal_id_t *conn_id, char *addr, int32 t
 
     if (addr != NULL)
     {
-        strncpy(addr, inet_ntoa(client_addr.sin_addr), 16);
-        addr[15] = '\0';
+        /* 使用线程安全的 inet_ntop */
+        if (inet_ntop(AF_INET, &client_addr.sin_addr, addr, 16) == NULL)
+        {
+            addr[0] = '\0';
+        }
     }
 
     OS_MutexLock(g_socket_mutex);
@@ -577,8 +598,11 @@ int32 OS_SocketRecvFrom(osal_id_t sock_id, void *buffer, uint32 size,
 
     if (addr != NULL)
     {
-        strncpy(addr, inet_ntoa(src_addr.sin_addr), 16);
-        addr[15] = '\0';
+        /* 使用线程安全的 inet_ntop */
+        if (inet_ntop(AF_INET, &src_addr.sin_addr, addr, 16) == NULL)
+        {
+            addr[0] = '\0';
+        }
     }
 
     if (port != NULL)
