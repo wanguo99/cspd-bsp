@@ -159,4 +159,7 @@ extern const char *current_test_name;
 #define TEST_MESSAGE(msg) \
     printf(COLOR_YELLOW "[  INFO    ] %s\n" COLOR_RESET, msg)
 
+#define TEST_WARNING(msg) \
+    printf(COLOR_YELLOW "[ WARNING  ] %s\n" COLOR_RESET, msg)
+
 #endif /* TEST_FRAMEWORK_H */

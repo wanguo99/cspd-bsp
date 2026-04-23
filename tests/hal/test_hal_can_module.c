@@ -26,7 +26,7 @@ void test_HAL_CAN_Init_Success(void)
     int32 ret = HAL_CAN_Init(&config, &test_handle);
 
     if (ret != OS_SUCCESS) {
-        TEST_MESSAGE("Warning: vcan0 not available, test will fail");
+        TEST_WARNING("vcan0 not available, test will fail");
     }
 
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);

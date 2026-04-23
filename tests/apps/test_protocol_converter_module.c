@@ -15,7 +15,7 @@ void test_ProtocolConverter_Init_Success(void)
     int32 ret = Protocol_Converter_Init();
 
     if (ret != OS_SUCCESS) {
-        TEST_MESSAGE("Warning: Protocol Converter init failed, hardware not available");
+        TEST_WARNING("Protocol Converter init failed, hardware not available");
     }
 
     /* 无论成功或失败都进行断言，让测试真实反映结果 */
@@ -31,7 +31,7 @@ void test_ProtocolConverter_GetStats(void)
     int32 ret = Protocol_Converter_Init();
 
     if (ret != OS_SUCCESS) {
-        TEST_MESSAGE("Warning: Protocol Converter init failed, hardware not available");
+        TEST_WARNING("Protocol Converter init failed, hardware not available");
     }
 
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
