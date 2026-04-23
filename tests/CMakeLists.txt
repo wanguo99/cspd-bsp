@@ -32,7 +32,7 @@ include_directories(
 # 查找pthread库
 find_package(Threads REQUIRED)
 
-# 收集源文件（排除_fixed文件）
+# 收集源文件（排除_fixed文件和main.c）
 file(GLOB OSAL_SOURCES ${CSPD_BSP_ROOT}/osal/linux/*.c)
 list(FILTER OSAL_SOURCES EXCLUDE REGEX ".*_fixed\\.c$")
 
@@ -43,9 +43,11 @@ file(GLOB SERVICE_SOURCES ${CSPD_BSP_ROOT}/service/linux/*.c)
 
 file(GLOB APPS_GATEWAY_SOURCES ${CSPD_BSP_ROOT}/apps/can_gateway/*.c)
 list(FILTER APPS_GATEWAY_SOURCES EXCLUDE REGEX ".*_fixed\\.c$")
+list(FILTER APPS_GATEWAY_SOURCES EXCLUDE REGEX ".*/main\\.c$")
 
 file(GLOB APPS_PROTOCOL_SOURCES ${CSPD_BSP_ROOT}/apps/protocol_converter/*.c)
 list(FILTER APPS_PROTOCOL_SOURCES EXCLUDE REGEX ".*_fixed\\.c$")
+list(FILTER APPS_PROTOCOL_SOURCES EXCLUDE REGEX ".*/main\\.c$")
 
 # 启用测试
 enable_testing()

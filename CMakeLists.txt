@@ -75,26 +75,6 @@ else()
     message(STATUS "Unit tests disabled")
 endif()
 
-# 主程序
-add_executable(cspd-bsp
-    main.c
-)
-
-# 链接库
-target_link_libraries(cspd-bsp
-    osal
-    hal
-    service
-    apps
-    Threads::Threads
-    rt
-)
-
-# 安装规则
-install(TARGETS cspd-bsp
-    RUNTIME DESTINATION bin
-)
-
 # 打印配置信息
 message(STATUS "")
 message(STATUS "========================================")
