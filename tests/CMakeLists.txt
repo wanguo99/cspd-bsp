@@ -87,6 +87,39 @@ target_link_libraries(test_os_mutex
 )
 add_test(NAME test_os_mutex COMMAND test_os_mutex)
 
+# 测试：文件I/O
+add_executable(test_os_file
+    osal/test_os_file.c
+    ${OSAL_SOURCES}
+)
+target_link_libraries(test_os_file
+    Threads::Threads
+    rt
+)
+add_test(NAME test_os_file COMMAND test_os_file)
+
+# 测试：网络通信
+add_executable(test_os_network
+    osal/test_os_network.c
+    ${OSAL_SOURCES}
+)
+target_link_libraries(test_os_network
+    Threads::Threads
+    rt
+)
+add_test(NAME test_os_network COMMAND test_os_network)
+
+# 测试：信号处理
+add_executable(test_os_signal
+    osal/test_os_signal.c
+    ${OSAL_SOURCES}
+)
+target_link_libraries(test_os_signal
+    Threads::Threads
+    rt
+)
+add_test(NAME test_os_signal COMMAND test_os_signal)
+
 # ============================================
 # HAL层测试
 # ============================================
@@ -161,7 +194,7 @@ add_test(NAME test_protocol_converter COMMAND test_protocol_converter)
 
 # 创建测试套件分组
 add_custom_target(osal_tests
-    DEPENDS test_os_task test_os_queue test_os_mutex
+    DEPENDS test_os_task test_os_queue test_os_mutex test_os_file test_os_network test_os_signal
     COMMENT "Building OSAL layer tests"
 )
 
@@ -239,7 +272,7 @@ endif()
 # ============================================
 
 install(TARGETS
-    test_os_task test_os_queue test_os_mutex
+    test_os_task test_os_queue test_os_mutex test_os_file test_os_network test_os_signal
     test_hal_can
     test_payload_service
     test_can_gateway test_protocol_converter
@@ -256,8 +289,8 @@ message(STATUS "========================================")
 message(STATUS "  CSPD-BSP Unit Tests Configuration")
 message(STATUS "========================================")
 message(STATUS "  Test framework: Custom (test_framework.h)")
-message(STATUS "  Total tests: 65")
-message(STATUS "    - OSAL tests: 37 (task, queue, mutex)")
+message(STATUS "  Total tests: 95")
+message(STATUS "    - OSAL tests: 67 (task, queue, mutex, file, network, signal)")
 message(STATUS "    - HAL tests: 10 (CAN driver)")
 message(STATUS "    - Service tests: 10 (payload service)")
 message(STATUS "    - Apps tests: 18 (CAN gateway, protocol converter)")

@@ -1,10 +1,5 @@
 /************************************************************************
- * OSAL Linux/POSIX实现 - 消息队列（优化版）
- *
- * 修复内容：
- * 1. 修复线程安全问题：使用引用计数保护对象
- * 2. 添加对象生命周期管理
- * 3. 改进错误处理
+ * OSAL Linux/POSIX实现 - 消息队列
  ************************************************************************/
 
 #include "osal.h"
@@ -13,10 +8,9 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <time.h>
-#include <stdatomic.h>
 
 /*
- * 环形缓冲区消息队列实现
+ * 简化的消息队列实现(使用环形缓冲区)
  */
 typedef struct
 {
@@ -29,8 +23,6 @@ typedef struct
     pthread_mutex_t mutex;
     pthread_cond_t  not_empty;
     pthread_cond_t  not_full;
-    atomic_int      ref_count;  /* 引用计数 */
-    bool            valid;      /* 有效标志 */
 } queue_impl_t;
 
 typedef struct
@@ -54,48 +46,6 @@ void OS_QueueTableInit(void)
     memset(OS_queue_table, 0, sizeof(OS_queue_table));
     next_queue_id = 1;
     pthread_mutex_unlock(&queue_table_mutex);
-}
-
-/*
- * 增加引用计数（必须在持有table锁时调用）
- */
-static queue_impl_t* queue_acquire(osal_id_t queue_id)
-{
-    for (uint32 i = 0; i < OS_MAX_QUEUES; i++)
-    {
-        if (OS_queue_table[i].is_used &&
-            OS_queue_table[i].id == queue_id &&
-            OS_queue_table[i].impl != NULL)
-        {
-            queue_impl_t *impl = OS_queue_table[i].impl;
-            if (impl->valid)
-            {
-                atomic_fetch_add(&impl->ref_count, 1);
-                return impl;
-            }
-        }
-    }
-    return NULL;
-}
-
-/*
- * 减少引用计数并在必要时释放资源
- */
-static void queue_release(queue_impl_t *impl)
-{
-    if (impl == NULL) return;
-
-    int old_count = atomic_fetch_sub(&impl->ref_count, 1);
-
-    /* 如果引用计数降为0且对象已标记为无效，则释放资源 */
-    if (old_count == 1 && !impl->valid)
-    {
-        pthread_mutex_destroy(&impl->mutex);
-        pthread_cond_destroy(&impl->not_empty);
-        pthread_cond_destroy(&impl->not_full);
-        free(impl->buffer);
-        free(impl);
-    }
 }
 
 static int32 find_free_queue_slot(uint32 *slot)
@@ -126,7 +76,6 @@ int32 OS_QueueCreate(osal_id_t *queue_id,
     int32 ret;
     queue_impl_t *impl;
 
-    /* 参数检查 */
     if (queue_id == NULL)
         return OS_INVALID_POINTER;
 
@@ -134,10 +83,6 @@ int32 OS_QueueCreate(osal_id_t *queue_id,
         return OS_ERR_NAME_TOO_LONG;
 
     if (queue_depth == 0 || data_size == 0)
-        return OS_QUEUE_INVALID_SIZE;
-
-    /* 限制队列深度和消息大小，防止过度内存分配 */
-    if (queue_depth > 10000 || data_size > 65536)
         return OS_QUEUE_INVALID_SIZE;
 
     ret = find_free_queue_slot(&slot);
@@ -164,8 +109,6 @@ int32 OS_QueueCreate(osal_id_t *queue_id,
         return OS_ERROR;
     }
 
-    memset(impl, 0, sizeof(queue_impl_t));
-
     impl->buffer = malloc(queue_depth * data_size);
     if (impl->buffer == NULL)
     {
@@ -179,9 +122,6 @@ int32 OS_QueueCreate(osal_id_t *queue_id,
     impl->count = 0;
     impl->depth = queue_depth;
     impl->msg_size = data_size;
-    atomic_init(&impl->ref_count, 1);  /* 初始引用计数为1 */
-    impl->valid = true;
-
     pthread_mutex_init(&impl->mutex, NULL);
     pthread_cond_init(&impl->not_empty, NULL);
     pthread_cond_init(&impl->not_full, NULL);
@@ -190,7 +130,6 @@ int32 OS_QueueCreate(osal_id_t *queue_id,
     OS_queue_table[slot].is_used = true;
     OS_queue_table[slot].id = next_queue_id++;
     strncpy(OS_queue_table[slot].name, queue_name, OS_MAX_API_NAME - 1);
-    OS_queue_table[slot].name[OS_MAX_API_NAME - 1] = '\0';
     OS_queue_table[slot].impl = impl;
 
     *queue_id = OS_queue_table[slot].id;
@@ -202,95 +141,72 @@ int32 OS_QueueCreate(osal_id_t *queue_id,
 
 int32 OS_QueueDelete(osal_id_t queue_id)
 {
-    queue_impl_t *impl = NULL;
-
     pthread_mutex_lock(&queue_table_mutex);
 
     for (uint32 i = 0; i < OS_MAX_QUEUES; i++)
     {
         if (OS_queue_table[i].is_used && OS_queue_table[i].id == queue_id)
         {
-            impl = OS_queue_table[i].impl;
+            queue_impl_t *impl = OS_queue_table[i].impl;
+
+            pthread_mutex_destroy(&impl->mutex);
+            pthread_cond_destroy(&impl->not_empty);
+            pthread_cond_destroy(&impl->not_full);
+            free(impl->buffer);
+            free(impl);
+
             OS_queue_table[i].is_used = false;
-            OS_queue_table[i].impl = NULL;
-            break;
+            pthread_mutex_unlock(&queue_table_mutex);
+            return OS_SUCCESS;
         }
     }
 
     pthread_mutex_unlock(&queue_table_mutex);
-
-    if (impl == NULL)
-        return OS_ERR_INVALID_ID;
-
-    /* 标记为无效并唤醒所有等待线程 */
-    pthread_mutex_lock(&impl->mutex);
-    impl->valid = false;
-    pthread_cond_broadcast(&impl->not_empty);
-    pthread_cond_broadcast(&impl->not_full);
-    pthread_mutex_unlock(&impl->mutex);
-
-    /* 释放初始引用 */
-    queue_release(impl);
-
-    return OS_SUCCESS;
+    return OS_ERR_INVALID_ID;
 }
 
 int32 OS_QueuePut(osal_id_t queue_id, const void *data, uint32 size, uint32 flags __attribute__((unused)))
 {
     queue_impl_t *impl = NULL;
-    int32 result = OS_SUCCESS;
 
     if (data == NULL)
         return OS_INVALID_POINTER;
 
-    /* 获取队列并增加引用计数 */
+    /* 查找队列 */
     pthread_mutex_lock(&queue_table_mutex);
-    impl = queue_acquire(queue_id);
+    for (uint32 i = 0; i < OS_MAX_QUEUES; i++)
+    {
+        if (OS_queue_table[i].is_used && OS_queue_table[i].id == queue_id)
+        {
+            impl = OS_queue_table[i].impl;
+            break;
+        }
+    }
     pthread_mutex_unlock(&queue_table_mutex);
 
     if (impl == NULL)
         return OS_ERR_INVALID_ID;
 
     if (size > impl->msg_size)
-    {
-        queue_release(impl);
         return OS_QUEUE_INVALID_SIZE;
-    }
 
     pthread_mutex_lock(&impl->mutex);
 
-    /* 检查队列是否仍然有效 */
-    if (!impl->valid)
-    {
-        pthread_mutex_unlock(&impl->mutex);
-        queue_release(impl);
-        return OS_ERR_INVALID_ID;
-    }
-
     /* 等待队列非满 */
-    while (impl->count >= impl->depth && impl->valid)
+    while (impl->count >= impl->depth)
     {
         pthread_cond_wait(&impl->not_full, &impl->mutex);
     }
 
-    /* 再次检查有效性 */
-    if (!impl->valid)
-    {
-        result = OS_ERR_INVALID_ID;
-    }
-    else
-    {
-        /* 写入消息 */
-        memcpy(impl->buffer + (impl->tail * impl->msg_size), data, size);
-        impl->tail = (impl->tail + 1) % impl->depth;
-        impl->count++;
-        pthread_cond_signal(&impl->not_empty);
-    }
+    /* 写入消息 */
+    memcpy(impl->buffer + (impl->tail * impl->msg_size), data, size);
+    impl->tail = (impl->tail + 1) % impl->depth;
+    impl->count++;
 
+    pthread_cond_signal(&impl->not_empty);
     pthread_mutex_unlock(&impl->mutex);
-    queue_release(impl);
 
-    return result;
+    return OS_SUCCESS;
 }
 
 int32 OS_QueueGet(osal_id_t queue_id, void *data, uint32 size,
@@ -299,14 +215,20 @@ int32 OS_QueueGet(osal_id_t queue_id, void *data, uint32 size,
     queue_impl_t *impl = NULL;
     struct timespec ts;
     int ret;
-    int32 result = OS_SUCCESS;
 
     if (data == NULL)
         return OS_INVALID_POINTER;
 
-    /* 获取队列并增加引用计数 */
+    /* 查找队列 */
     pthread_mutex_lock(&queue_table_mutex);
-    impl = queue_acquire(queue_id);
+    for (uint32 i = 0; i < OS_MAX_QUEUES; i++)
+    {
+        if (OS_queue_table[i].is_used && OS_queue_table[i].id == queue_id)
+        {
+            impl = OS_queue_table[i].impl;
+            break;
+        }
+    }
     pthread_mutex_unlock(&queue_table_mutex);
 
     if (impl == NULL)
@@ -314,21 +236,14 @@ int32 OS_QueueGet(osal_id_t queue_id, void *data, uint32 size,
 
     pthread_mutex_lock(&impl->mutex);
 
-    /* 检查队列是否仍然有效 */
-    if (!impl->valid)
-    {
-        pthread_mutex_unlock(&impl->mutex);
-        queue_release(impl);
-        return OS_ERR_INVALID_ID;
-    }
-
     /* 处理超时 */
     if (timeout == OS_CHECK)
     {
         /* 非阻塞 */
         if (impl->count == 0)
         {
-            result = OS_QUEUE_EMPTY;
+            pthread_mutex_unlock(&impl->mutex);
+            return OS_QUEUE_EMPTY;
         }
     }
     else if (timeout > 0)
@@ -343,49 +258,38 @@ int32 OS_QueueGet(osal_id_t queue_id, void *data, uint32 size,
             ts.tv_nsec -= 1000000000;
         }
 
-        while (impl->count == 0 && impl->valid)
+        while (impl->count == 0)
         {
             ret = pthread_cond_timedwait(&impl->not_empty, &impl->mutex, &ts);
             if (ret == ETIMEDOUT)
             {
-                result = OS_QUEUE_TIMEOUT;
-                break;
+                pthread_mutex_unlock(&impl->mutex);
+                return OS_QUEUE_TIMEOUT;
             }
         }
-
-        if (!impl->valid)
-            result = OS_ERR_INVALID_ID;
     }
     else
     {
         /* 永久等待 */
-        while (impl->count == 0 && impl->valid)
+        while (impl->count == 0)
         {
             pthread_cond_wait(&impl->not_empty, &impl->mutex);
         }
-
-        if (!impl->valid)
-            result = OS_ERR_INVALID_ID;
     }
 
     /* 读取消息 */
-    if (result == OS_SUCCESS && impl->count > 0)
-    {
-        uint32 copy_size = (size < impl->msg_size) ? size : impl->msg_size;
-        memcpy(data, impl->buffer + (impl->head * impl->msg_size), copy_size);
-        impl->head = (impl->head + 1) % impl->depth;
-        impl->count--;
+    uint32 copy_size = (size < impl->msg_size) ? size : impl->msg_size;
+    memcpy(data, impl->buffer + (impl->head * impl->msg_size), copy_size);
+    impl->head = (impl->head + 1) % impl->depth;
+    impl->count--;
 
-        if (size_copied != NULL)
-            *size_copied = copy_size;
+    if (size_copied != NULL)
+        *size_copied = copy_size;
 
-        pthread_cond_signal(&impl->not_full);
-    }
-
+    pthread_cond_signal(&impl->not_full);
     pthread_mutex_unlock(&impl->mutex);
-    queue_release(impl);
 
-    return result;
+    return OS_SUCCESS;
 }
 
 int32 OS_QueueGetIdByName(osal_id_t *queue_id, const char *queue_name)
