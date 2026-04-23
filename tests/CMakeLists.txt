@@ -49,8 +49,8 @@ file(GLOB APPS_PROTOCOL_SOURCES ${CSPD_BSP_ROOT}/apps/protocol_converter/*.c)
 list(FILTER APPS_PROTOCOL_SOURCES EXCLUDE REGEX ".*_fixed\\.c$")
 list(FILTER APPS_PROTOCOL_SOURCES EXCLUDE REGEX ".*/main\\.c$")
 
-# 启用测试
-enable_testing()
+# 注释掉 CTest，我们使用自定义测试框架
+# enable_testing()
 
 # ============================================
 # 统一测试入口
@@ -86,7 +86,9 @@ target_link_libraries(unit-test
     Threads::Threads
     rt
 )
-add_test(NAME unit_test_suite COMMAND unit-test -a)
+
+# 注释掉 CTest 集成，我们使用自定义测试框架
+# add_test(NAME unit_test_suite COMMAND unit-test -a)
 
 # ============================================
 # OSAL层测试（独立可执行文件，保留向后兼容）
@@ -289,7 +291,8 @@ message(STATUS "    make unit-test     - Build unit-test")
 message(STATUS "")
 message(STATUS "  Run targets:")
 message(STATUS "    make run_tests     - Build and run all tests")
-message(STATUS "    ctest              - Run tests with CTest")
+message(STATUS "")
+message(STATUS "  Note: CTest is disabled. Use ./target/bin/unit-test directly")
 if(ENABLE_COVERAGE)
 message(STATUS "")
 message(STATUS "  Coverage:")

@@ -214,14 +214,14 @@ fi
 if [ $RUN_TEST -eq 1 ]; then
     if [ $BUILD_TESTING -eq 1 ]; then
         print_info "运行测试..."
-        ctest --output-on-failure
+        ../target/bin/unit-test -a
 
         # 如果启用了覆盖率，生成报告
         if [ $ENABLE_COVERAGE -eq 1 ]; then
             print_info "生成覆盖率报告..."
             make coverage
             if [ $? -eq 0 ]; then
-                print_info "覆盖率报告已生成: $OUTPUT_DIR/coverage_html/index.html"
+                print_info "覆盖率报告已生成: $OUTPUT_DIR/build/coverage_html/index.html"
             fi
         fi
     else
@@ -257,7 +257,6 @@ if [ $BUILD_TESTING -eq 1 ]; then
     print_info "运行测试:"
     print_info "  ./$OUTPUT_DIR/target/bin/unit-test -a    # 运行所有测试"
     print_info "  ./$OUTPUT_DIR/target/bin/unit-test -i    # 交互式菜单"
-    print_info "  或: cd $OUTPUT_DIR/build && ctest --output-on-failure"
 fi
 if [ $ENABLE_COVERAGE -eq 1 ]; then
     print_info ""
