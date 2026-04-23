@@ -45,10 +45,19 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -D_POSIX_C_SOURCE=200809L")
 set(CMAKE_C_FLAGS_DEBUG "-g -O0")
 set(CMAKE_C_FLAGS_RELEASE "-O2")
 
-# 设置输出目录
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+# 设置输出目录 - 参考buildroot设计
+# CMAKE_BINARY_DIR 就是 output/build/
+# 编译中间文件放在当前目录（output/build/）
+# 目标产物放在 ../target/ 目录
+set(OUTPUT_BUILD ${CMAKE_BINARY_DIR})
+set(OUTPUT_TARGET ${CMAKE_BINARY_DIR}/../target)
+
+# CMake中间文件目录（当前构建目录）
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_BUILD}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_BUILD}/lib)
+
+# 最终目标产物目录
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_TARGET}/bin)
 
 # 包含目录
 include_directories(
@@ -75,6 +84,18 @@ else()
     message(STATUS "Unit tests disabled")
 endif()
 
+# 创建输出目录结构
+file(MAKE_DIRECTORY ${OUTPUT_BUILD}/lib)
+file(MAKE_DIRECTORY ${OUTPUT_TARGET}/bin)
+file(MAKE_DIRECTORY ${OUTPUT_TARGET}/lib)
+
+# 复制最终库文件到target/lib（构建后执行）
+add_custom_target(copy_libs ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${OUTPUT_BUILD}/lib ${OUTPUT_TARGET}/lib
+    COMMENT "Copying libraries to target directory"
+    DEPENDS osal hal service can_gateway_lib protocol_converter_lib
+)
+
 # 打印配置信息
 message(STATUS "")
 message(STATUS "========================================")
@@ -86,6 +107,8 @@ message(STATUS "  Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "  C Compiler: ${CMAKE_C_COMPILER}")
 message(STATUS "  C Flags: ${CMAKE_C_FLAGS}")
 message(STATUS "  Install prefix: ${CMAKE_INSTALL_PREFIX}")
+message(STATUS "  Build directory: ${OUTPUT_BUILD}")
+message(STATUS "  Target directory: ${OUTPUT_TARGET}")
 if(BUILD_TESTING)
 message(STATUS "  Unit tests: Enabled")
 else()

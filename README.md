@@ -43,7 +43,7 @@ sudo apt-get install build-essential cmake can-utils
 ./build.sh
 
 # 或手动使用CMake
-mkdir build && cd build
+mkdir output && cd output
 cmake ..
 make -j$(nproc)
 ```
@@ -79,7 +79,9 @@ ip -details link show can0
 ### 6. 运行
 
 ```bash
-sudo ./build/bin/cspd-bsp
+sudo ./output/target/bin/can_gateway
+# 或
+sudo ./output/target/bin/protocol_converter
 ```
 
 ## 目录结构

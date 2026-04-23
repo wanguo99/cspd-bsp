@@ -72,7 +72,7 @@ BUILD_TESTING=1
 ENABLE_COVERAGE=0
 INSTALL=0
 INSTALL_PREFIX="/usr/local"
-BUILD_DIR="build"
+OUTPUT_DIR="output"
 BUILD_TARGET="all"
 
 # 解析命令行参数
@@ -142,22 +142,28 @@ case $PLATFORM in
         ;;
 esac
 
-# 清理构建目录
+# 清理输出目录
 if [ $CLEAN -eq 1 ]; then
-    print_info "清理构建目录..."
-    rm -rf "$BUILD_DIR"
+    print_info "清理输出目录..."
+    rm -rf "$OUTPUT_DIR"
     print_info "清理完成！"
     exit 0
 fi
 
-# 创建构建目录
-if [ ! -d "$BUILD_DIR" ]; then
-    print_info "创建构建目录: $BUILD_DIR"
-    mkdir -p "$BUILD_DIR"
+# 创建输出目录
+if [ ! -d "$OUTPUT_DIR" ]; then
+    print_info "创建输出目录: $OUTPUT_DIR"
+    mkdir -p "$OUTPUT_DIR"
 fi
 
-# 进入构建目录
-cd "$BUILD_DIR"
+# 创建build子目录用于CMake构建
+BUILD_SUBDIR="$OUTPUT_DIR/build"
+if [ ! -d "$BUILD_SUBDIR" ]; then
+    mkdir -p "$BUILD_SUBDIR"
+fi
+
+# 进入build子目录
+cd "$BUILD_SUBDIR"
 
 # 运行CMake配置
 print_info "运行CMake配置 (平台: $PLATFORM, 构建类型: $BUILD_TYPE)..."
@@ -174,7 +180,7 @@ if [ $ENABLE_COVERAGE -eq 1 ]; then
     print_info "代码覆盖率已启用"
 fi
 
-cmake .. "${CMAKE_ARGS[@]}"
+cmake ../.. "${CMAKE_ARGS[@]}"
 
 # 编译
 print_info "开始编译..."
@@ -190,12 +196,13 @@ fi
 if [ $? -eq 0 ]; then
     print_info "编译成功！"
     if [ "$BUILD_TARGET" = "all" ]; then
-        print_info "应用程序: $BUILD_DIR/bin/"
-        print_info "库文件: $BUILD_DIR/lib/"
+        print_info "目标产物: $OUTPUT_DIR/target/"
+        print_info "  应用程序: $OUTPUT_DIR/target/bin/"
+        print_info "  库文件:   $OUTPUT_DIR/target/lib/"
     else
         print_info "目标 $BUILD_TARGET 构建完成"
         if [ "$BUILD_TARGET" = "can_gateway" ] || [ "$BUILD_TARGET" = "protocol_converter" ]; then
-            print_info "可执行文件: $BUILD_DIR/bin/$BUILD_TARGET"
+            print_info "可执行文件: $OUTPUT_DIR/target/bin/$BUILD_TARGET"
         fi
     fi
 else
@@ -214,7 +221,7 @@ if [ $RUN_TEST -eq 1 ]; then
             print_info "生成覆盖率报告..."
             make coverage
             if [ $? -eq 0 ]; then
-                print_info "覆盖率报告已生成: $BUILD_DIR/coverage_html/index.html"
+                print_info "覆盖率报告已生成: $OUTPUT_DIR/coverage_html/index.html"
             fi
         fi
     else
@@ -230,22 +237,27 @@ if [ $INSTALL -eq 1 ]; then
 fi
 
 # 返回项目根目录
-cd ..
+cd ../..
 
 print_info "构建完成！"
 print_info ""
 if [ "$BUILD_TARGET" = "all" ]; then
-    print_info "应用程序:"
-    print_info "  ./$BUILD_DIR/bin/can_gateway"
-    print_info "  ./$BUILD_DIR/bin/protocol_converter"
+    print_info "输出目录结构:"
+    print_info "  编译文件: $OUTPUT_DIR/build/"
+    print_info "  目标产物: $OUTPUT_DIR/target/"
+    print_info "    - 应用程序: target/bin/"
+    print_info "    - 库文件:   target/lib/"
     print_info ""
-    print_info "库文件: $BUILD_DIR/lib/"
+    print_info "运行应用:"
+    print_info "  ./$OUTPUT_DIR/target/bin/can_gateway"
+    print_info "  ./$OUTPUT_DIR/target/bin/protocol_converter"
 fi
 if [ $BUILD_TESTING -eq 1 ]; then
     print_info ""
     print_info "运行测试:"
-    print_info "  cd $BUILD_DIR && ctest --output-on-failure"
-    print_info "  或: cd $BUILD_DIR && make run_tests"
+    print_info "  ./$OUTPUT_DIR/target/bin/unit-test -a    # 运行所有测试"
+    print_info "  ./$OUTPUT_DIR/target/bin/unit-test -i    # 交互式菜单"
+    print_info "  或: cd $OUTPUT_DIR/build && ctest --output-on-failure"
 fi
 if [ $ENABLE_COVERAGE -eq 1 ]; then
     print_info ""

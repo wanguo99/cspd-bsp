@@ -63,9 +63,9 @@ static const char *current_test_name __attribute__((unused)) = NULL;
     do { \
         current_test_name = #test_func; \
         test_total++; \
-        printf("[ RUN      ] %s\n", current_test_name); \
+        printf("[ RUN      ] %s\n", current_test_name ? current_test_name : "Unknown"); \
         test_func(); \
-        printf(COLOR_GREEN "[       OK ] %s\n" COLOR_RESET, current_test_name); \
+        printf(COLOR_GREEN "[       OK ] %s\n" COLOR_RESET, current_test_name ? current_test_name : "Unknown"); \
         test_passed++; \
     } while(0)
 
@@ -162,14 +162,14 @@ static const char *current_test_name __attribute__((unused)) = NULL;
 /* 忽略测试 */
 #define TEST_IGNORE() \
     do { \
-        printf(COLOR_YELLOW "[ IGNORED  ] %s\n" COLOR_RESET, current_test_name); \
+        printf(COLOR_YELLOW "[ IGNORED  ] %s\n" COLOR_RESET, current_test_name ? current_test_name : "Unknown"); \
         test_total--; \
         return; \
     } while(0)
 
 #define TEST_IGNORE_MESSAGE(msg) \
     do { \
-        printf(COLOR_YELLOW "[ IGNORED  ] %s: %s\n" COLOR_RESET, current_test_name, msg); \
+        printf(COLOR_YELLOW "[ IGNORED  ] %s: %s\n" COLOR_RESET, current_test_name ? current_test_name : "Unknown", msg); \
         test_total--; \
         return; \
     } while(0)

@@ -54,8 +54,8 @@ dkms.conf
 # debug information files
 *.dwo
 
-# claude 
+# claude
 .claude/
 
-# build
-build
+# 构建输出目录（参考buildroot设计）
+output/

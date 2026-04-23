@@ -204,10 +204,10 @@ add_custom_target(all_tests
 
 # 运行所有测试（使用统一入口）
 add_custom_target(run_tests
-    COMMAND ./bin/unit-test -a
+    COMMAND ${OUTPUT_TARGET}/bin/unit-test -a
     DEPENDS unit-test
     COMMENT "Running all unit tests"
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    WORKING_DIRECTORY ${OUTPUT_BUILD}
 )
 
 # ============================================
@@ -237,13 +237,13 @@ if(ENABLE_COVERAGE)
             COMMAND ${GENHTML_PATH} -o coverage_html coverage.info.cleaned
 
             DEPENDS all_tests
-            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+            WORKING_DIRECTORY ${OUTPUT_BUILD}
             COMMENT "Generating code coverage report"
         )
 
         message(STATUS "Code coverage target 'coverage' available")
         message(STATUS "  Run: make coverage")
-        message(STATUS "  Report: ${CMAKE_BINARY_DIR}/coverage_html/index.html")
+        message(STATUS "  Report: ${OUTPUT_BUILD}/coverage_html/index.html")
     else()
         message(STATUS "lcov/genhtml not found. Coverage target not available.")
         message(STATUS "  Install: sudo apt-get install lcov")
@@ -256,7 +256,7 @@ endif()
 
 install(TARGETS
     unit-test
-    RUNTIME DESTINATION tests
+    RUNTIME DESTINATION ${OUTPUT_TARGET}/bin
     OPTIONAL
 )
 
@@ -275,13 +275,13 @@ message(STATUS "    - HAL tests: 1 module (CAN driver)")
 message(STATUS "    - Service tests: 1 module (payload service)")
 message(STATUS "    - Apps tests: 2 modules (CAN gateway, protocol converter)")
 message(STATUS "")
-message(STATUS "  Unified test entry: ./bin/unit-test")
-message(STATUS "    ./bin/unit-test -i          - Interactive menu")
-message(STATUS "    ./bin/unit-test -a          - Run all tests")
-message(STATUS "    ./bin/unit-test -l          - List all tests")
-message(STATUS "    ./bin/unit-test -L OSAL     - Run OSAL layer tests")
-message(STATUS "    ./bin/unit-test -m <module> - Run module tests")
-message(STATUS "    ./bin/unit-test -t <module> <test> - Run single test")
+message(STATUS "  Unified test entry: ./target/bin/unit-test")
+message(STATUS "    ./target/bin/unit-test -i          - Interactive menu")
+message(STATUS "    ./target/bin/unit-test -a          - Run all tests")
+message(STATUS "    ./target/bin/unit-test -l          - List all tests")
+message(STATUS "    ./target/bin/unit-test -L OSAL     - Run OSAL layer tests")
+message(STATUS "    ./target/bin/unit-test -m <module> - Run module tests")
+message(STATUS "    ./target/bin/unit-test -t <module> <test> - Run single test")
 message(STATUS "")
 message(STATUS "  Build targets:")
 message(STATUS "    make all_tests     - Build unit-test")

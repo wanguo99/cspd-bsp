@@ -297,7 +297,9 @@ void interactive_menu(void)
         }
 
         printf("\nPress Enter to continue...");
-        fgets(input, sizeof(input), stdin);
+        if (fgets(input, sizeof(input), stdin) == NULL) {
+            /* 忽略输入错误 */
+        }
     }
 }
 

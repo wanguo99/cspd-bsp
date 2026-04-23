@@ -78,9 +78,9 @@ target_link_libraries(protocol_converter
 
 target_compile_options(protocol_converter PRIVATE -Wall -Wextra)
 
-# 安装规则
+# 安装规则 - 安装到target/bin
 install(TARGETS can_gateway protocol_converter
-    RUNTIME DESTINATION bin
+    RUNTIME DESTINATION ${OUTPUT_TARGET}/bin
 )
 
 message(STATUS "Apps module configured: can_gateway, protocol_converter")
