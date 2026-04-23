@@ -3,6 +3,9 @@
  ************************************************************************/
 
 #include "../test_framework.h"
+#ifndef STANDALONE_TEST
+#include "../test_runner.h"
+#endif
 #include "osal.h"
 #include <string.h>
 #include <unistd.h>
@@ -12,13 +15,13 @@
 #define TEST_DATA "Hello OSAL Network"
 
 /* 测试前初始化 */
-void setUp(void)
+__attribute__((unused)) static void setUp(void)
 {
     OS_API_Init();
 }
 
 /* 测试后清理 */
-void tearDown(void)
+__attribute__((unused)) static void tearDown(void)
 {
     OS_API_Teardown();
 }
@@ -220,7 +223,23 @@ void test_OS_SocketConnect_Timeout(void)
     tearDown();
 }
 
-/* 主测试运行器 */
+/* 模块注册 */
+#include "../test_runner.h"
+
+TEST_MODULE_BEGIN(test_os_network)
+    TEST_CASE(test_OS_SocketOpen_Close_Success)
+    TEST_CASE(test_OS_SocketOpen_UDP_Success)
+    TEST_CASE(test_OS_SocketBind_Success)
+    TEST_CASE(test_OS_SocketListen_Success)
+    TEST_CASE(test_OS_SocketSetOpt_Success)
+    TEST_CASE(test_OS_SocketSendTo_RecvFrom_Success)
+    TEST_CASE(test_OS_SocketOpen_InvalidParams)
+    TEST_CASE(test_OS_SocketClose_InvalidID)
+    TEST_CASE(test_OS_SocketConnect_Timeout)
+TEST_MODULE_END(test_os_network)
+
+/* 独立运行时的主函数 */
+#ifdef STANDALONE_TEST
 int main(void)
 {
     TEST_BEGIN();
@@ -237,3 +256,4 @@ int main(void)
 
     return TEST_END();
 }
+#endif

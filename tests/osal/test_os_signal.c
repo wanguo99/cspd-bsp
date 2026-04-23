@@ -3,6 +3,9 @@
  ************************************************************************/
 
 #include "../test_framework.h"
+#ifndef STANDALONE_TEST
+#include "../test_runner.h"
+#endif
 #include "osal.h"
 #include <unistd.h>
 #include <signal.h>
@@ -18,7 +21,7 @@ static void test_signal_handler(int32 signum)
 }
 
 /* 测试前初始化 */
-void setUp(void)
+__attribute__((unused)) static void setUp(void)
 {
     OS_API_Init();
     g_signal_received = 0;
@@ -26,7 +29,7 @@ void setUp(void)
 }
 
 /* 测试后清理 */
-void tearDown(void)
+__attribute__((unused)) static void tearDown(void)
 {
     /* 恢复默认信号处理 */
     OS_SignalIgnore(OS_SIGNAL_INT);
@@ -173,7 +176,20 @@ void test_OS_SignalRegister_InvalidParams(void)
     tearDown();
 }
 
-/* 主测试运行器 */
+/* 模块注册 */
+#include "../test_runner.h"
+
+TEST_MODULE_BEGIN(test_os_signal)
+    TEST_CASE(test_OS_SignalRegister_Success)
+    TEST_CASE(test_OS_SignalIgnore_Success)
+    TEST_CASE(test_OS_SignalBlock_Success)
+    TEST_CASE(test_OS_SignalDefault_Success)
+    TEST_CASE(test_OS_SignalRegister_Multiple)
+    TEST_CASE(test_OS_SignalRegister_InvalidParams)
+TEST_MODULE_END(test_os_signal)
+
+/* 独立运行时的主函数 */
+#ifdef STANDALONE_TEST
 int main(void)
 {
     TEST_BEGIN();
@@ -187,3 +203,4 @@ int main(void)
 
     return TEST_END();
 }
+#endif

@@ -3,6 +3,9 @@
  ************************************************************************/
 
 #include "../test_framework.h"
+#ifndef STANDALONE_TEST
+#include "../test_runner.h"
+#endif
 #include "osal.h"
 #include <unistd.h>
 
@@ -17,13 +20,13 @@ static void test_task_func(void *arg)
 }
 
 /* 测试前初始化 */
-void setUp(void)
+__attribute__((unused)) static void setUp(void)
 {
     OS_API_Init();
 }
 
 /* 测试后清理 */
-void tearDown(void)
+__attribute__((unused)) static void tearDown(void)
 {
     OS_API_Teardown();
 }
@@ -202,7 +205,27 @@ void test_OS_TaskGetInfo_Success(void)
     OS_TaskDelete(task_id);
 }
 
-/* 主测试运行器 */
+/* 模块注册 */
+#include "../test_runner.h"
+
+TEST_MODULE_BEGIN(test_os_task)
+    TEST_CASE(test_OS_TaskCreate_Success)
+    TEST_CASE(test_OS_TaskCreate_NullPointer)
+    TEST_CASE(test_OS_TaskCreate_NameTooLong)
+    TEST_CASE(test_OS_TaskCreate_InvalidPriority)
+    TEST_CASE(test_OS_TaskCreate_NameTaken)
+    TEST_CASE(test_OS_TaskDelete_Success)
+    TEST_CASE(test_OS_TaskDelete_InvalidId)
+    TEST_CASE(test_OS_TaskDelay_Success)
+    TEST_CASE(test_OS_TaskGetId_Success)
+    TEST_CASE(test_OS_TaskGetIdByName_Success)
+    TEST_CASE(test_OS_TaskGetIdByName_NotFound)
+    TEST_CASE(test_OS_TaskSetPriority_Success)
+    TEST_CASE(test_OS_TaskGetInfo_Success)
+TEST_MODULE_END(test_os_task)
+
+/* 独立运行时的主函数 */
+#ifdef STANDALONE_TEST
 int main(void)
 {
     TEST_BEGIN();
@@ -223,3 +246,4 @@ int main(void)
 
     TEST_END();
 }
+#endif

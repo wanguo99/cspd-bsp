@@ -10,10 +10,10 @@
 #include <stdlib.h>
 
 /* 测试统计 */
-static int test_total = 0;
-static int test_passed = 0;
-static int test_failed = 0;
-static const char *current_test_name = NULL;
+static int test_total __attribute__((unused)) = 0;
+static int test_passed __attribute__((unused)) = 0;
+static int test_failed __attribute__((unused)) = 0;
+static const char *current_test_name __attribute__((unused)) = NULL;
 
 /* 颜色定义 */
 #define COLOR_RED     "\033[0;31m"

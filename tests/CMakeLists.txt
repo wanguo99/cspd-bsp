@@ -51,7 +51,35 @@ list(FILTER APPS_PROTOCOL_SOURCES EXCLUDE REGEX ".*_fixed\\.c$")
 enable_testing()
 
 # ============================================
-# OSAL层测试
+# 统一测试入口
+# ============================================
+
+# 测试运行器库
+add_library(test_runner STATIC
+    test_runner.c
+)
+target_include_directories(test_runner PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+# 统一测试主程序
+add_executable(test_main
+    osal/test_main.c
+    osal/test_os_task.c
+    osal/test_os_queue.c
+    osal/test_os_mutex.c
+    osal/test_os_file.c
+    osal/test_os_network.c
+    osal/test_os_signal.c
+    ${OSAL_SOURCES}
+)
+target_link_libraries(test_main
+    test_runner
+    Threads::Threads
+    rt
+)
+add_test(NAME test_main_all COMMAND test_main -a)
+
+# ============================================
+# OSAL层测试（独立可执行文件，保留向后兼容）
 # ============================================
 
 # 测试：任务管理
@@ -59,6 +87,7 @@ add_executable(test_os_task
     osal/test_os_task.c
     ${OSAL_SOURCES}
 )
+target_compile_definitions(test_os_task PRIVATE STANDALONE_TEST)
 target_link_libraries(test_os_task
     Threads::Threads
     rt
@@ -70,6 +99,7 @@ add_executable(test_os_queue
     osal/test_os_queue.c
     ${OSAL_SOURCES}
 )
+target_compile_definitions(test_os_queue PRIVATE STANDALONE_TEST)
 target_link_libraries(test_os_queue
     Threads::Threads
     rt
@@ -81,6 +111,7 @@ add_executable(test_os_mutex
     osal/test_os_mutex.c
     ${OSAL_SOURCES}
 )
+target_compile_definitions(test_os_mutex PRIVATE STANDALONE_TEST)
 target_link_libraries(test_os_mutex
     Threads::Threads
     rt
@@ -92,6 +123,7 @@ add_executable(test_os_file
     osal/test_os_file.c
     ${OSAL_SOURCES}
 )
+target_compile_definitions(test_os_file PRIVATE STANDALONE_TEST)
 target_link_libraries(test_os_file
     Threads::Threads
     rt
@@ -103,6 +135,7 @@ add_executable(test_os_network
     osal/test_os_network.c
     ${OSAL_SOURCES}
 )
+target_compile_definitions(test_os_network PRIVATE STANDALONE_TEST)
 target_link_libraries(test_os_network
     Threads::Threads
     rt
@@ -114,6 +147,7 @@ add_executable(test_os_signal
     osal/test_os_signal.c
     ${OSAL_SOURCES}
 )
+target_compile_definitions(test_os_signal PRIVATE STANDALONE_TEST)
 target_link_libraries(test_os_signal
     Threads::Threads
     rt
@@ -288,15 +322,23 @@ message(STATUS "")
 message(STATUS "========================================")
 message(STATUS "  CSPD-BSP Unit Tests Configuration")
 message(STATUS "========================================")
-message(STATUS "  Test framework: Custom (test_framework.h)")
-message(STATUS "  Total tests: 95")
+message(STATUS "  Test framework: Custom (test_framework.h + test_runner.h)")
+message(STATUS "  Total tests: 67")
 message(STATUS "    - OSAL tests: 67 (task, queue, mutex, file, network, signal)")
 message(STATUS "    - HAL tests: 10 (CAN driver)")
 message(STATUS "    - Service tests: 10 (payload service)")
 message(STATUS "    - Apps tests: 18 (CAN gateway, protocol converter)")
 message(STATUS "")
+message(STATUS "  Unified test entry:")
+message(STATUS "    ./test_main -i          - Interactive menu")
+message(STATUS "    ./test_main -a          - Run all tests")
+message(STATUS "    ./test_main -l          - List all modules")
+message(STATUS "    ./test_main -m <module> - Run module tests")
+message(STATUS "    ./test_main -t <module> <test> - Run single test")
+message(STATUS "")
 message(STATUS "  Build targets:")
 message(STATUS "    make all_tests     - Build all tests")
+message(STATUS "    make test_main     - Build unified test entry")
 message(STATUS "    make osal_tests    - Build OSAL tests")
 message(STATUS "    make hal_tests     - Build HAL tests")
 message(STATUS "    make service_tests - Build Service tests")

@@ -3,17 +3,20 @@
  ************************************************************************/
 
 #include "../test_framework.h"
+#ifndef STANDALONE_TEST
+#include "../test_runner.h"
+#endif
 #include "osal.h"
 #include <string.h>
 
 /* 测试前初始化 */
-void setUp(void)
+__attribute__((unused)) static void setUp(void)
 {
     OS_API_Init();
 }
 
 /* 测试后清理 */
-void tearDown(void)
+__attribute__((unused)) static void tearDown(void)
 {
     OS_API_Teardown();
 }
@@ -218,7 +221,27 @@ void test_OS_QueueDelete_InvalidId(void)
     TEST_ASSERT_EQUAL(OS_ERR_INVALID_ID, ret);
 }
 
-/* 主测试运行器 */
+/* 模块注册 */
+#include "../test_runner.h"
+
+TEST_MODULE_BEGIN(test_os_queue)
+    TEST_CASE(test_OS_QueueCreate_Success)
+    TEST_CASE(test_OS_QueueCreate_NullPointer)
+    TEST_CASE(test_OS_QueueCreate_InvalidSize)
+    TEST_CASE(test_OS_QueueCreate_NameTaken)
+    TEST_CASE(test_OS_QueuePutGet_Success)
+    TEST_CASE(test_OS_QueueGet_Empty)
+    TEST_CASE(test_OS_QueueGet_Timeout)
+    TEST_CASE(test_OS_QueuePut_Full)
+    TEST_CASE(test_OS_QueuePutGet_Multiple)
+    TEST_CASE(test_OS_QueueGetIdByName_Success)
+    TEST_CASE(test_OS_QueueGetIdByName_NotFound)
+    TEST_CASE(test_OS_QueueDelete_Success)
+    TEST_CASE(test_OS_QueueDelete_InvalidId)
+TEST_MODULE_END(test_os_queue)
+
+/* 独立运行时的主函数 */
+#ifdef STANDALONE_TEST
 int main(void)
 {
     TEST_BEGIN();
@@ -239,3 +262,4 @@ int main(void)
 
     TEST_END();
 }
+#endif

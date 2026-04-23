@@ -3,20 +3,23 @@
  ************************************************************************/
 
 #include "../test_framework.h"
+#ifndef STANDALONE_TEST
+#include "../test_runner.h"
+#endif
 #include "osal.h"
 #include <pthread.h>
 
 static int shared_counter = 0;
 
 /* 测试前初始化 */
-void setUp(void)
+__attribute__((unused)) static void setUp(void)
 {
     OS_API_Init();
     shared_counter = 0;
 }
 
 /* 测试后清理 */
-void tearDown(void)
+__attribute__((unused)) static void tearDown(void)
 {
     OS_API_Teardown();
 }
@@ -161,7 +164,25 @@ void test_OS_Mutex_ProtectSharedResource(void)
     OS_MutexDelete(mutex_id);
 }
 
-/* 主测试运行器 */
+/* 模块注册 */
+#include "../test_runner.h"
+
+TEST_MODULE_BEGIN(test_os_mutex)
+    TEST_CASE(test_OS_MutexCreate_Success)
+    TEST_CASE(test_OS_MutexCreate_NullPointer)
+    TEST_CASE(test_OS_MutexCreate_NameTaken)
+    TEST_CASE(test_OS_MutexLockUnlock_Success)
+    TEST_CASE(test_OS_MutexLock_InvalidId)
+    TEST_CASE(test_OS_MutexUnlock_InvalidId)
+    TEST_CASE(test_OS_MutexGetIdByName_Success)
+    TEST_CASE(test_OS_MutexGetIdByName_NotFound)
+    TEST_CASE(test_OS_MutexDelete_Success)
+    TEST_CASE(test_OS_MutexDelete_InvalidId)
+    TEST_CASE(test_OS_Mutex_ProtectSharedResource)
+TEST_MODULE_END(test_os_mutex)
+
+/* 独立运行时的主函数 */
+#ifdef STANDALONE_TEST
 int main(void)
 {
     TEST_BEGIN();
@@ -180,3 +201,4 @@ int main(void)
 
     TEST_END();
 }
+#endif

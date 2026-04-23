@@ -3,6 +3,9 @@
  ************************************************************************/
 
 #include "../test_framework.h"
+#ifndef STANDALONE_TEST
+#include "../test_runner.h"
+#endif
 #include "osal.h"
 #include <unistd.h>
 #include <string.h>
@@ -11,7 +14,7 @@
 #define TEST_DATA "Hello OSAL File I/O"
 
 /* 测试前初始化 */
-void setUp(void)
+__attribute__((unused)) static void setUp(void)
 {
     OS_API_Init();
     /* 清理可能存在的测试文件 */
@@ -19,7 +22,7 @@ void setUp(void)
 }
 
 /* 测试后清理 */
-void tearDown(void)
+__attribute__((unused)) static void tearDown(void)
 {
     unlink(TEST_FILE_PATH);
     OS_API_Teardown();
@@ -173,7 +176,20 @@ void test_OS_FileClose_InvalidID(void)
     tearDown();
 }
 
-/* 主测试运行器 */
+/* 模块注册 */
+#include "../test_runner.h"
+
+TEST_MODULE_BEGIN(test_os_file)
+    TEST_CASE(test_OS_FileOpen_Close_Success)
+    TEST_CASE(test_OS_FileWrite_Read_Success)
+    TEST_CASE(test_OS_FileSeek_Success)
+    TEST_CASE(test_OS_FileSetFlags_Success)
+    TEST_CASE(test_OS_FileOpen_InvalidParams)
+    TEST_CASE(test_OS_FileClose_InvalidID)
+TEST_MODULE_END(test_os_file)
+
+/* 独立运行时的主函数 */
+#ifdef STANDALONE_TEST
 int main(void)
 {
     TEST_BEGIN();
@@ -187,3 +203,4 @@ int main(void)
 
     return TEST_END();
 }
+#endif
