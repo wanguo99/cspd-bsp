@@ -10,6 +10,9 @@ set(OSAL_SOURCES
     linux/os_error.c
     linux/os_init.c
     linux/os_log.c
+    linux/os_file.c
+    linux/os_network.c
+    linux/os_signal.c
 )
 
 # 创建OSAL静态库

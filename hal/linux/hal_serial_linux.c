@@ -104,13 +104,13 @@ int32 HAL_Serial_Open(const char *device, const hal_serial_config_t *config, hal
     }
 
     /* 配置波特率 */
-    speed = get_baudrate(config->baudrate);
+    speed = get_baudrate(config->baud_rate);
     cfsetispeed(&tty, speed);
     cfsetospeed(&tty, speed);
 
     /* 配置数据位 */
     tty.c_cflag &= ~CSIZE;
-    if (config->databits == 7)
+    if (config->data_bits == 7)
     {
         tty.c_cflag |= CS7;
     }
@@ -120,7 +120,7 @@ int32 HAL_Serial_Open(const char *device, const hal_serial_config_t *config, hal
     }
 
     /* 配置停止位 */
-    if (config->stopbits == 2)
+    if (config->stop_bits == 2)
     {
         tty.c_cflag |= CSTOPB;
     }
@@ -183,7 +183,7 @@ int32 HAL_Serial_Open(const char *device, const hal_serial_config_t *config, hal
     *handle = (hal_serial_handle_t)ctx;
 
     OS_printf("[HAL_Serial] Opened %s (baudrate=%u, databits=%u, stopbits=%u, parity=%u)\n",
-              device, config->baudrate, config->databits, config->stopbits, config->parity);
+              device, config->baud_rate, config->data_bits, config->stop_bits, config->parity);
 
     return OS_SUCCESS;
 }
@@ -219,7 +219,7 @@ int32 HAL_Serial_Write(hal_serial_handle_t handle, const void *buffer, uint32 si
     fd_set writefds;
     struct timeval tv;
     int ret;
-    ssize_t written;
+    int32 written;
 
     if (ctx == NULL || buffer == NULL)
     {
@@ -272,7 +272,7 @@ int32 HAL_Serial_Read(hal_serial_handle_t handle, void *buffer, uint32 size, int
     fd_set readfds;
     struct timeval tv;
     int ret;
-    ssize_t nread;
+    int32 nread;
 
     if (ctx == NULL || buffer == NULL)
     {

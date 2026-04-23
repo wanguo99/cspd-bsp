@@ -84,11 +84,11 @@ int32 PayloadBMC_Init(const bmc_payload_config_t *config,
     /* 初始化串口通道 */
     if (config->serial.enabled) {
         hal_serial_config_t serial_cfg = {
-            .baudrate = config->serial.baudrate,
-            .databits = 8,
-            .stopbits = 1,
+            .baud_rate = config->serial.baudrate,
+            .data_bits = 8,
+            .stop_bits = 1,
             .parity = HAL_SERIAL_PARITY_NONE,
-            .timeout_ms = config->serial.timeout_ms
+            .flow_control = HAL_SERIAL_FLOW_NONE
         };
 
         ret = HAL_Serial_Open(config->serial.device, &serial_cfg, &ctx->serial_handle);

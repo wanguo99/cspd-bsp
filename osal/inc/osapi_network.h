@@ -13,6 +13,12 @@
 #define OS_SOCK_STREAM  1  /* TCP */
 #define OS_SOCK_DGRAM   2  /* UDP */
 
+/*
+ * Socket协议族
+ */
+#define OS_SOCK_DOMAIN_INET   1  /* IPv4 */
+#define OS_SOCK_DOMAIN_INET6  2  /* IPv6 */
+
 /**
  * @brief 创建Socket
  *
@@ -147,5 +153,76 @@ int32 OS_SocketSendTo(osal_id_t sock_id, const void *buffer, uint32 size,
  */
 int32 OS_SocketRecvFrom(osal_id_t sock_id, void *buffer, uint32 size,
                         char *addr, uint16 *port, int32 timeout);
+
+/*
+ * Socket选项级别
+ */
+#define OS_SOL_SOCKET       1  /* SOL_SOCKET */
+#define OS_SOL_TCP          6  /* IPPROTO_TCP */
+#define OS_SOL_IP           0  /* IPPROTO_IP */
+
+/*
+ * Socket选项名称
+ */
+#define OS_SO_REUSEADDR     0x0001  /* SO_REUSEADDR */
+#define OS_SO_KEEPALIVE     0x0002  /* SO_KEEPALIVE */
+#define OS_SO_RCVTIMEO      0x0003  /* SO_RCVTIMEO */
+#define OS_SO_SNDTIMEO      0x0004  /* SO_SNDTIMEO */
+#define OS_SO_RCVBUF        0x0005  /* SO_RCVBUF */
+#define OS_SO_SNDBUF        0x0006  /* SO_SNDBUF */
+#define OS_SO_ERROR         0x0007  /* SO_ERROR */
+#define OS_TCP_NODELAY      0x0101  /* TCP_NODELAY */
+
+/**
+ * @brief 设置Socket选项
+ *
+ * @param[in] sock_id Socket ID
+ * @param[in] level   选项级别 (OS_SOL_*)
+ * @param[in] optname 选项名称 (OS_SO_* 或 OS_TCP_*)
+ * @param[in] optval  选项值指针
+ * @param[in] optlen  选项值长度
+ *
+ * @return OS_SUCCESS 成功
+ * @return OS_ERR_INVALID_ID 无效的Socket ID
+ * @return OS_INVALID_POINTER optval为NULL
+ * @return OS_ERROR 设置失败
+ */
+int32 OS_SocketSetOpt(osal_id_t sock_id, uint32 level, uint32 optname,
+                      const void *optval, uint32 optlen);
+
+/**
+ * @brief 获取Socket选项
+ *
+ * @param[in]    sock_id Socket ID
+ * @param[in]    level   选项级别 (OS_SOL_*)
+ * @param[in]    optname 选项名称 (OS_SO_* 或 OS_TCP_*)
+ * @param[out]   optval  选项值指针
+ * @param[inout] optlen  输入时为缓冲区大小，输出时为实际长度
+ *
+ * @return OS_SUCCESS 成功
+ * @return OS_ERR_INVALID_ID 无效的Socket ID
+ * @return OS_INVALID_POINTER optval或optlen为NULL
+ * @return OS_ERROR 获取失败
+ */
+int32 OS_SocketGetOpt(osal_id_t sock_id, uint32 level, uint32 optname,
+                      void *optval, uint32 *optlen);
+
+/**
+ * @brief 等待Socket I/O就绪
+ *
+ * @param[in]    socks      Socket ID数组
+ * @param[in]    nsocks     Socket数量
+ * @param[inout] read_set   可读集合 (位掩码，输入时设置要检查的socket，输出时返回就绪的socket)
+ * @param[inout] write_set  可写集合 (位掩码)
+ * @param[inout] error_set  错误集合 (位掩码)
+ * @param[in]    timeout_ms 超时时间(毫秒), OS_PEND表示阻塞, 0表示立即返回
+ *
+ * @return 就绪的Socket数量(>=0)
+ * @return OS_ERROR_TIMEOUT 超时
+ * @return OS_ERROR select失败
+ */
+int32 OS_SocketSelect(const osal_id_t *socks, uint32 nsocks,
+                      uint32 *read_set, uint32 *write_set, uint32 *error_set,
+                      int32 timeout_ms);
 
 #endif /* OSAPI_NETWORK_H */

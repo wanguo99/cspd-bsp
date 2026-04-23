@@ -22,6 +22,8 @@
 #include "osapi_network.h"
 #include "osapi_heap.h"
 #include "osapi_log.h"
+#include "osapi_file.h"
+#include "osapi_signal.h"
 
 /*
  * OSAL版本信息
