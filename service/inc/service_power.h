@@ -12,7 +12,7 @@
 #ifndef SERVICE_POWER_H
 #define SERVICE_POWER_H
 
-#include "common_types.h"
+#include "osa_types.h"
 
 /*
  * 电源管理服务句柄

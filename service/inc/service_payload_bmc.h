@@ -11,7 +11,7 @@
 #ifndef SERVICE_PAYLOAD_BMC_H
 #define SERVICE_PAYLOAD_BMC_H
 
-#include "common_types.h"
+#include "osa_types.h"
 
 /*
  * BMC载荷服务句柄

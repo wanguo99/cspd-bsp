@@ -13,7 +13,7 @@
 #ifndef OSAL_H
 #define OSAL_H
 
-#include "common_types.h"
+#include "osa_types.h"
 #include "osapi_error.h"
 #include "osapi_task.h"
 #include "osapi_queue.h"

@@ -11,7 +11,7 @@
 #ifndef WATCHDOG_H
 #define WATCHDOG_H
 
-#include "common_types.h"
+#include "osa_types.h"
 
 /*
  * 看门狗配置

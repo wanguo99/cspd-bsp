@@ -5,7 +5,7 @@
 #ifndef OSAPI_FILE_H
 #define OSAPI_FILE_H
 
-#include "common_types.h"
+#include "osa_types.h"
 
 /*
  * 文件打开标志

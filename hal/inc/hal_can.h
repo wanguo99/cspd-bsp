@@ -7,7 +7,7 @@
 #ifndef HAL_CAN_H
 #define HAL_CAN_H
 
-#include "common_types.h"
+#include "osa_types.h"
 #include "can_protocol.h"
 
 /*

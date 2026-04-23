@@ -5,7 +5,7 @@
 #ifndef OSAPI_MUTEX_H
 #define OSAPI_MUTEX_H
 
-#include "common_types.h"
+#include "osa_types.h"
 
 /**
  * @brief 创建互斥锁

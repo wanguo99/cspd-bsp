@@ -7,7 +7,7 @@
 #ifndef CAN_PROTOCOL_H
 #define CAN_PROTOCOL_H
 
-#include "common_types.h"
+#include "osa_types.h"
 
 /*
  * ============================================================================

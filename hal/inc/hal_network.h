@@ -7,7 +7,7 @@
 #ifndef HAL_NETWORK_H
 #define HAL_NETWORK_H
 
-#include "common_types.h"
+#include "osa_types.h"
 
 /*
  * 网络协议类型

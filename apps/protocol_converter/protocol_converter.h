@@ -5,7 +5,7 @@
 #ifndef PROTOCOL_CONVERTER_H
 #define PROTOCOL_CONVERTER_H
 
-#include "common_types.h"
+#include "osa_types.h"
 #include "payload_service.h"
 
 /**

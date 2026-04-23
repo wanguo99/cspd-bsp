@@ -11,7 +11,7 @@
 #ifndef SERVICE_PAYLOAD_LINUX_H
 #define SERVICE_PAYLOAD_LINUX_H
 
-#include "common_types.h"
+#include "osa_types.h"
 
 /*
  * Linux载荷服务句柄

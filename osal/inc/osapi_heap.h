@@ -5,7 +5,7 @@
 #ifndef OSAPI_HEAP_H
 #define OSAPI_HEAP_H
 
-#include "common_types.h"
+#include "osa_types.h"
 
 /**
  * @brief 获取堆内存信息

@@ -5,7 +5,7 @@
 #ifndef OSAPI_TASK_H
 #define OSAPI_TASK_H
 
-#include "common_types.h"
+#include "osa_types.h"
 
 /*
  * 任务入口函数类型

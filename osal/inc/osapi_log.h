@@ -5,7 +5,7 @@
 #ifndef OSAPI_LOG_H
 #define OSAPI_LOG_H
 
-#include "common_types.h"
+#include "osa_types.h"
 
 /*
  * 日志级别

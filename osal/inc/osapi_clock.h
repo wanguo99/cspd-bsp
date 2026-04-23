@@ -5,7 +5,7 @@
 #ifndef OSAPI_CLOCK_H
 #define OSAPI_CLOCK_H
 
-#include "common_types.h"
+#include "osa_types.h"
 
 /*
  * 时间结构

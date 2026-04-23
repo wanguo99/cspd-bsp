@@ -5,7 +5,7 @@
 #ifndef CAN_GATEWAY_H
 #define CAN_GATEWAY_H
 
-#include "common_types.h"
+#include "osa_types.h"
 #include "can_protocol.h"
 
 /**

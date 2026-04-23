@@ -5,7 +5,7 @@
 #ifndef OSAPI_QUEUE_H
 #define OSAPI_QUEUE_H
 
-#include "common_types.h"
+#include "osa_types.h"
 
 /**
  * @brief 创建消息队列

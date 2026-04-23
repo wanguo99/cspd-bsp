@@ -5,7 +5,7 @@
 #ifndef OSAPI_ERROR_H
 #define OSAPI_ERROR_H
 
-#include "common_types.h"
+#include "osa_types.h"
 
 /**
  * @brief 获取错误描述字符串

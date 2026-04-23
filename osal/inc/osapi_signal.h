@@ -5,7 +5,7 @@
 #ifndef OSAPI_SIGNAL_H
 #define OSAPI_SIGNAL_H
 
-#include "common_types.h"
+#include "osa_types.h"
 
 /*
  * 信号类型
