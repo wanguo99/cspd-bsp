@@ -14,12 +14,12 @@ void test_ProtocolConverter_Init_Success(void)
 
     int32 ret = Protocol_Converter_Init();
 
-    if (ret == OS_SUCCESS) {
-        TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
-    } else {
-        TEST_MESSAGE("Warning: Protocol Converter init failed, skipping test");
-        TEST_IGNORE();
+    if (ret != OS_SUCCESS) {
+        TEST_MESSAGE("Warning: Protocol Converter init failed, hardware not available");
     }
+
+    /* 无论成功或失败都进行断言，让测试真实反映结果 */
+    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     OS_API_Teardown();
 }
@@ -29,13 +29,16 @@ void test_ProtocolConverter_GetStats(void)
     OS_API_Init();
 
     int32 ret = Protocol_Converter_Init();
-    if (ret == OS_SUCCESS) {
-        uint32 cmd_count, success, fail, timeout;
-        Protocol_Converter_GetStats(&cmd_count, &success, &fail, &timeout);
-        TEST_ASSERT_EQUAL(0, cmd_count);
-    } else {
-        TEST_IGNORE();
+
+    if (ret != OS_SUCCESS) {
+        TEST_MESSAGE("Warning: Protocol Converter init failed, hardware not available");
     }
+
+    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+
+    uint32 cmd_count, success, fail, timeout;
+    Protocol_Converter_GetStats(&cmd_count, &success, &fail, &timeout);
+    TEST_ASSERT_EQUAL(0, cmd_count);
 
     OS_API_Teardown();
 }

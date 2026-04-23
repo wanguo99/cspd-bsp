@@ -25,13 +25,13 @@ void test_HAL_CAN_Init_Success(void)
 
     int32 ret = HAL_CAN_Init(&config, &test_handle);
 
-    if (ret == OS_SUCCESS) {
-        TEST_ASSERT_NOT_NULL(test_handle);
-        HAL_CAN_Deinit(test_handle);
-    } else {
-        TEST_MESSAGE("Warning: vcan0 not available, skipping test");
-        TEST_IGNORE();
+    if (ret != OS_SUCCESS) {
+        TEST_MESSAGE("Warning: vcan0 not available, test will fail");
     }
+
+    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_NULL(test_handle);
+    HAL_CAN_Deinit(test_handle);
 
     OS_API_Teardown();
 }

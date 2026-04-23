@@ -8,22 +8,30 @@
 /* 全局测试统计 */
 test_stats_t g_test_stats = {0, 0, 0};
 
+/* 测试框架内部变量定义 */
+int test_total = 0;
+int test_passed = 0;
+int test_failed = 0;
+const char *current_test_name = NULL;
+
 /* 运行单个测试用例 */
 void run_test_case(const char *module_name, const test_case_t *test)
 {
     printf("\n[RUN ] %s::%s\n", module_name, test->name);
 
+    /* 设置当前测试名称 */
+    current_test_name = test->name;
+
     /* 重置测试框架统计 */
-    extern int test_failed;
     int before_failed = test_failed;
 
     /* 运行测试 */
     test->func();
 
     /* 检查测试结果 */
-    int test_passed = (test_failed == before_failed);
+    int test_passed_flag = (test_failed == before_failed);
 
-    if (test_passed) {
+    if (test_passed_flag) {
         printf("[PASS] %s::%s\n", module_name, test->name);
         g_test_stats.passed++;
     } else {

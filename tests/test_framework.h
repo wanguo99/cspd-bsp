@@ -9,11 +9,11 @@
 #include <string.h>
 #include <stdlib.h>
 
-/* 测试统计 */
-static int test_total __attribute__((unused)) = 0;
-static int test_passed __attribute__((unused)) = 0;
-static int test_failed __attribute__((unused)) = 0;
-static const char *current_test_name __attribute__((unused)) = NULL;
+/* 测试统计 - 声明为extern，在test_runner.c中定义 */
+extern int test_total;
+extern int test_passed;
+extern int test_failed;
+extern const char *current_test_name;
 
 /* 颜色定义 */
 #define COLOR_RED     "\033[0;31m"
@@ -47,12 +47,12 @@ static const char *current_test_name __attribute__((unused)) = NULL;
     ({ \
         printf("\n========================================\n"); \
         printf("Test Results:\n"); \
-        printf("  Total:  %d\n", test_total); \
-        printf("  " COLOR_GREEN "Passed: %d" COLOR_RESET "\n", test_passed); \
+        printf("  Total:   %d\n", test_total); \
+        printf("  " COLOR_GREEN "Passed:  %d" COLOR_RESET "\n", test_passed); \
         if (test_failed > 0) { \
-            printf("  " COLOR_RED "Failed: %d" COLOR_RESET "\n", test_failed); \
+            printf("  " COLOR_RED "Failed:  %d" COLOR_RESET "\n", test_failed); \
         } else { \
-            printf("  Failed: %d\n", test_failed); \
+            printf("  Failed:  %d\n", test_failed); \
         } \
         printf("========================================\n"); \
         (test_failed == 0) ? 0 : 1; \
@@ -158,20 +158,5 @@ static const char *current_test_name __attribute__((unused)) = NULL;
 /* 测试消息 */
 #define TEST_MESSAGE(msg) \
     printf(COLOR_YELLOW "[  INFO    ] %s\n" COLOR_RESET, msg)
-
-/* 忽略测试 */
-#define TEST_IGNORE() \
-    do { \
-        printf(COLOR_YELLOW "[ IGNORED  ] %s\n" COLOR_RESET, current_test_name ? current_test_name : "Unknown"); \
-        test_total--; \
-        return; \
-    } while(0)
-
-#define TEST_IGNORE_MESSAGE(msg) \
-    do { \
-        printf(COLOR_YELLOW "[ IGNORED  ] %s: %s\n" COLOR_RESET, current_test_name ? current_test_name : "Unknown", msg); \
-        test_total--; \
-        return; \
-    } while(0)
 
 #endif /* TEST_FRAMEWORK_H */

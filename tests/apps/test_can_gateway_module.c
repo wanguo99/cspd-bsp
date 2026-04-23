@@ -14,12 +14,11 @@ void test_CANGateway_Init_Success(void)
 
     int32 ret = CAN_Gateway_Init();
 
-    if (ret == OS_SUCCESS) {
-        TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
-    } else {
-        TEST_MESSAGE("Warning: CAN Gateway init failed, skipping test");
-        TEST_IGNORE();
+    if (ret != OS_SUCCESS) {
+        TEST_MESSAGE("Warning: CAN Gateway init failed, hardware not available");
     }
+
+    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     OS_API_Teardown();
 }
@@ -29,12 +28,15 @@ void test_CANGateway_GetRxQueue(void)
     OS_API_Init();
 
     int32 ret = CAN_Gateway_Init();
-    if (ret == OS_SUCCESS) {
-        osal_id_t queue_id = CAN_Gateway_GetRxQueue();
-        TEST_ASSERT_NOT_EQUAL(0, queue_id);
-    } else {
-        TEST_IGNORE();
+
+    if (ret != OS_SUCCESS) {
+        TEST_MESSAGE("Warning: CAN Gateway init failed, hardware not available");
     }
+
+    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+
+    osal_id_t queue_id = CAN_Gateway_GetRxQueue();
+    TEST_ASSERT_NOT_EQUAL(0, queue_id);
 
     OS_API_Teardown();
 }
@@ -44,12 +46,15 @@ void test_CANGateway_GetTxQueue(void)
     OS_API_Init();
 
     int32 ret = CAN_Gateway_Init();
-    if (ret == OS_SUCCESS) {
-        osal_id_t queue_id = CAN_Gateway_GetTxQueue();
-        TEST_ASSERT_NOT_EQUAL(0, queue_id);
-    } else {
-        TEST_IGNORE();
+
+    if (ret != OS_SUCCESS) {
+        TEST_MESSAGE("Warning: CAN Gateway init failed, hardware not available");
     }
+
+    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+
+    osal_id_t queue_id = CAN_Gateway_GetTxQueue();
+    TEST_ASSERT_NOT_EQUAL(0, queue_id);
 
     OS_API_Teardown();
 }

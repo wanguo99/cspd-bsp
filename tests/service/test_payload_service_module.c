@@ -114,10 +114,12 @@ void test_PayloadService_Init_Success(void)
     g_mock_server.server_running = true;
 
     /* 启动模拟服务器 */
-    if (pthread_create(&server_thread, NULL, mock_tcp_server_thread, NULL) != 0) {
-        TEST_MESSAGE("无法创建模拟服务器，跳过测试");
+    int thread_ret = pthread_create(&server_thread, NULL, mock_tcp_server_thread, NULL);
+    if (thread_ret != 0) {
+        TEST_MESSAGE("无法创建模拟服务器，测试将失败");
         OS_API_Teardown();
-        TEST_IGNORE();
+        TEST_ASSERT_EQUAL(0, thread_ret);
+        return;
     }
 
     /* 等待服务器就绪 */
@@ -130,9 +132,10 @@ void test_PayloadService_Init_Success(void)
     if (!g_mock_server.server_ready) {
         g_mock_server.server_running = false;
         pthread_join(server_thread, NULL);
-        TEST_MESSAGE("模拟服务器启动失败，跳过测试");
+        TEST_MESSAGE("模拟服务器启动失败，测试将失败");
         OS_API_Teardown();
-        TEST_IGNORE();
+        TEST_ASSERT_TRUE(g_mock_server.server_ready);
+        return;
     }
 
     /* 配置使用模拟服务器 */
@@ -153,7 +156,12 @@ void test_PayloadService_Init_Success(void)
 
     int32 ret = PayloadService_Init(&config, &test_handle);
 
-    if (ret == OS_SUCCESS) {
+    if (ret != OS_SUCCESS) {
+        /* 停止模拟服务器 */
+        g_mock_server.server_running = false;
+        pthread_join(server_thread, NULL);
+        TEST_MESSAGE("载荷服务初始化失败");
+    } else {
         TEST_ASSERT_NOT_NULL(test_handle);
         TEST_ASSERT_TRUE(PayloadService_IsConnected(test_handle));
 
@@ -162,15 +170,9 @@ void test_PayloadService_Init_Success(void)
 
         /* 等待服务器线程结束 */
         pthread_join(server_thread, NULL);
-    } else {
-        /* 停止模拟服务器 */
-        g_mock_server.server_running = false;
-        pthread_join(server_thread, NULL);
-
-        TEST_MESSAGE("载荷服务初始化失败（可能是环境问题）");
-        OS_API_Teardown();
-        TEST_IGNORE();
     }
+
+    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     OS_API_Teardown();
 }
