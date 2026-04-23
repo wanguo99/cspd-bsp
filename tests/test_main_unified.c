@@ -10,6 +10,41 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <termios.h>
+#include <unistd.h>
+
+/* 设置终端为非缓冲模式 */
+void set_terminal_mode(int enable)
+{
+    static struct termios old_term, new_term;
+
+    if (enable) {
+        tcgetattr(STDIN_FILENO, &old_term);
+        new_term = old_term;
+        new_term.c_lflag &= ~(ICANON | ECHO);
+        tcsetattr(STDIN_FILENO, TCSANOW, &new_term);
+    } else {
+        tcsetattr(STDIN_FILENO, TCSANOW, &old_term);
+    }
+}
+
+/* 等待用户按键 */
+void wait_for_key(void)
+{
+    printf("\nPress 'q' to quit, or any other key to continue...");
+    fflush(stdout);
+
+    set_terminal_mode(1);
+    int ch = getchar();
+    set_terminal_mode(0);
+
+    printf("\n");
+
+    if (ch == 'q' || ch == 'Q') {
+        printf("Exiting...\n");
+        exit(0);
+    }
+}
 
 /* 外部测试模块声明 - OSAL层 */
 extern const test_module_t test_os_file;
@@ -217,10 +252,16 @@ void interactive_menu(void)
         printf("8. List all tests\n");
         printf("0. Exit\n");
         printf("========================================\n");
-        printf("Enter your choice: ");
+        printf("Enter your choice (or 'q' to quit): ");
 
         if (fgets(input, sizeof(input), stdin) == NULL) {
             break;
+        }
+
+        /* 检查是否输入q退出 */
+        if (input[0] == 'q' || input[0] == 'Q') {
+            printf("\nExiting...\n");
+            return;
         }
 
         choice = atoi(input);
@@ -296,10 +337,7 @@ void interactive_menu(void)
                 break;
         }
 
-        printf("\nPress Enter to continue...");
-        if (fgets(input, sizeof(input), stdin) == NULL) {
-            /* 忽略输入错误 */
-        }
+        wait_for_key();
     }
 }
 
