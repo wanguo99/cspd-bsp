@@ -6,7 +6,7 @@
 #include "test_framework.h"
 
 /* 全局测试统计 */
-test_stats_t g_test_stats = {0, 0, 0};
+test_stats_t g_test_stats = {0};
 
 /* 测试框架内部变量定义 */
 int test_total = 0;
@@ -36,6 +36,16 @@ void run_test_case(const char *module_name, const test_case_t *test)
         g_test_stats.passed++;
     } else {
         printf("[FAIL] %s::%s\n", module_name, test->name);
+
+        /* 记录失败的测试用例 */
+        if (g_test_stats.failed < MAX_FAILED_TESTS) {
+            snprintf(g_test_stats.failed_tests[g_test_stats.failed].module_name,
+                     sizeof(g_test_stats.failed_tests[g_test_stats.failed].module_name),
+                     "%s", module_name);
+            snprintf(g_test_stats.failed_tests[g_test_stats.failed].test_name,
+                     sizeof(g_test_stats.failed_tests[g_test_stats.failed].test_name),
+                     "%s", test->name);
+        }
         g_test_stats.failed++;
     }
     g_test_stats.total++;
@@ -88,6 +98,16 @@ void print_test_stats(void)
         printf("\n[SUCCESS] All tests passed!\n");
     } else {
         printf("\n[FAILURE] %u test(s) failed!\n", g_test_stats.failed);
+        printf("\nFailed Tests:\n");
+        uint32_t count = g_test_stats.failed < MAX_FAILED_TESTS ? g_test_stats.failed : MAX_FAILED_TESTS;
+        for (uint32_t i = 0; i < count; i++) {
+            printf("  %u. %s::%s\n", i + 1,
+                   g_test_stats.failed_tests[i].module_name,
+                   g_test_stats.failed_tests[i].test_name);
+        }
+        if (g_test_stats.failed > MAX_FAILED_TESTS) {
+            printf("  ... and %u more\n", g_test_stats.failed - MAX_FAILED_TESTS);
+        }
     }
     printf("========================================\n");
 }

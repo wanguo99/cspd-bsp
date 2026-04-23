@@ -29,11 +29,19 @@ typedef struct {
     uint32 test_count;            /* 测试用例数量 */
 } test_module_t;
 
+/* 失败测试用例记录 */
+#define MAX_FAILED_TESTS 256
+typedef struct {
+    char module_name[64];
+    char test_name[128];
+} failed_test_t;
+
 /* 测试统计 */
 typedef struct {
     uint32 total;
     uint32 passed;
     uint32 failed;
+    failed_test_t failed_tests[MAX_FAILED_TESTS];
 } test_stats_t;
 
 /* 全局测试统计 */
