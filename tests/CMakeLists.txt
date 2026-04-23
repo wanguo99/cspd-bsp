@@ -62,203 +62,150 @@ add_library(test_runner STATIC
 )
 target_include_directories(test_runner PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-# 统一测试主程序
-add_executable(test_main
-    osal/test_main.c
+# 统一测试主程序（唯一的测试可执行文件）
+add_executable(unit-test
+    test_main_unified.c
     osal/test_os_task.c
     osal/test_os_queue.c
     osal/test_os_mutex.c
     osal/test_os_file.c
     osal/test_os_network.c
     osal/test_os_signal.c
+    hal/test_hal_can_module.c
+    service/test_payload_service_module.c
+    apps/test_can_gateway_module.c
+    apps/test_protocol_converter_module.c
+    ${APPS_PROTOCOL_SOURCES}
+    ${APPS_GATEWAY_SOURCES}
+    ${SERVICE_SOURCES}
+    ${HAL_SOURCES}
     ${OSAL_SOURCES}
 )
-target_link_libraries(test_main
+target_link_libraries(unit-test
     test_runner
     Threads::Threads
     rt
 )
-add_test(NAME test_main_all COMMAND test_main -a)
+add_test(NAME unit_test_suite COMMAND unit-test -a)
 
 # ============================================
 # OSAL层测试（独立可执行文件，保留向后兼容）
 # ============================================
 
-# 测试：任务管理
-add_executable(test_os_task
-    osal/test_os_task.c
-    ${OSAL_SOURCES}
-)
-target_compile_definitions(test_os_task PRIVATE STANDALONE_TEST)
-target_link_libraries(test_os_task
-    Threads::Threads
-    rt
-)
-add_test(NAME test_os_task COMMAND test_os_task)
+# 注释掉所有独立测试可执行文件的构建
+# 只保留统一的 unit-test 入口
 
-# 测试：消息队列
-add_executable(test_os_queue
-    osal/test_os_queue.c
-    ${OSAL_SOURCES}
-)
-target_compile_definitions(test_os_queue PRIVATE STANDALONE_TEST)
-target_link_libraries(test_os_queue
-    Threads::Threads
-    rt
-)
-add_test(NAME test_os_queue COMMAND test_os_queue)
+# # 测试：任务管理
+# add_executable(test_os_task
+#     osal/test_os_task.c
+#     ${OSAL_SOURCES}
+# )
+# target_compile_definitions(test_os_task PRIVATE STANDALONE_TEST)
+# target_link_libraries(test_os_task
+#     Threads::Threads
+#     rt
+# )
+# add_test(NAME test_os_task COMMAND test_os_task)
 
-# 测试：互斥锁
-add_executable(test_os_mutex
-    osal/test_os_mutex.c
-    ${OSAL_SOURCES}
-)
-target_compile_definitions(test_os_mutex PRIVATE STANDALONE_TEST)
-target_link_libraries(test_os_mutex
-    Threads::Threads
-    rt
-)
-add_test(NAME test_os_mutex COMMAND test_os_mutex)
+# 注释掉其他独立测试
+# 只保留 unit-test 作为唯一入口
 
-# 测试：文件I/O
-add_executable(test_os_file
-    osal/test_os_file.c
-    ${OSAL_SOURCES}
-)
-target_compile_definitions(test_os_file PRIVATE STANDALONE_TEST)
-target_link_libraries(test_os_file
-    Threads::Threads
-    rt
-)
-add_test(NAME test_os_file COMMAND test_os_file)
-
-# 测试：网络通信
-add_executable(test_os_network
-    osal/test_os_network.c
-    ${OSAL_SOURCES}
-)
-target_compile_definitions(test_os_network PRIVATE STANDALONE_TEST)
-target_link_libraries(test_os_network
-    Threads::Threads
-    rt
-)
-add_test(NAME test_os_network COMMAND test_os_network)
-
-# 测试：信号处理
-add_executable(test_os_signal
-    osal/test_os_signal.c
-    ${OSAL_SOURCES}
-)
-target_compile_definitions(test_os_signal PRIVATE STANDALONE_TEST)
-target_link_libraries(test_os_signal
-    Threads::Threads
-    rt
-)
-add_test(NAME test_os_signal COMMAND test_os_signal)
+# # 测试：消息队列
+# add_executable(test_os_queue ...)
+# # 测试：互斥锁
+# add_executable(test_os_mutex ...)
+# # 测试：文件I/O
+# add_executable(test_os_file ...)
+# # 测试：网络通信
+# add_executable(test_os_network ...)
+# # 测试：信号处理
+# add_executable(test_os_signal ...)
 
 # ============================================
 # HAL层测试
 # ============================================
 
-# 测试：CAN驱动
-add_executable(test_hal_can
-    hal/test_hal_can.c
-    ${HAL_SOURCES}
-    ${OSAL_SOURCES}
-)
-target_link_libraries(test_hal_can
-    Threads::Threads
-    rt
-)
-add_test(NAME test_hal_can COMMAND test_hal_can)
+# 注释掉独立测试可执行文件
+# # 测试：CAN驱动
+# add_executable(test_hal_can
+#     hal/test_hal_can.c
+#     ${HAL_SOURCES}
+#     ${OSAL_SOURCES}
+# )
+# target_link_libraries(test_hal_can
+#     Threads::Threads
+#     rt
+# )
+# add_test(NAME test_hal_can COMMAND test_hal_can)
 
 # ============================================
 # Service层测试
 # ============================================
 
-# 测试：载荷服务
-add_executable(test_payload_service
-    service/test_payload_service.c
-    ${APPS_PROTOCOL_SOURCES}
-    ${APPS_GATEWAY_SOURCES}
-    ${SERVICE_SOURCES}
-    ${HAL_SOURCES}
-    ${OSAL_SOURCES}
-)
-target_link_libraries(test_payload_service
-    Threads::Threads
-    rt
-)
-add_test(NAME test_payload_service COMMAND test_payload_service)
+# 注释掉独立测试可执行文件
+# # 测试：载荷服务
+# add_executable(test_payload_service
+#     service/test_payload_service.c
+#     ${APPS_PROTOCOL_SOURCES}
+#     ${APPS_GATEWAY_SOURCES}
+#     ${SERVICE_SOURCES}
+#     ${HAL_SOURCES}
+#     ${OSAL_SOURCES}
+# )
+# target_link_libraries(test_payload_service
+#     Threads::Threads
+#     rt
+# )
+# add_test(NAME test_payload_service COMMAND test_payload_service)
 
 # ============================================
 # Apps层测试
 # ============================================
 
-# 测试：CAN网关
-add_executable(test_can_gateway
-    apps/test_can_gateway.c
-    ${APPS_GATEWAY_SOURCES}
-    ${SERVICE_SOURCES}
-    ${HAL_SOURCES}
-    ${OSAL_SOURCES}
-)
-target_link_libraries(test_can_gateway
-    Threads::Threads
-    rt
-)
-add_test(NAME test_can_gateway COMMAND test_can_gateway)
+# 注释掉独立测试可执行文件
+# # 测试：CAN网关
+# add_executable(test_can_gateway
+#     apps/test_can_gateway.c
+#     ${APPS_GATEWAY_SOURCES}
+#     ${SERVICE_SOURCES}
+#     ${HAL_SOURCES}
+#     ${OSAL_SOURCES}
+# )
+# target_link_libraries(test_can_gateway
+#     Threads::Threads
+#     rt
+# )
+# add_test(NAME test_can_gateway COMMAND test_can_gateway)
 
-# 测试：协议转换器
-add_executable(test_protocol_converter
-    apps/test_protocol_converter.c
-    ${APPS_PROTOCOL_SOURCES}
-    ${APPS_GATEWAY_SOURCES}
-    ${SERVICE_SOURCES}
-    ${HAL_SOURCES}
-    ${OSAL_SOURCES}
-)
-target_link_libraries(test_protocol_converter
-    Threads::Threads
-    rt
-)
-add_test(NAME test_protocol_converter COMMAND test_protocol_converter)
+# # 测试：协议转换器
+# add_executable(test_protocol_converter
+#     apps/test_protocol_converter.c
+#     ${APPS_PROTOCOL_SOURCES}
+#     ${APPS_GATEWAY_SOURCES}
+#     ${SERVICE_SOURCES}
+#     ${HAL_SOURCES}
+#     ${OSAL_SOURCES}
+# )
+# target_link_libraries(test_protocol_converter
+#     Threads::Threads
+#     rt
+# )
+# add_test(NAME test_protocol_converter COMMAND test_protocol_converter)
 
 # ============================================
 # 测试套件和目标
 # ============================================
 
-# 创建测试套件分组
-add_custom_target(osal_tests
-    DEPENDS test_os_task test_os_queue test_os_mutex test_os_file test_os_network test_os_signal
-    COMMENT "Building OSAL layer tests"
-)
-
-add_custom_target(hal_tests
-    DEPENDS test_hal_can
-    COMMENT "Building HAL layer tests"
-)
-
-add_custom_target(service_tests
-    DEPENDS test_payload_service
-    COMMENT "Building Service layer tests"
-)
-
-add_custom_target(apps_tests
-    DEPENDS test_can_gateway test_protocol_converter
-    COMMENT "Building Apps layer tests"
-)
-
-# 所有测试目标
+# 所有测试目标（只构建 unit-test）
 add_custom_target(all_tests
-    DEPENDS osal_tests hal_tests service_tests apps_tests
-    COMMENT "Building all tests"
+    DEPENDS unit-test
+    COMMENT "Building unified test suite"
 )
 
-# 运行所有测试
+# 运行所有测试（使用统一入口）
 add_custom_target(run_tests
-    COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
-    DEPENDS all_tests
+    COMMAND ./bin/unit-test -a
+    DEPENDS unit-test
     COMMENT "Running all unit tests"
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
@@ -308,10 +255,7 @@ endif()
 # ============================================
 
 install(TARGETS
-    test_os_task test_os_queue test_os_mutex test_os_file test_os_network test_os_signal
-    test_hal_can
-    test_payload_service
-    test_can_gateway test_protocol_converter
+    unit-test
     RUNTIME DESTINATION tests
     OPTIONAL
 )
@@ -325,31 +269,27 @@ message(STATUS "========================================")
 message(STATUS "  CSPD-BSP Unit Tests Configuration")
 message(STATUS "========================================")
 message(STATUS "  Test framework: Custom (test_framework.h + test_runner.h)")
-message(STATUS "  Total tests: 67")
-message(STATUS "    - OSAL tests: 67 (task, queue, mutex, file, network, signal)")
-message(STATUS "    - HAL tests: 10 (CAN driver)")
-message(STATUS "    - Service tests: 10 (payload service)")
-message(STATUS "    - Apps tests: 18 (CAN gateway, protocol converter)")
+message(STATUS "  Total test modules: 10")
+message(STATUS "    - OSAL tests: 6 modules (task, queue, mutex, file, network, signal)")
+message(STATUS "    - HAL tests: 1 module (CAN driver)")
+message(STATUS "    - Service tests: 1 module (payload service)")
+message(STATUS "    - Apps tests: 2 modules (CAN gateway, protocol converter)")
 message(STATUS "")
-message(STATUS "  Unified test entry:")
-message(STATUS "    ./test_main -i          - Interactive menu")
-message(STATUS "    ./test_main -a          - Run all tests")
-message(STATUS "    ./test_main -l          - List all modules")
-message(STATUS "    ./test_main -m <module> - Run module tests")
-message(STATUS "    ./test_main -t <module> <test> - Run single test")
+message(STATUS "  Unified test entry: ./bin/unit-test")
+message(STATUS "    ./bin/unit-test -i          - Interactive menu")
+message(STATUS "    ./bin/unit-test -a          - Run all tests")
+message(STATUS "    ./bin/unit-test -l          - List all tests")
+message(STATUS "    ./bin/unit-test -L OSAL     - Run OSAL layer tests")
+message(STATUS "    ./bin/unit-test -m <module> - Run module tests")
+message(STATUS "    ./bin/unit-test -t <module> <test> - Run single test")
 message(STATUS "")
 message(STATUS "  Build targets:")
-message(STATUS "    make all_tests     - Build all tests")
-message(STATUS "    make test_main     - Build unified test entry")
-message(STATUS "    make osal_tests    - Build OSAL tests")
-message(STATUS "    make hal_tests     - Build HAL tests")
-message(STATUS "    make service_tests - Build Service tests")
-message(STATUS "    make apps_tests    - Build Apps tests")
+message(STATUS "    make all_tests     - Build unit-test")
+message(STATUS "    make unit-test     - Build unit-test")
 message(STATUS "")
 message(STATUS "  Run targets:")
 message(STATUS "    make run_tests     - Build and run all tests")
 message(STATUS "    ctest              - Run tests with CTest")
-message(STATUS "    ctest -V           - Run tests with verbose output")
 if(ENABLE_COVERAGE)
 message(STATUS "")
 message(STATUS "  Coverage:")

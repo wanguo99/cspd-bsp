@@ -1,389 +1,250 @@
-# CSPD-BSP 测试集成说明
+# CSPD-BSP 测试系统使用指南
 
 ## 概述
 
-CSPD-BSP项目已完全集成单元测试到CMake构建系统中。测试使用自研的轻量级测试框架，无需外部依赖。
+CSPD-BSP 提供了统一的测试入口程序，支持交互式菜单和命令行参数，可以方便地运行所有层的测试。
 
-## 测试统计
+## 测试层次结构
 
-- **总测试用例**: 58个
-- **OSAL层**: 37个（任务、队列、互斥锁）
-- **HAL层**: 10个（CAN驱动）
-- **Service层**: 10个（载荷服务）
-- **Apps层**: 11个（CAN网关）
-
-## 快速开始
-
-### 方法1: 使用test.sh脚本（推荐）
-
-```bash
-# 构建并运行所有测试
-./test.sh -r
-
-# 生成覆盖率报告
-./test.sh --coverage
-
-# 仅运行OSAL层测试
-./test.sh -r --osal
-
-# 清理后重新构建并运行
-./test.sh -c -r
+```
+CSPD-BSP Test Suite
+├── OSAL Layer (6 modules)
+│   ├── test_os_task      - 任务管理测试
+│   ├── test_os_queue     - 消息队列测试
+│   ├── test_os_mutex     - 互斥锁测试
+│   ├── test_os_file      - 文件I/O测试
+│   ├── test_os_network   - 网络通信测试
+│   └── test_os_signal    - 信号处理测试
+├── HAL Layer (1 module)
+│   └── test_hal_can      - CAN驱动测试
+├── Service Layer (1 module)
+│   └── test_payload_service - 载荷服务测试
+└── Apps Layer (2 modules)
+    ├── test_can_gateway        - CAN网关测试
+    └── test_protocol_converter - 协议转换测试
 ```
 
-### 方法2: 使用build.sh脚本
+## 构建测试
 
+### 构建所有测试
 ```bash
-# 编译并运行测试
-./build.sh -d -t
-
-# 启用覆盖率
-./build.sh -d --coverage -t
-
-# 禁用测试编译
-./build.sh --no-tests
+./build.sh -d
 ```
 
-### 方法3: 手动使用CMake
-
+### 仅构建测试（不构建应用）
 ```bash
-# 配置（启用测试）
-mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON ..
-
-# 构建所有测试
-make all_tests
-
-# 运行测试
-ctest --output-on-failure
-
-# 或使用make
-make run_tests
-```
-
-## 测试选项
-
-### CMake选项
-
-| 选项 | 默认值 | 说明 |
-|------|--------|------|
-| `BUILD_TESTING` | ON | 是否构建测试 |
-| `ENABLE_COVERAGE` | OFF | 是否启用代码覆盖率 |
-
-### 示例
-
-```bash
-# 禁用测试
-cmake -DBUILD_TESTING=OFF ..
-
-# 启用覆盖率
-cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON ..
-make all_tests
-make coverage
+./build.sh -d --target all_tests
 ```
 
 ## 运行测试
 
-### 运行所有测试
+### 方式1：统一测试入口（推荐）
 
+统一测试入口程序 `unit-test` 整合了所有层的测试，支持交互式和命令行两种模式。
+
+#### 交互式模式
+```bash
+cd build
+./bin/unit-test
+# 或
+./bin/unit-test -i
+```
+
+交互式菜单提供以下选项：
+```
+1. Run all tests (all layers)        - 运行所有测试
+2. Run OSAL layer tests              - 运行OSAL层测试
+3. Run HAL layer tests               - 运行HAL层测试
+4. Run Service layer tests           - 运行Service层测试
+5. Run Apps layer tests              - 运行Apps层测试
+6. Run specific module tests         - 运行指定模块测试
+7. Run single test                   - 运行单个测试
+8. List all tests                    - 列出所有测试
+0. Exit                              - 退出
+```
+
+#### 命令行模式
+
+**运行所有测试**
+```bash
+./bin/unit-test -a
+```
+
+**运行指定层的测试**
+```bash
+./bin/unit-test -L OSAL      # 运行OSAL层所有测试
+./bin/unit-test -L HAL       # 运行HAL层所有测试
+./bin/unit-test -L Service   # 运行Service层所有测试
+./bin/unit-test -L Apps      # 运行Apps层所有测试
+```
+
+**运行指定模块的测试**
+```bash
+./bin/unit-test -m test_os_file          # 运行文件I/O测试
+./bin/unit-test -m test_hal_can          # 运行CAN驱动测试
+./bin/unit-test -m test_can_gateway      # 运行CAN网关测试
+```
+
+**运行单个测试用例**
+```bash
+./bin/unit-test -t test_os_file test_OS_FileOpen_Close_Success
+./bin/unit-test -t test_os_task test_OS_TaskCreate_Success
+```
+
+**列出所有测试**
+```bash
+./bin/unit-test -l
+```
+
+**查看帮助**
+```bash
+./bin/unit-test -h
+```
+
+### 方式2：使用 Make 目标
+
+**运行所有测试（使用CTest）**
+```bash
+cd build
+make run_tests
+```
+
+**运行统一测试套件**
+```bash
+cd build
+make run_unified
+```
+
+### 方式3：使用 CTest
+
+**运行所有测试**
+```bash
+cd build
+ctest
+```
+
+**详细输出**
 ```bash
 cd build
 ctest --output-on-failure
 ```
 
-### 运行特定层的测试
-
-```bash
-# OSAL层
-ctest -R "test_os_*"
-
-# HAL层
-ctest -R "test_hal_*"
-
-# Service层
-ctest -R "test_payload_*"
-
-# Apps层
-ctest -R "test_can_*"
-```
-
-### 运行单个测试
-
+**运行特定测试**
 ```bash
 cd build
-./test_os_task
-./test_os_queue
-./test_hal_can
+ctest -R test_os_task        # 运行名称匹配的测试
+ctest -V                     # 详细模式
 ```
 
-### 详细输出
+### 方式4：直接运行独立测试程序
+
+每个测试模块都可以独立运行：
 
 ```bash
-ctest -V
+cd build/bin
+
+# OSAL层测试
+./test_os_task
+./test_os_queue
+./test_os_mutex
+./test_os_file
+./test_os_network
+./test_os_signal
+
+# HAL层测试
+./test_hal_can
+
+# Service层测试
+./test_payload_service
+
+# Apps层测试
+./test_can_gateway
+./test_protocol_converter
 ```
 
 ## 代码覆盖率
 
 ### 生成覆盖率报告
-
 ```bash
-# 方法1: 使用test.sh
-./test.sh --coverage
-
-# 方法2: 使用CMake
-cd build
-cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON ..
-make all_tests
-make coverage
+./build.sh -d --coverage -t
 ```
 
-### 查看报告
-
+### 查看覆盖率报告
 ```bash
 firefox build/coverage_html/index.html
 ```
 
-### 覆盖率目标
+## 测试输出示例
 
-- OSAL层: 90%+
-- HAL层: 80%+
-- Service层: 75%+
-- Apps层: 70%+
+### 成功的测试输出
+```
+========================================
+Running ALL Tests
+========================================
 
-## 测试环境准备
+>>> Testing Layer: OSAL
 
-### 虚拟CAN接口（用于CAN测试）
+========================================
+Running module: test_os_file
+Total tests: 10
+========================================
 
-```bash
-# 加载vcan模块
-sudo modprobe vcan
+[RUN ] test_os_file::test_OS_FileOpen_Close_Success
+[PASS] test_os_file::test_OS_FileOpen_Close_Success
+...
 
-# 创建虚拟CAN接口
-sudo ip link add dev vcan0 type vcan
-sudo ip link add dev vcan1 type vcan
+========================================
+Test Summary:
+  Total:  67
+  Passed: 67
+  Failed: 0
 
-# 启动接口
-sudo ip link set up vcan0
-sudo ip link set up vcan1
-
-# 验证
-ifconfig vcan0
+[SUCCESS] All tests passed!
+========================================
 ```
 
-### 安装覆盖率工具（可选）
+### 失败的测试输出
+```
+[RUN ] test_os_file::test_OS_FileOpen_InvalidPath
+[  FAILED  ] test_os_file.c:45: Expected -1, got 0
+[FAIL] test_os_file::test_OS_FileOpen_InvalidPath
 
-```bash
-sudo apt-get install lcov
+========================================
+Test Summary:
+  Total:  67
+  Passed: 66
+  Failed: 1
+
+[FAILURE] 1 test(s) failed!
+========================================
 ```
 
-## 构建目标
+## 最佳实践
 
-### 测试相关目标
-
-| 目标 | 说明 |
-|------|------|
-| `all_tests` | 构建所有测试 |
-| `osal_tests` | 构建OSAL层测试 |
-| `hal_tests` | 构建HAL层测试 |
-| `service_tests` | 构建Service层测试 |
-| `apps_tests` | 构建Apps层测试 |
-| `run_tests` | 构建并运行所有测试 |
-| `coverage` | 生成覆盖率报告（需要ENABLE_COVERAGE=ON） |
-
-### 使用示例
-
-```bash
-cd build
-
-# 构建所有测试
-make all_tests
-
-# 仅构建OSAL测试
-make osal_tests
-
-# 运行测试
-make run_tests
-
-# 生成覆盖率
-make coverage
-```
+1. **优先使用统一测试入口** - `unit-test` 提供了最完整的测试体验
+2. **交互模式用于调试** - 方便快速定位和重复运行特定测试
+3. **命令行模式用于CI/CD** - 适合自动化测试流程
+4. **定期运行覆盖率测试** - 确保测试覆盖率
+5. **测试命名规范** - 使用 `test_<Module>_<Scenario>` 格式
 
 ## 持续集成
 
-### GitHub Actions示例
-
-```yaml
-name: Unit Tests
-
-on: [push, pull_request]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential cmake lcov
-          
-      - name: Setup vcan
-        run: |
-          sudo modprobe vcan
-          sudo ip link add dev vcan0 type vcan
-          sudo ip link add dev vcan1 type vcan
-          sudo ip link set up vcan0
-          sudo ip link set up vcan1
-          
-      - name: Build and test
-        run: |
-          ./test.sh --coverage
-          
-      - name: Upload coverage
-        uses: codecov/codecov-action@v2
-        with:
-          files: ./build/coverage.info.cleaned
-```
-
-## 测试框架
-
-### 自定义测试框架
-
-项目使用自研的轻量级测试框架（`tests/test_framework.h`），特点：
-
-- ✅ 零外部依赖
-- ✅ 纯C实现
-- ✅ 彩色输出
-- ✅ 详细错误信息
-- ✅ 9种断言宏
-
-### 断言宏
-
-```c
-TEST_ASSERT(condition)
-TEST_ASSERT_EQUAL(expected, actual)
-TEST_ASSERT_NOT_EQUAL(expected, actual)
-TEST_ASSERT_NULL(ptr)
-TEST_ASSERT_NOT_NULL(ptr)
-TEST_ASSERT_TRUE(condition)
-TEST_ASSERT_FALSE(condition)
-TEST_ASSERT_GREATER_OR_EQUAL(threshold, actual)
-TEST_ASSERT_STRING_EQUAL(expected, actual)
-```
-
-### 测试控制宏
-
-```c
-TEST_BEGIN()              // 开始测试套件
-TEST_END()                // 结束测试套件
-RUN_TEST(test_func)       // 运行测试用例
-TEST_MESSAGE(msg)         // 输出信息
-TEST_IGNORE()             // 忽略测试
-```
-
-## 添加新测试
-
-### 1. 创建测试文件
-
-在相应目录创建测试文件，例如 `tests/osal/test_new_feature.c`:
-
-```c
-#include "../test_framework.h"
-#include "osal.h"
-
-void setUp(void) {
-    OS_API_Init();
-}
-
-void tearDown(void) {
-    OS_API_Teardown();
-}
-
-void test_NewFeature_Success(void) {
-    setUp();
-    // 测试代码
-    TEST_ASSERT_EQUAL(expected, actual);
-    tearDown();
-}
-
-int main(void) {
-    TEST_BEGIN();
-    RUN_TEST(test_NewFeature_Success);
-    TEST_END();
-}
-```
-
-### 2. 更新CMakeLists.txt
-
-在 `tests/CMakeLists.txt` 中添加：
-
-```cmake
-add_executable(test_new_feature
-    osal/test_new_feature.c
-    ${OSAL_SOURCES}
-)
-target_link_libraries(test_new_feature
-    Threads::Threads
-    rt
-)
-add_test(NAME test_new_feature COMMAND test_new_feature)
-```
-
-### 3. 重新构建
+在CI/CD流程中使用测试：
 
 ```bash
+# 构建并运行所有测试
+./build.sh -d -t
+
+# 或者分步执行
+./build.sh -d
 cd build
-cmake ..
-make all_tests
-ctest -R test_new_feature
+./bin/unit-test -a
+
+# 检查退出码
+if [ $? -eq 0 ]; then
+    echo "All tests passed"
+else
+    echo "Tests failed"
+    exit 1
+fi
 ```
-
-## 故障排查
-
-### 问题1: vcan接口不存在
-
-某些测试需要虚拟CAN接口，如果没有会被自动跳过（标记为IGNORED）。
-
-```bash
-# 创建虚拟CAN接口
-sudo modprobe vcan
-sudo ip link add dev vcan0 type vcan
-sudo ip link set up vcan0
-```
-
-### 问题2: 测试超时
-
-某些测试可能因为等待超时而失败，这通常是正常的（测试超时机制）。
-
-### 问题3: 权限问题
-
-某些测试可能需要root权限：
-
-```bash
-sudo ctest --output-on-failure
-```
-
-### 问题4: 覆盖率工具未找到
-
-```bash
-sudo apt-get install lcov
-```
-
-## 文档
-
-- [tests/README.md](tests/README.md) - 测试详细文档
-- [tests/QUICKSTART.md](tests/QUICKSTART.md) - 快速开始指南
-- [tests/SUMMARY.md](tests/SUMMARY.md) - 测试总结
-- [tests/test_framework.h](tests/test_framework.h) - 测试框架API
-
-## 总结
-
-CSPD-BSP的测试系统已完全集成到CMake构建流程中：
-
-- ✅ 使用 `./test.sh -r` 快速运行测试
-- ✅ 使用 `./build.sh -d -t` 在主构建中包含测试
-- ✅ 使用 `--coverage` 选项生成覆盖率报告
-- ✅ 支持分层测试和单个测试运行
-- ✅ 零外部依赖，易于集成CI/CD
-
-详细信息请参考 [tests/README.md](tests/README.md)。
