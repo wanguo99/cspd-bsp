@@ -1,10 +1,5 @@
 /************************************************************************
- * OSAL Linux实现 - 互斥锁（优化版）
- *
- * 修复内容：
- * 1. 修复线程安全问题：避免在持有全局锁时操作用户互斥锁
- * 2. 添加超时锁功能
- * 3. 改进错误处理
+ * OSAL Linux实现 - 互斥锁
  ************************************************************************/
 
 #include "osal.h"
@@ -15,23 +10,19 @@
 #include <errno.h>
 #include <time.h>
 
-/*
- * 互斥锁表
- */
 typedef struct
 {
     bool          is_used;
     osal_id_t     id;
     char          name[OS_MAX_API_NAME];
     pthread_mutex_t mutex;
-    bool          valid;  /* 有效标志 */
+    bool          valid;
 } OS_mutex_record_t;
 
 static OS_mutex_record_t OS_mutex_table[OS_MAX_MUTEXES];
 static pthread_mutex_t   mutex_table_mutex = PTHREAD_MUTEX_INITIALIZER;
 static uint32            next_mutex_id = 1;
 
-/* 互斥锁表初始化 */
 void OS_MutexTableInit(void)
 {
     pthread_mutex_lock(&mutex_table_mutex);
@@ -40,7 +31,6 @@ void OS_MutexTableInit(void)
     pthread_mutex_unlock(&mutex_table_mutex);
 }
 
-/* 互斥锁API */
 int32 OS_MutexCreate(osal_id_t *mutex_id, const char *mutex_name,
                      uint32 flags __attribute__((unused)))
 {
@@ -55,7 +45,6 @@ int32 OS_MutexCreate(osal_id_t *mutex_id, const char *mutex_name,
 
     pthread_mutex_lock(&mutex_table_mutex);
 
-    /* 查找空闲槽 */
     for (uint32 i = 0; i < OS_MAX_MUTEXES; i++)
     {
         if (!OS_mutex_table[i].is_used)
@@ -72,7 +61,6 @@ int32 OS_MutexCreate(osal_id_t *mutex_id, const char *mutex_name,
         return OS_ERR_NO_FREE_IDS;
     }
 
-    /* 检查名称冲突 */
     for (uint32 i = 0; i < OS_MAX_MUTEXES; i++)
     {
         if (OS_mutex_table[i].is_used &&
@@ -83,7 +71,6 @@ int32 OS_MutexCreate(osal_id_t *mutex_id, const char *mutex_name,
         }
     }
 
-    /* 初始化互斥锁 */
     if (pthread_mutex_init(&OS_mutex_table[slot].mutex, NULL) != 0)
     {
         pthread_mutex_unlock(&mutex_table_mutex);

@@ -7,24 +7,18 @@
 
 #include "osa_types.h"
 
-/*
- * 任务入口函数类型
- */
 typedef void (*osal_task_entry)(void *arg);
 
-/*
- * 任务属性
- */
 typedef struct
 {
-    uint32 stack_size;    /* 栈大小(字节) */
-    uint32 priority;      /* 优先级 1-255 */
+    uint32 stack_size;
+    uint32 priority;      /* 1-255 */
 } OS_TaskProp_t;
 
 /**
  * @brief 创建任务
  *
- * @param[out] task_id      返回的任务ID
+ * @param[out] task_id      任务ID
  * @param[in]  task_name    任务名称(最大OS_MAX_API_NAME字符)
  * @param[in]  function_pointer 任务入口函数
  * @param[in]  stack_pointer    栈指针(可为NULL,由系统分配)
@@ -51,11 +45,8 @@ int32 OS_TaskCreate(osal_id_t *task_id,
 /**
  * @brief 删除任务
  *
- * @param[in] task_id 任务ID
- *
  * @return OS_SUCCESS 成功
  * @return OS_ERR_INVALID_ID 无效的任务ID
- * @return OS_ERROR 删除失败
  */
 int32 OS_TaskDelete(osal_id_t task_id);
 
@@ -71,9 +62,6 @@ int32 OS_TaskDelay(uint32 millisecond);
 /**
  * @brief 设置任务优先级
  *
- * @param[in] task_id  任务ID
- * @param[in] priority 新优先级
- *
  * @return OS_SUCCESS 成功
  * @return OS_ERR_INVALID_ID 无效的任务ID
  * @return OS_ERR_INVALID_PRIORITY 无效的优先级
@@ -82,16 +70,11 @@ int32 OS_TaskSetPriority(osal_id_t task_id, uint32 priority);
 
 /**
  * @brief 获取当前任务ID
- *
- * @return 当前任务的ID
  */
 osal_id_t OS_TaskGetId(void);
 
 /**
  * @brief 根据名称获取任务ID
- *
- * @param[out] task_id   返回的任务ID
- * @param[in]  task_name 任务名称
  *
  * @return OS_SUCCESS 成功
  * @return OS_INVALID_POINTER task_id为NULL
@@ -101,9 +84,6 @@ int32 OS_TaskGetIdByName(osal_id_t *task_id, const char *task_name);
 
 /**
  * @brief 获取任务信息
- *
- * @param[in]  task_id 任务ID
- * @param[out] task_prop 任务属性
  *
  * @return OS_SUCCESS 成功
  * @return OS_ERR_INVALID_ID 无效的任务ID

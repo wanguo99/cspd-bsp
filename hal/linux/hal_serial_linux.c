@@ -1,7 +1,7 @@
 /************************************************************************
  * HAL层 - Linux串口驱动实现
  *
- * 基于POSIX termios实现串口通信
+ * 基于POSIX termios实现
  ************************************************************************/
 
 #include "hal_serial.h"
@@ -15,19 +15,13 @@
 #include <errno.h>
 #include <sys/select.h>
 
-/*
- * 串口句柄内部结构
- */
 typedef struct
 {
-    int fd;                      /* 文件描述符 */
-    hal_serial_config_t config;  /* 配置信息 */
-    char device[64];             /* 设备名称 */
+    int fd;
+    hal_serial_config_t config;
+    char device[64];
 } hal_serial_context_t;
 
-/*
- * 波特率映射表
- */
 static speed_t get_baudrate(uint32 baudrate)
 {
     switch (baudrate)
@@ -50,20 +44,16 @@ static speed_t get_baudrate(uint32 baudrate)
         case 3000000: return B3000000;
         case 3500000: return B3500000;
         case 4000000: return B4000000;
-        default:      return B115200;  /* 默认115200 */
+        default:      return B115200;
     }
 }
 
-/************************************************************************
- * HAL_Serial_Open - 打开串口
- ************************************************************************/
 int32 HAL_Serial_Open(const char *device, const hal_serial_config_t *config, hal_serial_handle_t *handle)
 {
     hal_serial_context_t *ctx;
     struct termios tty;
     speed_t speed;
 
-    /* 参数检查 */
     if (device == NULL || handle == NULL)
     {
         return OS_INVALID_POINTER;
@@ -74,7 +64,6 @@ int32 HAL_Serial_Open(const char *device, const hal_serial_config_t *config, hal
         return OS_INVALID_POINTER;
     }
 
-    /* 分配上下文 */
     ctx = (hal_serial_context_t *)malloc(sizeof(hal_serial_context_t));
     if (ctx == NULL)
     {

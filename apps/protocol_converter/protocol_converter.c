@@ -15,15 +15,7 @@
 #include <string.h>
 #include <stdio.h>
 
-/*
- * 全局变量
- */
 static payload_service_handle_t g_payload_handle;
-
-/*
- * 统计信息（使用原子操作保证线程安全）
- */
-#include <stdatomic.h>
 
 typedef struct
 {
@@ -35,22 +27,12 @@ typedef struct
 
 static converter_stats_t g_stats = {0};
 
-/**
- * @brief 执行IPMI命令
- *
- * @param[in] cmd_type 命令类型
- * @param[in] param 参数
- * @param[out] result 结果
- *
- * @return can_status_t 状态码
- */
 static can_status_t execute_ipmi_command(can_cmd_type_t cmd_type, uint32 param __attribute__((unused)), uint32 *result)
 {
     char cmd_buf[256];
     char resp_buf[512];
     int32 ret;
 
-    /* 根据命令类型构造IPMI命令 */
     switch (cmd_type)
     {
         case CMD_TYPE_POWER_ON:
@@ -84,7 +66,6 @@ static can_status_t execute_ipmi_command(can_cmd_type_t cmd_type, uint32 param _
 
     OS_printf("[Protocol Converter] 执行IPMI命令: %s\n", cmd_buf);
 
-    /* 发送命令到载荷 */
     ret = PayloadService_Send(g_payload_handle, cmd_buf, strlen(cmd_buf));
     if (ret < 0)
     {
@@ -92,7 +73,6 @@ static can_status_t execute_ipmi_command(can_cmd_type_t cmd_type, uint32 param _
         return STATUS_COMM_ERROR;
     }
 
-    /* 接收响应 */
     ret = PayloadService_Recv(g_payload_handle, resp_buf, sizeof(resp_buf) - 1, CMD_TIMEOUT_MS);
     if (ret == OS_ERROR_TIMEOUT)
     {

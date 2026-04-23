@@ -1,11 +1,5 @@
 /************************************************************************
- * HAL层 - CAN驱动Linux实现（修复版）
- *
- * 修复内容：
- * 1. 启用CAN初始化代码
- * 2. 添加完善的错误处理
- * 3. 添加参数验证
- * 4. 改进资源管理
+ * HAL层 - CAN驱动Linux实现
  ************************************************************************/
 
 /* 必须在所有头文件之前定义，以启用完整的POSIX功能 */
@@ -33,9 +27,6 @@
 #define IFNAMSIZ IF_NAMESIZE
 #endif
 
-/*
- * CAN句柄结构
- */
 typedef struct
 {
     int sockfd;
@@ -98,8 +89,7 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
     {
         OS_printf("[HAL CAN] 获取接口索引失败: %s (接口: %s)\n",
                  strerror(errno), config->interface);
-        OS_printf("[HAL CAN] 提示: 请确保CAN接口已启动 (sudo ip link set %s up)\n",
-                 config->interface);
+        /* 提示: CAN接口必须先启动 (sudo ip link set can0 up) */
         close(impl->sockfd);
         free(impl);
         return OS_ERROR;
@@ -129,11 +119,9 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
         if (setsockopt(impl->sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0)
         {
             OS_printf("[HAL CAN] 设置接收超时失败: %s\n", strerror(errno));
-            /* 非致命错误，继续 */
         }
     }
 
-    /* 设置发送超时 */
     if (config->tx_timeout > 0)
     {
         struct timeval tv;
@@ -143,7 +131,6 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
         if (setsockopt(impl->sockfd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv)) < 0)
         {
             OS_printf("[HAL CAN] 设置发送超时失败: %s\n", strerror(errno));
-            /* 非致命错误，继续 */
         }
     }
 
@@ -243,7 +230,7 @@ int32 HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32 timeout)
     if (!impl->initialized || impl->sockfd < 0)
         return OS_ERR_INVALID_ID;
 
-    /* 如果指定了超时，临时设置 */
+    /* 临时设置超时 */
     if (timeout >= 0)
     {
         struct timeval tv;
@@ -253,7 +240,6 @@ int32 HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32 timeout)
         if (setsockopt(impl->sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0)
         {
             OS_printf("[HAL CAN] 警告: 设置临时接收超时失败: %s\n", strerror(errno));
-            /* 非致命错误，继续执行 */
         }
     }
 
@@ -282,7 +268,7 @@ int32 HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32 timeout)
     frame->can_id = can_frame.can_id;
     frame->dlc = can_frame.can_dlc;
 
-    /* 确保不会越界 */
+    /* 防止越界 */
     if (can_frame.can_dlc > 8)
         can_frame.can_dlc = 8;
 

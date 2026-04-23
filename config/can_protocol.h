@@ -15,43 +15,39 @@
  * ============================================================================
  */
 
-/* CAN标准帧ID定义 */
-#define CAN_ID_SAT_TO_BRIDGE    0x100  /* 卫星平台 -> 管理板 */
-#define CAN_ID_BRIDGE_TO_SAT    0x200  /* 管理板 -> 卫星平台 */
+#define CAN_ID_SAT_TO_BRIDGE    0x100
+#define CAN_ID_BRIDGE_TO_SAT    0x200
 
-/* CAN消息类型 */
 typedef enum
 {
-    CAN_MSG_TYPE_CMD_REQ        = 0x01,  /* 命令请求 */
-    CAN_MSG_TYPE_CMD_RESP       = 0x02,  /* 命令响应 */
-    CAN_MSG_TYPE_STATUS_QUERY   = 0x03,  /* 状态查询 */
-    CAN_MSG_TYPE_STATUS_REPORT  = 0x04,  /* 状态上报 */
-    CAN_MSG_TYPE_HEARTBEAT      = 0x05,  /* 心跳 */
-    CAN_MSG_TYPE_ERROR          = 0x06,  /* 错误报告 */
+    CAN_MSG_TYPE_CMD_REQ        = 0x01,
+    CAN_MSG_TYPE_CMD_RESP       = 0x02,
+    CAN_MSG_TYPE_STATUS_QUERY   = 0x03,
+    CAN_MSG_TYPE_STATUS_REPORT  = 0x04,
+    CAN_MSG_TYPE_HEARTBEAT      = 0x05,
+    CAN_MSG_TYPE_ERROR          = 0x06,
 } can_msg_type_t;
 
-/* 命令类型 */
 typedef enum
 {
-    CMD_TYPE_POWER_ON           = 0x10,  /* 载荷上电 */
-    CMD_TYPE_POWER_OFF          = 0x11,  /* 载荷下电 */
-    CMD_TYPE_RESET              = 0x12,  /* 载荷重启 */
-    CMD_TYPE_QUERY_STATUS       = 0x20,  /* 查询状态 */
-    CMD_TYPE_QUERY_TEMP         = 0x21,  /* 查询温度 */
-    CMD_TYPE_QUERY_VOLTAGE      = 0x22,  /* 查询电压 */
-    CMD_TYPE_SET_CONFIG         = 0x30,  /* 设置配置 */
-    CMD_TYPE_GET_CONFIG         = 0x31,  /* 获取配置 */
+    CMD_TYPE_POWER_ON           = 0x10,
+    CMD_TYPE_POWER_OFF          = 0x11,
+    CMD_TYPE_RESET              = 0x12,
+    CMD_TYPE_QUERY_STATUS       = 0x20,
+    CMD_TYPE_QUERY_TEMP         = 0x21,
+    CMD_TYPE_QUERY_VOLTAGE      = 0x22,
+    CMD_TYPE_SET_CONFIG         = 0x30,
+    CMD_TYPE_GET_CONFIG         = 0x31,
 } can_cmd_type_t;
 
-/* 状态码 */
 typedef enum
 {
-    STATUS_OK                   = 0x00,  /* 成功 */
-    STATUS_ERROR                = 0x01,  /* 错误 */
-    STATUS_TIMEOUT              = 0x02,  /* 超时 */
-    STATUS_INVALID_CMD          = 0x03,  /* 无效命令 */
-    STATUS_PAYLOAD_OFFLINE      = 0x04,  /* 载荷离线 */
-    STATUS_COMM_ERROR           = 0x05,  /* 通信错误 */
+    STATUS_OK                   = 0x00,
+    STATUS_ERROR                = 0x01,
+    STATUS_TIMEOUT              = 0x02,
+    STATUS_INVALID_CMD          = 0x03,
+    STATUS_PAYLOAD_OFFLINE      = 0x04,
+    STATUS_COMM_ERROR           = 0x05,
 } can_status_t;
 
 /*
@@ -64,10 +60,10 @@ typedef enum
  */
 typedef struct
 {
-    uint8  msg_type;      /* 消息类型 */
-    uint8  cmd_type;      /* 命令类型或状态码 */
-    uint16 seq_num;       /* 序列号 */
-    uint32 data;          /* 数据或参数 */
+    uint8  msg_type;
+    uint8  cmd_type;
+    uint16 seq_num;
+    uint32 data;
 } __attribute__((packed)) can_msg_t;
 
 /*
@@ -78,10 +74,10 @@ typedef struct
 
 typedef struct
 {
-    uint32     can_id;    /* CAN ID */
-    uint8      dlc;       /* 数据长度 */
-    can_msg_t  msg;       /* 消息内容 */
-    uint32     timestamp; /* 时间戳(ms) */
+    uint32     can_id;
+    uint8      dlc;
+    can_msg_t  msg;
+    uint32     timestamp;
 } can_frame_t;
 
 /*

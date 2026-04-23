@@ -10,20 +10,14 @@
 #include "osa_types.h"
 #include "can_protocol.h"
 
-/*
- * CAN驱动句柄
- */
 typedef void* hal_can_handle_t;
 
-/*
- * CAN配置
- */
 typedef struct
 {
-    const char *interface;  /* CAN接口名称，如"can0" */
-    uint32      baudrate;   /* 波特率 */
-    uint32      rx_timeout; /* 接收超时(ms) */
-    uint32      tx_timeout; /* 发送超时(ms) */
+    const char *interface;  /* e.g., "can0", "vcan0" */
+    uint32      baudrate;
+    uint32      rx_timeout;
+    uint32      tx_timeout;
 } hal_can_config_t;
 
 /**

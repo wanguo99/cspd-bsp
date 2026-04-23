@@ -9,29 +9,20 @@
 
 #include "osa_types.h"
 
-/*
- * 网络协议类型
- */
 typedef enum
 {
-    HAL_NET_PROTO_TCP = 0,  /* TCP协议 */
-    HAL_NET_PROTO_UDP = 1,  /* UDP协议 */
+    HAL_NET_PROTO_TCP = 0,
+    HAL_NET_PROTO_UDP = 1,
 } hal_net_proto_t;
 
-/*
- * 网络句柄
- */
 typedef void* hal_network_handle_t;
 
-/*
- * 网络配置
- */
 typedef struct
 {
-    hal_net_proto_t protocol;  /* 协议类型 */
-    const char     *ip_addr;   /* IP地址 */
-    uint16          port;      /* 端口号 */
-    uint32          timeout_ms;/* 超时时间 */
+    hal_net_proto_t protocol;
+    const char     *ip_addr;
+    uint16          port;
+    uint32          timeout_ms;
 } hal_network_config_t;
 
 /**

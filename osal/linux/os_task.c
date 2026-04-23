@@ -1,11 +1,5 @@
 /************************************************************************
- * OSAL Linux/POSIX实现 - 任务管理（优化版）
- *
- * 修复内容：
- * 1. 修复线程安全问题：使用引用计数
- * 2. 修复资源泄漏：确保wrapper_arg在所有路径都被释放
- * 3. 改进参数传递：使用void*而不是uint32*
- * 4. 添加任务状态管理
+ * OSAL Linux/POSIX实现 - 任务管理
  ************************************************************************/
 
 #include "osal.h"
@@ -18,9 +12,6 @@
 #include <stdatomic.h>
 #include <limits.h>
 
-/*
- * 任务状态
- */
 typedef enum
 {
     TASK_STATE_READY = 0,
@@ -28,9 +19,6 @@ typedef enum
     TASK_STATE_TERMINATED
 } task_state_t;
 
-/*
- * 任务表项
- */
 typedef struct
 {
     bool        is_used;
@@ -39,20 +27,14 @@ typedef struct
     pthread_t   thread;
     uint32      priority;
     uint32      stack_size;
-    atomic_int  ref_count;      /* 引用计数 */
-    task_state_t state;         /* 任务状态 */
+    atomic_int  ref_count;
+    task_state_t state;
 } OS_task_record_t;
 
-/*
- * 任务表
- */
 static OS_task_record_t OS_task_table[OS_MAX_TASKS];
 static pthread_mutex_t  task_table_mutex = PTHREAD_MUTEX_INITIALIZER;
 static uint32           next_task_id = 1;
 
-/*
- * 初始化任务表
- */
 void OS_TaskTableInit(void)
 {
     pthread_mutex_lock(&task_table_mutex);
@@ -61,9 +43,6 @@ void OS_TaskTableInit(void)
     pthread_mutex_unlock(&task_table_mutex);
 }
 
-/*
- * 任务包装器参数
- */
 typedef struct
 {
     osal_task_entry entry_func;
@@ -71,9 +50,6 @@ typedef struct
     osal_id_t task_id;
 } task_wrapper_arg_t;
 
-/*
- * 任务包装器
- */
 static void *task_wrapper(void *arg)
 {
     task_wrapper_arg_t *wrapper_arg = (task_wrapper_arg_t *)arg;
@@ -81,10 +57,8 @@ static void *task_wrapper(void *arg)
     void *user_arg = wrapper_arg->user_arg;
     osal_id_t task_id = wrapper_arg->task_id;
 
-    /* 立即释放包装器参数 */
     free(wrapper_arg);
 
-    /* 更新任务状态为运行中 */
     pthread_mutex_lock(&task_table_mutex);
     for (uint32 i = 0; i < OS_MAX_TASKS; i++)
     {
@@ -96,10 +70,8 @@ static void *task_wrapper(void *arg)
     }
     pthread_mutex_unlock(&task_table_mutex);
 
-    /* 调用用户任务函数 */
     entry_func(user_arg);
 
-    /* 更新任务状态为已终止 */
     pthread_mutex_lock(&task_table_mutex);
     for (uint32 i = 0; i < OS_MAX_TASKS; i++)
     {
@@ -114,9 +86,6 @@ static void *task_wrapper(void *arg)
     return NULL;
 }
 
-/*
- * 查找空闲任务槽
- */
 static int32 find_free_task_slot(uint32 *slot)
 {
     pthread_mutex_lock(&task_table_mutex);
@@ -135,9 +104,6 @@ static int32 find_free_task_slot(uint32 *slot)
     return OS_ERR_NO_FREE_IDS;
 }
 
-/*
- * API实现
- */
 int32 OS_TaskCreate(osal_id_t *task_id,
                     const char *task_name,
                     osal_task_entry function_pointer,
@@ -151,7 +117,6 @@ int32 OS_TaskCreate(osal_id_t *task_id,
     pthread_attr_t attr;
     task_wrapper_arg_t *wrapper_arg = NULL;
 
-    /* 参数检查 */
     if (task_id == NULL || function_pointer == NULL)
         return OS_INVALID_POINTER;
 
@@ -161,12 +126,10 @@ int32 OS_TaskCreate(osal_id_t *task_id,
     if (priority < OS_TASK_PRIORITY_MIN || priority > OS_TASK_PRIORITY_MAX)
         return OS_ERR_INVALID_PRIORITY;
 
-    /* 查找空闲槽 */
     ret = find_free_task_slot(&slot);
     if (ret != OS_SUCCESS)
         return ret;
 
-    /* 检查名称是否已存在 */
     pthread_mutex_lock(&task_table_mutex);
     for (uint32 i = 0; i < OS_MAX_TASKS; i++)
     {
@@ -178,7 +141,6 @@ int32 OS_TaskCreate(osal_id_t *task_id,
         }
     }
 
-    /* 分配包装器参数 */
     wrapper_arg = malloc(sizeof(task_wrapper_arg_t));
     if (wrapper_arg == NULL)
     {
@@ -186,27 +148,23 @@ int32 OS_TaskCreate(osal_id_t *task_id,
         return OS_ERROR;
     }
 
-    /* 预分配任务ID */
     osal_id_t new_task_id = next_task_id++;
 
     wrapper_arg->entry_func = function_pointer;
-    wrapper_arg->user_arg = (void *)stack_pointer;  /* 使用stack_pointer传递用户参数 */
+    wrapper_arg->user_arg = (void *)stack_pointer;
     wrapper_arg->task_id = new_task_id;
 
-    /* 初始化线程属性 */
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
     if (stack_size > 0)
     {
-        /* 确保栈大小满足最小要求 */
         size_t min_stack = PTHREAD_STACK_MIN;
         if (stack_size < min_stack)
             stack_size = min_stack;
         pthread_attr_setstacksize(&attr, stack_size);
     }
 
-    /* 填充任务表（在创建线程前） */
     OS_task_table[slot].is_used = true;
     OS_task_table[slot].id = new_task_id;
     strncpy(OS_task_table[slot].name, task_name, OS_MAX_API_NAME - 1);
@@ -216,11 +174,9 @@ int32 OS_TaskCreate(osal_id_t *task_id,
     OS_task_table[slot].state = TASK_STATE_READY;
     atomic_init(&OS_task_table[slot].ref_count, 1);
 
-    /* 创建线程 */
     if (pthread_create(&OS_task_table[slot].thread, &attr,
                        task_wrapper, wrapper_arg) != 0)
     {
-        /* 创建失败，清理资源 */
         OS_task_table[slot].is_used = false;
         pthread_attr_destroy(&attr);
         free(wrapper_arg);
@@ -337,7 +293,7 @@ int32 OS_TaskSetPriority(osal_id_t task_id, uint32 priority)
         if (OS_task_table[i].is_used && OS_task_table[i].id == task_id)
         {
             OS_task_table[i].priority = priority;
-            /* 注意: Linux用户空间线程优先级调整需要特权 */
+            /* Linux用户空间线程优先级调整需要特权 */
             pthread_mutex_unlock(&task_table_mutex);
             return OS_SUCCESS;
         }

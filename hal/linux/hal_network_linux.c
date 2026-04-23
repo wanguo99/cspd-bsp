@@ -16,27 +16,20 @@
 #include <sys/select.h>
 #include <sys/time.h>
 
-/*
- * 网络句柄结构
- */
 typedef struct
 {
-    int                  sockfd;      /* socket文件描述符 */
-    hal_net_proto_t      protocol;    /* 协议类型 */
-    struct sockaddr_in   addr;        /* 地址信息 */
-    bool                 connected;   /* 连接状态 */
+    int                  sockfd;
+    hal_net_proto_t      protocol;
+    struct sockaddr_in   addr;
+    bool                 connected;
 } hal_network_context_t;
 
-/*
- * 打开网络连接
- */
 int32 HAL_Network_Open(const hal_network_config_t *config, hal_network_handle_t *handle)
 {
     if (config == NULL || handle == NULL) {
         return OS_INVALID_POINTER;
     }
 
-    /* 分配上下文 */
     hal_network_context_t *ctx = (hal_network_context_t *)malloc(sizeof(hal_network_context_t));
     if (ctx == NULL) {
         LOG_ERROR("HAL_NET", "Failed to allocate network context");
@@ -46,7 +39,6 @@ int32 HAL_Network_Open(const hal_network_config_t *config, hal_network_handle_t 
     memset(ctx, 0, sizeof(hal_network_context_t));
     ctx->protocol = config->protocol;
 
-    /* 创建socket */
     int sock_type = (config->protocol == HAL_NET_PROTO_TCP) ? SOCK_STREAM : SOCK_DGRAM;
     ctx->sockfd = socket(AF_INET, sock_type, 0);
     if (ctx->sockfd < 0) {
@@ -55,7 +47,6 @@ int32 HAL_Network_Open(const hal_network_config_t *config, hal_network_handle_t 
         return OS_ERROR;
     }
 
-    /* 设置地址 */
     ctx->addr.sin_family = AF_INET;
     ctx->addr.sin_port = htons(config->port);
     if (inet_pton(AF_INET, config->ip_addr, &ctx->addr.sin_addr) <= 0) {
