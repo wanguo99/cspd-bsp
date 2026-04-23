@@ -24,6 +24,7 @@ __attribute__((unused)) static void tearDown(void)
 /* 测试用例1: 队列创建成功 */
 void test_OS_QueueCreate_Success(void)
 {
+    setUp();
     osal_id_t queue_id;
 
     int32 ret = OS_QueueCreate(&queue_id, "TEST_QUEUE",
@@ -33,18 +34,22 @@ void test_OS_QueueCreate_Success(void)
     TEST_ASSERT_NOT_EQUAL(OS_OBJECT_ID_UNDEFINED, queue_id);
 
     OS_QueueDelete(queue_id);
+    tearDown();
 }
 
 /* 测试用例2: 队列创建失败 - 空指针 */
 void test_OS_QueueCreate_NullPointer(void)
 {
+    setUp();
     int32 ret = OS_QueueCreate(NULL, "TEST", 10, 64, 0);
     TEST_ASSERT_EQUAL(OS_INVALID_POINTER, ret);
+    tearDown();
 }
 
 /* 测试用例3: 队列创建失败 - 无效大小 */
 void test_OS_QueueCreate_InvalidSize(void)
 {
+    setUp();
     osal_id_t queue_id;
 
     /* 深度为0 */
@@ -54,11 +59,13 @@ void test_OS_QueueCreate_InvalidSize(void)
     /* 消息大小为0 */
     ret = OS_QueueCreate(&queue_id, "TEST", 10, 0, 0);
     TEST_ASSERT_EQUAL(OS_QUEUE_INVALID_SIZE, ret);
+    tearDown();
 }
 
 /* 测试用例4: 队列创建失败 - 名称重复 */
 void test_OS_QueueCreate_NameTaken(void)
 {
+    setUp();
     osal_id_t queue_id1, queue_id2;
 
     int32 ret = OS_QueueCreate(&queue_id1, "DUP_QUEUE", 10, 64, 0);
@@ -68,11 +75,13 @@ void test_OS_QueueCreate_NameTaken(void)
     TEST_ASSERT_EQUAL(OS_ERR_NAME_TAKEN, ret);
 
     OS_QueueDelete(queue_id1);
+    tearDown();
 }
 
 /* 测试用例5: 队列发送和接收 */
 void test_OS_QueuePutGet_Success(void)
 {
+    setUp();
     osal_id_t queue_id;
     OS_QueueCreate(&queue_id, "TEST_Q", 10, 64, 0);
 
@@ -93,11 +102,13 @@ void test_OS_QueuePutGet_Success(void)
     TEST_ASSERT_EQUAL_STRING("Hello World", (char *)recv_data);
 
     OS_QueueDelete(queue_id);
+    tearDown();
 }
 
 /* 测试用例6: 队列接收 - 空队列非阻塞 */
 void test_OS_QueueGet_Empty(void)
 {
+    setUp();
     osal_id_t queue_id;
     OS_QueueCreate(&queue_id, "TEST_Q", 10, 64, 0);
 
@@ -108,11 +119,13 @@ void test_OS_QueueGet_Empty(void)
     TEST_ASSERT_EQUAL(OS_QUEUE_EMPTY, ret);
 
     OS_QueueDelete(queue_id);
+    tearDown();
 }
 
 /* 测试用例7: 队列接收 - 超时 */
 void test_OS_QueueGet_Timeout(void)
 {
+    setUp();
     osal_id_t queue_id;
     OS_QueueCreate(&queue_id, "TEST_Q", 10, 64, 0);
 
@@ -131,11 +144,13 @@ void test_OS_QueueGet_Timeout(void)
     (void)data;  /* 未使用，仅用于测试超时 */
 
     OS_QueueDelete(queue_id);
+    tearDown();
 }
 
 /* 测试用例8: 队列满 */
 void test_OS_QueuePut_Full(void)
 {
+    setUp();
     osal_id_t queue_id;
     OS_QueueCreate(&queue_id, "TEST_Q", 2, 64, 0);
 
@@ -148,11 +163,13 @@ void test_OS_QueuePut_Full(void)
     /* 队列已满，这个操作会阻塞，我们不测试阻塞情况 */
 
     OS_QueueDelete(queue_id);
+    tearDown();
 }
 
 /* 测试用例9: 多消息发送接收 */
 void test_OS_QueuePutGet_Multiple(void)
 {
+    setUp();
     osal_id_t queue_id;
     OS_QueueCreate(&queue_id, "TEST_Q", 5, 64, 0);
 
@@ -178,11 +195,13 @@ void test_OS_QueuePutGet_Multiple(void)
     }
 
     OS_QueueDelete(queue_id);
+    tearDown();
 }
 
 /* 测试用例10: 根据名称获取队列ID */
 void test_OS_QueueGetIdByName_Success(void)
 {
+    setUp();
     osal_id_t queue_id1, queue_id2;
 
     OS_QueueCreate(&queue_id1, "NAMED_Q", 10, 64, 0);
@@ -193,32 +212,39 @@ void test_OS_QueueGetIdByName_Success(void)
     TEST_ASSERT_EQUAL(queue_id1, queue_id2);
 
     OS_QueueDelete(queue_id1);
+    tearDown();
 }
 
 /* 测试用例11: 根据名称获取队列ID - 未找到 */
 void test_OS_QueueGetIdByName_NotFound(void)
 {
+    setUp();
     osal_id_t queue_id;
 
     int32 ret = OS_QueueGetIdByName(&queue_id, "NONEXISTENT");
     TEST_ASSERT_EQUAL(OS_ERR_NAME_NOT_FOUND, ret);
+    tearDown();
 }
 
 /* 测试用例12: 队列删除 */
 void test_OS_QueueDelete_Success(void)
 {
+    setUp();
     osal_id_t queue_id;
     OS_QueueCreate(&queue_id, "TEST_Q", 10, 64, 0);
 
     int32 ret = OS_QueueDelete(queue_id);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    tearDown();
 }
 
 /* 测试用例13: 队列删除 - 无效ID */
 void test_OS_QueueDelete_InvalidId(void)
 {
+    setUp();
     int32 ret = OS_QueueDelete(9999);
     TEST_ASSERT_EQUAL(OS_ERR_INVALID_ID, ret);
+    tearDown();
 }
 
 /* 模块注册 */

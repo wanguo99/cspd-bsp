@@ -27,6 +27,7 @@ __attribute__((unused)) static void tearDown(void)
 /* 测试用例1: 互斥锁创建成功 */
 void test_OS_MutexCreate_Success(void)
 {
+    setUp();
     osal_id_t mutex_id;
 
     int32 ret = OS_MutexCreate(&mutex_id, "TEST_MUTEX", 0);
@@ -35,18 +36,22 @@ void test_OS_MutexCreate_Success(void)
     TEST_ASSERT_NOT_EQUAL(OS_OBJECT_ID_UNDEFINED, mutex_id);
 
     OS_MutexDelete(mutex_id);
+    tearDown();
 }
 
 /* 测试用例2: 互斥锁创建失败 - 空指针 */
 void test_OS_MutexCreate_NullPointer(void)
 {
+    setUp();
     int32 ret = OS_MutexCreate(NULL, "TEST", 0);
     TEST_ASSERT_EQUAL(OS_INVALID_POINTER, ret);
+    tearDown();
 }
 
 /* 测试用例3: 互斥锁创建失败 - 名称重复 */
 void test_OS_MutexCreate_NameTaken(void)
 {
+    setUp();
     osal_id_t mutex_id1, mutex_id2;
 
     int32 ret = OS_MutexCreate(&mutex_id1, "DUP_MUTEX", 0);
@@ -56,11 +61,13 @@ void test_OS_MutexCreate_NameTaken(void)
     TEST_ASSERT_EQUAL(OS_ERR_NAME_TAKEN, ret);
 
     OS_MutexDelete(mutex_id1);
+    tearDown();
 }
 
 /* 测试用例4: 互斥锁加锁解锁 */
 void test_OS_MutexLockUnlock_Success(void)
 {
+    setUp();
     osal_id_t mutex_id;
     OS_MutexCreate(&mutex_id, "TEST_MTX", 0);
 
@@ -71,25 +78,31 @@ void test_OS_MutexLockUnlock_Success(void)
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     OS_MutexDelete(mutex_id);
+    tearDown();
 }
 
 /* 测试用例5: 互斥锁加锁失败 - 无效ID */
 void test_OS_MutexLock_InvalidId(void)
 {
+    setUp();
     int32 ret = OS_MutexLock(9999);
     TEST_ASSERT_EQUAL(OS_ERR_INVALID_ID, ret);
+    tearDown();
 }
 
 /* 测试用例6: 互斥锁解锁失败 - 无效ID */
 void test_OS_MutexUnlock_InvalidId(void)
 {
+    setUp();
     int32 ret = OS_MutexUnlock(9999);
     TEST_ASSERT_EQUAL(OS_ERR_INVALID_ID, ret);
+    tearDown();
 }
 
 /* 测试用例7: 根据名称获取互斥锁ID */
 void test_OS_MutexGetIdByName_Success(void)
 {
+    setUp();
     osal_id_t mutex_id1, mutex_id2;
 
     OS_MutexCreate(&mutex_id1, "NAMED_MTX", 0);
@@ -100,32 +113,39 @@ void test_OS_MutexGetIdByName_Success(void)
     TEST_ASSERT_EQUAL(mutex_id1, mutex_id2);
 
     OS_MutexDelete(mutex_id1);
+    tearDown();
 }
 
 /* 测试用例8: 根据名称获取互斥锁ID - 未找到 */
 void test_OS_MutexGetIdByName_NotFound(void)
 {
+    setUp();
     osal_id_t mutex_id;
 
     int32 ret = OS_MutexGetIdByName(&mutex_id, "NONEXISTENT");
     TEST_ASSERT_EQUAL(OS_ERR_NAME_NOT_FOUND, ret);
+    tearDown();
 }
 
 /* 测试用例9: 互斥锁删除 */
 void test_OS_MutexDelete_Success(void)
 {
+    setUp();
     osal_id_t mutex_id;
     OS_MutexCreate(&mutex_id, "TEST_MTX", 0);
 
     int32 ret = OS_MutexDelete(mutex_id);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    tearDown();
 }
 
 /* 测试用例10: 互斥锁删除失败 - 无效ID */
 void test_OS_MutexDelete_InvalidId(void)
 {
+    setUp();
     int32 ret = OS_MutexDelete(9999);
     TEST_ASSERT_EQUAL(OS_ERR_INVALID_ID, ret);
+    tearDown();
 }
 
 /* 线程函数 - 用于测试互斥锁保护 */
@@ -145,6 +165,7 @@ static void* increment_thread(void *arg)
 /* 测试用例11: 互斥锁保护共享资源 */
 void test_OS_Mutex_ProtectSharedResource(void)
 {
+    setUp();
     osal_id_t mutex_id;
     OS_MutexCreate(&mutex_id, "PROTECT_MTX", 0);
 
@@ -162,6 +183,7 @@ void test_OS_Mutex_ProtectSharedResource(void)
     TEST_ASSERT_EQUAL(2000, shared_counter);
 
     OS_MutexDelete(mutex_id);
+    tearDown();
 }
 
 /* 模块注册 */
