@@ -83,7 +83,19 @@ int32 HAL_Network_Open(const hal_network_config_t *config, hal_network_handle_t 
 
     /* 设置非阻塞模式 */
     int flags = fcntl(ctx->sockfd, F_GETFL, 0);
-    fcntl(ctx->sockfd, F_SETFL, flags | O_NONBLOCK);
+    if (flags == -1) {
+        LOG_ERROR("HAL_NET", "Failed to get socket flags: %s", strerror(errno));
+        close(ctx->sockfd);
+        free(ctx);
+        return OS_ERROR;
+    }
+
+    if (fcntl(ctx->sockfd, F_SETFL, flags | O_NONBLOCK) == -1) {
+        LOG_ERROR("HAL_NET", "Failed to set non-blocking mode: %s", strerror(errno));
+        close(ctx->sockfd);
+        free(ctx);
+        return OS_ERROR;
+    }
 
     *handle = (hal_network_handle_t)ctx;
     return OS_SUCCESS;

@@ -249,7 +249,12 @@ int32 HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32 timeout)
         struct timeval tv;
         tv.tv_sec = timeout / 1000;
         tv.tv_usec = (timeout % 1000) * 1000;
-        setsockopt(impl->sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+
+        if (setsockopt(impl->sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0)
+        {
+            OS_printf("[HAL CAN] 警告: 设置临时接收超时失败: %s\n", strerror(errno));
+            /* 非致命错误，继续执行 */
+        }
     }
 
     /* 接收 */

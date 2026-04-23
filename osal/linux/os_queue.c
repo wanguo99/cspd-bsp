@@ -140,6 +140,15 @@ int32 OS_QueueCreate(osal_id_t *queue_id,
     if (queue_depth > 10000 || data_size > 65536)
         return OS_QUEUE_INVALID_SIZE;
 
+    /* 检查乘法溢出 */
+    if (queue_depth > 0 && data_size > 0)
+    {
+        if (queue_depth > UINT32_MAX / data_size)
+        {
+            return OS_QUEUE_INVALID_SIZE;  /* 溢出风险 */
+        }
+    }
+
     ret = find_free_queue_slot(&slot);
     if (ret != OS_SUCCESS)
         return ret;
@@ -161,17 +170,19 @@ int32 OS_QueueCreate(osal_id_t *queue_id,
     if (impl == NULL)
     {
         pthread_mutex_unlock(&queue_table_mutex);
-        return OS_ERROR;
+        return OS_ERR_NO_MEMORY;
     }
 
     memset(impl, 0, sizeof(queue_impl_t));
 
-    impl->buffer = malloc(queue_depth * data_size);
+    /* 安全的内存分配（已检查溢出） */
+    size_t buffer_size = (size_t)queue_depth * (size_t)data_size;
+    impl->buffer = malloc(buffer_size);
     if (impl->buffer == NULL)
     {
         free(impl);
         pthread_mutex_unlock(&queue_table_mutex);
-        return OS_ERROR;
+        return OS_ERR_NO_MEMORY;
     }
 
     impl->head = 0;

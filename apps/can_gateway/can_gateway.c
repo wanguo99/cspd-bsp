@@ -22,16 +22,19 @@ static osal_id_t g_can_tx_queue;    /* CAN发送队列 */
 static uint16 g_seq_num = 0;        /* 序列号 */
 
 /*
- * 统计信息
+ * 统计信息（使用原子操作保证线程安全）
  */
+#include <stdatomic.h>
+
 typedef struct
 {
-    uint32 rx_count;
-    uint32 tx_count;
-    uint32 err_count;
+    atomic_uint rx_count;
+    atomic_uint tx_count;
+    atomic_uint err_count;
 } can_gateway_stats_t;
 
 static can_gateway_stats_t g_stats = {0};
+static osal_id_t g_stats_mutex;  /* 保护序列号的互斥锁 */
 
 /**
  * @brief CAN接收任务
@@ -65,19 +68,19 @@ static void can_rx_task(void *arg)
                 ret = OS_QueuePut(g_can_rx_queue, &frame, sizeof(frame), 0);
                 if (ret == OS_SUCCESS)
                 {
-                    g_stats.rx_count++;
+                    atomic_fetch_add(&g_stats.rx_count, 1);
                 }
                 else
                 {
                     OS_printf("[CAN Gateway] 队列满，丢弃消息\n");
-                    g_stats.err_count++;
+                    atomic_fetch_add(&g_stats.err_count, 1);
                 }
             }
         }
         else if (ret != OS_ERROR_TIMEOUT)
         {
             OS_printf("[CAN Gateway] 接收错误: %s\n", OS_GetErrorName(ret));
-            g_stats.err_count++;
+            atomic_fetch_add(&g_stats.err_count, 1);
             OS_TaskDelay(100);  /* 错误后延时 */
         }
     }
@@ -112,19 +115,19 @@ static void can_tx_task(void *arg)
                 OS_printf("[CAN Gateway] 发送CAN消息: type=%s, seq=%u\n",
                          can_get_msg_type_name(frame.msg.msg_type),
                          frame.msg.seq_num);
-                g_stats.tx_count++;
+                atomic_fetch_add(&g_stats.tx_count, 1);
             }
             else
             {
                 OS_printf("[CAN Gateway] 发送失败: %s\n", OS_GetErrorName(ret));
-                g_stats.err_count++;
+                atomic_fetch_add(&g_stats.err_count, 1);
 
                 /* 发送失败，重试一次 */
                 OS_TaskDelay(10);
                 ret = HAL_CAN_Send(g_can_handle, &frame);
                 if (ret == OS_SUCCESS)
                 {
-                    g_stats.tx_count++;
+                    atomic_fetch_add(&g_stats.tx_count, 1);
                 }
             }
         }
@@ -171,6 +174,19 @@ int32 CAN_Gateway_Init(void)
     hal_can_config_t can_config;
 
     OS_printf("[CAN Gateway] 初始化...\n");
+
+    /* 初始化原子变量 */
+    atomic_init(&g_stats.rx_count, 0);
+    atomic_init(&g_stats.tx_count, 0);
+    atomic_init(&g_stats.err_count, 0);
+
+    /* 创建互斥锁保护序列号 */
+    ret = OS_MutexCreate(&g_stats_mutex, "CAN_SEQ_MUTEX", 0);
+    if (ret != OS_SUCCESS)
+    {
+        OS_printf("[CAN Gateway] 创建互斥锁失败\n");
+        return ret;
+    }
 
     /* 创建消息队列 */
     ret = OS_QueueCreate(&g_can_rx_queue, "CAN_RX_QUEUE",
@@ -284,8 +300,14 @@ int32 CAN_Gateway_SendResponse(uint16 seq_num, can_status_t status, uint32 resul
 int32 CAN_Gateway_SendStatus(uint32 status_data)
 {
     can_frame_t frame;
+    uint16 seq;
 
-    can_build_status_report(&frame, g_seq_num++, status_data);
+    /* 使用互斥锁保护序列号递增 */
+    OS_MutexLock(g_stats_mutex);
+    seq = g_seq_num++;
+    OS_MutexUnlock(g_stats_mutex);
+
+    can_build_status_report(&frame, seq, status_data);
 
     return OS_QueuePut(g_can_tx_queue, &frame, sizeof(frame), 0);
 }
@@ -295,7 +317,8 @@ int32 CAN_Gateway_SendStatus(uint32 status_data)
  */
 void CAN_Gateway_GetStats(uint32 *rx_count, uint32 *tx_count, uint32 *err_count)
 {
-    if (rx_count)  *rx_count = g_stats.rx_count;
-    if (tx_count)  *tx_count = g_stats.tx_count;
-    if (err_count) *err_count = g_stats.err_count;
+    /* 原子读取统计信息 */
+    if (rx_count)  *rx_count = atomic_load(&g_stats.rx_count);
+    if (tx_count)  *tx_count = atomic_load(&g_stats.tx_count);
+    if (err_count) *err_count = atomic_load(&g_stats.err_count);
 }

@@ -82,6 +82,8 @@ int32 HAL_Serial_Open(const char *device, const hal_serial_config_t *config, hal
         return OS_ERR_NO_MEMORY;
     }
 
+    memset(ctx, 0, sizeof(hal_serial_context_t));
+
     /* 打开串口设备 */
     ctx->fd = open(device, O_RDWR | O_NOCTTY | O_NDELAY);
     if (ctx->fd < 0)
