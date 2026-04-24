@@ -2,9 +2,9 @@
  * OSAL网络通信单元测试
  ************************************************************************/
 
-#include "../test_framework.h"
+#include "../core/unittest_framework.h"
 #ifndef STANDALONE_TEST
-#include "../test_runner.h"
+#include "../core/unittest_runner.h"
 #endif
 #include "osal.h"
 #include <string.h>
@@ -473,7 +473,7 @@ void test_OS_SocketConnect_Multiple_Success(void)
 }
 
 /* 模块注册 */
-#include "../test_runner.h"
+#include "../core/unittest_runner.h"
 
 TEST_MODULE_BEGIN(test_os_network)
     TEST_CASE(test_OS_SocketOpen_Close_Success)

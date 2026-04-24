@@ -12,7 +12,7 @@
 #define SERVICE_SATELLITE_H
 
 #include "osa_types.h"
-#include "can_protocol.h"
+#include "protocol/can_protocol.h"
 
 /*
  * 卫星平台服务句柄

@@ -14,6 +14,11 @@
 #define MAX_MONITORED_TASKS  32
 
 /*
+ * 任务入口函数类型
+ */
+typedef void (*task_entry_func_t)(void *arg);
+
+/*
  * 监控任务信息
  */
 typedef struct
@@ -25,6 +30,12 @@ typedef struct
     uint32      last_heartbeat;
     uint32      miss_count;
     task_health_t health;
+    task_entry_func_t entry_func;
+    void        *entry_arg;
+    uint32      stack_size;
+    uint32      priority;
+    uint32      restart_count;
+    uint32      max_restart_attempts;
 } monitored_task_t;
 
 /*
@@ -38,6 +49,7 @@ typedef struct
     osal_id_t         watchdog_task_id;
     int32             hw_watchdog_fd;
     bool              running;
+    bool              safe_mode;
     uint32            system_uptime;
 } watchdog_context_t;
 
@@ -97,6 +109,73 @@ static void hw_watchdog_close(watchdog_context_t *ctx)
 }
 
 /*
+ * 重启失败的任务
+ */
+static int32 restart_task(watchdog_context_t *ctx, monitored_task_t *task)
+{
+    int32 ret;
+
+    if (task->entry_func == NULL)
+    {
+        OS_printf("[Watchdog] 任务 %s 无法重启：未注册入口函数\n", task->task_name);
+        return OS_ERROR;
+    }
+
+    if (task->restart_count >= task->max_restart_attempts)
+    {
+        OS_printf("[Watchdog] 任务 %s 重启次数已达上限 (%u/%u)，进入安全模式\n",
+                 task->task_name, task->restart_count, task->max_restart_attempts);
+        ctx->safe_mode = true;
+        task->health = TASK_HEALTH_CRITICAL;
+        return OS_ERROR;
+    }
+
+    /* 删除旧任务 */
+    ret = OS_TaskDelete(task->task_id);
+    if (ret != OS_SUCCESS)
+    {
+        OS_printf("[Watchdog] 删除任务 %s 失败 (ret=%d)\n", task->task_name, ret);
+        task->restart_count++;
+        return ret;
+    }
+
+    OS_printf("[Watchdog] 已删除失败的任务 %s\n", task->task_name);
+
+    /* 创建新任务 */
+    osal_id_t new_task_id;
+    ret = OS_TaskCreate(&new_task_id,
+                        task->task_name,
+                        task->entry_func,
+                        task->entry_arg,
+                        task->stack_size,
+                        task->priority,
+                        0);
+    if (ret != OS_SUCCESS)
+    {
+        OS_printf("[Watchdog] 重启任务 %s 失败 (ret=%d)\n", task->task_name, ret);
+        task->restart_count++;
+        if (task->restart_count >= task->max_restart_attempts)
+        {
+            ctx->safe_mode = true;
+            task->health = TASK_HEALTH_CRITICAL;
+        }
+        return ret;
+    }
+
+    /* 更新任务ID和状态 */
+    task->task_id = new_task_id;
+    task->restart_count++;
+    task->miss_count = 0;
+    task->last_heartbeat = OS_GetTickCount();
+    task->health = TASK_HEALTH_OK;
+
+    OS_printf("[Watchdog] 任务 %s 已重启 (重启次数: %u)\n",
+             task->task_name, task->restart_count);
+
+    return OS_SUCCESS;
+}
+
+/*
  * 检查任务健康状态
  */
 static void check_task_health(watchdog_context_t *ctx)
@@ -125,7 +204,7 @@ static void check_task_health(watchdog_context_t *ctx)
 
                 /* 尝试恢复任务 */
                 OS_printf("[Watchdog] 尝试重启任务 %s\n", task->task_name);
-                /* TODO: 实现任务重启逻辑 */
+                restart_task(ctx, task);
             }
             else if (task->miss_count >= 1)
             {
@@ -203,6 +282,7 @@ int32 Watchdog_Init(const watchdog_config_t *config)
     memcpy(&g_watchdog_ctx->config, config, sizeof(watchdog_config_t));
     g_watchdog_ctx->hw_watchdog_fd = -1;
     g_watchdog_ctx->running = true;
+    g_watchdog_ctx->safe_mode = false;
 
     /* 创建互斥锁 */
     ret = OS_MutexCreate(&g_watchdog_ctx->mutex, "WDG_MTX", 0);
@@ -246,7 +326,22 @@ int32 Watchdog_Deinit(void)
 
     /* 停止看门狗任务 */
     g_watchdog_ctx->running = false;
-    OS_TaskDelay(1000);  /* 等待任务退出 */
+    OS_TaskDelay(200);  /* 等待任务退出 */
+
+    /* 删除看门狗任务 */
+    OS_TaskDelete(g_watchdog_ctx->watchdog_task_id);
+
+    /* 删除所有被监控的任务 */
+    OS_MutexLock(g_watchdog_ctx->mutex);
+    for (uint32 i = 0; i < MAX_MONITORED_TASKS; i++)
+    {
+        if (g_watchdog_ctx->tasks[i].in_use)
+        {
+            OS_TaskDelete(g_watchdog_ctx->tasks[i].task_id);
+            g_watchdog_ctx->tasks[i].in_use = false;
+        }
+    }
+    OS_MutexUnlock(g_watchdog_ctx->mutex);
 
     /* 关闭硬件看门狗 */
     hw_watchdog_close(g_watchdog_ctx);
@@ -262,7 +357,9 @@ int32 Watchdog_Deinit(void)
     return OS_SUCCESS;
 }
 
-int32 Watchdog_RegisterTask(osal_id_t task_id, const char *task_name, uint32 timeout_ms)
+int32 Watchdog_RegisterTask(osal_id_t task_id, const char *task_name, uint32 timeout_ms,
+                            task_entry_func_t entry_func, void *entry_arg,
+                            uint32 stack_size, uint32 priority, uint32 max_restart_attempts)
 {
     if (g_watchdog_ctx == NULL)
         return OS_ERROR;
@@ -285,10 +382,17 @@ int32 Watchdog_RegisterTask(osal_id_t task_id, const char *task_name, uint32 tim
             g_watchdog_ctx->tasks[i].last_heartbeat = OS_GetTickCount();
             g_watchdog_ctx->tasks[i].miss_count = 0;
             g_watchdog_ctx->tasks[i].health = TASK_HEALTH_OK;
+            g_watchdog_ctx->tasks[i].entry_func = entry_func;
+            g_watchdog_ctx->tasks[i].entry_arg = entry_arg;
+            g_watchdog_ctx->tasks[i].stack_size = stack_size;
+            g_watchdog_ctx->tasks[i].priority = priority;
+            g_watchdog_ctx->tasks[i].restart_count = 0;
+            g_watchdog_ctx->tasks[i].max_restart_attempts = max_restart_attempts;
 
             OS_MutexUnlock(g_watchdog_ctx->mutex);
 
-            OS_printf("[Watchdog] 已注册任务: %s (超时: %u ms)\n", task_name, timeout_ms);
+            OS_printf("[Watchdog] 已注册任务: %s (超时: %u ms, 最大重启次数: %u)\n",
+                     task_name, timeout_ms, max_restart_attempts);
             return OS_SUCCESS;
         }
     }
@@ -366,4 +470,16 @@ task_health_t Watchdog_GetSystemHealth(void)
     OS_MutexUnlock(g_watchdog_ctx->mutex);
 
     return worst_health;
+}
+
+bool Watchdog_IsSafeMode(void)
+{
+    if (g_watchdog_ctx == NULL)
+        return false;
+
+    OS_MutexLock(g_watchdog_ctx->mutex);
+    bool safe_mode = g_watchdog_ctx->safe_mode;
+    OS_MutexUnlock(g_watchdog_ctx->mutex);
+
+    return safe_mode;
 }

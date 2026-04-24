@@ -21,12 +21,16 @@ endif()
 set(CSPD_BSP_ROOT ${CMAKE_SOURCE_DIR})
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/core
     ${CSPD_BSP_ROOT}/osal/inc
     ${CSPD_BSP_ROOT}/hal/inc
     ${CSPD_BSP_ROOT}/service/inc
     ${CSPD_BSP_ROOT}/apps/protocol_converter
     ${CSPD_BSP_ROOT}/apps/can_gateway
     ${CSPD_BSP_ROOT}/config
+    ${CSPD_BSP_ROOT}/config/hardware
+    ${CSPD_BSP_ROOT}/config/system
+    ${CSPD_BSP_ROOT}/config/protocol
 )
 
 # 查找pthread库
@@ -58,13 +62,16 @@ list(FILTER APPS_PROTOCOL_SOURCES EXCLUDE REGEX ".*/main\\.c$")
 
 # 测试运行器库
 add_library(test_runner STATIC
-    test_runner.c
+    core/unittest_runner.c
 )
-target_include_directories(test_runner PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(test_runner PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/core
+)
 
 # 统一测试主程序（唯一的测试可执行文件）
 add_executable(unit-test
-    test_main_unified.c
+    core/unittest_entry.c
     osal/test_os_task.c
     osal/test_os_queue.c
     osal/test_os_mutex.c
@@ -73,6 +80,7 @@ add_executable(unit-test
     osal/test_os_signal.c
     hal/test_hal_can_module.c
     service/test_payload_service_module.c
+    service/test_watchdog_restart.c
     apps/test_can_gateway_module.c
     apps/test_protocol_converter_module.c
     ${APPS_PROTOCOL_SOURCES}
@@ -270,7 +278,7 @@ message(STATUS "")
 message(STATUS "========================================")
 message(STATUS "  CSPD-BSP Unit Tests Configuration")
 message(STATUS "========================================")
-message(STATUS "  Test framework: Custom (test_framework.h + test_runner.h)")
+message(STATUS "  Test framework: Custom (unittest_framework.h + unittest_runner.h)")
 message(STATUS "  Total test modules: 10")
 message(STATUS "    - OSAL tests: 6 modules (task, queue, mutex, file, network, signal)")
 message(STATUS "    - HAL tests: 1 module (CAN driver)")

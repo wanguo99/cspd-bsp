@@ -13,6 +13,7 @@ if(PLATFORM STREQUAL "native" OR PLATFORM STREQUAL "generic-linux")
         ${SERVICE_IMPL_DIR}/service_payload_bmc.c
         ${SERVICE_IMPL_DIR}/service_payload_linux.c
         ${SERVICE_IMPL_DIR}/service_power.c
+        ${SERVICE_IMPL_DIR}/persistent_queue.c
     )
 elseif(PLATFORM STREQUAL "rtems")
     set(SERVICE_IMPL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/rtems)

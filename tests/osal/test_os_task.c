@@ -2,9 +2,9 @@
  * OSAL任务管理单元测试
  ************************************************************************/
 
-#include "../test_framework.h"
+#include "../core/unittest_framework.h"
 #ifndef STANDALONE_TEST
-#include "../test_runner.h"
+#include "../core/unittest_runner.h"
 #endif
 #include "osal.h"
 #include <unistd.h>
@@ -233,7 +233,7 @@ void test_OS_TaskGetInfo_Success(void)
 }
 
 /* 模块注册 */
-#include "../test_runner.h"
+#include "../core/unittest_runner.h"
 
 TEST_MODULE_BEGIN(test_os_task)
     TEST_CASE(test_OS_TaskCreate_Success)

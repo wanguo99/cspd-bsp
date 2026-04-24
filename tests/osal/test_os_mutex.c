@@ -2,9 +2,9 @@
  * OSAL互斥锁单元测试
  ************************************************************************/
 
-#include "../test_framework.h"
+#include "../core/unittest_framework.h"
 #ifndef STANDALONE_TEST
-#include "../test_runner.h"
+#include "../core/unittest_runner.h"
 #endif
 #include "osal.h"
 #include <pthread.h>
@@ -187,7 +187,7 @@ void test_OS_Mutex_ProtectSharedResource(void)
 }
 
 /* 模块注册 */
-#include "../test_runner.h"
+#include "../core/unittest_runner.h"
 
 TEST_MODULE_BEGIN(test_os_mutex)
     TEST_CASE(test_OS_MutexCreate_Success)

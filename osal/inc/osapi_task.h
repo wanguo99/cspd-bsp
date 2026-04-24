@@ -6,6 +6,7 @@
 #define OSAPI_TASK_H
 
 #include "osa_types.h"
+#include <stdbool.h>
 
 typedef void (*osal_task_entry)(void *arg);
 
@@ -72,6 +73,13 @@ int32 OS_TaskSetPriority(osal_id_t task_id, uint32 priority);
  * @brief 获取当前任务ID
  */
 osal_id_t OS_TaskGetId(void);
+
+/**
+ * @brief 检查当前任务是否应该关闭
+ * @return true 任务应该关闭
+ * @return false 任务继续运行
+ */
+bool OS_TaskShouldShutdown(void);
 
 /**
  * @brief 根据名称获取任务ID

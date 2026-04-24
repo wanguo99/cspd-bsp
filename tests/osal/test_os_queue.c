@@ -2,9 +2,9 @@
  * OSAL消息队列单元测试
  ************************************************************************/
 
-#include "../test_framework.h"
+#include "../core/unittest_framework.h"
 #ifndef STANDALONE_TEST
-#include "../test_runner.h"
+#include "../core/unittest_runner.h"
 #endif
 #include "osal.h"
 #include <string.h>
@@ -248,7 +248,7 @@ void test_OS_QueueDelete_InvalidId(void)
 }
 
 /* 模块注册 */
-#include "../test_runner.h"
+#include "../core/unittest_runner.h"
 
 TEST_MODULE_BEGIN(test_os_queue)
     TEST_CASE(test_OS_QueueCreate_Success)

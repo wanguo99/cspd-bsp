@@ -3,8 +3,8 @@
  * 用于统一测试入口
  ************************************************************************/
 
-#include "test_runner.h"
-#include "test_framework.h"
+#include "unittest_runner.h"
+#include "unittest_framework.h"
 #include "payload_service.h"
 #include "osal.h"
 #include <pthread.h>

@@ -8,7 +8,7 @@
 
 #include "osal.h"
 #include "system_config.h"
-#include "can_protocol.h"
+#include "protocol/can_protocol.h"
 #include "can_gateway.h"
 #include "payload_service.h"
 #include <stdatomic.h>
@@ -26,6 +26,123 @@ typedef struct
 } converter_stats_t;
 
 static converter_stats_t g_stats = {0};
+
+/**
+ * @brief 解析IPMI响应
+ *
+ * @param[in] cmd_type 命令类型
+ * @param[in] response 响应字符串
+ * @param[out] result 解析结果
+ *
+ * @return can_status_t 状态码
+ */
+static can_status_t parse_ipmi_response(can_cmd_type_t cmd_type, const char *response, uint32 *result)
+{
+    if (!response || !result)
+    {
+        return STATUS_INVALID_CMD;
+    }
+
+    *result = 0;
+
+    switch (cmd_type)
+    {
+        case CMD_TYPE_POWER_ON:
+        case CMD_TYPE_POWER_OFF:
+        case CMD_TYPE_RESET:
+            /* 电源控制命令：检查是否包含成功标识 */
+            if (strstr(response, "Chassis Power Control: Up/On") ||
+                strstr(response, "Chassis Power Control: Down/Off") ||
+                strstr(response, "Chassis Power Control: Reset"))
+            {
+                *result = 1;  /* 成功 */
+                return STATUS_OK;
+            }
+            /* 检查错误信息 */
+            if (strstr(response, "Error") || strstr(response, "Unable to"))
+            {
+                return STATUS_COMM_ERROR;
+            }
+            /* 无明确错误但也无成功标识，可能是命令已执行 */
+            *result = 1;
+            return STATUS_OK;
+
+        case CMD_TYPE_QUERY_STATUS:
+            /* 底盘状态查询：解析电源状态 */
+            if (strstr(response, "System Power") && strstr(response, "on"))
+            {
+                *result = 1;  /* 电源开启 */
+            }
+            else if (strstr(response, "System Power") && strstr(response, "off"))
+            {
+                *result = 0;  /* 电源关闭 */
+            }
+            else
+            {
+                return STATUS_COMM_ERROR;  /* 无法解析状态 */
+            }
+            return STATUS_OK;
+
+        case CMD_TYPE_QUERY_TEMP:
+            /* 温度查询：提取第一个温度值 */
+            {
+                const char *temp_ptr = strstr(response, "degrees C");
+                if (temp_ptr)
+                {
+                    /* 向前查找数字 */
+                    const char *num_start = temp_ptr - 1;
+                    while (num_start > response && (*num_start == ' ' || *num_start == '\t'))
+                        num_start--;
+                    while (num_start > response && (*num_start >= '0' && *num_start <= '9'))
+                        num_start--;
+
+                    if (num_start < temp_ptr)
+                    {
+                        int temp_value = 0;
+                        if (sscanf(num_start + 1, "%d", &temp_value) == 1)
+                        {
+                            *result = (uint32)temp_value;
+                            return STATUS_OK;
+                        }
+                    }
+                }
+                /* 未找到温度值 */
+                return STATUS_COMM_ERROR;
+            }
+
+        case CMD_TYPE_QUERY_VOLTAGE:
+            /* 电压查询：提取第一个电压值（单位：伏特） */
+            {
+                const char *volt_ptr = strstr(response, "Volts");
+                if (volt_ptr)
+                {
+                    /* 向前查找数字（可能包含小数点） */
+                    const char *num_start = volt_ptr - 1;
+                    while (num_start > response && (*num_start == ' ' || *num_start == '\t'))
+                        num_start--;
+                    while (num_start > response &&
+                           ((*num_start >= '0' && *num_start <= '9') || *num_start == '.'))
+                        num_start--;
+
+                    if (num_start < volt_ptr)
+                    {
+                        float volt_value = 0.0f;
+                        if (sscanf(num_start + 1, "%f", &volt_value) == 1)
+                        {
+                            /* 转换为毫伏存储 */
+                            *result = (uint32)(volt_value * 1000);
+                            return STATUS_OK;
+                        }
+                    }
+                }
+                /* 未找到电压值 */
+                return STATUS_COMM_ERROR;
+            }
+
+        default:
+            return STATUS_INVALID_CMD;
+    }
+}
 
 static can_status_t execute_ipmi_command(can_cmd_type_t cmd_type, uint32 param __attribute__((unused)), uint32 *result)
 {
@@ -92,10 +209,7 @@ static can_status_t execute_ipmi_command(can_cmd_type_t cmd_type, uint32 param _
     OS_printf("[Protocol Converter] 收到响应: %s\n", resp_buf);
 
     /* 解析响应 */
-    /* TODO: 实际项目中需要解析IPMI响应格式 */
-    *result = 0;  /* 简化处理 */
-
-    return STATUS_OK;
+    return parse_ipmi_response(cmd_type, resp_buf, result);
 }
 
 /**

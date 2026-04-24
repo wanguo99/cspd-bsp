@@ -2,6 +2,9 @@
  * OSAL Linux/POSIX实现 - 任务管理
  ************************************************************************/
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
 #include "osal.h"
 #include <pthread.h>
 #include <string.h>
@@ -29,6 +32,7 @@ typedef struct
     uint32      stack_size;
     atomic_int  ref_count;
     task_state_t state;
+    volatile bool shutdown_requested;
 } OS_task_record_t;
 
 static OS_task_record_t OS_task_table[OS_MAX_TASKS];
@@ -195,8 +199,12 @@ int32 OS_TaskCreate(osal_id_t *task_id,
 
 int32 OS_TaskDelete(osal_id_t task_id)
 {
-    pthread_t thread_to_cancel = 0;
+    pthread_t thread_to_delete = 0;
     bool found = false;
+    uint32 slot_index = 0;
+
+    if (task_id == OS_OBJECT_ID_UNDEFINED)
+        return OS_ERR_INVALID_ID;
 
     pthread_mutex_lock(&task_table_mutex);
 
@@ -204,8 +212,9 @@ int32 OS_TaskDelete(osal_id_t task_id)
     {
         if (OS_task_table[i].is_used && OS_task_table[i].id == task_id)
         {
-            thread_to_cancel = OS_task_table[i].thread;
-            OS_task_table[i].is_used = false;
+            thread_to_delete = OS_task_table[i].thread;
+            OS_task_table[i].shutdown_requested = true;
+            slot_index = i;
             found = true;
             break;
         }
@@ -216,8 +225,37 @@ int32 OS_TaskDelete(osal_id_t task_id)
     if (!found)
         return OS_ERR_INVALID_ID;
 
-    /* 在锁外取消线程，避免死锁 */
-    pthread_cancel(thread_to_cancel);
+    /* 等待线程优雅退出，超时时间为5秒 */
+    struct timespec timeout;
+    clock_gettime(CLOCK_REALTIME, &timeout);
+    timeout.tv_sec += 5;
+
+    int ret = pthread_timedjoin_np(thread_to_delete, NULL, &timeout);
+
+    if (ret == ETIMEDOUT)
+    {
+        /* 超时后分离线程，不强制取消 */
+        OS_printf("[OS_Task] 任务 %u 优雅关闭超时，分离线程\n", task_id);
+        pthread_detach(thread_to_delete);
+    }
+    else if (ret == EINVAL)
+    {
+        /* 线程可能已经退出或不可join，尝试分离 */
+        pthread_detach(thread_to_delete);
+    }
+    else if (ret != 0)
+    {
+        OS_printf("[OS_Task] 等待任务 %u 退出失败: %d\n", task_id, ret);
+        pthread_detach(thread_to_delete);
+    }
+
+    /* 从任务表中移除 */
+    pthread_mutex_lock(&task_table_mutex);
+    if (OS_task_table[slot_index].is_used && OS_task_table[slot_index].id == task_id)
+    {
+        OS_task_table[slot_index].is_used = false;
+    }
+    pthread_mutex_unlock(&task_table_mutex);
 
     return OS_SUCCESS;
 }
@@ -257,6 +295,27 @@ osal_id_t OS_TaskGetId(void)
 
     pthread_mutex_unlock(&task_table_mutex);
     return OS_OBJECT_ID_UNDEFINED;
+}
+
+bool OS_TaskShouldShutdown(void)
+{
+    pthread_t self = pthread_self();
+
+    pthread_mutex_lock(&task_table_mutex);
+
+    for (uint32 i = 0; i < OS_MAX_TASKS; i++)
+    {
+        if (OS_task_table[i].is_used &&
+            pthread_equal(OS_task_table[i].thread, self))
+        {
+            bool shutdown = OS_task_table[i].shutdown_requested;
+            pthread_mutex_unlock(&task_table_mutex);
+            return shutdown;
+        }
+    }
+
+    pthread_mutex_unlock(&task_table_mutex);
+    return false;
 }
 
 int32 OS_TaskGetIdByName(osal_id_t *task_id, const char *task_name)

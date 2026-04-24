@@ -8,7 +8,7 @@
 #define HAL_CAN_H
 
 #include "osa_types.h"
-#include "can_protocol.h"
+#include "protocol/can_protocol.h"
 
 typedef void* hal_can_handle_t;
 

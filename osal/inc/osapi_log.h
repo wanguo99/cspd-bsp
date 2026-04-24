@@ -40,6 +40,20 @@ void OS_Log_Shutdown(void);
 void OS_Log_SetLevel(int32 level);
 
 /**
+ * @brief 设置日志文件最大大小
+ *
+ * @param[in] size_bytes 最大文件大小（字节）
+ */
+void OS_Log_SetMaxFileSize(uint32 size_bytes);
+
+/**
+ * @brief 设置最大日志文件数
+ *
+ * @param[in] max_files 最大备份文件数
+ */
+void OS_Log_SetMaxFiles(uint32 max_files);
+
+/**
  * @brief 通用日志函数
  *
  * @param[in] level 日志级别

@@ -1,0 +1,291 @@
+# CSPD-BSP 项目说明
+
+## 项目概述
+
+**CSPD-BSP** (Compute and Storage Payload Board Support Package) 是为卫星算存载荷设计的板级支持包，作为卫星平台与算存载荷之间的通信桥接和管理中间层。
+
+**系统架构**：
+```
+卫星平台 <--CAN--> 转接板(CSPD-BSP) <--Ethernet/UART--> 算存载荷
+```
+
+## 核心功能
+
+- **CAN通信**：与卫星平台进行CAN总线通信
+- **协议转换**：卫星命令 ↔ IPMI/Redfish命令
+- **通信冗余**：以太网主通道 + UART备份通道
+- **看门狗机制**：任务监控、自动重启、故障恢复
+- **状态监控**：定期查询载荷状态并上报
+
+## 代码结构（4层架构）
+
+```
+cspd-bsp/
+├── osal/                    # 操作系统抽象层 (OSAL)
+│   ├── inc/                 # 接口定义
+│   └── linux/               # Linux实现
+│       ├── os_task.c        # 任务管理（pthread）
+│       ├── os_queue.c       # 消息队列
+│       ├── os_mutex.c       # 互斥锁（带死锁检测）
+│       ├── os_log.c         # 日志系统（带轮转）
+│       ├── os_heap.c        # 堆内存监控
+│       └── ...
+├── hal/                     # 硬件抽象层 (HAL)
+│   ├── inc/                 # 接口定义
+│   └── linux/               # Linux驱动
+│       ├── hal_can_linux.c  # CAN驱动（SocketCAN）
+│       ├── hal_serial_linux.c # 串口驱动
+│       └── hal_network_linux.c # 网络驱动
+├── service/                 # 服务层
+│   ├── inc/                 # 接口定义
+│   └── linux/               # 服务实现
+│       ├── watchdog.c       # 看门狗服务（任务监控+重启）
+│       ├── persistent_queue.c # 持久化命令队列
+│       ├── service_payload_*.c # 载荷通信服务
+│       └── service_power.c  # 电源管理服务
+├── apps/                    # 应用层
+│   ├── can_gateway/         # CAN网关应用
+│   │   ├── can_gateway.c    # CAN消息处理
+│   │   └── main.c           # 主程序入口
+│   └── protocol_converter/  # 协议转换应用
+│       ├── protocol_converter.c # 协议转换逻辑
+│       ├── payload_service.c    # 载荷服务封装
+│       └── main.c           # 主程序入口
+├── config/                  # 配置文件
+│   ├── system_config.h      # 系统配置
+│   └── can_protocol.h       # CAN协议定义
+└── tests/                   # 测试框架
+    ├── core/                # 测试核心文件
+    │   ├── unittest_entry.c     # 统一测试入口
+    │   ├── unittest_runner.c    # 测试运行器
+    │   ├── unittest_runner.h    # 测试运行器头文件
+    │   └── unittest_framework.h # 测试框架
+    ├── osal/                # OSAL层测试
+    ├── hal/                 # HAL层测试
+    ├── service/             # Service层测试
+    └── apps/                # Apps层测试
+```
+
+## 关键设计特点
+
+### 1. 分层隔离
+- **OSAL层**：封装操作系统API，支持跨平台移植
+- **HAL层**：封装硬件驱动，隔离硬件差异
+- **Service层**：提供业务服务，不直接依赖硬件
+- **Apps层**：应用逻辑，通过Service层访问底层
+
+### 2. 看门狗机制（重点）
+- 文件：`service/linux/watchdog.c`
+- 功能：
+  - 监控任务心跳，检测任务失败
+  - 自动重启失败任务（最多3次）
+  - 重启失败后进入安全模式
+  - 支持多任务监控
+- 关键API：
+  - `Watchdog_Init()` - 初始化看门狗
+  - `Watchdog_RegisterTask()` - 注册需要监控的任务
+  - `Watchdog_Heartbeat()` - 任务发送心跳
+  - `Watchdog_GetSystemHealth()` - 获取系统健康状态
+
+### 3. 任务管理（优雅关闭）
+- 文件：`osal/linux/os_task.c`
+- 特点：
+  - 使用shutdown标志而非pthread_cancel（避免死锁）
+  - 任务通过`OS_TaskShouldShutdown()`检查是否需要退出
+  - 使用`pthread_timedjoin_np`等待任务退出（5秒超时）
+  - 超时后使用`pthread_detach`而非强制取消
+
+### 4. 日志系统
+- 文件：`osal/linux/os_log.c`
+- 功能：
+  - 支持多级别日志（DEBUG/INFO/WARN/ERROR/FATAL）
+  - 日志轮转（按大小，保留N个文件）
+  - 线程安全
+- 接口：
+  - `OS_printf()` - 简单打印
+  - `LOG_INFO(module, ...)` - 带模块名的日志宏
+  - `LOG_ERROR(module, ...)` - 错误日志
+
+### 5. 通信冗余
+- 主通道：以太网（IPMI over LAN）
+- 备份通道：UART（IPMI over Serial）
+- 自动切换：连续5次失败后切换到备份通道
+- 定期恢复：尝试恢复主通道
+
+## 构建系统
+
+### 编译
+```bash
+./build.sh           # Release模式
+./build.sh -d        # Debug模式
+./build.sh -c        # 清理后编译
+```
+
+### 输出
+```
+output/
+├── build/           # 编译中间文件
+└── target/
+    ├── bin/         # 可执行文件
+    │   ├── can_gateway
+    │   ├── protocol_converter
+    │   └── unit-test
+    └── lib/         # 静态库
+        ├── libosal.a
+        ├── libhal.a
+        └── libservice.a
+```
+
+## 测试系统
+
+### 统一测试入口
+```bash
+./output/target/bin/unit-test -i    # 交互式菜单
+./output/target/bin/unit-test -a    # 运行所有测试
+./output/target/bin/unit-test -L OSAL  # 运行OSAL层测试
+./output/target/bin/unit-test -m test_os_task  # 运行指定模块
+```
+
+### 测试覆盖
+- **OSAL层**：6个模块（task, queue, mutex, file, network, signal）
+- **HAL层**：1个模块（CAN驱动）
+- **Service层**：2个模块（payload service, watchdog）
+- **Apps层**：2个模块（CAN gateway, protocol converter）
+
+### 交互式菜单特点
+- 三级选择：层级 → 模块 → 测试用例
+- 使用序号选择，无需输入完整名称
+- 支持单个测试、模块测试、层级测试
+
+## 编码规范
+
+### 日志接口
+- **禁止**直接使用`printf`/`fprintf`
+- **使用**OSAL日志接口：
+  - `OS_printf()` - 简单输出
+  - `LOG_INFO("MODULE", "message")` - 信息日志
+  - `LOG_ERROR("MODULE", "message")` - 错误日志
+
+### 错误处理
+- 所有函数返回`int32`状态码
+- 成功返回`OS_SUCCESS`
+- 失败返回`OS_ERROR`或具体错误码
+- 关键操作必须检查返回值
+
+### 内存管理
+- 关键路径（中断、DMA）使用预分配内存池
+- 避免在中断上下文中使用`malloc`
+- 所有`malloc`必须检查返回值
+
+### 任务编写规范
+```c
+static void my_task_entry(void *arg)
+{
+    osal_id_t task_id = OS_TaskGetId();
+    
+    // 注册到看门狗
+    Watchdog_RegisterTask(task_id, "MY_TASK", 1000, 
+                         my_task_entry, arg, 8192, 50, 3);
+    
+    while (!OS_TaskShouldShutdown())  // 检查退出标志
+    {
+        // 执行任务逻辑
+        do_work();
+        
+        // 发送心跳
+        Watchdog_Heartbeat(task_id);
+        
+        // 延时
+        OS_TaskDelay(100);
+    }
+    
+    // 清理资源
+    cleanup();
+}
+```
+
+## 关键配置
+
+### CAN配置
+- 文件：`config/system_config.h`
+- 接口：`can0`
+- 波特率：500Kbps
+- 协议：自定义8字节协议（见`config/can_protocol.h`）
+
+### 载荷通信
+- 主通道：以太网（192.168.1.100:623）
+- 备份通道：UART（/dev/ttyS0, 115200）
+- 协议：IPMI/Redfish
+
+### 看门狗配置
+- 检查间隔：100ms
+- 任务超时：500ms
+- 最大重启次数：3次
+- 超时后进入安全模式
+
+## 常见问题
+
+### 1. 编译警告处理
+- 项目使用`-Werror`，所有警告视为错误
+- 必须修复所有警告才能编译通过
+
+### 2. 测试失败（硬件相关）
+- CAN测试失败：需要CAN设备（can0）
+- 串口测试失败：需要串口设备（/dev/ttyS0）
+- 这些失败是正常的，不影响代码逻辑
+
+### 3. 看门狗重启机制
+- 任务必须定期调用`Watchdog_Heartbeat()`
+- 连续3次超时后触发重启
+- 重启3次失败后进入安全模式
+
+### 4. 任务优雅退出
+- 任务循环必须检查`OS_TaskShouldShutdown()`
+- 不要使用无限循环`while(1)`
+- 退出前清理资源
+
+## 最近重构（2026-04-24）
+
+### 测试框架重构
+- 重命名：`test_framework.h` → `unittest_framework.h`
+- 重命名：`test_runner.c/h` → `unittest_runner.c/h`
+- 重命名：`test_main_unified.c` → `unittest_entry.c`
+- 统一日志：所有`printf`替换为`OS_printf`
+- 目录重组：测试核心文件移至`tests/core/`目录
+
+### 配置文件重组
+- 拆分`system_config.h`为多个子配置文件
+- 新增`config/hardware/`目录：can_config.h, ethernet_config.h, uart_config.h
+- 新增`config/system/`目录：task_config.h, queue_config.h, log_config.h, watchdog_config.h
+- 新增`config/protocol/`目录：can_protocol.h
+- `system_config.h`作为主入口，包含所有子配置
+
+### 清理遗留代码
+- 删除：`tests/osal/test_main.c`（已被统一入口替代）
+- 删除：`tests/apps/CMakeLists.txt`（独立测试配置）
+- 删除：`tests/service/CMakeLists.txt`（独立测试配置）
+- 删除：`examples/`目录（示例代码）
+- 删除：`osal/freertos/`目录（FreeRTOS示例）
+
+### 看门狗优化
+- 修复任务重启机制（完成TODO）
+- 消除pthread_cancel死锁风险
+- 实现优雅关闭（shutdown标志）
+- 增强Watchdog_Deinit（清理所有监控任务）
+
+## 开发建议
+
+1. **遵循分层架构**：不要跨层直接调用
+2. **使用OSAL接口**：不要直接使用pthread/socket等系统API
+3. **注册看门狗**：关键任务必须注册到看门狗
+4. **优雅退出**：任务循环检查`OS_TaskShouldShutdown()`
+5. **错误处理**：所有返回值必须检查
+6. **日志规范**：使用`LOG_*`宏，不要用`printf`
+7. **测试驱动**：新功能必须编写单元测试
+
+## 性能指标
+
+- CAN消息延迟：< 10ms
+- 命令处理时间：< 100ms
+- 内存占用：< 128MB
+- CPU占用（空闲）：< 5%

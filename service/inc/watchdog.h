@@ -14,6 +14,11 @@
 #include "osa_types.h"
 
 /*
+ * 任务入口函数类型
+ */
+typedef void (*task_entry_func_t)(void *arg);
+
+/*
  * 看门狗配置
  */
 typedef struct
@@ -59,11 +64,18 @@ int32 Watchdog_Deinit(void);
  * @param[in] task_id 任务ID
  * @param[in] task_name 任务名称
  * @param[in] timeout_ms 超时时间(ms)
+ * @param[in] entry_func 任务入口函数
+ * @param[in] entry_arg 任务入口参数
+ * @param[in] stack_size 任务栈大小
+ * @param[in] priority 任务优先级
+ * @param[in] max_restart_attempts 最大重启次数
  *
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 Watchdog_RegisterTask(osal_id_t task_id, const char *task_name, uint32 timeout_ms);
+int32 Watchdog_RegisterTask(osal_id_t task_id, const char *task_name, uint32 timeout_ms,
+                            task_entry_func_t entry_func, void *entry_arg,
+                            uint32 stack_size, uint32 priority, uint32 max_restart_attempts);
 
 /**
  * @brief 任务心跳上报
@@ -90,5 +102,13 @@ int32 Watchdog_GetTaskHealth(osal_id_t task_id, task_health_t *health);
  * @return task_health_t 系统健康状态
  */
 task_health_t Watchdog_GetSystemHealth(void);
+
+/**
+ * @brief 检查系统是否进入安全模式
+ *
+ * @return true 系统在安全模式
+ * @return false 系统正常运行
+ */
+bool Watchdog_IsSafeMode(void);
 
 #endif /* WATCHDOG_H */

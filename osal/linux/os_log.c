@@ -30,6 +30,9 @@ typedef enum
 static log_level_t g_log_level = LOG_LEVEL_INFO;
 static FILE *g_log_file = NULL;
 static pthread_mutex_t g_log_mutex = PTHREAD_MUTEX_INITIALIZER;
+static char g_log_file_path[256] = {0};
+static uint32 g_max_log_size = 10 * 1024 * 1024;  /* 10MB */
+static uint32 g_max_log_files = 5;
 
 /*
  * 日志级别名称
@@ -72,6 +75,8 @@ int32 OS_Log_Init(const char *log_file_path, int32 level)
 
     if (log_file_path != NULL)
     {
+        strncpy(g_log_file_path, log_file_path, sizeof(g_log_file_path) - 1);
+        g_log_file_path[sizeof(g_log_file_path) - 1] = '\0';
         g_log_file = fopen(log_file_path, "a");
         if (g_log_file == NULL)
         {
@@ -107,6 +112,24 @@ void OS_Log_SetLevel(int32 level)
 }
 
 /**
+ * @brief 设置日志文件最大大小
+ */
+void OS_Log_SetMaxFileSize(uint32 size_bytes)
+{
+    if (size_bytes > 0)
+        g_max_log_size = size_bytes;
+}
+
+/**
+ * @brief 设置最大日志文件数
+ */
+void OS_Log_SetMaxFiles(uint32 max_files)
+{
+    if (max_files > 0)
+        g_max_log_files = max_files;
+}
+
+/**
  * @brief 获取当前时间字符串
  */
 static void get_timestamp(char *buffer, size_t size)
@@ -125,6 +148,68 @@ static void get_timestamp(char *buffer, size_t size)
              tm_info.tm_min,
              tm_info.tm_sec,
              (long)(tv.tv_usec / 1000));
+}
+
+/**
+ * @brief 轮转日志文件
+ */
+static void rotate_log_file(void)
+{
+    if (g_log_file_path[0] == '\0')
+        return;
+
+    /* 关闭当前日志文件 */
+    if (g_log_file != NULL)
+    {
+        fclose(g_log_file);
+        g_log_file = NULL;
+    }
+
+    /* 删除最旧的日志文件 */
+    char old_file[512];
+    snprintf(old_file, sizeof(old_file), "%s.%u", g_log_file_path, g_max_log_files);
+    remove(old_file);
+
+    /* 重命名日志文件 */
+    for (uint32 i = g_max_log_files - 1; i > 0; i--)
+    {
+        char from[512], to[512];
+        snprintf(from, sizeof(from), "%s.%u", g_log_file_path, i - 1);
+        snprintf(to, sizeof(to), "%s.%u", g_log_file_path, i);
+        rename(from, to);
+    }
+
+    /* 重命名当前日志文件 */
+    char current_backup[512];
+    snprintf(current_backup, sizeof(current_backup), "%s.1", g_log_file_path);
+    rename(g_log_file_path, current_backup);
+
+    /* 打开新的日志文件 */
+    g_log_file = fopen(g_log_file_path, "a");
+    if (g_log_file != NULL)
+    {
+        fprintf(g_log_file, "[LOG ROTATION] Log file rotated\n");
+        fflush(g_log_file);
+    }
+}
+
+/**
+ * @brief 检查日志文件大小并轮转
+ */
+static void check_and_rotate_log(void)
+{
+    if (g_log_file == NULL || g_log_file_path[0] == '\0')
+        return;
+
+    /* 获取文件大小 */
+    fseek(g_log_file, 0, SEEK_END);
+    long file_size = ftell(g_log_file);
+    fseek(g_log_file, 0, SEEK_END);
+
+    if (file_size > (long)g_max_log_size)
+    {
+        rotate_log_file();
+    }
 }
 
 /**
@@ -148,6 +233,9 @@ static void log_internal(log_level_t level, const char *module,
 
     /* 加锁 */
     pthread_mutex_lock(&g_log_mutex);
+
+    /* 检查并轮转日志文件 */
+    check_and_rotate_log();
 
     /* 输出到终端（带颜色） */
     if (module != NULL)

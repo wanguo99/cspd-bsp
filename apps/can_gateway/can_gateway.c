@@ -9,7 +9,7 @@
 
 #include "osal.h"
 #include "system_config.h"
-#include "can_protocol.h"
+#include "protocol/can_protocol.h"
 #include "hal_can.h"
 #include <string.h>
 
