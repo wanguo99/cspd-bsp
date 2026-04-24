@@ -97,7 +97,7 @@ typedef struct
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 MCU_Init(const mcu_config_t *config, mcu_handle_t *handle);
+int32 PDL_MCUInit(const mcu_config_t *config, mcu_handle_t *handle);
 
 /**
  * @brief 反初始化MCU驱动
@@ -106,7 +106,7 @@ int32 MCU_Init(const mcu_config_t *config, mcu_handle_t *handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 MCU_Deinit(mcu_handle_t handle);
+int32 PDL_MCUDeinit(mcu_handle_t handle);
 
 /**
  * @brief 获取MCU版本
@@ -116,7 +116,7 @@ int32 MCU_Deinit(mcu_handle_t handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 MCU_GetVersion(mcu_handle_t handle, mcu_version_t *version);
+int32 PDL_MCUGetVersion(mcu_handle_t handle, mcu_version_t *version);
 
 /**
  * @brief 获取MCU状态
@@ -126,7 +126,7 @@ int32 MCU_GetVersion(mcu_handle_t handle, mcu_version_t *version);
  *
  * @return OS_SUCCESS 成功
  */
-int32 MCU_GetStatus(mcu_handle_t handle, mcu_status_t *status);
+int32 PDL_MCUGetStatus(mcu_handle_t handle, mcu_status_t *status);
 
 /**
  * @brief MCU复位
@@ -135,7 +135,7 @@ int32 MCU_GetStatus(mcu_handle_t handle, mcu_status_t *status);
  *
  * @return OS_SUCCESS 成功
  */
-int32 MCU_Reset(mcu_handle_t handle);
+int32 PDL_MCUReset(mcu_handle_t handle);
 
 /**
  * @brief 读取MCU寄存器
@@ -146,7 +146,7 @@ int32 MCU_Reset(mcu_handle_t handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 MCU_ReadRegister(mcu_handle_t handle, uint8 reg_addr, uint8 *value);
+int32 PDL_MCUReadRegister(mcu_handle_t handle, uint8 reg_addr, uint8 *value);
 
 /**
  * @brief 写入MCU寄存器
@@ -157,7 +157,7 @@ int32 MCU_ReadRegister(mcu_handle_t handle, uint8 reg_addr, uint8 *value);
  *
  * @return OS_SUCCESS 成功
  */
-int32 MCU_WriteRegister(mcu_handle_t handle, uint8 reg_addr, uint8 value);
+int32 PDL_MCUWriteRegister(mcu_handle_t handle, uint8 reg_addr, uint8 value);
 
 /**
  * @brief 发送自定义命令到MCU
@@ -174,7 +174,7 @@ int32 MCU_WriteRegister(mcu_handle_t handle, uint8 reg_addr, uint8 value);
  * @return OS_ERROR_TIMEOUT 超时
  * @return OS_ERROR 失败
  */
-int32 MCU_SendCommand(mcu_handle_t handle,
+int32 PDL_MCUSendCommand(mcu_handle_t handle,
                      uint8 cmd_code,
                      const uint8 *data,
                      uint32 data_len,
@@ -192,7 +192,7 @@ int32 MCU_SendCommand(mcu_handle_t handle,
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 MCU_FirmwareUpdate(mcu_handle_t handle,
+int32 PDL_MCUFirmwareUpdate(mcu_handle_t handle,
                         const char *firmware_path,
                         void (*progress_callback)(uint32 percent));
 

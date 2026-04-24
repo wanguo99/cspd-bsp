@@ -1,5 +1,5 @@
 /************************************************************************
- * BMC载荷服务实现
+ * BMC服务实现
  *
  * 职责：
  * - 实现对外业务接口
@@ -8,17 +8,17 @@
  ************************************************************************/
 
 #include "pdl_bmc.h"
-#include "pdl_payload_bmc_internal.h"
+#include "pdl_bmc_internal.h"
 #include "osal.h"
 #include <stdlib.h>
 #include <string.h>
 
 /*
- * BMC载荷服务上下文
+ * BMC服务上下文
  */
 typedef struct
 {
-    bmc_payload_config_t config;
+    bmc_config_t config;
 
     /* 通信句柄 */
     void *net_handle;
@@ -36,13 +36,13 @@ typedef struct
 
     /* 互斥锁 */
     osal_id_t mutex;
-} bmc_payload_context_t;
+} bmc_context_t;
 
 /**
- * @brief 初始化BMC载荷服务
+ * @brief 初始化BMC服务
  */
-int32 BMCPayloadPDL_Init(const bmc_payload_config_t *config,
-                        bmc_payload_handle_t *handle)
+int32 PDL_BMCInit(const bmc_config_t *config,
+                        bmc_handle_t *handle)
 {
     if (config == NULL || handle == NULL)
     {
@@ -50,15 +50,15 @@ int32 BMCPayloadPDL_Init(const bmc_payload_config_t *config,
     }
 
     /* 分配上下文 */
-    bmc_payload_context_t *ctx = (bmc_payload_context_t *)malloc(sizeof(bmc_payload_context_t));
+    bmc_context_t *ctx = (bmc_context_t *)malloc(sizeof(bmc_context_t));
     if (ctx == NULL)
     {
         LOG_ERROR("BMC", "Failed to allocate context");
         return OS_ERROR;
     }
 
-    memset(ctx, 0, sizeof(bmc_payload_context_t));
-    memcpy(&ctx->config, config, sizeof(bmc_payload_config_t));
+    memset(ctx, 0, sizeof(bmc_context_t));
+    memcpy(&ctx->config, config, sizeof(bmc_config_t));
     ctx->current_channel = config->primary_channel;
 
     /* 创建互斥锁 */
@@ -72,7 +72,7 @@ int32 BMCPayloadPDL_Init(const bmc_payload_config_t *config,
     /* 初始化网络通道 */
     if (config->network.enabled)
     {
-        int32 ret = bmc_net_init(config->network.ip_addr,
+        int32 ret = bmc_redfish_init(config->network.ip_addr,
                                 config->network.port,
                                 config->network.timeout_ms,
                                 &ctx->net_handle);
@@ -114,28 +114,28 @@ int32 BMCPayloadPDL_Init(const bmc_payload_config_t *config,
         ctx->connected = true;
     }
 
-    *handle = (bmc_payload_handle_t)ctx;
+    *handle = (bmc_handle_t)ctx;
     LOG_INFO("BMC", "BMC payload service initialized");
 
     return OS_SUCCESS;
 }
 
 /**
- * @brief 反初始化BMC载荷服务
+ * @brief 反初始化BMC服务
  */
-int32 BMCPayloadPDL_Deinit(bmc_payload_handle_t handle)
+int32 PDL_BMCDeinit(bmc_handle_t handle)
 {
     if (handle == NULL)
     {
         return OS_ERROR;
     }
 
-    bmc_payload_context_t *ctx = (bmc_payload_context_t *)handle;
+    bmc_context_t *ctx = (bmc_context_t *)handle;
 
     /* 关闭网络 */
     if (ctx->net_handle != NULL)
     {
-        bmc_net_deinit(ctx->net_handle);
+        bmc_redfish_deinit(ctx->net_handle);
     }
 
     /* 关闭串口 */
@@ -156,14 +156,14 @@ int32 BMCPayloadPDL_Deinit(bmc_payload_handle_t handle)
 /**
  * @brief 电源开机
  */
-int32 BMCPayloadPDL_PowerOn(bmc_payload_handle_t handle)
+int32 PDL_BMCPowerOn(bmc_handle_t handle)
 {
     if (handle == NULL)
     {
         return OS_ERROR;
     }
 
-    bmc_payload_context_t *ctx = (bmc_payload_context_t *)handle;
+    bmc_context_t *ctx = (bmc_context_t *)handle;
 
     OSAL_MutexLock(ctx->mutex);
 
@@ -172,7 +172,7 @@ int32 BMCPayloadPDL_PowerOn(bmc_payload_handle_t handle)
     int32 ret;
     if (ctx->current_channel == BMC_CHANNEL_NETWORK)
     {
-        ret = bmc_ipmi_power_on(ctx->net_handle, bmc_net_send_recv);
+        ret = bmc_ipmi_power_on(ctx->net_handle, bmc_redfish_send_recv);
     }
     else
     {
@@ -198,14 +198,14 @@ int32 BMCPayloadPDL_PowerOn(bmc_payload_handle_t handle)
 /**
  * @brief 电源关机
  */
-int32 BMCPayloadPDL_PowerOff(bmc_payload_handle_t handle)
+int32 PDL_BMCPowerOff(bmc_handle_t handle)
 {
     if (handle == NULL)
     {
         return OS_ERROR;
     }
 
-    bmc_payload_context_t *ctx = (bmc_payload_context_t *)handle;
+    bmc_context_t *ctx = (bmc_context_t *)handle;
 
     OSAL_MutexLock(ctx->mutex);
 
@@ -214,7 +214,7 @@ int32 BMCPayloadPDL_PowerOff(bmc_payload_handle_t handle)
     int32 ret;
     if (ctx->current_channel == BMC_CHANNEL_NETWORK)
     {
-        ret = bmc_ipmi_power_off(ctx->net_handle, bmc_net_send_recv);
+        ret = bmc_ipmi_power_off(ctx->net_handle, bmc_redfish_send_recv);
     }
     else
     {
@@ -240,14 +240,14 @@ int32 BMCPayloadPDL_PowerOff(bmc_payload_handle_t handle)
 /**
  * @brief 电源复位
  */
-int32 BMCPayloadPDL_PowerReset(bmc_payload_handle_t handle)
+int32 PDL_BMCPowerReset(bmc_handle_t handle)
 {
     if (handle == NULL)
     {
         return OS_ERROR;
     }
 
-    bmc_payload_context_t *ctx = (bmc_payload_context_t *)handle;
+    bmc_context_t *ctx = (bmc_context_t *)handle;
 
     OSAL_MutexLock(ctx->mutex);
 
@@ -256,7 +256,7 @@ int32 BMCPayloadPDL_PowerReset(bmc_payload_handle_t handle)
     int32 ret;
     if (ctx->current_channel == BMC_CHANNEL_NETWORK)
     {
-        ret = bmc_ipmi_power_reset(ctx->net_handle, bmc_net_send_recv);
+        ret = bmc_ipmi_power_reset(ctx->net_handle, bmc_redfish_send_recv);
     }
     else
     {
@@ -282,7 +282,7 @@ int32 BMCPayloadPDL_PowerReset(bmc_payload_handle_t handle)
 /**
  * @brief 查询电源状态
  */
-int32 BMCPayloadPDL_GetPowerState(bmc_payload_handle_t handle,
+int32 PDL_BMCGetPowerState(bmc_handle_t handle,
                                  bmc_power_state_t *state)
 {
     if (handle == NULL || state == NULL)
@@ -290,7 +290,7 @@ int32 BMCPayloadPDL_GetPowerState(bmc_payload_handle_t handle,
         return OS_ERROR;
     }
 
-    bmc_payload_context_t *ctx = (bmc_payload_context_t *)handle;
+    bmc_context_t *ctx = (bmc_context_t *)handle;
 
     OSAL_MutexLock(ctx->mutex);
 
@@ -299,7 +299,7 @@ int32 BMCPayloadPDL_GetPowerState(bmc_payload_handle_t handle,
     int32 ret;
     if (ctx->current_channel == BMC_CHANNEL_NETWORK)
     {
-        ret = bmc_ipmi_get_power_state(ctx->net_handle, bmc_net_send_recv, state);
+        ret = bmc_ipmi_get_power_state(ctx->net_handle, bmc_redfish_send_recv, state);
     }
     else
     {
@@ -323,7 +323,7 @@ int32 BMCPayloadPDL_GetPowerState(bmc_payload_handle_t handle,
 /**
  * @brief 读取传感器
  */
-int32 BMCPayloadPDL_ReadSensors(bmc_payload_handle_t handle,
+int32 PDL_BMCReadSensors(bmc_handle_t handle,
                                bmc_sensor_type_t type,
                                bmc_sensor_reading_t *readings,
                                uint32 max_count,
@@ -334,7 +334,7 @@ int32 BMCPayloadPDL_ReadSensors(bmc_payload_handle_t handle,
         return OS_ERROR;
     }
 
-    bmc_payload_context_t *ctx = (bmc_payload_context_t *)handle;
+    bmc_context_t *ctx = (bmc_context_t *)handle;
 
     OSAL_MutexLock(ctx->mutex);
 
@@ -343,7 +343,7 @@ int32 BMCPayloadPDL_ReadSensors(bmc_payload_handle_t handle,
     int32 ret;
     if (ctx->current_channel == BMC_CHANNEL_NETWORK)
     {
-        ret = bmc_ipmi_read_sensors(ctx->net_handle, bmc_net_send_recv,
+        ret = bmc_ipmi_read_sensors(ctx->net_handle, bmc_redfish_send_recv,
                                    type, readings, max_count, actual_count);
     }
     else
@@ -369,7 +369,7 @@ int32 BMCPayloadPDL_ReadSensors(bmc_payload_handle_t handle,
 /**
  * @brief 执行原始IPMI命令
  */
-int32 BMCPayloadPDL_ExecuteCommand(bmc_payload_handle_t handle,
+int32 PDL_BMCExecuteCommand(bmc_handle_t handle,
                                   const char *cmd,
                                   char *response,
                                   uint32 resp_size)
@@ -385,7 +385,7 @@ int32 BMCPayloadPDL_ExecuteCommand(bmc_payload_handle_t handle,
 /**
  * @brief 切换通信通道
  */
-int32 BMCPayloadPDL_SwitchChannel(bmc_payload_handle_t handle,
+int32 PDL_BMCSwitchChannel(bmc_handle_t handle,
                                  bmc_channel_t channel)
 {
     if (handle == NULL)
@@ -393,7 +393,7 @@ int32 BMCPayloadPDL_SwitchChannel(bmc_payload_handle_t handle,
         return OS_ERROR;
     }
 
-    bmc_payload_context_t *ctx = (bmc_payload_context_t *)handle;
+    bmc_context_t *ctx = (bmc_context_t *)handle;
 
     OSAL_MutexLock(ctx->mutex);
 
@@ -428,35 +428,35 @@ int32 BMCPayloadPDL_SwitchChannel(bmc_payload_handle_t handle,
 /**
  * @brief 获取当前通道
  */
-bmc_channel_t BMCPayloadPDL_GetChannel(bmc_payload_handle_t handle)
+bmc_channel_t PDL_BMCGetChannel(bmc_handle_t handle)
 {
     if (handle == NULL)
     {
         return BMC_CHANNEL_NETWORK;
     }
 
-    bmc_payload_context_t *ctx = (bmc_payload_context_t *)handle;
+    bmc_context_t *ctx = (bmc_context_t *)handle;
     return ctx->current_channel;
 }
 
 /**
  * @brief 检查连接状态
  */
-bool BMCPayloadPDL_IsConnected(bmc_payload_handle_t handle)
+bool PDL_BMCIsConnected(bmc_handle_t handle)
 {
     if (handle == NULL)
     {
         return false;
     }
 
-    bmc_payload_context_t *ctx = (bmc_payload_context_t *)handle;
+    bmc_context_t *ctx = (bmc_context_t *)handle;
     return ctx->connected;
 }
 
 /**
  * @brief 获取服务统计信息
  */
-int32 BMCPayloadPDL_GetStats(bmc_payload_handle_t handle,
+int32 PDL_BMCGetStats(bmc_handle_t handle,
                             uint32 *cmd_count,
                             uint32 *success_count,
                             uint32 *fail_count,
@@ -467,7 +467,7 @@ int32 BMCPayloadPDL_GetStats(bmc_payload_handle_t handle,
         return OS_ERROR;
     }
 
-    bmc_payload_context_t *ctx = (bmc_payload_context_t *)handle;
+    bmc_context_t *ctx = (bmc_context_t *)handle;
 
     OSAL_MutexLock(ctx->mutex);
 

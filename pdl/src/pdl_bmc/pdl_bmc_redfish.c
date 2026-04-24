@@ -1,12 +1,12 @@
 /************************************************************************
- * BMC载荷网络通信实现
+ * BMC Redfish通信实现
  *
  * 职责：
  * - 封装以太网和串口通信
  * - 实现IPMI over LAN和IPMI over Serial
  ************************************************************************/
 
-#include "pdl_payload_bmc_internal.h"
+#include "pdl_bmc_internal.h"
 #include "hal_network.h"
 #include "hal_serial.h"
 #include "osal.h"
@@ -20,7 +20,7 @@ typedef struct
 {
     hal_network_handle_t net_handle;
     uint32 timeout_ms;
-} bmc_net_context_t;
+} bmc_redfish_context_t;
 
 /*
  * 串口通信上下文
@@ -34,20 +34,20 @@ typedef struct
 /**
  * @brief 初始化网络通信
  */
-int32 bmc_net_init(const char *ip_addr, uint16 port, uint32 timeout_ms, void **handle)
+int32 bmc_redfish_init(const char *ip_addr, uint16 port, uint32 timeout_ms, void **handle)
 {
     if (ip_addr == NULL || handle == NULL)
     {
         return OS_ERROR;
     }
 
-    bmc_net_context_t *ctx = (bmc_net_context_t *)malloc(sizeof(bmc_net_context_t));
+    bmc_redfish_context_t *ctx = (bmc_redfish_context_t *)malloc(sizeof(bmc_redfish_context_t));
     if (ctx == NULL)
     {
         return OS_ERROR;
     }
 
-    memset(ctx, 0, sizeof(bmc_net_context_t));
+    memset(ctx, 0, sizeof(bmc_redfish_context_t));
     ctx->timeout_ms = timeout_ms;
 
     /* 打开网络连接 */
@@ -70,14 +70,14 @@ int32 bmc_net_init(const char *ip_addr, uint16 port, uint32 timeout_ms, void **h
 /**
  * @brief 反初始化网络通信
  */
-int32 bmc_net_deinit(void *handle)
+int32 bmc_redfish_deinit(void *handle)
 {
     if (handle == NULL)
     {
         return OS_ERROR;
     }
 
-    bmc_net_context_t *ctx = (bmc_net_context_t *)handle;
+    bmc_redfish_context_t *ctx = (bmc_redfish_context_t *)handle;
 
     HAL_NetworkClose(ctx->net_handle);
     free(ctx);
@@ -88,7 +88,7 @@ int32 bmc_net_deinit(void *handle)
 /**
  * @brief 网络发送并接收
  */
-int32 bmc_net_send_recv(void *handle,
+int32 bmc_redfish_send_recv(void *handle,
                        const uint8 *request,
                        uint32 req_size,
                        uint8 *response,
@@ -100,7 +100,7 @@ int32 bmc_net_send_recv(void *handle,
         return OS_ERROR;
     }
 
-    bmc_net_context_t *ctx = (bmc_net_context_t *)handle;
+    bmc_redfish_context_t *ctx = (bmc_redfish_context_t *)handle;
 
     /* 发送请求 */
     if (HAL_NetworkSend(ctx->net_handle, request, req_size, ctx->timeout_ms) != OS_SUCCESS)

@@ -1,11 +1,11 @@
 /************************************************************************
- * BMC载荷服务内部接口
+ * BMC服务内部接口
  *
- * 仅供pdl_payload_bmc模块内部使用，不对外暴露
+ * 仅供pdl_bmc模块内部使用，不对外暴露
  ************************************************************************/
 
-#ifndef PDL_PAYLOAD_BMC_INTERNAL_H
-#define PDL_PAYLOAD_BMC_INTERNAL_H
+#ifndef PDL_BMC_INTERNAL_H
+#define PDL_BMC_INTERNAL_H
 
 #include "osal_types.h"
 #include "pdl_bmc.h"
@@ -26,11 +26,11 @@
 #define IPMI_CHASSIS_HARD_RESET     0x03
 
 /*
- * 网络通信接口（pdl_payload_bmc_net.c实现）
+ * 网络通信接口（pdl_bmc_net.c实现）
  */
-int32 bmc_net_init(const char *ip_addr, uint16 port, uint32 timeout_ms, void **handle);
-int32 bmc_net_deinit(void *handle);
-int32 bmc_net_send_recv(void *handle,
+int32 bmc_redfish_init(const char *ip_addr, uint16 port, uint32 timeout_ms, void **handle);
+int32 bmc_redfish_deinit(void *handle);
+int32 bmc_redfish_send_recv(void *handle,
                        const uint8 *request,
                        uint32 req_size,
                        uint8 *response,
@@ -38,7 +38,7 @@ int32 bmc_net_send_recv(void *handle,
                        uint32 *actual_size);
 
 /*
- * 串口通信接口（pdl_payload_bmc_net.c实现，复用网络模块）
+ * 串口通信接口（pdl_bmc_net.c实现，复用网络模块）
  */
 int32 bmc_serial_init(const char *device, uint32 baudrate, uint32 timeout_ms, void **handle);
 int32 bmc_serial_deinit(void *handle);
@@ -50,7 +50,7 @@ int32 bmc_serial_send_recv(void *handle,
                           uint32 *actual_size);
 
 /*
- * IPMI协议接口（pdl_payload_bmc_ipmi.c实现）
+ * IPMI协议接口（pdl_bmc_ipmi.c实现）
  */
 int32 bmc_ipmi_pack_command(uint8 cmd_code,
                            uint8 subcmd,
@@ -87,4 +87,4 @@ int32 bmc_ipmi_read_sensors(void *comm_handle,
                            uint32 max_count,
                            uint32 *actual_count);
 
-#endif /* PDL_PAYLOAD_BMC_INTERNAL_H */
+#endif /* PDL_BMC_INTERNAL_H */

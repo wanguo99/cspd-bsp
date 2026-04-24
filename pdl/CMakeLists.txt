@@ -17,10 +17,10 @@ if(PLATFORM STREQUAL "native" OR PLATFORM STREQUAL "generic-linux")
         ${CMAKE_CURRENT_SOURCE_DIR}/src/pdl_satellite/pdl_satellite.c
         ${CMAKE_CURRENT_SOURCE_DIR}/src/pdl_satellite/pdl_satellite_can.c
 
-        # BMC载荷服务（独立封装）
+        # BMC服务（独立封装）
         ${CMAKE_CURRENT_SOURCE_DIR}/src/pdl_bmc/pdl_bmc.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/pdl_bmc/pdl_payload_bmc_net.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/pdl_bmc/pdl_payload_bmc_ipmi.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/pdl_bmc/pdl_bmc_redfish.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/pdl_bmc/pdl_bmc_ipmi.c
     )
 elseif(PLATFORM STREQUAL "rtems")
     set(PDL_IMPL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/rtems)
@@ -68,4 +68,4 @@ target_compile_options(pdl PRIVATE
 message(STATUS "Peripheral Driver Layer (PDL) configured for platform: ${PLATFORM}")
 message(STATUS "  - MCU driver: pdl_mcu.c + pdl_mcu_can.c + pdl_mcu_serial.c + pdl_mcu_protocol.c")
 message(STATUS "  - Satellite driver: pdl_satellite.c + pdl_satellite_can.c")
-message(STATUS "  - BMC payload driver: pdl_bmc.c + pdl_payload_bmc_net.c + pdl_payload_bmc_ipmi.c")
+message(STATUS "  - BMC driver: pdl_bmc.c + pdl_bmc_redfish.c + pdl_bmc_ipmi.c")

@@ -1,5 +1,5 @@
 /************************************************************************
- * BMC载荷通信服务
+ * BMC通信服务
  *
  * 功能：
  * - 与带BMC的载荷通信（IPMI/Redfish协议）
@@ -8,15 +8,15 @@
  * - 故障检测和自动恢复
  ************************************************************************/
 
-#ifndef PDL_PAYLOAD_BMC_H
-#define PDL_PAYLOAD_BMC_H
+#ifndef PDL_BMC_H
+#define PDL_BMC_H
 
 #include "osal_types.h"
 
 /*
- * BMC载荷服务句柄
+ * BMC服务句柄
  */
-typedef void* bmc_payload_handle_t;
+typedef void* bmc_handle_t;
 
 /*
  * 通信通道类型
@@ -47,7 +47,7 @@ typedef enum
 } bmc_power_state_t;
 
 /*
- * BMC载荷状态
+ * BMC状态
  */
 typedef struct
 {
@@ -56,10 +56,10 @@ typedef struct
     uint32 uptime_sec;
     float cpu_temp;
     float inlet_temp;
-} bmc_payload_status_t;
+} bmc_status_t;
 
 /*
- * BMC载荷配置
+ * BMC配置
  */
 typedef struct
 {
@@ -86,7 +86,7 @@ typedef struct
     bool auto_switch;             /* 自动切换通道 */
     uint32 retry_count;           /* 重试次数 */
     uint32 health_check_interval; /* 健康检查间隔(ms) */
-} bmc_payload_config_t;
+} bmc_config_t;
 
 /*
  * 传感器类型
@@ -112,7 +112,7 @@ typedef struct
 } bmc_sensor_reading_t;
 
 /**
- * @brief 初始化BMC载荷服务
+ * @brief 初始化BMC服务
  *
  * @param[in] config 配置参数
  * @param[out] handle 服务句柄
@@ -120,17 +120,17 @@ typedef struct
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 BMCPayloadPDL_Init(const bmc_payload_config_t *config,
-                      bmc_payload_handle_t *handle);
+int32 PDL_BMCInit(const bmc_config_t *config,
+                      bmc_handle_t *handle);
 
 /**
- * @brief 反初始化BMC载荷服务
+ * @brief 反初始化BMC服务
  *
  * @param[in] handle 服务句柄
  *
  * @return OS_SUCCESS 成功
  */
-int32 BMCPayloadPDL_Deinit(bmc_payload_handle_t handle);
+int32 PDL_BMCDeinit(bmc_handle_t handle);
 
 /**
  * @brief 电源开机
@@ -141,7 +141,7 @@ int32 BMCPayloadPDL_Deinit(bmc_payload_handle_t handle);
  * @return OS_ERROR_TIMEOUT 超时
  * @return OS_ERROR 失败
  */
-int32 BMCPayloadPDL_PowerOn(bmc_payload_handle_t handle);
+int32 PDL_BMCPowerOn(bmc_handle_t handle);
 
 /**
  * @brief 电源关机
@@ -150,7 +150,7 @@ int32 BMCPayloadPDL_PowerOn(bmc_payload_handle_t handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 BMCPayloadPDL_PowerOff(bmc_payload_handle_t handle);
+int32 PDL_BMCPowerOff(bmc_handle_t handle);
 
 /**
  * @brief 电源复位
@@ -159,7 +159,7 @@ int32 BMCPayloadPDL_PowerOff(bmc_payload_handle_t handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 BMCPayloadPDL_PowerReset(bmc_payload_handle_t handle);
+int32 PDL_BMCPowerReset(bmc_handle_t handle);
 
 /**
  * @brief 查询电源状态
@@ -169,7 +169,7 @@ int32 BMCPayloadPDL_PowerReset(bmc_payload_handle_t handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 BMCPayloadPDL_GetPowerState(bmc_payload_handle_t handle,
+int32 PDL_BMCGetPowerState(bmc_handle_t handle,
                                bmc_power_state_t *state);
 
 /**
@@ -183,7 +183,7 @@ int32 BMCPayloadPDL_GetPowerState(bmc_payload_handle_t handle,
  *
  * @return OS_SUCCESS 成功
  */
-int32 BMCPayloadPDL_ReadSensors(bmc_payload_handle_t handle,
+int32 PDL_BMCReadSensors(bmc_handle_t handle,
                              bmc_sensor_type_t type,
                              bmc_sensor_reading_t *readings,
                              uint32 max_count,
@@ -200,7 +200,7 @@ int32 BMCPayloadPDL_ReadSensors(bmc_payload_handle_t handle,
  * @return 实际接收字节数
  * @return <0 错误码
  */
-int32 BMCPayloadPDL_ExecuteCommand(bmc_payload_handle_t handle,
+int32 PDL_BMCExecuteCommand(bmc_handle_t handle,
                                 const char *cmd,
                                 char *response,
                                 uint32 resp_size);
@@ -213,7 +213,7 @@ int32 BMCPayloadPDL_ExecuteCommand(bmc_payload_handle_t handle,
  *
  * @return OS_SUCCESS 成功
  */
-int32 BMCPayloadPDL_SwitchChannel(bmc_payload_handle_t handle,
+int32 PDL_BMCSwitchChannel(bmc_handle_t handle,
                                bmc_channel_t channel);
 
 /**
@@ -223,7 +223,7 @@ int32 BMCPayloadPDL_SwitchChannel(bmc_payload_handle_t handle,
  *
  * @return bmc_channel_t 当前通道
  */
-bmc_channel_t BMCPayloadPDL_GetChannel(bmc_payload_handle_t handle);
+bmc_channel_t PDL_BMCGetChannel(bmc_handle_t handle);
 
 /**
  * @brief 检查连接状态
@@ -233,7 +233,7 @@ bmc_channel_t BMCPayloadPDL_GetChannel(bmc_payload_handle_t handle);
  * @return true 已连接
  * @return false 未连接
  */
-bool BMCPayloadPDL_IsConnected(bmc_payload_handle_t handle);
+bool PDL_BMCIsConnected(bmc_handle_t handle);
 
 /**
  * @brief 获取服务统计信息
@@ -246,10 +246,10 @@ bool BMCPayloadPDL_IsConnected(bmc_payload_handle_t handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 BMCPayloadPDL_GetStats(bmc_payload_handle_t handle,
+int32 PDL_BMCGetStats(bmc_handle_t handle,
                          uint32 *cmd_count,
                          uint32 *success_count,
                          uint32 *fail_count,
                          uint32 *switch_count);
 
-#endif /* PDL_PAYLOAD_BMC_H */
+#endif /* PDL_BMC_H */

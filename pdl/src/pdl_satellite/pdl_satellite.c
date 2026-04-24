@@ -244,7 +244,7 @@ int32 PDL_SatelliteSendResponse(satellite_service_handle_t handle,
 /**
  * @brief 发送心跳到卫星平台
  */
-int32 SatellitePDL_SendHeartbeat(satellite_service_handle_t handle,
+int32 PDL_SatelliteSendHeartbeat(satellite_service_handle_t handle,
                                  can_status_t status)
 {
     if (handle == NULL)
@@ -270,7 +270,7 @@ int32 SatellitePDL_SendHeartbeat(satellite_service_handle_t handle,
 /**
  * @brief 获取服务统计信息
  */
-int32 SatellitePDL_GetStats(satellite_service_handle_t handle,
+int32 PDL_SatelliteGetStats(satellite_service_handle_t handle,
                             uint32 *rx_count,
                             uint32 *tx_count,
                             uint32 *error_count)

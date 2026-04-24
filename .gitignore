@@ -59,3 +59,5 @@ dkms.conf
 
 # 构建输出目录（参考buildroot设计）
 output/
+build/
+target/
