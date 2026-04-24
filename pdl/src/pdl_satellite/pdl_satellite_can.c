@@ -31,7 +31,7 @@ int32 satellite_can_init(const char *device, uint32 bitrate, void **handle)
     };
 
     hal_can_handle_t can_handle;
-    if (HAL_CanInit(&can_config, &can_handle) != OS_SUCCESS)
+    if (HAL_CAN_Init(&can_config, &can_handle) != OS_SUCCESS)
     {
         return OS_ERROR;
     }
@@ -51,7 +51,7 @@ int32 satellite_can_deinit(void *handle)
     }
 
     hal_can_handle_t can_handle = (hal_can_handle_t)handle;
-    return HAL_CanDeinit(can_handle);
+    return HAL_CAN_Deinit(can_handle);
 }
 
 /**
@@ -67,7 +67,7 @@ int32 satellite_can_recv(void *handle, satellite_can_msg_t *msg, uint32 timeout_
     hal_can_handle_t can_handle = (hal_can_handle_t)handle;
     can_frame_t frame;
 
-    int32 ret = HAL_CanRecv(can_handle, &frame, timeout_ms);
+    int32 ret = HAL_CAN_Recv(can_handle, &frame, timeout_ms);
     if (ret != OS_SUCCESS)
     {
         return ret;
@@ -116,7 +116,7 @@ int32 satellite_can_send(void *handle, const satellite_can_msg_t *msg)
     frame.data[6] = (uint8)(msg->data >> 8);
     frame.data[7] = (uint8)(msg->data & 0xFF);
 
-    return HAL_CanSend(can_handle, &frame);
+    return HAL_CAN_Send(can_handle, &frame);
 }
 
 /**

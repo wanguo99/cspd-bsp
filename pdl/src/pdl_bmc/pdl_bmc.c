@@ -41,7 +41,7 @@ typedef struct
 /**
  * @brief 初始化BMC服务
  */
-int32 PDL_BMCInit(const bmc_config_t *config,
+int32 PDL_BMC_Init(const bmc_config_t *config,
                         bmc_handle_t *handle)
 {
     if (config == NULL || handle == NULL)
@@ -123,7 +123,7 @@ int32 PDL_BMCInit(const bmc_config_t *config,
 /**
  * @brief 反初始化BMC服务
  */
-int32 PDL_BMCDeinit(bmc_handle_t handle)
+int32 PDL_BMC_Deinit(bmc_handle_t handle)
 {
     if (handle == NULL)
     {
@@ -156,7 +156,7 @@ int32 PDL_BMCDeinit(bmc_handle_t handle)
 /**
  * @brief 电源开机
  */
-int32 PDL_BMCPowerOn(bmc_handle_t handle)
+int32 PDL_BMC_PowerOn(bmc_handle_t handle)
 {
     if (handle == NULL)
     {
@@ -198,7 +198,7 @@ int32 PDL_BMCPowerOn(bmc_handle_t handle)
 /**
  * @brief 电源关机
  */
-int32 PDL_BMCPowerOff(bmc_handle_t handle)
+int32 PDL_BMC_PowerOff(bmc_handle_t handle)
 {
     if (handle == NULL)
     {
@@ -240,7 +240,7 @@ int32 PDL_BMCPowerOff(bmc_handle_t handle)
 /**
  * @brief 电源复位
  */
-int32 PDL_BMCPowerReset(bmc_handle_t handle)
+int32 PDL_BMC_PowerReset(bmc_handle_t handle)
 {
     if (handle == NULL)
     {
@@ -282,7 +282,7 @@ int32 PDL_BMCPowerReset(bmc_handle_t handle)
 /**
  * @brief 查询电源状态
  */
-int32 PDL_BMCGetPowerState(bmc_handle_t handle,
+int32 PDL_BMC_GetPowerState(bmc_handle_t handle,
                                  bmc_power_state_t *state)
 {
     if (handle == NULL || state == NULL)
@@ -323,7 +323,7 @@ int32 PDL_BMCGetPowerState(bmc_handle_t handle,
 /**
  * @brief 读取传感器
  */
-int32 PDL_BMCReadSensors(bmc_handle_t handle,
+int32 PDL_BMC_ReadSensors(bmc_handle_t handle,
                                bmc_sensor_type_t type,
                                bmc_sensor_reading_t *readings,
                                uint32 max_count,
@@ -369,7 +369,7 @@ int32 PDL_BMCReadSensors(bmc_handle_t handle,
 /**
  * @brief 执行原始IPMI命令
  */
-int32 PDL_BMCExecuteCommand(bmc_handle_t handle,
+int32 PDL_BMC_ExecuteCommand(bmc_handle_t handle,
                                   const char *cmd,
                                   char *response,
                                   uint32 resp_size)
@@ -385,7 +385,7 @@ int32 PDL_BMCExecuteCommand(bmc_handle_t handle,
 /**
  * @brief 切换通信通道
  */
-int32 PDL_BMCSwitchChannel(bmc_handle_t handle,
+int32 PDL_BMC_SwitchChannel(bmc_handle_t handle,
                                  bmc_channel_t channel)
 {
     if (handle == NULL)
@@ -428,7 +428,7 @@ int32 PDL_BMCSwitchChannel(bmc_handle_t handle,
 /**
  * @brief 获取当前通道
  */
-bmc_channel_t PDL_BMCGetChannel(bmc_handle_t handle)
+bmc_channel_t PDL_BMC_GetChannel(bmc_handle_t handle)
 {
     if (handle == NULL)
     {
@@ -442,7 +442,7 @@ bmc_channel_t PDL_BMCGetChannel(bmc_handle_t handle)
 /**
  * @brief 检查连接状态
  */
-bool PDL_BMCIsConnected(bmc_handle_t handle)
+bool PDL_BMC_IsConnected(bmc_handle_t handle)
 {
     if (handle == NULL)
     {
@@ -456,7 +456,7 @@ bool PDL_BMCIsConnected(bmc_handle_t handle)
 /**
  * @brief 获取服务统计信息
  */
-int32 PDL_BMCGetStats(bmc_handle_t handle,
+int32 PDL_BMC_GetStats(bmc_handle_t handle,
                             uint32 *cmd_count,
                             uint32 *success_count,
                             uint32 *fail_count,

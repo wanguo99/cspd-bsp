@@ -41,7 +41,7 @@ typedef struct
 /**
  * @brief 初始化CAN驱动
  */
-int32 HAL_CanInit(const hal_can_config_t *config, hal_can_handle_t *handle)
+int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
 {
     can_handle_impl_t *impl;
     struct sockaddr_can addr;
@@ -145,7 +145,7 @@ int32 HAL_CanInit(const hal_can_config_t *config, hal_can_handle_t *handle)
 /**
  * @brief 关闭CAN驱动
  */
-int32 HAL_CanDeinit(hal_can_handle_t handle)
+int32 HAL_CAN_Deinit(hal_can_handle_t handle)
 {
     can_handle_impl_t *impl = (can_handle_impl_t *)handle;
 
@@ -168,7 +168,7 @@ int32 HAL_CanDeinit(hal_can_handle_t handle)
 /**
  * @brief 发送CAN帧
  */
-int32 HAL_CanSend(hal_can_handle_t handle, const can_frame_t *frame)
+int32 HAL_CAN_Send(hal_can_handle_t handle, const can_frame_t *frame)
 {
     can_handle_impl_t *impl = (can_handle_impl_t *)handle;
     struct can_frame can_frame;
@@ -217,7 +217,7 @@ int32 HAL_CanSend(hal_can_handle_t handle, const can_frame_t *frame)
 /**
  * @brief 接收CAN帧
  */
-int32 HAL_CanRecv(hal_can_handle_t handle, can_frame_t *frame, int32 timeout)
+int32 HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32 timeout)
 {
     can_handle_impl_t *impl = (can_handle_impl_t *)handle;
     struct can_frame can_frame;
@@ -282,7 +282,7 @@ int32 HAL_CanRecv(hal_can_handle_t handle, can_frame_t *frame, int32 timeout)
 /**
  * @brief 设置CAN过滤器
  */
-int32 HAL_CanSetFilter(hal_can_handle_t handle, uint32 filter_id, uint32 filter_mask)
+int32 HAL_CAN_SetFilter(hal_can_handle_t handle, uint32 filter_id, uint32 filter_mask)
 {
     can_handle_impl_t *impl = (can_handle_impl_t *)handle;
     struct can_filter rfilter[1];
@@ -311,7 +311,7 @@ int32 HAL_CanSetFilter(hal_can_handle_t handle, uint32 filter_id, uint32 filter_
 /**
  * @brief 获取CAN统计信息
  */
-int32 HAL_CanGetStats(hal_can_handle_t handle,
+int32 HAL_CAN_GetStats(hal_can_handle_t handle,
                        uint32 *tx_count,
                        uint32 *rx_count,
                        uint32 *err_count)

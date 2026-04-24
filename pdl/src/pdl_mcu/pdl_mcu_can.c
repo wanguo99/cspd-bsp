@@ -54,7 +54,7 @@ int32 mcu_can_init(const void *config, void **handle)
         .tx_timeout = 1000
     };
 
-    if (HAL_CanInit(&can_config, &ctx->can_handle) != OS_SUCCESS)
+    if (HAL_CAN_Init(&can_config, &ctx->can_handle) != OS_SUCCESS)
     {
         free(ctx);
         return OS_ERROR;
@@ -63,7 +63,7 @@ int32 mcu_can_init(const void *config, void **handle)
     /* 创建接收互斥锁 */
     if (OSAL_MutexCreate(&ctx->rx_mutex, "mcu_can_rx", 0) != OS_SUCCESS)
     {
-        HAL_CanDeinit(ctx->can_handle);
+        HAL_CAN_Deinit(ctx->can_handle);
         free(ctx);
         return OS_ERROR;
     }
@@ -84,7 +84,7 @@ int32 mcu_can_deinit(void *handle)
 
     mcu_can_context_t *ctx = (mcu_can_context_t *)handle;
 
-    HAL_CanDeinit(ctx->can_handle);
+    HAL_CAN_Deinit(ctx->can_handle);
     OSAL_MutexDelete(ctx->rx_mutex);
     free(ctx);
 
@@ -130,7 +130,7 @@ int32 mcu_can_send_command(void *handle,
     can_frame.dlc = tx_len;
     memcpy(can_frame.data, tx_frame, tx_len);
 
-    if (HAL_CanSend(ctx->can_handle, &can_frame) != OS_SUCCESS)
+    if (HAL_CAN_Send(ctx->can_handle, &can_frame) != OS_SUCCESS)
     {
         return OS_ERROR;
     }
@@ -139,7 +139,7 @@ int32 mcu_can_send_command(void *handle,
     OSAL_MutexLock(ctx->rx_mutex);
 
     can_frame_t rx_frame;
-    int32 ret = HAL_CanRecv(ctx->can_handle, &rx_frame, timeout_ms);
+    int32 ret = HAL_CAN_Recv(ctx->can_handle, &rx_frame, timeout_ms);
 
     if (ret == OS_SUCCESS)
     {

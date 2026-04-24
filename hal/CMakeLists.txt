@@ -3,7 +3,6 @@
 # HAL源文件
 set(HAL_SOURCES
     src/linux/hal_can.c
-    src/linux/hal_network.c
     src/linux/hal_serial.c
 )
 

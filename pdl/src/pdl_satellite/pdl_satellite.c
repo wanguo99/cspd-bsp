@@ -105,7 +105,7 @@ static void can_rx_task(void *arg)
 /**
  * @brief 初始化卫星平台服务
  */
-int32 PDL_SatelliteInit(const satellite_service_config_t *config,
+int32 PDL_Satellite_Init(const satellite_service_config_t *config,
                         satellite_service_handle_t *handle)
 {
     if (config == NULL || handle == NULL)
@@ -170,7 +170,7 @@ int32 PDL_SatelliteInit(const satellite_service_config_t *config,
 /**
  * @brief 反初始化卫星平台服务
  */
-int32 PDL_SatelliteDeinit(satellite_service_handle_t handle)
+int32 PDL_Satellite_Deinit(satellite_service_handle_t handle)
 {
     if (handle == NULL)
     {
@@ -196,7 +196,7 @@ int32 PDL_SatelliteDeinit(satellite_service_handle_t handle)
 /**
  * @brief 注册命令回调函数
  */
-int32 PDL_SatelliteRegisterCallback(satellite_service_handle_t handle,
+int32 PDL_Satellite_RegisterCallback(satellite_service_handle_t handle,
                                     satellite_cmd_callback_t callback,
                                     void *user_data)
 {
@@ -215,7 +215,7 @@ int32 PDL_SatelliteRegisterCallback(satellite_service_handle_t handle,
 /**
  * @brief 发送响应到卫星平台
  */
-int32 PDL_SatelliteSendResponse(satellite_service_handle_t handle,
+int32 PDL_Satellite_SendResponse(satellite_service_handle_t handle,
                                 uint32 seq_num,
                                 can_status_t status,
                                 uint32 result)
@@ -244,7 +244,7 @@ int32 PDL_SatelliteSendResponse(satellite_service_handle_t handle,
 /**
  * @brief 发送心跳到卫星平台
  */
-int32 PDL_SatelliteSendHeartbeat(satellite_service_handle_t handle,
+int32 PDL_Satellite_SendHeartbeat(satellite_service_handle_t handle,
                                  can_status_t status)
 {
     if (handle == NULL)
@@ -270,7 +270,7 @@ int32 PDL_SatelliteSendHeartbeat(satellite_service_handle_t handle,
 /**
  * @brief 获取服务统计信息
  */
-int32 PDL_SatelliteGetStats(satellite_service_handle_t handle,
+int32 PDL_Satellite_GetStats(satellite_service_handle_t handle,
                             uint32 *rx_count,
                             uint32 *tx_count,
                             uint32 *error_count)

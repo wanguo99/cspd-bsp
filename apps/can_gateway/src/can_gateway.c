@@ -53,7 +53,7 @@ static void can_rx_task(void *arg)
     while (1)
     {
         /* 从CAN总线接收 */
-        ret = HAL_CanRecv(g_can_handle, &frame, CAN_TIMEOUT_MS);
+        ret = HAL_CAN_Recv(g_can_handle, &frame, CAN_TIMEOUT_MS);
 
         if (ret == OS_SUCCESS)
         {
@@ -110,7 +110,7 @@ static void can_tx_task(void *arg)
         if (ret == OS_SUCCESS)
         {
             /* 发送到CAN总线 */
-            ret = HAL_CanSend(g_can_handle, &frame);
+            ret = HAL_CAN_Send(g_can_handle, &frame);
 
             if (ret == OS_SUCCESS)
             {
@@ -127,7 +127,7 @@ static void can_tx_task(void *arg)
 
                 /* 发送失败，重试一次 */
                 OSAL_TaskDelay(10);
-                ret = HAL_CanSend(g_can_handle, &frame);
+                ret = HAL_CAN_Send(g_can_handle, &frame);
                 if (ret == OS_SUCCESS)
                 {
                     atomic_fetch_add(&g_stats.tx_count, 1);
@@ -214,7 +214,7 @@ int32 CAN_Gateway_Init(void)
     can_config.rx_timeout = CAN_TIMEOUT_MS;
     can_config.tx_timeout = CAN_TIMEOUT_MS;
 
-    ret = HAL_CanInit(&can_config, &g_can_handle);
+    ret = HAL_CAN_Init(&can_config, &g_can_handle);
     if (ret != OS_SUCCESS)
     {
         OSAL_Printf("[CAN Gateway] CAN驱动初始化失败\n");
@@ -222,7 +222,7 @@ int32 CAN_Gateway_Init(void)
     }
 
     /* 设置CAN过滤器：只接收卫星平台消息 */
-    HAL_CanSetFilter(g_can_handle, CAN_ID_SAT_TO_BRIDGE, 0x7FF);
+    HAL_CAN_SetFilter(g_can_handle, CAN_ID_SAT_TO_BRIDGE, 0x7FF);
 
     /* 创建任务 */
     ret = OSAL_TaskCreate(&task_id, "CAN_RX",

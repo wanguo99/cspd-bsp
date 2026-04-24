@@ -7,9 +7,8 @@
  ************************************************************************/
 
 #include "pdl_bmc_internal.h"
-#include "hal_network.h"
-#include "hal_serial.h"
 #include "osal.h"
+#include "hal_serial.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -18,7 +17,7 @@
  */
 typedef struct
 {
-    hal_network_handle_t net_handle;
+    osal_id_t sock_id;
     uint32 timeout_ms;
 } bmc_redfish_context_t;
 
@@ -50,15 +49,17 @@ int32 bmc_redfish_init(const char *ip_addr, uint16 port, uint32 timeout_ms, void
     memset(ctx, 0, sizeof(bmc_redfish_context_t));
     ctx->timeout_ms = timeout_ms;
 
-    /* 打开网络连接 */
-    hal_network_config_t net_config = {
-        .ip_addr = ip_addr,
-        .port = port,
-        .timeout_ms = timeout_ms
-    };
-
-    if (HAL_NetworkOpen(&net_config, &ctx->net_handle) != OS_SUCCESS)
+    /* 创建TCP Socket */
+    if (OSAL_SocketOpen(&ctx->sock_id, 0, OS_SOCK_STREAM) != OS_SUCCESS)
     {
+        free(ctx);
+        return OS_ERROR;
+    }
+
+    /* 连接到远程地址 */
+    if (OSAL_SocketConnect(ctx->sock_id, ip_addr, port, timeout_ms) != OS_SUCCESS)
+    {
+        OSAL_SocketClose(ctx->sock_id);
         free(ctx);
         return OS_ERROR;
     }
@@ -79,7 +80,7 @@ int32 bmc_redfish_deinit(void *handle)
 
     bmc_redfish_context_t *ctx = (bmc_redfish_context_t *)handle;
 
-    HAL_NetworkClose(ctx->net_handle);
+    OSAL_SocketClose(ctx->sock_id);
     free(ctx);
 
     return OS_SUCCESS;
@@ -103,7 +104,8 @@ int32 bmc_redfish_send_recv(void *handle,
     bmc_redfish_context_t *ctx = (bmc_redfish_context_t *)handle;
 
     /* 发送请求 */
-    if (HAL_NetworkSend(ctx->net_handle, request, req_size, ctx->timeout_ms) != OS_SUCCESS)
+    int32 sent = OSAL_SocketSend(ctx->sock_id, request, req_size, ctx->timeout_ms);
+    if (sent != (int32)req_size)
     {
         return OS_ERROR;
     }
@@ -111,7 +113,7 @@ int32 bmc_redfish_send_recv(void *handle,
     /* 接收响应 */
     if (response != NULL && resp_size > 0)
     {
-        int32 recv_len = HAL_NetworkRecv(ctx->net_handle, response, resp_size, ctx->timeout_ms);
+        int32 recv_len = OSAL_SocketRecv(ctx->sock_id, response, resp_size, ctx->timeout_ms);
         if (recv_len < 0)
         {
             return OS_ERROR;
@@ -153,7 +155,7 @@ int32 bmc_serial_init(const char *device, uint32 baudrate, uint32 timeout_ms, vo
         .parity = 'N'
     };
 
-    if (HAL_SerialOpen(device, &serial_config, &ctx->serial_handle) != OS_SUCCESS)
+    if (HAL_Serial_Open(device, &serial_config, &ctx->serial_handle) != OS_SUCCESS)
     {
         free(ctx);
         return OS_ERROR;
@@ -175,7 +177,7 @@ int32 bmc_serial_deinit(void *handle)
 
     bmc_serial_context_t *ctx = (bmc_serial_context_t *)handle;
 
-    HAL_SerialClose(ctx->serial_handle);
+    HAL_Serial_Close(ctx->serial_handle);
     free(ctx);
 
     return OS_SUCCESS;
@@ -199,7 +201,7 @@ int32 bmc_serial_send_recv(void *handle,
     bmc_serial_context_t *ctx = (bmc_serial_context_t *)handle;
 
     /* 发送请求 */
-    if (HAL_SerialWrite(ctx->serial_handle, request, req_size, ctx->timeout_ms) != (int32)req_size)
+    if (HAL_Serial_Write(ctx->serial_handle, request, req_size, ctx->timeout_ms) != (int32)req_size)
     {
         return OS_ERROR;
     }
@@ -207,7 +209,7 @@ int32 bmc_serial_send_recv(void *handle,
     /* 接收响应 */
     if (response != NULL && resp_size > 0)
     {
-        int32 recv_len = HAL_SerialRead(ctx->serial_handle, response, resp_size, ctx->timeout_ms);
+        int32 recv_len = HAL_Serial_Read(ctx->serial_handle, response, resp_size, ctx->timeout_ms);
         if (recv_len < 0)
         {
             return OS_ERROR;

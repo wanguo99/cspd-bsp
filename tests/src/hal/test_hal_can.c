@@ -23,7 +23,7 @@ void test_HAL_CAN_Init_Success(void)
         .tx_timeout = 1000
     };
 
-    int32 ret = HAL_CanInit(&config, &test_handle);
+    int32 ret = HAL_CAN_Init(&config, &test_handle);
 
     if (ret != OS_SUCCESS) {
         TEST_WARNING("vcan0 not available, test will fail");
@@ -31,7 +31,7 @@ void test_HAL_CAN_Init_Success(void)
 
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
     TEST_ASSERT_NOT_NULL(test_handle);
-    HAL_CanDeinit(test_handle);
+    HAL_CAN_Deinit(test_handle);
 
     OS_API_Teardown();
 }
@@ -40,7 +40,7 @@ void test_HAL_CAN_Init_NullConfig(void)
 {
     OS_API_Init();
 
-    int32 ret = HAL_CanInit(NULL, &test_handle);
+    int32 ret = HAL_CAN_Init(NULL, &test_handle);
     TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
 
     OS_API_Teardown();
@@ -57,7 +57,7 @@ void test_HAL_CAN_Init_NullHandle(void)
         .tx_timeout = 1000
     };
 
-    int32 ret = HAL_CanInit(&config, NULL);
+    int32 ret = HAL_CAN_Init(&config, NULL);
     TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
 
     OS_API_Teardown();

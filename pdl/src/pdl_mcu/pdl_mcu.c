@@ -31,7 +31,7 @@ typedef struct
 /**
  * @brief 初始化MCU驱动
  */
-int32 PDL_MCUInit(const mcu_config_t *config, mcu_handle_t *handle)
+int32 PDL_MCU_Init(const mcu_config_t *config, mcu_handle_t *handle)
 {
     if (config == NULL || handle == NULL)
     {
@@ -91,7 +91,7 @@ int32 PDL_MCUInit(const mcu_config_t *config, mcu_handle_t *handle)
 /**
  * @brief 反初始化MCU驱动
  */
-int32 PDL_MCUDeinit(mcu_handle_t handle)
+int32 PDL_MCU_Deinit(mcu_handle_t handle)
 {
     if (handle == NULL)
     {
@@ -159,7 +159,7 @@ static int32 mcu_send_command_internal(mcu_context_t *ctx,
 /**
  * @brief 获取MCU版本
  */
-int32 PDL_MCUGetVersion(mcu_handle_t handle, mcu_version_t *version)
+int32 PDL_MCU_GetVersion(mcu_handle_t handle, mcu_version_t *version)
 {
     if (handle == NULL || version == NULL)
     {
@@ -190,7 +190,7 @@ int32 PDL_MCUGetVersion(mcu_handle_t handle, mcu_version_t *version)
 /**
  * @brief 获取MCU状态
  */
-int32 PDL_MCUGetStatus(mcu_handle_t handle, mcu_status_t *status)
+int32 PDL_MCU_GetStatus(mcu_handle_t handle, mcu_status_t *status)
 {
     if (handle == NULL || status == NULL)
     {
@@ -224,7 +224,7 @@ int32 PDL_MCUGetStatus(mcu_handle_t handle, mcu_status_t *status)
 /**
  * @brief MCU复位
  */
-int32 PDL_MCUReset(mcu_handle_t handle)
+int32 PDL_MCU_Reset(mcu_handle_t handle)
 {
     if (handle == NULL)
     {
@@ -242,7 +242,7 @@ int32 PDL_MCUReset(mcu_handle_t handle)
 /**
  * @brief 读取MCU寄存器
  */
-int32 PDL_MCUReadRegister(mcu_handle_t handle, uint8 reg_addr, uint8 *value)
+int32 PDL_MCU_ReadRegister(mcu_handle_t handle, uint8 reg_addr, uint8 *value)
 {
     if (handle == NULL || value == NULL)
     {
@@ -267,7 +267,7 @@ int32 PDL_MCUReadRegister(mcu_handle_t handle, uint8 reg_addr, uint8 *value)
 /**
  * @brief 写入MCU寄存器
  */
-int32 PDL_MCUWriteRegister(mcu_handle_t handle, uint8 reg_addr, uint8 value)
+int32 PDL_MCU_WriteRegister(mcu_handle_t handle, uint8 reg_addr, uint8 value)
 {
     if (handle == NULL)
     {
@@ -286,13 +286,13 @@ int32 PDL_MCUWriteRegister(mcu_handle_t handle, uint8 reg_addr, uint8 value)
 /**
  * @brief 发送自定义命令到MCU
  */
-int32 PDL_MCUSendCommand(mcu_handle_t handle,
-                     uint8 cmd_code,
-                     const uint8 *data,
-                     uint32 data_len,
-                     uint8 *response,
-                     uint32 resp_size,
-                     uint32 *actual_size)
+int32 PDL_MCU_SendCommand(mcu_handle_t handle,
+                          uint8 cmd_code,
+                          const uint8 *data,
+                          uint32 data_len,
+                          uint8 *response,
+                          uint32 resp_size,
+                          uint32 *actual_size)
 {
     if (handle == NULL)
     {
@@ -308,9 +308,9 @@ int32 PDL_MCUSendCommand(mcu_handle_t handle,
 /**
  * @brief MCU固件升级
  */
-int32 PDL_MCUFirmwareUpdate(mcu_handle_t handle,
-                        const char *firmware_path,
-                        void (*progress_callback)(uint32 percent))
+int32 PDL_MCU_FirmwareUpdate(mcu_handle_t handle,
+                             const char *firmware_path,
+                             void (*progress_callback)(uint32 percent))
 {
     (void)handle;
     (void)firmware_path;

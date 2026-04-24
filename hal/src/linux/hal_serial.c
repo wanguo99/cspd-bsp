@@ -48,7 +48,7 @@ static speed_t get_baudrate(uint32 baudrate)
     }
 }
 
-int32 HAL_SerialOpen(const char *device, const hal_serial_config_t *config, hal_serial_handle_t *handle)
+int32 HAL_Serial_Open(const char *device, const hal_serial_config_t *config, hal_serial_handle_t *handle)
 {
     hal_serial_context_t *ctx;
     struct termios tty;
@@ -180,9 +180,9 @@ int32 HAL_SerialOpen(const char *device, const hal_serial_config_t *config, hal_
 }
 
 /************************************************************************
- * HAL_SerialClose - 关闭串口
+ * HAL_Serial_Close - 关闭串口
  ************************************************************************/
-int32 HAL_SerialClose(hal_serial_handle_t handle)
+int32 HAL_Serial_Close(hal_serial_handle_t handle)
 {
     hal_serial_context_t *ctx = (hal_serial_context_t *)handle;
 
@@ -202,9 +202,9 @@ int32 HAL_SerialClose(hal_serial_handle_t handle)
 }
 
 /************************************************************************
- * HAL_SerialWrite - 发送数据
+ * HAL_Serial_Write - 发送数据
  ************************************************************************/
-int32 HAL_SerialWrite(hal_serial_handle_t handle, const void *buffer, uint32 size, int32 timeout)
+int32 HAL_Serial_Write(hal_serial_handle_t handle, const void *buffer, uint32 size, int32 timeout)
 {
     hal_serial_context_t *ctx = (hal_serial_context_t *)handle;
     fd_set writefds;
@@ -255,9 +255,9 @@ int32 HAL_SerialWrite(hal_serial_handle_t handle, const void *buffer, uint32 siz
 }
 
 /************************************************************************
- * HAL_SerialRead - 接收数据
+ * HAL_Serial_Read - 接收数据
  ************************************************************************/
-int32 HAL_SerialRead(hal_serial_handle_t handle, void *buffer, uint32 size, int32 timeout)
+int32 HAL_Serial_Read(hal_serial_handle_t handle, void *buffer, uint32 size, int32 timeout)
 {
     hal_serial_context_t *ctx = (hal_serial_context_t *)handle;
     fd_set readfds;
@@ -308,9 +308,9 @@ int32 HAL_SerialRead(hal_serial_handle_t handle, void *buffer, uint32 size, int3
 }
 
 /************************************************************************
- * HAL_SerialFlush - 清空接收缓冲区
+ * HAL_Serial_Flush - 清空接收缓冲区
  ************************************************************************/
-int32 HAL_SerialFlush(hal_serial_handle_t handle)
+int32 HAL_Serial_Flush(hal_serial_handle_t handle)
 {
     hal_serial_context_t *ctx = (hal_serial_context_t *)handle;
 

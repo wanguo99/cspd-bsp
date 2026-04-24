@@ -120,8 +120,8 @@ typedef struct
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 PDL_BMCInit(const bmc_config_t *config,
-                      bmc_handle_t *handle);
+int32 PDL_BMC_Init(const bmc_config_t *config,
+                   bmc_handle_t *handle);
 
 /**
  * @brief 反初始化BMC服务
@@ -130,7 +130,7 @@ int32 PDL_BMCInit(const bmc_config_t *config,
  *
  * @return OS_SUCCESS 成功
  */
-int32 PDL_BMCDeinit(bmc_handle_t handle);
+int32 PDL_BMC_Deinit(bmc_handle_t handle);
 
 /**
  * @brief 电源开机
@@ -141,7 +141,7 @@ int32 PDL_BMCDeinit(bmc_handle_t handle);
  * @return OS_ERROR_TIMEOUT 超时
  * @return OS_ERROR 失败
  */
-int32 PDL_BMCPowerOn(bmc_handle_t handle);
+int32 PDL_BMC_PowerOn(bmc_handle_t handle);
 
 /**
  * @brief 电源关机
@@ -150,7 +150,7 @@ int32 PDL_BMCPowerOn(bmc_handle_t handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 PDL_BMCPowerOff(bmc_handle_t handle);
+int32 PDL_BMC_PowerOff(bmc_handle_t handle);
 
 /**
  * @brief 电源复位
@@ -159,7 +159,7 @@ int32 PDL_BMCPowerOff(bmc_handle_t handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 PDL_BMCPowerReset(bmc_handle_t handle);
+int32 PDL_BMC_PowerReset(bmc_handle_t handle);
 
 /**
  * @brief 查询电源状态
@@ -169,8 +169,8 @@ int32 PDL_BMCPowerReset(bmc_handle_t handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 PDL_BMCGetPowerState(bmc_handle_t handle,
-                               bmc_power_state_t *state);
+int32 PDL_BMC_GetPowerState(bmc_handle_t handle,
+                            bmc_power_state_t *state);
 
 /**
  * @brief 读取传感器
@@ -183,11 +183,11 @@ int32 PDL_BMCGetPowerState(bmc_handle_t handle,
  *
  * @return OS_SUCCESS 成功
  */
-int32 PDL_BMCReadSensors(bmc_handle_t handle,
-                             bmc_sensor_type_t type,
-                             bmc_sensor_reading_t *readings,
-                             uint32 max_count,
-                             uint32 *actual_count);
+int32 PDL_BMC_ReadSensors(bmc_handle_t handle,
+                          bmc_sensor_type_t type,
+                          bmc_sensor_reading_t *readings,
+                          uint32 max_count,
+                          uint32 *actual_count);
 
 /**
  * @brief 执行原始IPMI命令
@@ -200,10 +200,10 @@ int32 PDL_BMCReadSensors(bmc_handle_t handle,
  * @return 实际接收字节数
  * @return <0 错误码
  */
-int32 PDL_BMCExecuteCommand(bmc_handle_t handle,
-                                const char *cmd,
-                                char *response,
-                                uint32 resp_size);
+int32 PDL_BMC_ExecuteCommand(bmc_handle_t handle,
+                             const char *cmd,
+                             char *response,
+                             uint32 resp_size);
 
 /**
  * @brief 切换通信通道
@@ -213,8 +213,8 @@ int32 PDL_BMCExecuteCommand(bmc_handle_t handle,
  *
  * @return OS_SUCCESS 成功
  */
-int32 PDL_BMCSwitchChannel(bmc_handle_t handle,
-                               bmc_channel_t channel);
+int32 PDL_BMC_SwitchChannel(bmc_handle_t handle,
+                            bmc_channel_t channel);
 
 /**
  * @brief 获取当前通道
@@ -223,7 +223,7 @@ int32 PDL_BMCSwitchChannel(bmc_handle_t handle,
  *
  * @return bmc_channel_t 当前通道
  */
-bmc_channel_t PDL_BMCGetChannel(bmc_handle_t handle);
+bmc_channel_t PDL_BMC_GetChannel(bmc_handle_t handle);
 
 /**
  * @brief 检查连接状态
@@ -233,7 +233,7 @@ bmc_channel_t PDL_BMCGetChannel(bmc_handle_t handle);
  * @return true 已连接
  * @return false 未连接
  */
-bool PDL_BMCIsConnected(bmc_handle_t handle);
+bool PDL_BMC_IsConnected(bmc_handle_t handle);
 
 /**
  * @brief 获取服务统计信息
@@ -246,10 +246,10 @@ bool PDL_BMCIsConnected(bmc_handle_t handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 PDL_BMCGetStats(bmc_handle_t handle,
-                         uint32 *cmd_count,
-                         uint32 *success_count,
-                         uint32 *fail_count,
-                         uint32 *switch_count);
+int32 PDL_BMC_GetStats(bmc_handle_t handle,
+                       uint32 *cmd_count,
+                       uint32 *success_count,
+                       uint32 *fail_count,
+                       uint32 *switch_count);
 
 #endif /* PDL_BMC_H */

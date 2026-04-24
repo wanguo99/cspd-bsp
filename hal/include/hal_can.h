@@ -29,7 +29,7 @@ typedef struct
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 HAL_CanInit(const hal_can_config_t *config, hal_can_handle_t *handle);
+int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle);
 
 /**
  * @brief 关闭CAN驱动
@@ -38,7 +38,7 @@ int32 HAL_CanInit(const hal_can_config_t *config, hal_can_handle_t *handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 HAL_CanDeinit(hal_can_handle_t handle);
+int32 HAL_CAN_Deinit(hal_can_handle_t handle);
 
 /**
  * @brief 发送CAN帧
@@ -50,7 +50,7 @@ int32 HAL_CanDeinit(hal_can_handle_t handle);
  * @return OS_ERROR_TIMEOUT 超时
  * @return OS_ERROR 其他错误
  */
-int32 HAL_CanSend(hal_can_handle_t handle, const can_frame_t *frame);
+int32 HAL_CAN_Send(hal_can_handle_t handle, const can_frame_t *frame);
 
 /**
  * @brief 接收CAN帧
@@ -63,7 +63,7 @@ int32 HAL_CanSend(hal_can_handle_t handle, const can_frame_t *frame);
  * @return OS_ERROR_TIMEOUT 超时
  * @return OS_ERROR 其他错误
  */
-int32 HAL_CanRecv(hal_can_handle_t handle, can_frame_t *frame, int32 timeout);
+int32 HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32 timeout);
 
 /**
  * @brief 设置CAN过滤器
@@ -75,7 +75,7 @@ int32 HAL_CanRecv(hal_can_handle_t handle, can_frame_t *frame, int32 timeout);
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 HAL_CanSetFilter(hal_can_handle_t handle, uint32 filter_id, uint32 filter_mask);
+int32 HAL_CAN_SetFilter(hal_can_handle_t handle, uint32 filter_id, uint32 filter_mask);
 
 /**
  * @brief 获取CAN统计信息
@@ -87,7 +87,7 @@ int32 HAL_CanSetFilter(hal_can_handle_t handle, uint32 filter_id, uint32 filter_
  *
  * @return OS_SUCCESS 成功
  */
-int32 HAL_CanGetStats(hal_can_handle_t handle,
+int32 HAL_CAN_GetStats(hal_can_handle_t handle,
                        uint32 *tx_count,
                        uint32 *rx_count,
                        uint32 *err_count);

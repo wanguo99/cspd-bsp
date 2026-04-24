@@ -63,7 +63,7 @@ int32 mcu_serial_init(const void *config, void **handle)
         .flow_control = 0  /* NONE */
     };
 
-    if (HAL_SerialOpen(mcu_cfg->serial.device, &serial_config, &ctx->serial_handle) != OS_SUCCESS)
+    if (HAL_Serial_Open(mcu_cfg->serial.device, &serial_config, &ctx->serial_handle) != OS_SUCCESS)
     {
         free(ctx);
         return OS_ERROR;
@@ -72,7 +72,7 @@ int32 mcu_serial_init(const void *config, void **handle)
     /* 创建接收互斥锁 */
     if (OSAL_MutexCreate(&ctx->rx_mutex, "mcu_serial_rx", 0) != OS_SUCCESS)
     {
-        HAL_SerialClose(ctx->serial_handle);
+        HAL_Serial_Close(ctx->serial_handle);
         free(ctx);
         return OS_ERROR;
     }
@@ -93,7 +93,7 @@ int32 mcu_serial_deinit(void *handle)
 
     mcu_serial_context_t *ctx = (mcu_serial_context_t *)handle;
 
-    HAL_SerialClose(ctx->serial_handle);
+    HAL_Serial_Close(ctx->serial_handle);
     OSAL_MutexDelete(ctx->rx_mutex);
     free(ctx);
 
@@ -103,13 +103,13 @@ int32 mcu_serial_deinit(void *handle)
 /**
  * @brief 封装串口帧
  */
-static int32 pack_serial_frame(uint8 cmd_code,
-                              const uint8 *data,
-                              uint32 data_len,
-                              bool enable_crc,
-                              uint8 *frame,
-                              uint32 frame_size,
-                              uint32 *actual_size)
+static int32 mcu_serial_pack_frame(uint8 cmd_code,
+                                   const uint8 *data,
+                                   uint32 data_len,
+                                   bool enable_crc,
+                                   uint8 *frame,
+                                   uint32 frame_size,
+                                   uint32 *actual_size)
 {
     uint32 required_size = FRAME_OVERHEAD + data_len;
     if (frame_size < required_size)
@@ -154,13 +154,13 @@ static int32 pack_serial_frame(uint8 cmd_code,
 /**
  * @brief 解析串口帧
  */
-static int32 unpack_serial_frame(const uint8 *frame,
-                                uint32 frame_len,
-                                bool enable_crc,
-                                uint8 *status,
-                                uint8 *data,
-                                uint32 data_size,
-                                uint32 *actual_size)
+static int32 mcu_serial_unpack_frame(const uint8 *frame,
+                                     uint32 frame_len,
+                                     bool enable_crc,
+                                     uint8 *status,
+                                     uint8 *data,
+                                     uint32 data_size,
+                                     uint32 *actual_size)
 {
     /* 最小帧长度检查 */
     if (frame_len < FRAME_OVERHEAD)
@@ -225,14 +225,14 @@ int32 mcu_serial_send_command(void *handle,
     uint8 tx_frame[256];
     uint32 tx_len;
 
-    if (pack_serial_frame(cmd_code, data, data_len, ctx->enable_crc,
-                         tx_frame, sizeof(tx_frame), &tx_len) != OS_SUCCESS)
+    if (mcu_serial_pack_frame(cmd_code, data, data_len, ctx->enable_crc,
+                              tx_frame, sizeof(tx_frame), &tx_len) != OS_SUCCESS)
     {
         return OS_ERROR;
     }
 
     /* 发送 */
-    if (HAL_SerialWrite(ctx->serial_handle, tx_frame, tx_len, timeout_ms) != (int32)tx_len)
+    if (HAL_Serial_Write(ctx->serial_handle, tx_frame, tx_len, timeout_ms) != (int32)tx_len)
     {
         return OS_ERROR;
     }
@@ -241,13 +241,13 @@ int32 mcu_serial_send_command(void *handle,
     OSAL_MutexLock(ctx->rx_mutex);
 
     uint8 rx_frame[256];
-    int32 rx_len = HAL_SerialRead(ctx->serial_handle, rx_frame, sizeof(rx_frame), timeout_ms);
+    int32 rx_len = HAL_Serial_Read(ctx->serial_handle, rx_frame, sizeof(rx_frame), timeout_ms);
 
     if (rx_len > 0)
     {
         uint8 status;
-        int32 ret = unpack_serial_frame(rx_frame, rx_len, ctx->enable_crc,
-                                       &status, response, resp_size, actual_size);
+        int32 ret = mcu_serial_unpack_frame(rx_frame, rx_len, ctx->enable_crc,
+                                            &status, response, resp_size, actual_size);
 
         OSAL_MutexUnlock(ctx->rx_mutex);
 
