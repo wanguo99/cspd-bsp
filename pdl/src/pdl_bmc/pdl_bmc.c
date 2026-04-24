@@ -1,14 +1,15 @@
 /************************************************************************
- * BMC载荷通信服务 - Linux实现
+ * BMC载荷服务实现
+ *
+ * 职责：
+ * - 实现对外业务接口
+ * - 管理通信通道（网络/串口）切换
+ * - 调度内部IPMI协议和通信模块
  ************************************************************************/
 
-#include "hal_can.h"
-#include "hal_serial.h"
-#include "hal_network.h"
 #include "pdl_bmc.h"
+#include "pdl_payload_bmc_internal.h"
 #include "osal.h"
-#include "config/ethernet_config.h"
-#include "config/uart_config.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -20,8 +21,8 @@ typedef struct
     bmc_payload_config_t config;
 
     /* 通信句柄 */
-    hal_network_handle_t net_handle;
-    hal_serial_handle_t serial_handle;
+    void *net_handle;
+    void *serial_handle;
 
     /* 当前通道 */
     bmc_channel_t current_channel;
@@ -31,25 +32,28 @@ typedef struct
     uint32 cmd_count;
     uint32 success_count;
     uint32 fail_count;
+    uint32 switch_count;
 
     /* 互斥锁 */
     osal_id_t mutex;
 } bmc_payload_context_t;
 
-/*
- * 初始化BMC载荷服务
+/**
+ * @brief 初始化BMC载荷服务
  */
-int32 PayloadBMCPDL_Init(const bmc_payload_config_t *config,
-                      bmc_payload_handle_t *handle)
+int32 BMCPayloadPDL_Init(const bmc_payload_config_t *config,
+                        bmc_payload_handle_t *handle)
 {
-    if (config == NULL || handle == NULL) {
-        return OS_INVALID_POINTER;
+    if (config == NULL || handle == NULL)
+    {
+        return OS_ERROR;
     }
 
     /* 分配上下文 */
     bmc_payload_context_t *ctx = (bmc_payload_context_t *)malloc(sizeof(bmc_payload_context_t));
-    if (ctx == NULL) {
-        LOG_ERROR("SVC_BMC", "Failed to allocate BMC payload context");
+    if (ctx == NULL)
+    {
+        LOG_ERROR("BMC", "Failed to allocate context");
         return OS_ERROR;
     }
 
@@ -58,147 +62,132 @@ int32 PayloadBMCPDL_Init(const bmc_payload_config_t *config,
     ctx->current_channel = config->primary_channel;
 
     /* 创建互斥锁 */
-    int32 ret = OSAL_MutexCreate(&ctx->mutex, "BMC_MTX", 0);
-    if (ret != OS_SUCCESS) {
-        LOG_ERROR("SVC_BMC", "Failed to create mutex");
+    if (OSAL_MutexCreate(&ctx->mutex, "bmc_mutex", 0) != OS_SUCCESS)
+    {
+        LOG_ERROR("BMC", "Failed to create mutex");
         free(ctx);
-        return ret;
+        return OS_ERROR;
     }
 
     /* 初始化网络通道 */
-    if (config->network.enabled) {
-        hal_network_config_t net_cfg = {
-            .ip_addr = config->network.ip_addr,
-            .port = config->network.port,
-            .timeout_ms = config->network.timeout_ms
-        };
-
-        ret = HAL_NetworkOpen(&net_cfg, &ctx->net_handle);
-        if (ret != OS_SUCCESS) {
-            LOG_WARN("SVC_BMC", "Failed to open network channel");
-        } else {
-            LOG_INFO("SVC_BMC", "Network channel opened: %s:%d",
+    if (config->network.enabled)
+    {
+        int32 ret = bmc_net_init(config->network.ip_addr,
+                                config->network.port,
+                                config->network.timeout_ms,
+                                &ctx->net_handle);
+        if (ret != OS_SUCCESS)
+        {
+            LOG_WARN("BMC", "Failed to open network channel");
+        }
+        else
+        {
+            LOG_INFO("BMC", "Network channel opened: %s:%d",
                      config->network.ip_addr, config->network.port);
         }
     }
 
     /* 初始化串口通道 */
-    if (config->serial.enabled) {
-        hal_serial_config_t serial_cfg = {
-            .baud_rate = config->serial.baudrate,
-            .data_bits = 8,
-            .stop_bits = 1,
-            .parity = HAL_SERIAL_PARITY_NONE,
-            .flow_control = HAL_SERIAL_FLOW_NONE
-        };
-
-        ret = HAL_SerialOpen(config->serial.device, &serial_cfg, &ctx->serial_handle);
-        if (ret != OS_SUCCESS) {
-            LOG_WARN("SVC_BMC", "Failed to open serial channel");
-        } else {
-            LOG_INFO("SVC_BMC", "Serial channel opened: %s", config->serial.device);
+    if (config->serial.enabled)
+    {
+        int32 ret = bmc_serial_init(config->serial.device,
+                                   config->serial.baudrate,
+                                   config->serial.timeout_ms,
+                                   &ctx->serial_handle);
+        if (ret != OS_SUCCESS)
+        {
+            LOG_WARN("BMC", "Failed to open serial channel");
+        }
+        else
+        {
+            LOG_INFO("BMC", "Serial channel opened: %s", config->serial.device);
         }
     }
 
-    /* 尝试连接主通道 */
-    if (ctx->current_channel == BMC_CHANNEL_NETWORK && ctx->net_handle != NULL) {
-        ctx->connected = true;  /* 网络通道打开即可用 */
-    } else if (ctx->current_channel == BMC_CHANNEL_SERIAL && ctx->serial_handle != NULL) {
-        ctx->connected = true;  /* 串口打开即连接 */
+    /* 检查主通道是否可用 */
+    if (ctx->current_channel == BMC_CHANNEL_NETWORK && ctx->net_handle != NULL)
+    {
+        ctx->connected = true;
+    }
+    else if (ctx->current_channel == BMC_CHANNEL_SERIAL && ctx->serial_handle != NULL)
+    {
+        ctx->connected = true;
     }
 
     *handle = (bmc_payload_handle_t)ctx;
-    LOG_INFO("SVC_BMC", "BMC payload service initialized");
+    LOG_INFO("BMC", "BMC payload service initialized");
 
     return OS_SUCCESS;
 }
 
-/*
- * 反初始化BMC载荷服务
+/**
+ * @brief 反初始化BMC载荷服务
  */
-int32 PayloadBMCPDL_Deinit(bmc_payload_handle_t handle)
+int32 BMCPayloadPDL_Deinit(bmc_payload_handle_t handle)
 {
-    if (handle == NULL) {
-        return OS_INVALID_POINTER;
+    if (handle == NULL)
+    {
+        return OS_ERROR;
     }
 
     bmc_payload_context_t *ctx = (bmc_payload_context_t *)handle;
 
     /* 关闭网络 */
-    if (ctx->net_handle != NULL) {
-        HAL_NetworkClose(ctx->net_handle);
+    if (ctx->net_handle != NULL)
+    {
+        bmc_net_deinit(ctx->net_handle);
     }
 
     /* 关闭串口 */
-    if (ctx->serial_handle != NULL) {
-        HAL_SerialClose(ctx->serial_handle);
+    if (ctx->serial_handle != NULL)
+    {
+        bmc_serial_deinit(ctx->serial_handle);
     }
 
     /* 删除互斥锁 */
     OSAL_MutexDelete(ctx->mutex);
 
     free(ctx);
-    LOG_INFO("SVC_BMC", "BMC payload service deinitialized");
+    LOG_INFO("BMC", "BMC payload service deinitialized");
 
     return OS_SUCCESS;
 }
 
-/*
- * 发送IPMI/Redfish命令
+/**
+ * @brief 电源开机
  */
-int32 PayloadBMCPDL_SendCommand(bmc_payload_handle_t handle,
-                             bmc_protocol_t protocol,
-                             const void *request,
-                             uint32 req_size,
-                             void *response,
-                             uint32 resp_size,
-                             uint32 *actual_size)
+int32 BMCPayloadPDL_PowerOn(bmc_payload_handle_t handle)
 {
-    (void)protocol;  /* 当前未使用，预留用于协议选择 */
-
-    if (handle == NULL || request == NULL) {
-        return OS_INVALID_POINTER;
+    if (handle == NULL)
+    {
+        return OS_ERROR;
     }
 
     bmc_payload_context_t *ctx = (bmc_payload_context_t *)handle;
-    int32 ret;
 
     OSAL_MutexLock(ctx->mutex);
 
     ctx->cmd_count++;
 
-    /* 检查连接 */
-    if (!ctx->connected) {
-        LOG_ERROR("SVC_BMC", "BMC not connected");
-        ctx->fail_count++;
-        OSAL_MutexUnlock(ctx->mutex);
-        return OS_ERROR;
+    int32 ret;
+    if (ctx->current_channel == BMC_CHANNEL_NETWORK)
+    {
+        ret = bmc_ipmi_power_on(ctx->net_handle, bmc_net_send_recv);
+    }
+    else
+    {
+        ret = bmc_ipmi_power_on(ctx->serial_handle, bmc_serial_send_recv);
     }
 
-    /* 根据当前通道发送 */
-    if (ctx->current_channel == BMC_CHANNEL_NETWORK) {
-        ret = HAL_NetworkSend(ctx->net_handle, request, req_size, ETHERNET_TIMEOUT_MS);
-        if (ret == OS_SUCCESS && response != NULL) {
-            ret = HAL_NetworkRecv(ctx->net_handle, response, resp_size, ETHERNET_TIMEOUT_MS);
-            if (actual_size != NULL) {
-                *actual_size = (ret > 0) ? ret : 0;
-            }
-        }
-    } else {
-        ret = HAL_SerialWrite(ctx->serial_handle, request, req_size, UART_TIMEOUT_MS);
-        if (ret == OS_SUCCESS && response != NULL) {
-            ret = HAL_SerialRead(ctx->serial_handle, response, resp_size, UART_TIMEOUT_MS);
-            if (actual_size != NULL) {
-                *actual_size = (ret > 0) ? ret : 0;
-            }
-        }
-    }
-
-    if (ret == OS_SUCCESS) {
+    if (ret == OS_SUCCESS)
+    {
         ctx->success_count++;
-    } else {
+        LOG_INFO("BMC", "Power on command sent");
+    }
+    else
+    {
         ctx->fail_count++;
-        LOG_ERROR("SVC_BMC", "Failed to send BMC command");
+        LOG_ERROR("BMC", "Failed to send power on command");
     }
 
     OSAL_MutexUnlock(ctx->mutex);
@@ -206,14 +195,202 @@ int32 PayloadBMCPDL_SendCommand(bmc_payload_handle_t handle,
     return ret;
 }
 
-/*
- * 切换通信通道
+/**
+ * @brief 电源关机
  */
-int32 PayloadBMCPDL_SwitchChannel(bmc_payload_handle_t handle,
-                               bmc_channel_t channel)
+int32 BMCPayloadPDL_PowerOff(bmc_payload_handle_t handle)
 {
-    if (handle == NULL) {
-        return OS_INVALID_POINTER;
+    if (handle == NULL)
+    {
+        return OS_ERROR;
+    }
+
+    bmc_payload_context_t *ctx = (bmc_payload_context_t *)handle;
+
+    OSAL_MutexLock(ctx->mutex);
+
+    ctx->cmd_count++;
+
+    int32 ret;
+    if (ctx->current_channel == BMC_CHANNEL_NETWORK)
+    {
+        ret = bmc_ipmi_power_off(ctx->net_handle, bmc_net_send_recv);
+    }
+    else
+    {
+        ret = bmc_ipmi_power_off(ctx->serial_handle, bmc_serial_send_recv);
+    }
+
+    if (ret == OS_SUCCESS)
+    {
+        ctx->success_count++;
+        LOG_INFO("BMC", "Power off command sent");
+    }
+    else
+    {
+        ctx->fail_count++;
+        LOG_ERROR("BMC", "Failed to send power off command");
+    }
+
+    OSAL_MutexUnlock(ctx->mutex);
+
+    return ret;
+}
+
+/**
+ * @brief 电源复位
+ */
+int32 BMCPayloadPDL_PowerReset(bmc_payload_handle_t handle)
+{
+    if (handle == NULL)
+    {
+        return OS_ERROR;
+    }
+
+    bmc_payload_context_t *ctx = (bmc_payload_context_t *)handle;
+
+    OSAL_MutexLock(ctx->mutex);
+
+    ctx->cmd_count++;
+
+    int32 ret;
+    if (ctx->current_channel == BMC_CHANNEL_NETWORK)
+    {
+        ret = bmc_ipmi_power_reset(ctx->net_handle, bmc_net_send_recv);
+    }
+    else
+    {
+        ret = bmc_ipmi_power_reset(ctx->serial_handle, bmc_serial_send_recv);
+    }
+
+    if (ret == OS_SUCCESS)
+    {
+        ctx->success_count++;
+        LOG_INFO("BMC", "Power reset command sent");
+    }
+    else
+    {
+        ctx->fail_count++;
+        LOG_ERROR("BMC", "Failed to send power reset command");
+    }
+
+    OSAL_MutexUnlock(ctx->mutex);
+
+    return ret;
+}
+
+/**
+ * @brief 查询电源状态
+ */
+int32 BMCPayloadPDL_GetPowerState(bmc_payload_handle_t handle,
+                                 bmc_power_state_t *state)
+{
+    if (handle == NULL || state == NULL)
+    {
+        return OS_ERROR;
+    }
+
+    bmc_payload_context_t *ctx = (bmc_payload_context_t *)handle;
+
+    OSAL_MutexLock(ctx->mutex);
+
+    ctx->cmd_count++;
+
+    int32 ret;
+    if (ctx->current_channel == BMC_CHANNEL_NETWORK)
+    {
+        ret = bmc_ipmi_get_power_state(ctx->net_handle, bmc_net_send_recv, state);
+    }
+    else
+    {
+        ret = bmc_ipmi_get_power_state(ctx->serial_handle, bmc_serial_send_recv, state);
+    }
+
+    if (ret == OS_SUCCESS)
+    {
+        ctx->success_count++;
+    }
+    else
+    {
+        ctx->fail_count++;
+    }
+
+    OSAL_MutexUnlock(ctx->mutex);
+
+    return ret;
+}
+
+/**
+ * @brief 读取传感器
+ */
+int32 BMCPayloadPDL_ReadSensors(bmc_payload_handle_t handle,
+                               bmc_sensor_type_t type,
+                               bmc_sensor_reading_t *readings,
+                               uint32 max_count,
+                               uint32 *actual_count)
+{
+    if (handle == NULL)
+    {
+        return OS_ERROR;
+    }
+
+    bmc_payload_context_t *ctx = (bmc_payload_context_t *)handle;
+
+    OSAL_MutexLock(ctx->mutex);
+
+    ctx->cmd_count++;
+
+    int32 ret;
+    if (ctx->current_channel == BMC_CHANNEL_NETWORK)
+    {
+        ret = bmc_ipmi_read_sensors(ctx->net_handle, bmc_net_send_recv,
+                                   type, readings, max_count, actual_count);
+    }
+    else
+    {
+        ret = bmc_ipmi_read_sensors(ctx->serial_handle, bmc_serial_send_recv,
+                                   type, readings, max_count, actual_count);
+    }
+
+    if (ret == OS_SUCCESS)
+    {
+        ctx->success_count++;
+    }
+    else
+    {
+        ctx->fail_count++;
+    }
+
+    OSAL_MutexUnlock(ctx->mutex);
+
+    return ret;
+}
+
+/**
+ * @brief 执行原始IPMI命令
+ */
+int32 BMCPayloadPDL_ExecuteCommand(bmc_payload_handle_t handle,
+                                  const char *cmd,
+                                  char *response,
+                                  uint32 resp_size)
+{
+    (void)handle;
+    (void)cmd;
+    (void)response;
+    (void)resp_size;
+    /* TODO: 实现原始命令执行 */
+    return OS_ERROR;
+}
+
+/**
+ * @brief 切换通信通道
+ */
+int32 BMCPayloadPDL_SwitchChannel(bmc_payload_handle_t handle,
+                                 bmc_channel_t channel)
+{
+    if (handle == NULL)
+    {
+        return OS_ERROR;
     }
 
     bmc_payload_context_t *ctx = (bmc_payload_context_t *)handle;
@@ -221,72 +398,73 @@ int32 PayloadBMCPDL_SwitchChannel(bmc_payload_handle_t handle,
     OSAL_MutexLock(ctx->mutex);
 
     /* 检查通道是否可用 */
-    if (channel == BMC_CHANNEL_NETWORK && ctx->net_handle == NULL) {
-        LOG_ERROR("SVC_BMC", "Network channel not available");
+    if (channel == BMC_CHANNEL_NETWORK && ctx->net_handle == NULL)
+    {
+        LOG_ERROR("BMC", "Network channel not available");
         OSAL_MutexUnlock(ctx->mutex);
         return OS_ERROR;
     }
 
-    if (channel == BMC_CHANNEL_SERIAL && ctx->serial_handle == NULL) {
-        LOG_ERROR("SVC_BMC", "Serial channel not available");
+    if (channel == BMC_CHANNEL_SERIAL && ctx->serial_handle == NULL)
+    {
+        LOG_ERROR("BMC", "Serial channel not available");
         OSAL_MutexUnlock(ctx->mutex);
         return OS_ERROR;
     }
 
     /* 切换通道 */
     ctx->current_channel = channel;
-    ctx->connected = false;
+    ctx->connected = true;
+    ctx->switch_count++;
 
-    /* 尝试连接新通道 */
-    if (channel == BMC_CHANNEL_NETWORK) {
-        ctx->connected = true;  /* 网络通道已打开即可用 */
-        LOG_INFO("SVC_BMC", "Switched to network channel");
-    } else {
-        ctx->connected = true;
-        LOG_INFO("SVC_BMC", "Switched to serial channel");
-    }
-
-    OSAL_MutexUnlock(ctx->mutex);
-
-    return ctx->connected ? OS_SUCCESS : OS_ERROR;
-}
-
-/*
- * 获取载荷状态
- */
-int32 PayloadBMCPDL_GetStatus(bmc_payload_handle_t handle,
-                           bmc_payload_status_t *status)
-{
-    if (handle == NULL || status == NULL) {
-        return OS_INVALID_POINTER;
-    }
-
-    bmc_payload_context_t *ctx = (bmc_payload_context_t *)handle;
-
-    OSAL_MutexLock(ctx->mutex);
-
-    /* 填充状态信息 */
-    status->power_state = BMC_POWER_UNKNOWN;  /* 需要查询BMC */
-    status->bmc_ready = ctx->connected;
-    status->uptime_sec = 0;  /* 需要查询BMC */
-    status->cpu_temp = 0.0f;
-    status->inlet_temp = 0.0f;
+    LOG_INFO("BMC", "Switched to %s channel",
+             (channel == BMC_CHANNEL_NETWORK) ? "network" : "serial");
 
     OSAL_MutexUnlock(ctx->mutex);
 
     return OS_SUCCESS;
 }
 
-/*
- * 获取服务统计信息
+/**
+ * @brief 获取当前通道
  */
-int32 PayloadBMCPDL_GetStats(bmc_payload_handle_t handle,
-                          uint32 *cmd_count,
-                          uint32 *success_count,
-                          uint32 *fail_count)
+bmc_channel_t BMCPayloadPDL_GetChannel(bmc_payload_handle_t handle)
 {
-    if (handle == NULL) {
-        return OS_INVALID_POINTER;
+    if (handle == NULL)
+    {
+        return BMC_CHANNEL_NETWORK;
+    }
+
+    bmc_payload_context_t *ctx = (bmc_payload_context_t *)handle;
+    return ctx->current_channel;
+}
+
+/**
+ * @brief 检查连接状态
+ */
+bool BMCPayloadPDL_IsConnected(bmc_payload_handle_t handle)
+{
+    if (handle == NULL)
+    {
+        return false;
+    }
+
+    bmc_payload_context_t *ctx = (bmc_payload_context_t *)handle;
+    return ctx->connected;
+}
+
+/**
+ * @brief 获取服务统计信息
+ */
+int32 BMCPayloadPDL_GetStats(bmc_payload_handle_t handle,
+                            uint32 *cmd_count,
+                            uint32 *success_count,
+                            uint32 *fail_count,
+                            uint32 *switch_count)
+{
+    if (handle == NULL)
+    {
+        return OS_ERROR;
     }
 
     bmc_payload_context_t *ctx = (bmc_payload_context_t *)handle;
@@ -296,92 +474,9 @@ int32 PayloadBMCPDL_GetStats(bmc_payload_handle_t handle,
     if (cmd_count != NULL) *cmd_count = ctx->cmd_count;
     if (success_count != NULL) *success_count = ctx->success_count;
     if (fail_count != NULL) *fail_count = ctx->fail_count;
+    if (switch_count != NULL) *switch_count = ctx->switch_count;
 
     OSAL_MutexUnlock(ctx->mutex);
 
     return OS_SUCCESS;
-}
-
-/*
- * 电源开机
- */
-int32 BMCPayloadPDL_PowerOn(bmc_payload_handle_t handle)
-{
-    if (handle == NULL) {
-        return OS_INVALID_POINTER;
-    }
-
-    /* 构造IPMI电源开机命令 */
-    uint8 ipmi_cmd[] = {0x00, 0x01};  /* Chassis Control - Power On */
-    uint8 response[16];
-    uint32 resp_size;
-
-    int32 ret = PayloadBMCPDL_SendCommand(handle, BMC_PROTOCOL_IPMI,
-                                       ipmi_cmd, sizeof(ipmi_cmd),
-                                       response, sizeof(response),
-                                       &resp_size);
-
-    if (ret == OS_SUCCESS) {
-        LOG_INFO("SVC_BMC", "Power on command sent successfully");
-    } else {
-        LOG_ERROR("SVC_BMC", "Failed to send power on command");
-    }
-
-    return ret;
-}
-
-/*
- * 电源关机
- */
-int32 BMCPayloadPDL_PowerOff(bmc_payload_handle_t handle)
-{
-    if (handle == NULL) {
-        return OS_INVALID_POINTER;
-    }
-
-    /* 构造IPMI电源关机命令 */
-    uint8 ipmi_cmd[] = {0x00, 0x00};  /* Chassis Control - Power Off */
-    uint8 response[16];
-    uint32 resp_size;
-
-    int32 ret = PayloadBMCPDL_SendCommand(handle, BMC_PROTOCOL_IPMI,
-                                       ipmi_cmd, sizeof(ipmi_cmd),
-                                       response, sizeof(response),
-                                       &resp_size);
-
-    if (ret == OS_SUCCESS) {
-        LOG_INFO("SVC_BMC", "Power off command sent successfully");
-    } else {
-        LOG_ERROR("SVC_BMC", "Failed to send power off command");
-    }
-
-    return ret;
-}
-
-/*
- * 电源复位
- */
-int32 BMCPayloadPDL_PowerReset(bmc_payload_handle_t handle)
-{
-    if (handle == NULL) {
-        return OS_INVALID_POINTER;
-    }
-
-    /* 构造IPMI电源复位命令 */
-    uint8 ipmi_cmd[] = {0x00, 0x03};  /* Chassis Control - Power Reset */
-    uint8 response[16];
-    uint32 resp_size;
-
-    int32 ret = PayloadBMCPDL_SendCommand(handle, BMC_PROTOCOL_IPMI,
-                                       ipmi_cmd, sizeof(ipmi_cmd),
-                                       response, sizeof(response),
-                                       &resp_size);
-
-    if (ret == OS_SUCCESS) {
-        LOG_INFO("SVC_BMC", "Power reset command sent successfully");
-    } else {
-        LOG_ERROR("SVC_BMC", "Failed to send power reset command");
-    }
-
-    return ret;
 }

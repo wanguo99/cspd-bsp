@@ -7,14 +7,20 @@ set(PDL_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 if(PLATFORM STREQUAL "native" OR PLATFORM STREQUAL "generic-linux")
     # Linux平台实现
     set(PDL_SOURCES
-        # 外设管理核心
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/pdl_core/pdl_core.c
-
-        # 外设驱动实现（按外设类型分类）
+        # MCU外设驱动（独立封装）
         ${CMAKE_CURRENT_SOURCE_DIR}/src/pdl_mcu/pdl_mcu.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/pdl_mcu/pdl_mcu_can.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/pdl_mcu/pdl_mcu_serial.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/pdl_mcu/pdl_mcu_protocol.c
+
+        # 卫星平台服务（独立封装）
         ${CMAKE_CURRENT_SOURCE_DIR}/src/pdl_satellite/pdl_satellite.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/pdl_satellite/pdl_satellite_can.c
+
+        # BMC载荷服务（独立封装）
         ${CMAKE_CURRENT_SOURCE_DIR}/src/pdl_bmc/pdl_bmc.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/pdl_os/pdl_os.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/pdl_bmc/pdl_payload_bmc_net.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/pdl_bmc/pdl_payload_bmc_ipmi.c
     )
 elseif(PLATFORM STREQUAL "rtems")
     set(PDL_IMPL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/rtems)
@@ -40,6 +46,10 @@ target_include_directories(pdl PRIVATE
     ${CMAKE_SOURCE_DIR}/osal/include
     ${CMAKE_SOURCE_DIR}/hal/include
     ${CMAKE_SOURCE_DIR}/apps/can_gateway/include
+    # 内部头文件目录
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/pdl_mcu
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/pdl_satellite
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/pdl_bmc
 )
 
 # 链接依赖
@@ -56,5 +66,6 @@ target_compile_options(pdl PRIVATE
 )
 
 message(STATUS "Peripheral Driver Layer (PDL) configured for platform: ${PLATFORM}")
-message(STATUS "  - Peripheral management framework enabled")
-message(STATUS "  - Peripheral drivers: MCU, Satellite, BMC, Linux")
+message(STATUS "  - MCU driver: pdl_mcu.c + pdl_mcu_can.c + pdl_mcu_serial.c + pdl_mcu_protocol.c")
+message(STATUS "  - Satellite driver: pdl_satellite.c + pdl_satellite_can.c")
+message(STATUS "  - BMC payload driver: pdl_bmc.c + pdl_payload_bmc_net.c + pdl_payload_bmc_ipmi.c")

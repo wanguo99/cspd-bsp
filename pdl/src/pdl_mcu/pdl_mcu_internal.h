@@ -1,0 +1,71 @@
+/************************************************************************
+ * MCU驱动内部接口
+ *
+ * 仅供pdl_mcu模块内部使用，不对外暴露
+ ************************************************************************/
+
+#ifndef PDL_MCU_INTERNAL_H
+#define PDL_MCU_INTERNAL_H
+
+#include "osal_types.h"
+
+/*
+ * MCU命令码定义
+ */
+#define MCU_CMD_GET_VERSION    0x01   /* 获取版本 */
+#define MCU_CMD_GET_STATUS     0x02   /* 获取状态 */
+#define MCU_CMD_RESET          0x03   /* 复位 */
+#define MCU_CMD_READ_REG       0x10   /* 读寄存器 */
+#define MCU_CMD_WRITE_REG      0x11   /* 写寄存器 */
+#define MCU_CMD_POWER_ON       0x20   /* 上电 */
+#define MCU_CMD_POWER_OFF      0x21   /* 下电 */
+#define MCU_CMD_CUSTOM         0xFF   /* 自定义命令 */
+
+/*
+ * CAN通信接口（pdl_mcu_can.c实现）
+ */
+int32 mcu_can_init(const void *config, void **handle);
+int32 mcu_can_deinit(void *handle);
+int32 mcu_can_send_command(void *handle,
+                          uint8 cmd_code,
+                          const uint8 *data,
+                          uint32 data_len,
+                          uint8 *response,
+                          uint32 resp_size,
+                          uint32 *actual_size,
+                          uint32 timeout_ms);
+
+/*
+ * 串口通信接口（pdl_mcu_serial.c实现）
+ */
+int32 mcu_serial_init(const void *config, void **handle);
+int32 mcu_serial_deinit(void *handle);
+int32 mcu_serial_send_command(void *handle,
+                             uint8 cmd_code,
+                             const uint8 *data,
+                             uint32 data_len,
+                             uint8 *response,
+                             uint32 resp_size,
+                             uint32 *actual_size,
+                             uint32 timeout_ms);
+
+/*
+ * 协议封装/解析接口（pdl_mcu_protocol.c实现）
+ */
+uint16 mcu_protocol_calc_crc16(const uint8 *data, uint32 len);
+int32 mcu_protocol_pack_frame(uint8 cmd_code,
+                             const uint8 *data,
+                             uint32 data_len,
+                             bool enable_crc,
+                             uint8 *frame,
+                             uint32 frame_size,
+                             uint32 *actual_size);
+int32 mcu_protocol_unpack_frame(const uint8 *frame,
+                               uint32 frame_len,
+                               bool enable_crc,
+                               uint8 *cmd_code,
+                               uint8 *data,
+                               uint32 data_size,
+                               uint32 *actual_size);
+
+#endif /* PDL_MCU_INTERNAL_H */
