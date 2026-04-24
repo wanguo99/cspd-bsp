@@ -3,7 +3,7 @@
  ************************************************************************/
 
 #include "hal_can.h"
-#include "service_satellite.h"
+#include "pdl_satellite.h"
 #include "osal.h"
 #include "config/task_config.h"
 #include <stdlib.h>
@@ -40,7 +40,7 @@ static void heartbeat_task(void *arg)
 
     while (ctx->running) {
         /* 发送心跳 */
-        SatelliteService_SendHeartbeat((satellite_service_handle_t)ctx, STATUS_OK);
+        SatellitePDL_SendHeartbeat((satellite_service_handle_t)ctx, STATUS_OK);
 
         /* 延迟 */
         OS_TaskDelay(ctx->config.heartbeat_interval_ms);
@@ -87,7 +87,7 @@ static void can_rx_task(void *arg)
 /*
  * 初始化卫星平台服务
  */
-int32 SatelliteService_Init(const satellite_service_config_t *config,
+int32 SatellitePDL_Init(const satellite_service_config_t *config,
                             satellite_service_handle_t *handle)
 {
     if (config == NULL || handle == NULL) {
@@ -155,7 +155,7 @@ int32 SatelliteService_Init(const satellite_service_config_t *config,
 /*
  * 反初始化卫星平台服务
  */
-int32 SatelliteService_Deinit(satellite_service_handle_t handle)
+int32 SatellitePDL_Deinit(satellite_service_handle_t handle)
 {
     if (handle == NULL) {
         return OS_INVALID_POINTER;
@@ -181,7 +181,7 @@ int32 SatelliteService_Deinit(satellite_service_handle_t handle)
 /*
  * 注册命令回调函数
  */
-int32 SatelliteService_RegisterCallback(satellite_service_handle_t handle,
+int32 SatellitePDL_RegisterCallback(satellite_service_handle_t handle,
                                         satellite_cmd_callback_t callback,
                                         void *user_data)
 {
@@ -199,7 +199,7 @@ int32 SatelliteService_RegisterCallback(satellite_service_handle_t handle,
 /*
  * 发送响应到卫星平台
  */
-int32 SatelliteService_SendResponse(satellite_service_handle_t handle,
+int32 SatellitePDL_SendResponse(satellite_service_handle_t handle,
                                     uint32 seq_num,
                                     can_status_t status,
                                     uint32 result)
@@ -233,7 +233,7 @@ int32 SatelliteService_SendResponse(satellite_service_handle_t handle,
 /*
  * 发送心跳到卫星平台
  */
-int32 SatelliteService_SendHeartbeat(satellite_service_handle_t handle,
+int32 SatellitePDL_SendHeartbeat(satellite_service_handle_t handle,
                                      can_status_t status)
 {
     if (handle == NULL) {
@@ -264,7 +264,7 @@ int32 SatelliteService_SendHeartbeat(satellite_service_handle_t handle,
 /*
  * 获取服务统计信息
  */
-int32 SatelliteService_GetStats(satellite_service_handle_t handle,
+int32 SatellitePDL_GetStats(satellite_service_handle_t handle,
                                 uint32 *rx_count,
                                 uint32 *tx_count,
                                 uint32 *error_count)

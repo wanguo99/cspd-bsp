@@ -44,15 +44,30 @@ cspd-bsp/
 │       ├── hal_can_linux.c  # CAN驱动（SocketCAN）
 │       ├── hal_serial_linux.c # 串口驱动
 │       └── hal_network_linux.c # 网络驱动
-├── service/                 # 服务层
+├── pdl/                     # 外设驱动层 (Peripheral Driver Layer)
 │   ├── include/             # 接口定义
-│   │   └── config/          # Service配置（模块独立）
+│   │   ├── peripheral_device.h  # 统一外设接口
+│   │   ├── peripherals/         # 外设驱动接口
+│   │   ├── pdl_satellite.h      # 卫星平台接口
+│   │   ├── pdl_payload_bmc.h    # BMC载荷接口
+│   │   ├── pdl_payload_linux.h  # Linux载荷接口
+│   │   ├── pdl_power.h          # 电源管理接口
+│   │   └── config/              # PDL配置（模块独立）
 │   │       └── watchdog_config.h # 看门狗配置
-│   └── src/linux/           # 服务实现
-│       ├── watchdog.c       # 看门狗服务（任务监控+重启）
-│       ├── persistent_queue.c # 持久化命令队列
-│       ├── service_payload_*.c # 载荷通信服务
-│       └── service_power.c  # 电源管理服务
+│   └── src/
+│       ├── peripherals/         # 外设驱动实现
+│       │   ├── core/            # 外设管理核心
+│       │   ├── mcu/             # MCU外设驱动
+│       │   ├── satellite/       # 卫星外设适配器
+│       │   ├── payload_bmc/     # BMC外设适配器
+│       │   └── payload_linux/   # Linux载荷适配器
+│       └── linux/               # 平台相关实现
+│           ├── watchdog.c       # 看门狗服务
+│           ├── persistent_queue.c # 持久化命令队列
+│           ├── pdl_satellite.c  # 卫星平台服务
+│           ├── pdl_payload_bmc.c # BMC载荷服务
+│           ├── pdl_payload_linux.c # Linux载荷服务
+│           └── pdl_power.c      # 电源管理服务
 ├── apps/                    # 应用层
 │   ├── can_gateway/         # CAN网关应用
 │   │   ├── include/config/  # CAN网关配置（模块独立）
@@ -94,8 +109,8 @@ cspd-bsp/
 - **依赖隔离**：
   - OSAL层：只依赖自己的 `osal/include/config/`
   - HAL层：依赖 `hal/include/config/` 和 OSAL接口
-  - Service层：依赖 `service/include/config/`、HAL接口、OSAL接口
-  - Apps层：依赖 `apps/*/include/config/`、Service接口、HAL接口、OSAL接口
+  - PDL层：依赖 `pdl/include/config/`、HAL接口、OSAL接口
+  - Apps层：依赖 `apps/*/include/config/`、PDL接口、HAL接口、OSAL接口
 - **配置文件示例**：
   - `osal/include/config/task_config.h` - 任务栈大小、优先级定义
   - `hal/include/config/can_config.h` - CAN接口、波特率配置
@@ -104,12 +119,12 @@ cspd-bsp/
 ### 2. 分层隔离
 - **OSAL层**：封装操作系统API，支持跨平台移植
 - **HAL层**：封装硬件驱动，隔离硬件差异
-- **Service层**：提供业务服务，不直接依赖硬件
-- **Apps层**：应用逻辑，通过Service层访问底层
+- **PDL层**：外设驱动层，统一管理卫星/载荷/MCU等外设
+- **Apps层**：应用逻辑，通过PDL层访问底层
 
 ### 2. 看门狗机制（重点）
-- 文件：`service/src/linux/watchdog.c`
-- 配置：`service/include/config/watchdog_config.h`
+- 文件：`pdl/src/linux/watchdog.c`
+- 配置：`pdl/include/config/watchdog_config.h`
 - 功能：
   - 监控任务心跳，检测任务失败
   - 自动重启失败任务（最多3次）
@@ -170,7 +185,7 @@ output/
     └── lib/         # 静态库
         ├── libosal.a
         ├── libhal.a
-        └── libservice.a
+        └── libpdl.a
 ```
 
 ## 测试系统
@@ -186,7 +201,7 @@ output/
 ### 测试覆盖
 - **OSAL层**：6个模块（task, queue, mutex, file, network, signal）
 - **HAL层**：1个模块（CAN驱动）
-- **Service层**：2个模块（payload service, watchdog）
+- **PDL层**：2个模块（payload pdl, watchdog）
 - **Apps层**：2个模块（CAN gateway, protocol converter）
 
 ### 交互式菜单特点
@@ -253,7 +268,7 @@ static void my_task_entry(void *arg)
   - `can_config.h` - CAN接口、波特率
   - `ethernet_config.h` - 以太网IP、端口
   - `uart_config.h` - 串口设备、波特率
-- **Service配置**：`service/include/config/`
+- **PDL配置**：`pdl/include/config/`
   - `watchdog_config.h` - 看门狗超时、重启次数
 - **Apps配置**：`apps/*/include/config/`
   - `apps/can_gateway/include/config/app_config.h` - 系统版本号
@@ -273,7 +288,7 @@ static void my_task_entry(void *arg)
 - 协议：IPMI/Redfish
 
 ### 看门狗配置
-- 文件：`service/include/config/watchdog_config.h`
+- 文件：`pdl/include/config/watchdog_config.h`
 - 检查间隔：100ms
 - 任务超时：500ms
 - 最大重启次数：3次
@@ -302,7 +317,20 @@ static void my_task_entry(void *arg)
 
 ## 最近重构（2026-04-24）
 
-### 目录结构标准化（最新）
+### Service层重命名为PDL层（最新）
+- **重命名原因**：原名称`service`容易与业务服务混淆，新名称`pdl`（Peripheral Driver Layer，外设驱动层）更准确
+- **架构理念**：管理板为核心，卫星/载荷/BMC/MCU统一抽象为外设
+- **命名变更**：
+  - 目录：`service/` → `pdl/`
+  - 头文件：`service_*.h` → `pdl_*.h`
+  - 源文件：`service_*.c` → `pdl_*.c`
+  - 函数前缀：`SatelliteService_*` → `SatellitePDL_*`
+  - 宏定义：`SERVICE_*` → `PDL_*`
+- **外设框架**：新增统一外设接口（`peripheral_device.h`），支持MCU/卫星/BMC/Linux载荷
+- **适配器模式**：保留传统接口100%兼容，通过适配器包装到外设框架
+- **详细文档**：见 `docs/PDL_RENAME.md`、`docs/SERVICE_REFACTOR.md`、`docs/SERVICE_MIGRATION.md`
+
+### 目录结构标准化
 - **inc → include**：统一使用 `include/` 目录存放头文件
 - **linux → src/linux**：统一使用 `src/linux/` 目录存放Linux平台实现
 - **config 移入 include**：配置文件统一放在 `include/config/` 目录
@@ -321,7 +349,7 @@ static void my_task_entry(void *arg)
 - **目录结构**：
   - `osal/include/config/` - OSAL层配置（task_config.h, queue_config.h, log_config.h）
   - `hal/include/config/` - HAL层配置（can_types.h, can_config.h, ethernet_config.h, uart_config.h）
-  - `service/include/config/` - Service层配置（watchdog_config.h）
+  - `pdl/include/config/` - PDL层配置（watchdog_config.h）
   - `apps/can_gateway/include/config/` - CAN网关配置（app_config.h, can_protocol.h）
   - `apps/protocol_converter/include/config/` - 协议转换配置（app_config.h）
 - **依赖隔离**：各模块只依赖自己的配置，便于多人协作和多仓库拆分
@@ -338,7 +366,7 @@ static void my_task_entry(void *arg)
 ### 清理遗留代码
 - 删除：`tests/osal/test_main.c`（已被统一入口替代）
 - 删除：`tests/apps/CMakeLists.txt`（独立测试配置）
-- 删除：`tests/service/CMakeLists.txt`（独立测试配置）
+- 删除：`tests/pdl/CMakeLists.txt`（独立测试配置）
 - 删除：`examples/`目录（示例代码）
 - 删除：`osal/freertos/`目录（FreeRTOS示例）
 - 删除：`config/`目录（全局配置，已下沉到各模块）

@@ -5,7 +5,7 @@
 #include "hal_can.h"
 #include "hal_serial.h"
 #include "hal_network.h"
-#include "service_payload_bmc.h"
+#include "pdl_payload_bmc.h"
 #include "osal.h"
 #include "config/ethernet_config.h"
 #include "config/uart_config.h"
@@ -39,7 +39,7 @@ typedef struct
 /*
  * 初始化BMC载荷服务
  */
-int32 PayloadBMC_Init(const bmc_payload_config_t *config,
+int32 PayloadBMCPDL_Init(const bmc_payload_config_t *config,
                       bmc_payload_handle_t *handle)
 {
     if (config == NULL || handle == NULL) {
@@ -116,7 +116,7 @@ int32 PayloadBMC_Init(const bmc_payload_config_t *config,
 /*
  * 反初始化BMC载荷服务
  */
-int32 PayloadBMC_Deinit(bmc_payload_handle_t handle)
+int32 PayloadBMCPDL_Deinit(bmc_payload_handle_t handle)
 {
     if (handle == NULL) {
         return OS_INVALID_POINTER;
@@ -146,7 +146,7 @@ int32 PayloadBMC_Deinit(bmc_payload_handle_t handle)
 /*
  * 发送IPMI/Redfish命令
  */
-int32 PayloadBMC_SendCommand(bmc_payload_handle_t handle,
+int32 PayloadBMCPDL_SendCommand(bmc_payload_handle_t handle,
                              bmc_protocol_t protocol,
                              const void *request,
                              uint32 req_size,
@@ -209,7 +209,7 @@ int32 PayloadBMC_SendCommand(bmc_payload_handle_t handle,
 /*
  * 切换通信通道
  */
-int32 PayloadBMC_SwitchChannel(bmc_payload_handle_t handle,
+int32 PayloadBMCPDL_SwitchChannel(bmc_payload_handle_t handle,
                                bmc_channel_t channel)
 {
     if (handle == NULL) {
@@ -254,7 +254,7 @@ int32 PayloadBMC_SwitchChannel(bmc_payload_handle_t handle,
 /*
  * 获取载荷状态
  */
-int32 PayloadBMC_GetStatus(bmc_payload_handle_t handle,
+int32 PayloadBMCPDL_GetStatus(bmc_payload_handle_t handle,
                            bmc_payload_status_t *status)
 {
     if (handle == NULL || status == NULL) {
@@ -280,7 +280,7 @@ int32 PayloadBMC_GetStatus(bmc_payload_handle_t handle,
 /*
  * 获取服务统计信息
  */
-int32 PayloadBMC_GetStats(bmc_payload_handle_t handle,
+int32 PayloadBMCPDL_GetStats(bmc_payload_handle_t handle,
                           uint32 *cmd_count,
                           uint32 *success_count,
                           uint32 *fail_count)
@@ -305,7 +305,7 @@ int32 PayloadBMC_GetStats(bmc_payload_handle_t handle,
 /*
  * 电源开机
  */
-int32 BMCPayload_PowerOn(bmc_payload_handle_t handle)
+int32 BMCPayloadPDL_PowerOn(bmc_payload_handle_t handle)
 {
     if (handle == NULL) {
         return OS_INVALID_POINTER;
@@ -316,7 +316,7 @@ int32 BMCPayload_PowerOn(bmc_payload_handle_t handle)
     uint8 response[16];
     uint32 resp_size;
 
-    int32 ret = PayloadBMC_SendCommand(handle, BMC_PROTOCOL_IPMI,
+    int32 ret = PayloadBMCPDL_SendCommand(handle, BMC_PROTOCOL_IPMI,
                                        ipmi_cmd, sizeof(ipmi_cmd),
                                        response, sizeof(response),
                                        &resp_size);
@@ -333,7 +333,7 @@ int32 BMCPayload_PowerOn(bmc_payload_handle_t handle)
 /*
  * 电源关机
  */
-int32 BMCPayload_PowerOff(bmc_payload_handle_t handle)
+int32 BMCPayloadPDL_PowerOff(bmc_payload_handle_t handle)
 {
     if (handle == NULL) {
         return OS_INVALID_POINTER;
@@ -344,7 +344,7 @@ int32 BMCPayload_PowerOff(bmc_payload_handle_t handle)
     uint8 response[16];
     uint32 resp_size;
 
-    int32 ret = PayloadBMC_SendCommand(handle, BMC_PROTOCOL_IPMI,
+    int32 ret = PayloadBMCPDL_SendCommand(handle, BMC_PROTOCOL_IPMI,
                                        ipmi_cmd, sizeof(ipmi_cmd),
                                        response, sizeof(response),
                                        &resp_size);
@@ -361,7 +361,7 @@ int32 BMCPayload_PowerOff(bmc_payload_handle_t handle)
 /*
  * 电源复位
  */
-int32 BMCPayload_PowerReset(bmc_payload_handle_t handle)
+int32 BMCPayloadPDL_PowerReset(bmc_payload_handle_t handle)
 {
     if (handle == NULL) {
         return OS_INVALID_POINTER;
@@ -372,7 +372,7 @@ int32 BMCPayload_PowerReset(bmc_payload_handle_t handle)
     uint8 response[16];
     uint32 resp_size;
 
-    int32 ret = PayloadBMC_SendCommand(handle, BMC_PROTOCOL_IPMI,
+    int32 ret = PayloadBMCPDL_SendCommand(handle, BMC_PROTOCOL_IPMI,
                                        ipmi_cmd, sizeof(ipmi_cmd),
                                        response, sizeof(response),
                                        &resp_size);

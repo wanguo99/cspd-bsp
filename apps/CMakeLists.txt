@@ -48,7 +48,7 @@ target_compile_options(can_gateway PRIVATE -Wall -Wextra)
 # 协议转换库（不含main）
 add_library(protocol_converter_lib STATIC
     protocol_converter/src/protocol_converter.c
-    protocol_converter/src/payload_service.c
+    protocol_converter/src/payload_pdl.c
 )
 
 target_include_directories(protocol_converter_lib PUBLIC
@@ -62,13 +62,13 @@ target_include_directories(protocol_converter_lib PUBLIC
 target_include_directories(protocol_converter_lib PRIVATE
     ${CMAKE_SOURCE_DIR}/osal/include
     ${CMAKE_SOURCE_DIR}/hal/include
-    ${CMAKE_SOURCE_DIR}/service/include
+    ${CMAKE_SOURCE_DIR}/pdl/include
 )
 
 target_link_libraries(protocol_converter_lib
     osal
     hal
-    service
+    pdl
     can_gateway_lib
 )
 
@@ -77,7 +77,7 @@ target_compile_options(protocol_converter_lib PRIVATE -Wall -Wextra)
 # 协议转换应用（含main）
 add_executable(protocol_converter
     protocol_converter/src/protocol_converter.c
-    protocol_converter/src/payload_service.c
+    protocol_converter/src/payload_pdl.c
     protocol_converter/src/main.c
 )
 
@@ -88,13 +88,13 @@ target_include_directories(protocol_converter PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/can_gateway/include
     ${CMAKE_SOURCE_DIR}/osal/include
     ${CMAKE_SOURCE_DIR}/hal/include
-    ${CMAKE_SOURCE_DIR}/service/include
+    ${CMAKE_SOURCE_DIR}/pdl/include
 )
 
 target_link_libraries(protocol_converter
     osal
     hal
-    service
+    pdl
     can_gateway_lib
     Threads::Threads
     rt

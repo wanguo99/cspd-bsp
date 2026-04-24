@@ -4,7 +4,7 @@
 
 #include "unittest_runner.h"
 #include "unittest_framework.h"
-#include "watchdog.h"
+#include "pdl_watchdog.h"
 #include "osal.h"
 #include <unistd.h>
 #include <string.h>

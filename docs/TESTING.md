@@ -55,7 +55,7 @@ cd build
 1. Run all tests (all layers)        - 运行所有测试
 2. Run OSAL layer tests              - 运行OSAL层测试
 3. Run HAL layer tests               - 运行HAL层测试
-4. Run Service layer tests           - 运行Service层测试
+4. Run Service layer tests           - 运行PDL层测试
 5. Run Apps layer tests              - 运行Apps层测试
 6. Run specific module tests         - 运行指定模块测试
 7. Run single test                   - 运行单个测试
@@ -74,7 +74,7 @@ cd build
 ```bash
 ./bin/unit-test -L OSAL      # 运行OSAL层所有测试
 ./bin/unit-test -L HAL       # 运行HAL层所有测试
-./bin/unit-test -L Service   # 运行Service层所有测试
+./bin/unit-test -L Service   # 运行PDL层所有测试
 ./bin/unit-test -L Apps      # 运行Apps层所有测试
 ```
 
@@ -154,7 +154,7 @@ cd build/bin
 # HAL层测试
 ./test_hal_can
 
-# Service层测试
+# PDL层测试
 ./test_payload_service
 
 # Apps层测试

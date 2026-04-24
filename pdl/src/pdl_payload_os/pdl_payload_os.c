@@ -1,5 +1,5 @@
 /************************************************************************
- * 通用Linux载荷通信服务 - Linux实现
+ * 通用OS载荷通信服务 - Linux实现
  *
  * 注意：完整实现需要SSH客户端库（如libssh）
  * 当前为框架实现，预留接口
@@ -7,14 +7,14 @@
 
 #include "hal_serial.h"
 #include "hal_network.h"
-#include "service_payload_linux.h"
+#include "pdl_payload_os.h"
 #include "osal.h"
 #include "config/ethernet_config.h"
 #include <stdlib.h>
 #include <string.h>
 
 /*
- * Linux载荷服务上下文
+ * OS载荷服务上下文
  */
 typedef struct
 {
@@ -39,9 +39,9 @@ typedef struct
 } linux_payload_context_t;
 
 /*
- * 初始化Linux载荷服务
+ * 初始化OS载荷服务
  */
-int32 LinuxPayload_Init(const linux_payload_config_t *config,
+int32 LinuxPayloadPDL_Init(const linux_payload_config_t *config,
                         linux_payload_handle_t *handle)
 {
     if (config == NULL || handle == NULL) {
@@ -78,9 +78,9 @@ int32 LinuxPayload_Init(const linux_payload_config_t *config,
 }
 
 /*
- * 反初始化Linux载荷服务
+ * 反初始化OS载荷服务
  */
-int32 LinuxPayload_Deinit(linux_payload_handle_t handle)
+int32 LinuxPayloadPDL_Deinit(linux_payload_handle_t handle)
 {
     if (handle == NULL) {
         return OS_INVALID_POINTER;
@@ -103,7 +103,7 @@ int32 LinuxPayload_Deinit(linux_payload_handle_t handle)
 /*
  * 执行远程命令
  */
-int32 LinuxPayload_ExecuteCommand(linux_payload_handle_t handle,
+int32 LinuxPayloadPDL_ExecuteCommand(linux_payload_handle_t handle,
                                   const char *command,
                                   char *output,
                                   uint32 output_size,
@@ -128,7 +128,7 @@ int32 LinuxPayload_ExecuteCommand(linux_payload_handle_t handle,
     /* - HTTP: 发送HTTP API请求 */
     /* - Serial: 通过串口终端执行 */
 
-    LOG_WARN("SVC_LINUX", "LinuxPayload_ExecuteCommand not implemented yet");
+    LOG_WARN("SVC_LINUX", "LinuxPayloadPDL_ExecuteCommand not implemented yet");
 
     ctx->fail_count++;
     OS_MutexUnlock(ctx->mutex);
@@ -139,7 +139,7 @@ int32 LinuxPayload_ExecuteCommand(linux_payload_handle_t handle,
 /*
  * 获取系统状态
  */
-int32 LinuxPayload_GetSystemStatus(linux_payload_handle_t handle,
+int32 LinuxPayloadPDL_GetSystemStatus(linux_payload_handle_t handle,
                                    linux_system_status_t *status)
 {
     if (handle == NULL || status == NULL) {
@@ -152,7 +152,7 @@ int32 LinuxPayload_GetSystemStatus(linux_payload_handle_t handle,
     /* - Disk: df -h */
     /* - Uptime: cat /proc/uptime */
 
-    LOG_WARN("SVC_LINUX", "LinuxPayload_GetSystemStatus not implemented yet");
+    LOG_WARN("SVC_LINUX", "LinuxPayloadPDL_GetSystemStatus not implemented yet");
 
     return OS_ERR_NOT_IMPLEMENTED;
 }
@@ -160,7 +160,7 @@ int32 LinuxPayload_GetSystemStatus(linux_payload_handle_t handle,
 /*
  * 获取进程列表
  */
-int32 LinuxPayload_GetProcessList(linux_payload_handle_t handle,
+int32 LinuxPayloadPDL_GetProcessList(linux_payload_handle_t handle,
                                   linux_process_info_t *processes,
                                   uint32 max_count,
                                   uint32 *actual_count)
@@ -174,7 +174,7 @@ int32 LinuxPayload_GetProcessList(linux_payload_handle_t handle,
 
     /* TODO: 执行 ps 命令获取进程列表 */
 
-    LOG_WARN("SVC_LINUX", "LinuxPayload_GetProcessList not implemented yet");
+    LOG_WARN("SVC_LINUX", "LinuxPayloadPDL_GetProcessList not implemented yet");
 
     return OS_ERR_NOT_IMPLEMENTED;
 }
@@ -182,7 +182,7 @@ int32 LinuxPayload_GetProcessList(linux_payload_handle_t handle,
 /*
  * 启动进程
  */
-int32 LinuxPayload_StartProcess(linux_payload_handle_t handle,
+int32 LinuxPayloadPDL_StartProcess(linux_payload_handle_t handle,
                                 const char *command,
                                 uint32 *pid)
 {
@@ -194,7 +194,7 @@ int32 LinuxPayload_StartProcess(linux_payload_handle_t handle,
 
     /* TODO: 执行命令启动进程 */
 
-    LOG_WARN("SVC_LINUX", "LinuxPayload_StartProcess not implemented yet");
+    LOG_WARN("SVC_LINUX", "LinuxPayloadPDL_StartProcess not implemented yet");
 
     return OS_ERR_NOT_IMPLEMENTED;
 }
@@ -202,7 +202,7 @@ int32 LinuxPayload_StartProcess(linux_payload_handle_t handle,
 /*
  * 停止进程
  */
-int32 LinuxPayload_StopProcess(linux_payload_handle_t handle,
+int32 LinuxPayloadPDL_StopProcess(linux_payload_handle_t handle,
                                uint32 pid,
                                bool force)
 {
@@ -217,7 +217,7 @@ int32 LinuxPayload_StopProcess(linux_payload_handle_t handle,
     /* - 正常: kill -TERM pid */
     /* - 强制: kill -KILL pid */
 
-    LOG_WARN("SVC_LINUX", "LinuxPayload_StopProcess not implemented yet");
+    LOG_WARN("SVC_LINUX", "LinuxPayloadPDL_StopProcess not implemented yet");
 
     return OS_ERR_NOT_IMPLEMENTED;
 }
@@ -225,7 +225,7 @@ int32 LinuxPayload_StopProcess(linux_payload_handle_t handle,
 /*
  * 上传文件到载荷
  */
-int32 LinuxPayload_UploadFile(linux_payload_handle_t handle,
+int32 LinuxPayloadPDL_UploadFile(linux_payload_handle_t handle,
                               const char *local_path,
                               const char *remote_path)
 {
@@ -235,7 +235,7 @@ int32 LinuxPayload_UploadFile(linux_payload_handle_t handle,
 
     /* TODO: 使用SCP/SFTP上传文件 */
 
-    LOG_WARN("SVC_LINUX", "LinuxPayload_UploadFile not implemented yet");
+    LOG_WARN("SVC_LINUX", "LinuxPayloadPDL_UploadFile not implemented yet");
 
     return OS_ERR_NOT_IMPLEMENTED;
 }
@@ -243,7 +243,7 @@ int32 LinuxPayload_UploadFile(linux_payload_handle_t handle,
 /*
  * 从载荷下载文件
  */
-int32 LinuxPayload_DownloadFile(linux_payload_handle_t handle,
+int32 LinuxPayloadPDL_DownloadFile(linux_payload_handle_t handle,
                                 const char *remote_path,
                                 const char *local_path)
 {
@@ -253,7 +253,7 @@ int32 LinuxPayload_DownloadFile(linux_payload_handle_t handle,
 
     /* TODO: 使用SCP/SFTP下载文件 */
 
-    LOG_WARN("SVC_LINUX", "LinuxPayload_DownloadFile not implemented yet");
+    LOG_WARN("SVC_LINUX", "LinuxPayloadPDL_DownloadFile not implemented yet");
 
     return OS_ERR_NOT_IMPLEMENTED;
 }
@@ -261,7 +261,7 @@ int32 LinuxPayload_DownloadFile(linux_payload_handle_t handle,
 /*
  * 系统重启
  */
-int32 LinuxPayload_Reboot(linux_payload_handle_t handle)
+int32 LinuxPayloadPDL_Reboot(linux_payload_handle_t handle)
 {
     if (handle == NULL) {
         return OS_INVALID_POINTER;
@@ -269,7 +269,7 @@ int32 LinuxPayload_Reboot(linux_payload_handle_t handle)
 
     /* TODO: 执行 reboot 命令 */
 
-    LOG_WARN("SVC_LINUX", "LinuxPayload_Reboot not implemented yet");
+    LOG_WARN("SVC_LINUX", "LinuxPayloadPDL_Reboot not implemented yet");
 
     return OS_ERR_NOT_IMPLEMENTED;
 }
@@ -277,7 +277,7 @@ int32 LinuxPayload_Reboot(linux_payload_handle_t handle)
 /*
  * 系统关机
  */
-int32 LinuxPayload_Shutdown(linux_payload_handle_t handle)
+int32 LinuxPayloadPDL_Shutdown(linux_payload_handle_t handle)
 {
     if (handle == NULL) {
         return OS_INVALID_POINTER;
@@ -285,7 +285,7 @@ int32 LinuxPayload_Shutdown(linux_payload_handle_t handle)
 
     /* TODO: 执行 shutdown 命令 */
 
-    LOG_WARN("SVC_LINUX", "LinuxPayload_Shutdown not implemented yet");
+    LOG_WARN("SVC_LINUX", "LinuxPayloadPDL_Shutdown not implemented yet");
 
     return OS_ERR_NOT_IMPLEMENTED;
 }
@@ -293,7 +293,7 @@ int32 LinuxPayload_Shutdown(linux_payload_handle_t handle)
 /*
  * 切换通信方式
  */
-int32 LinuxPayload_SwitchComm(linux_payload_handle_t handle,
+int32 LinuxPayloadPDL_SwitchComm(linux_payload_handle_t handle,
                               linux_comm_type_t comm_type)
 {
     if (handle == NULL) {
@@ -315,7 +315,7 @@ int32 LinuxPayload_SwitchComm(linux_payload_handle_t handle,
 /*
  * 检查连接状态
  */
-bool LinuxPayload_IsConnected(linux_payload_handle_t handle)
+bool LinuxPayloadPDL_IsConnected(linux_payload_handle_t handle)
 {
     if (handle == NULL) {
         return false;
@@ -328,7 +328,7 @@ bool LinuxPayload_IsConnected(linux_payload_handle_t handle)
 /*
  * 获取服务统计信息
  */
-int32 LinuxPayload_GetStats(linux_payload_handle_t handle,
+int32 LinuxPayloadPDL_GetStats(linux_payload_handle_t handle,
                             uint32 *cmd_count,
                             uint32 *success_count,
                             uint32 *fail_count)

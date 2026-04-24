@@ -6,7 +6,7 @@
 #define PROTOCOL_CONVERTER_H
 
 #include "osa_types.h"
-#include "payload_service.h"
+#include "payload_pdl.h"
 
 /**
  * @brief 初始化协议转换模块

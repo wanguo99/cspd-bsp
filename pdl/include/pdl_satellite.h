@@ -8,8 +8,8 @@
  * - 提供统一的平台交互接口
  ************************************************************************/
 
-#ifndef SERVICE_SATELLITE_H
-#define SERVICE_SATELLITE_H
+#ifndef PDL_SATELLITE_H
+#define PDL_SATELLITE_H
 
 #include "osa_types.h"
 #include "config/can_protocol.h"
@@ -44,7 +44,7 @@ typedef void (*satellite_cmd_callback_t)(can_cmd_type_t cmd_type, uint32 param, 
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 SatelliteService_Init(const satellite_service_config_t *config,
+int32 SatellitePDL_Init(const satellite_service_config_t *config,
                             satellite_service_handle_t *handle);
 
 /**
@@ -54,7 +54,7 @@ int32 SatelliteService_Init(const satellite_service_config_t *config,
  *
  * @return OS_SUCCESS 成功
  */
-int32 SatelliteService_Deinit(satellite_service_handle_t handle);
+int32 SatellitePDL_Deinit(satellite_service_handle_t handle);
 
 /**
  * @brief 注册命令回调函数
@@ -65,7 +65,7 @@ int32 SatelliteService_Deinit(satellite_service_handle_t handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 SatelliteService_RegisterCallback(satellite_service_handle_t handle,
+int32 SatellitePDL_RegisterCallback(satellite_service_handle_t handle,
                                         satellite_cmd_callback_t callback,
                                         void *user_data);
 
@@ -79,7 +79,7 @@ int32 SatelliteService_RegisterCallback(satellite_service_handle_t handle,
  *
  * @return OS_SUCCESS 成功
  */
-int32 SatelliteService_SendResponse(satellite_service_handle_t handle,
+int32 SatellitePDL_SendResponse(satellite_service_handle_t handle,
                                     uint32 seq_num,
                                     can_status_t status,
                                     uint32 result);
@@ -92,7 +92,7 @@ int32 SatelliteService_SendResponse(satellite_service_handle_t handle,
  *
  * @return OS_SUCCESS 成功
  */
-int32 SatelliteService_SendHeartbeat(satellite_service_handle_t handle,
+int32 SatellitePDL_SendHeartbeat(satellite_service_handle_t handle,
                                      can_status_t status);
 
 /**
@@ -105,9 +105,9 @@ int32 SatelliteService_SendHeartbeat(satellite_service_handle_t handle,
  *
  * @return OS_SUCCESS 成功
  */
-int32 SatelliteService_GetStats(satellite_service_handle_t handle,
+int32 SatellitePDL_GetStats(satellite_service_handle_t handle,
                                 uint32 *rx_count,
                                 uint32 *tx_count,
                                 uint32 *error_count);
 
-#endif /* SERVICE_SATELLITE_H */
+#endif /* PDL_SATELLITE_H */

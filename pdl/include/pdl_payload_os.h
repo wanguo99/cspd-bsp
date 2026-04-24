@@ -1,5 +1,5 @@
 /************************************************************************
- * 通用Linux载荷通信服务
+ * 通用OS载荷通信服务
  *
  * 功能：
  * - 与不带BMC但运行Linux系统的载荷通信
@@ -8,13 +8,13 @@
  * - 远程命令执行
  ************************************************************************/
 
-#ifndef SERVICE_PAYLOAD_LINUX_H
-#define SERVICE_PAYLOAD_LINUX_H
+#ifndef PDL_PAYLOAD_OS_H
+#define PDL_PAYLOAD_OS_H
 
 #include "osa_types.h"
 
 /*
- * Linux载荷服务句柄
+ * OS载荷服务句柄
  */
 typedef void* linux_payload_handle_t;
 
@@ -29,7 +29,7 @@ typedef enum
 } linux_comm_type_t;
 
 /*
- * Linux载荷配置
+ * OS载荷配置
  */
 typedef struct
 {
@@ -88,7 +88,7 @@ typedef struct
 } linux_process_info_t;
 
 /**
- * @brief 初始化Linux载荷服务
+ * @brief 初始化OS载荷服务
  *
  * @param[in] config 配置参数
  * @param[out] handle 服务句柄
@@ -96,17 +96,17 @@ typedef struct
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 LinuxPayload_Init(const linux_payload_config_t *config,
+int32 LinuxPayloadPDL_Init(const linux_payload_config_t *config,
                         linux_payload_handle_t *handle);
 
 /**
- * @brief 反初始化Linux载荷服务
+ * @brief 反初始化OS载荷服务
  *
  * @param[in] handle 服务句柄
  *
  * @return OS_SUCCESS 成功
  */
-int32 LinuxPayload_Deinit(linux_payload_handle_t handle);
+int32 LinuxPayloadPDL_Deinit(linux_payload_handle_t handle);
 
 /**
  * @brief 执行远程命令
@@ -121,7 +121,7 @@ int32 LinuxPayload_Deinit(linux_payload_handle_t handle);
  * @return OS_ERROR_TIMEOUT 超时
  * @return OS_ERROR 失败
  */
-int32 LinuxPayload_ExecuteCommand(linux_payload_handle_t handle,
+int32 LinuxPayloadPDL_ExecuteCommand(linux_payload_handle_t handle,
                                   const char *command,
                                   char *output,
                                   uint32 output_size,
@@ -135,7 +135,7 @@ int32 LinuxPayload_ExecuteCommand(linux_payload_handle_t handle,
  *
  * @return OS_SUCCESS 成功
  */
-int32 LinuxPayload_GetSystemStatus(linux_payload_handle_t handle,
+int32 LinuxPayloadPDL_GetSystemStatus(linux_payload_handle_t handle,
                                    linux_system_status_t *status);
 
 /**
@@ -148,7 +148,7 @@ int32 LinuxPayload_GetSystemStatus(linux_payload_handle_t handle,
  *
  * @return OS_SUCCESS 成功
  */
-int32 LinuxPayload_GetProcessList(linux_payload_handle_t handle,
+int32 LinuxPayloadPDL_GetProcessList(linux_payload_handle_t handle,
                                   linux_process_info_t *processes,
                                   uint32 max_count,
                                   uint32 *actual_count);
@@ -162,7 +162,7 @@ int32 LinuxPayload_GetProcessList(linux_payload_handle_t handle,
  *
  * @return OS_SUCCESS 成功
  */
-int32 LinuxPayload_StartProcess(linux_payload_handle_t handle,
+int32 LinuxPayloadPDL_StartProcess(linux_payload_handle_t handle,
                                 const char *command,
                                 uint32 *pid);
 
@@ -175,7 +175,7 @@ int32 LinuxPayload_StartProcess(linux_payload_handle_t handle,
  *
  * @return OS_SUCCESS 成功
  */
-int32 LinuxPayload_StopProcess(linux_payload_handle_t handle,
+int32 LinuxPayloadPDL_StopProcess(linux_payload_handle_t handle,
                                uint32 pid,
                                bool force);
 
@@ -188,7 +188,7 @@ int32 LinuxPayload_StopProcess(linux_payload_handle_t handle,
  *
  * @return OS_SUCCESS 成功
  */
-int32 LinuxPayload_UploadFile(linux_payload_handle_t handle,
+int32 LinuxPayloadPDL_UploadFile(linux_payload_handle_t handle,
                               const char *local_path,
                               const char *remote_path);
 
@@ -201,7 +201,7 @@ int32 LinuxPayload_UploadFile(linux_payload_handle_t handle,
  *
  * @return OS_SUCCESS 成功
  */
-int32 LinuxPayload_DownloadFile(linux_payload_handle_t handle,
+int32 LinuxPayloadPDL_DownloadFile(linux_payload_handle_t handle,
                                 const char *remote_path,
                                 const char *local_path);
 
@@ -212,7 +212,7 @@ int32 LinuxPayload_DownloadFile(linux_payload_handle_t handle,
  *
  * @return OS_SUCCESS 成功
  */
-int32 LinuxPayload_Reboot(linux_payload_handle_t handle);
+int32 LinuxPayloadPDL_Reboot(linux_payload_handle_t handle);
 
 /**
  * @brief 系统关机
@@ -221,7 +221,7 @@ int32 LinuxPayload_Reboot(linux_payload_handle_t handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 LinuxPayload_Shutdown(linux_payload_handle_t handle);
+int32 LinuxPayloadPDL_Shutdown(linux_payload_handle_t handle);
 
 /**
  * @brief 切换通信方式
@@ -231,7 +231,7 @@ int32 LinuxPayload_Shutdown(linux_payload_handle_t handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 LinuxPayload_SwitchComm(linux_payload_handle_t handle,
+int32 LinuxPayloadPDL_SwitchComm(linux_payload_handle_t handle,
                               linux_comm_type_t comm_type);
 
 /**
@@ -242,7 +242,7 @@ int32 LinuxPayload_SwitchComm(linux_payload_handle_t handle,
  * @return true 已连接
  * @return false 未连接
  */
-bool LinuxPayload_IsConnected(linux_payload_handle_t handle);
+bool LinuxPayloadPDL_IsConnected(linux_payload_handle_t handle);
 
 /**
  * @brief 获取服务统计信息
@@ -254,9 +254,9 @@ bool LinuxPayload_IsConnected(linux_payload_handle_t handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 LinuxPayload_GetStats(linux_payload_handle_t handle,
+int32 LinuxPayloadPDL_GetStats(linux_payload_handle_t handle,
                             uint32 *cmd_count,
                             uint32 *success_count,
                             uint32 *fail_count);
 
-#endif /* SERVICE_PAYLOAD_LINUX_H */
+#endif /* PDL_PAYLOAD_OS_H */

@@ -10,7 +10,7 @@
 #include <pthread.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include "persistent_queue.h"
+#include "pdl_persistent_queue.h"
 #include "osapi_queue.h"
 #include "osapi_log.h"
 

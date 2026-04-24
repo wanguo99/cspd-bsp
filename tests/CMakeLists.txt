@@ -24,7 +24,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/core
     ${CSPD_BSP_ROOT}/osal/include
     ${CSPD_BSP_ROOT}/hal/include
-    ${CSPD_BSP_ROOT}/service/include
+    ${CSPD_BSP_ROOT}/pdl/include
     ${CSPD_BSP_ROOT}/apps/protocol_converter
     ${CSPD_BSP_ROOT}/apps/protocol_converter/include
     ${CSPD_BSP_ROOT}/apps/can_gateway
@@ -41,7 +41,7 @@ list(FILTER OSAL_SOURCES EXCLUDE REGEX ".*_fixed\\.c$")
 file(GLOB HAL_SOURCES ${CSPD_BSP_ROOT}/hal/src/linux/*.c)
 list(FILTER HAL_SOURCES EXCLUDE REGEX ".*_fixed\\.c$")
 
-file(GLOB SERVICE_SOURCES ${CSPD_BSP_ROOT}/service/src/linux/*.c)
+file(GLOB SERVICE_SOURCES ${CSPD_BSP_ROOT}/pdl/src/linux/*.c)
 
 file(GLOB APPS_GATEWAY_SOURCES ${CSPD_BSP_ROOT}/apps/can_gateway/src/*.c)
 list(FILTER APPS_GATEWAY_SOURCES EXCLUDE REGEX ".*_fixed\\.c$")
@@ -77,8 +77,8 @@ add_executable(unit-test
     osal/test_os_network.c
     osal/test_os_signal.c
     hal/test_hal_can_module.c
-    service/test_payload_service_module.c
-    service/test_watchdog_restart.c
+    pdl/test_payload_pdl_module.c
+    pdl/test_watchdog_restart.c
     apps/test_can_gateway_module.c
     apps/test_protocol_converter_module.c
     ${APPS_PROTOCOL_SOURCES}
@@ -89,6 +89,9 @@ add_executable(unit-test
 )
 target_link_libraries(unit-test
     test_runner
+    pdl
+    hal
+    osal
     Threads::Threads
     rt
 )
@@ -152,19 +155,19 @@ target_link_libraries(unit-test
 
 # 注释掉独立测试可执行文件
 # # 测试：载荷服务
-# add_executable(test_payload_service
-#     service/test_payload_service.c
+# add_executable(test_payload_pdl
+#     pdl/test_payload_pdl.c
 #     ${APPS_PROTOCOL_SOURCES}
 #     ${APPS_GATEWAY_SOURCES}
 #     ${SERVICE_SOURCES}
 #     ${HAL_SOURCES}
 #     ${OSAL_SOURCES}
 # )
-# target_link_libraries(test_payload_service
+# target_link_libraries(test_payload_pdl
 #     Threads::Threads
 #     rt
 # )
-# add_test(NAME test_payload_service COMMAND test_payload_service)
+# add_test(NAME test_payload_pdl COMMAND test_payload_pdl)
 
 # ============================================
 # Apps层测试
@@ -280,7 +283,7 @@ message(STATUS "  Test framework: Custom (unittest_framework.h + unittest_runner
 message(STATUS "  Total test modules: 10")
 message(STATUS "    - OSAL tests: 6 modules (task, queue, mutex, file, network, signal)")
 message(STATUS "    - HAL tests: 1 module (CAN driver)")
-message(STATUS "    - Service tests: 1 module (payload service)")
+message(STATUS "    - Service tests: 1 module (payload pdl)")
 message(STATUS "    - Apps tests: 2 modules (CAN gateway, protocol converter)")
 message(STATUS "")
 message(STATUS "  Unified test entry: ./target/bin/unit-test")

@@ -2,7 +2,7 @@
  * 软件看门狗和故障恢复机制实现
  ************************************************************************/
 
-#include "watchdog.h"
+#include "pdl_watchdog.h"
 #include "osal.h"
 #include <stdlib.h>
 #include <string.h>
