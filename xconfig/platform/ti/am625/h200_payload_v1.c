@@ -17,7 +17,7 @@
  * V1.0特有GPIO定义
  *===========================================================================*/
 
-static hw_gpio_config_t gpio_mcu2_reset = {
+static xconfig_gpio_config_t gpio_mcu2_reset = {
     .gpio_num = 60,               /* GPIO1_28 */
     .pin_mux = 0x07,
     .active_low = true,
@@ -25,7 +25,7 @@ static hw_gpio_config_t gpio_mcu2_reset = {
     .pull_down = false
 };
 
-static hw_gpio_config_t gpio_imu_power = {
+static xconfig_gpio_config_t gpio_imu_power = {
     .gpio_num = 61,               /* GPIO1_29 */
     .pin_mux = 0x07,
     .active_low = false,
@@ -42,13 +42,13 @@ static hw_gpio_config_t gpio_imu_power = {
  * - 通信接口：CAN1
  * - 功能：冗余控制、故障检测
  */
-static hw_mcu_cfg_t mcu_backup = {
+static xconfig_mcu_cfg_t mcu_backup = {
     .name = "backup_mcu",
     .description = "Backup MCU for redundancy",
     .enabled = true,
 
     /* 通信接口：CAN */
-    .interface_type = HW_INTERFACE_CAN,
+    .interface_type = XCONFIG_INTERFACE_CAN,
     .interface_cfg.can = {
         .device = "can1",
         .bitrate = 500000,
@@ -64,7 +64,7 @@ static hw_mcu_cfg_t mcu_backup = {
     .irq_gpio = NULL
 };
 
-static hw_mcu_cfg_t *mcu_list_v1[] = {
+static xconfig_mcu_cfg_t *mcu_list_v1[] = {
     &mcu_backup
     /* base的MCU在运行时合并 */
 };
@@ -77,12 +77,12 @@ static hw_mcu_cfg_t *mcu_list_v1[] = {
  * 卫星平台冗余接口
  * - 通信接口：CAN2（备份通道）
  */
-static hw_satellite_cfg_t satellite_backup = {
+static xconfig_satellite_cfg_t satellite_backup = {
     .name = "satellite_backup",
     .description = "Satellite platform backup CAN interface",
     .enabled = true,
 
-    .interface_type = HW_INTERFACE_CAN,
+    .interface_type = XCONFIG_INTERFACE_CAN,
     .interface_cfg.can = {
         .device = "can2",
         .bitrate = 500000,
@@ -94,7 +94,7 @@ static hw_satellite_cfg_t satellite_backup = {
     .cmd_timeout_ms = 1000
 };
 
-static hw_satellite_cfg_t *satellite_list_v1[] = {
+static xconfig_satellite_cfg_t *satellite_list_v1[] = {
     &satellite_backup
 };
 
@@ -107,13 +107,13 @@ static hw_satellite_cfg_t *satellite_list_v1[] = {
  * - 通信接口：I2C1
  * - 型号：MPU6050（示例）
  */
-static hw_sensor_cfg_t sensor_gyro = {
+static xconfig_sensor_cfg_t sensor_gyro = {
     .name = "board_gyro",
     .description = "Gyroscope sensor (MPU6050)",
     .type = SENSOR_TYPE_GYROSCOPE,
     .enabled = true,
 
-    .interface_type = HW_INTERFACE_I2C,
+    .interface_type = XCONFIG_INTERFACE_I2C,
     .interface_cfg.i2c = {
         .device = "/dev/i2c-1",
         .slave_addr = 0x68,
@@ -132,13 +132,13 @@ static hw_sensor_cfg_t sensor_gyro = {
  * - 通信接口：I2C1（与陀螺仪共用总线）
  * - 型号：MPU6050内置加速度计
  */
-static hw_sensor_cfg_t sensor_accel = {
+static xconfig_sensor_cfg_t sensor_accel = {
     .name = "board_accel",
     .description = "Accelerometer sensor (MPU6050)",
     .type = SENSOR_TYPE_ACCELEROMETER,
     .enabled = true,
 
-    .interface_type = HW_INTERFACE_I2C,
+    .interface_type = XCONFIG_INTERFACE_I2C,
     .interface_cfg.i2c = {
         .device = "/dev/i2c-1",
         .slave_addr = 0x68,       /* 与陀螺仪同地址 */
@@ -152,7 +152,7 @@ static hw_sensor_cfg_t sensor_accel = {
     .irq_gpio = NULL
 };
 
-static hw_sensor_cfg_t *sensor_list_v1[] = {
+static xconfig_sensor_cfg_t *sensor_list_v1[] = {
     &sensor_gyro,
     &sensor_accel
 };
@@ -161,7 +161,7 @@ static hw_sensor_cfg_t *sensor_list_v1[] = {
  * 电源域配置（V1.0新增）
  *===========================================================================*/
 
-static hw_power_domain_t power_imu = {
+static xconfig_power_domain_t power_imu = {
     .name = "imu_power",
     .enable_gpio = &gpio_imu_power,
     .voltage_mv = 3300,
@@ -169,7 +169,7 @@ static hw_power_domain_t power_imu = {
     .startup_delay_ms = 100
 };
 
-static hw_power_domain_t *power_domain_list_v1[] = {
+static xconfig_power_domain_t *power_domain_list_v1[] = {
     &power_imu
 };
 
@@ -178,34 +178,34 @@ static hw_power_domain_t *power_domain_list_v1[] = {
  *===========================================================================*/
 
 /* CAN网关APP配置（V1.0增加备份卫星接口） */
-static hw_app_device_mapping_t can_gateway_devices_v1[] = {
+static xconfig_app_device_mapping_t can_gateway_devices_v1[] = {
     {
         .function = "satellite_comm",
-        .device_type = HW_DEV_SATELLITE,
+        .device_type = XCONFIG_DEV_SATELLITE,
         .device_id = 0,           /* 主卫星接口 */
         .required = true
     },
     {
         .function = "satellite_comm_backup",
-        .device_type = HW_DEV_SATELLITE,
+        .device_type = XCONFIG_DEV_SATELLITE,
         .device_id = 1,           /* 备份卫星接口（V1新增） */
         .required = false
     },
     {
         .function = "aux_control",
-        .device_type = HW_DEV_MCU,
+        .device_type = XCONFIG_DEV_MCU,
         .device_id = 0,
         .required = false
     },
     {
         .function = "aux_control_backup",
-        .device_type = HW_DEV_MCU,
+        .device_type = XCONFIG_DEV_MCU,
         .device_id = 1,           /* 备份MCU（V1新增） */
         .required = false
     }
 };
 
-static hw_app_config_t app_can_gateway_v1 = {
+static xconfig_app_config_t app_can_gateway_v1 = {
     .app_name = "can_gateway",
     .description = "CAN Gateway Application V1.0 - with redundancy",
     .device_mappings = can_gateway_devices_v1,
@@ -220,7 +220,7 @@ static hw_app_config_t app_can_gateway_v1 = {
 };
 
 /* APP配置列表 */
-static hw_app_config_t *app_list_v1[] = {
+static xconfig_app_config_t *app_list_v1[] = {
     &app_can_gateway_v1
 };
 
@@ -228,7 +228,7 @@ static hw_app_config_t *app_list_v1[] = {
  * 板级配置（导出）
  *===========================================================================*/
 
-const hw_board_config_t hw_config_h200_v1 = {
+const xconfig_board_config_t xconfig_h200_v1 = {
     .platform = "ti/am625",
     .product = "h200_payload",
     .version = "v1.0",

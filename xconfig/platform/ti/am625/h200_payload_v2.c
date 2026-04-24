@@ -18,7 +18,7 @@
  * V2.0特有GPIO定义
  *===========================================================================*/
 
-static hw_gpio_config_t gpio_1553b_reset __attribute__((unused)) = {
+static xconfig_gpio_config_t gpio_1553b_reset __attribute__((unused)) = {
     .gpio_num = 70,               /* GPIO2_6 */
     .pin_mux = 0x07,
     .active_low = true,
@@ -26,7 +26,7 @@ static hw_gpio_config_t gpio_1553b_reset __attribute__((unused)) = {
     .pull_down = false
 };
 
-static hw_gpio_config_t gpio_gps_power = {
+static xconfig_gpio_config_t gpio_gps_power = {
     .gpio_num = 71,               /* GPIO2_7 */
     .pin_mux = 0x07,
     .active_low = false,
@@ -34,7 +34,7 @@ static hw_gpio_config_t gpio_gps_power = {
     .pull_down = true
 };
 
-static hw_gpio_config_t gpio_nvme_power = {
+static xconfig_gpio_config_t gpio_nvme_power = {
     .gpio_num = 72,               /* GPIO2_8 */
     .pin_mux = 0x07,
     .active_low = false,
@@ -51,13 +51,13 @@ static hw_gpio_config_t gpio_nvme_power = {
  * - 通信接口：MIL-STD-1553B（替代CAN）
  * - 功能：高可靠性航天总线通信
  */
-static hw_satellite_cfg_t satellite_1553b = {
+static xconfig_satellite_cfg_t satellite_1553b = {
     .name = "satellite_1553b",
     .description = "Satellite platform 1553B interface",
     .enabled = true,
 
     /* 通信接口：1553B */
-    .interface_type = HW_INTERFACE_1553B,
+    .interface_type = XCONFIG_INTERFACE_1553B,
     .interface_cfg.bus_1553b = {
         .device = "/dev/mil1553b0",
         .rt_address = 5           /* RT地址：5 */
@@ -67,7 +67,7 @@ static hw_satellite_cfg_t satellite_1553b = {
     .cmd_timeout_ms = 2000        /* 1553B超时更长 */
 };
 
-static hw_satellite_cfg_t *satellite_list_v2[] = {
+static xconfig_satellite_cfg_t *satellite_list_v2[] = {
     &satellite_1553b
 };
 
@@ -80,14 +80,14 @@ static hw_satellite_cfg_t *satellite_list_v2[] = {
  * - 主通道：2.5G以太网
  * - 备份通道：串口
  */
-static hw_bmc_cfg_t bmc_payload_v2 = {
+static xconfig_bmc_cfg_t bmc_payload_v2 = {
     .name = "payload_bmc_v2",
     .description = "Payload BMC with 2.5G Ethernet",
     .enabled = true,
 
     /* 主通道：2.5G以太网 */
     .primary_channel = {
-        .type = HW_INTERFACE_ETHERNET,
+        .type = XCONFIG_INTERFACE_ETHERNET,
         .cfg = {
             .interface = "eth0",
             .ip_addr = "192.168.1.100",
@@ -97,7 +97,7 @@ static hw_bmc_cfg_t bmc_payload_v2 = {
 
     /* 备份通道：串口 */
     .backup_channel = {
-        .type = HW_INTERFACE_UART,
+        .type = XCONFIG_INTERFACE_UART,
         .cfg = {
             .device = "/dev/ttyS2",
             .baudrate = 115200,
@@ -115,7 +115,7 @@ static hw_bmc_cfg_t bmc_payload_v2 = {
     .reset_gpio = NULL
 };
 
-static hw_bmc_cfg_t *bmc_list_v2[] = {
+static xconfig_bmc_cfg_t *bmc_list_v2[] = {
     &bmc_payload_v2
 };
 
@@ -128,14 +128,14 @@ static hw_bmc_cfg_t *bmc_list_v2[] = {
  * - 通信接口：UART3
  * - 功能：位置和时间同步
  */
-static hw_sensor_cfg_t sensor_gps = {
+static xconfig_sensor_cfg_t sensor_gps = {
     .name = "board_gps",
     .description = "GPS sensor for position and time sync",
     .type = SENSOR_TYPE_GPS,
     .enabled = true,
 
     /* 通信接口：UART */
-    .interface_type = HW_INTERFACE_UART,
+    .interface_type = XCONFIG_INTERFACE_UART,
     .interface_cfg.uart = {
         .device = "/dev/ttyS3",
         .baudrate = 9600,         /* GPS标准波特率 */
@@ -151,7 +151,7 @@ static hw_sensor_cfg_t sensor_gps = {
     .irq_gpio = NULL
 };
 
-static hw_sensor_cfg_t *sensor_list_v2[] = {
+static xconfig_sensor_cfg_t *sensor_list_v2[] = {
     &sensor_gps
 };
 
@@ -164,7 +164,7 @@ static hw_sensor_cfg_t *sensor_list_v2[] = {
  * - 容量：256GB
  * - 功能：高速数据存储
  */
-static hw_storage_cfg_t storage_nvme = {
+static xconfig_storage_cfg_t storage_nvme = {
     .name = "nvme_storage",
     .description = "256GB NVMe SSD for high-speed data storage",
     .type = STORAGE_TYPE_NVME,
@@ -178,7 +178,7 @@ static hw_storage_cfg_t storage_nvme = {
     .power_gpio = &gpio_nvme_power
 };
 
-static hw_storage_cfg_t *storage_list_v2[] = {
+static xconfig_storage_cfg_t *storage_list_v2[] = {
     &storage_nvme
 };
 
@@ -186,7 +186,7 @@ static hw_storage_cfg_t *storage_list_v2[] = {
  * 电源域配置（V2.0新增）
  *===========================================================================*/
 
-static hw_power_domain_t power_gps = {
+static xconfig_power_domain_t power_gps = {
     .name = "gps_power",
     .enable_gpio = &gpio_gps_power,
     .voltage_mv = 3300,
@@ -194,7 +194,7 @@ static hw_power_domain_t power_gps = {
     .startup_delay_ms = 200       /* GPS需要较长启动时间 */
 };
 
-static hw_power_domain_t power_nvme = {
+static xconfig_power_domain_t power_nvme = {
     .name = "nvme_power",
     .enable_gpio = &gpio_nvme_power,
     .voltage_mv = 3300,
@@ -202,7 +202,7 @@ static hw_power_domain_t power_nvme = {
     .startup_delay_ms = 500
 };
 
-static hw_power_domain_t *power_domain_list_v2[] = {
+static xconfig_power_domain_t *power_domain_list_v2[] = {
     &power_gps,
     &power_nvme
 };
@@ -212,25 +212,25 @@ static hw_power_domain_t *power_domain_list_v2[] = {
  *===========================================================================*/
 
 /* 协议转换器APP配置（V2.0使用1553B接口） */
-static hw_app_device_mapping_t protocol_converter_devices_v2[] = {
+static xconfig_app_device_mapping_t protocol_converter_devices_v2[] = {
     {
         .function = "satellite_comm",
-        .device_type = HW_DEV_SATELLITE,
+        .device_type = XCONFIG_DEV_SATELLITE,
         .device_id = 0            /* V2使用1553B接口 */
     },
     {
         .function = "payload_comm",
-        .device_type = HW_DEV_BMC,
+        .device_type = XCONFIG_DEV_BMC,
         .device_id = 0            /* V2使用升级的BMC */
     },
     {
         .function = "position_sensor",
-        .device_type = HW_DEV_SENSOR,
+        .device_type = XCONFIG_DEV_SENSOR,
         .device_id = 0            /* V2新增GPS传感器 */
     }
 };
 
-static hw_app_config_t app_protocol_converter_v2 = {
+static xconfig_app_config_t app_protocol_converter_v2 = {
     .app_name = "protocol_converter",
     .description = "Protocol Converter Application V2.0 - with 1553B and GPS",
     .device_mappings = protocol_converter_devices_v2,
@@ -245,7 +245,7 @@ static hw_app_config_t app_protocol_converter_v2 = {
 };
 
 /* APP配置列表 */
-static hw_app_config_t *app_list_v2[] = {
+static xconfig_app_config_t *app_list_v2[] = {
     &app_protocol_converter_v2
 };
 
@@ -253,7 +253,7 @@ static hw_app_config_t *app_list_v2[] = {
  * 板级配置（导出）
  *===========================================================================*/
 
-const hw_board_config_t hw_config_h200_v2 = {
+const xconfig_board_config_t xconfig_h200_v2 = {
     .platform = "ti/am625",
     .product = "h200_payload",
     .version = "v2.0",

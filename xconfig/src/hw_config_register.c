@@ -15,21 +15,21 @@
  *===========================================================================*/
 
 /* TI AM625平台 - H200载荷板 */
-extern const hw_board_config_t hw_config_h200_base;
-extern const hw_board_config_t hw_config_h200_v1;
-extern const hw_board_config_t hw_config_h200_v2;
+extern const xconfig_board_config_t xconfig_h200_base;
+extern const xconfig_board_config_t xconfig_h200_v1;
+extern const xconfig_board_config_t xconfig_h200_v2;
 
 /* 其他平台配置可以在这里添加 */
-/* extern const hw_board_config_t hw_config_xxx; */
+/* extern const xconfig_board_config_t hw_config_xxx; */
 
 /*===========================================================================
  * 配置注册表
  *===========================================================================*/
 
-static const hw_board_config_t* g_all_configs[] = {
-    &hw_config_h200_base,
-    &hw_config_h200_v1,
-    &hw_config_h200_v2,
+static const xconfig_board_config_t* g_all_configs[] = {
+    &xconfig_h200_base,
+    &xconfig_h200_v1,
+    &xconfig_h200_v2,
     /* 在这里添加新的配置 */
 };
 
@@ -75,23 +75,23 @@ int32 XCONFIG_RegisterAll(void)
  * @brief 根据环境变量或编译选项选择默认配置
  *
  * 优先级：
- * 1. 环境变量 HW_PLATFORM, HW_PRODUCT, HW_VERSION
+ * 1. 环境变量 XCONFIG_PLATFORM, XCONFIG_PRODUCT, XCONFIG_VERSION
  * 2. 编译时定义 DEFAULT_PLATFORM, DEFAULT_PRODUCT, DEFAULT_VERSION
  * 3. 默认使用第一个配置
  *
  * @return 配置指针，失败返回NULL
  */
-const hw_board_config_t* XCONFIG_SelectDefault(void)
+const xconfig_board_config_t* XCONFIG_SelectDefault(void)
 {
     const char *platform = NULL;
     const char *product = NULL;
     const char *version = NULL;
-    const hw_board_config_t *config = NULL;
+    const xconfig_board_config_t *config = NULL;
 
     /* 1. 尝试从环境变量读取 */
-    platform = getenv("HW_PLATFORM");
-    product = getenv("HW_PRODUCT");
-    version = getenv("HW_VERSION");
+    platform = getenv("XCONFIG_PLATFORM");
+    product = getenv("XCONFIG_PRODUCT");
+    version = getenv("XCONFIG_VERSION");
 
     if (platform != NULL && product != NULL) {
         config = XCONFIG_Find(platform, product, version);
