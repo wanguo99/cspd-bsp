@@ -48,12 +48,12 @@ static void can_rx_task(void *arg)
     can_frame_t frame;
     int32 ret;
 
-    OS_printf("[CAN Gateway] RX任务启动\n");
+    OSAL_Printf("[CAN Gateway] RX任务启动\n");
 
     while (1)
     {
         /* 从CAN总线接收 */
-        ret = HAL_CAN_Recv(g_can_handle, &frame, CAN_TIMEOUT_MS);
+        ret = HAL_CanRecv(g_can_handle, &frame, CAN_TIMEOUT_MS);
 
         if (ret == OS_SUCCESS)
         {
@@ -61,29 +61,29 @@ static void can_rx_task(void *arg)
             if (frame.can_id == CAN_ID_SAT_TO_BRIDGE)
             {
                 can_msg_t *msg = (can_msg_t *)frame.data;
-                OS_printf("[CAN Gateway] 收到CAN消息: type=%s, cmd=%s, seq=%u\n",
+                OSAL_Printf("[CAN Gateway] 收到CAN消息: type=%s, cmd=%s, seq=%u\n",
                          can_get_msg_type_name(msg->msg_type),
                          can_get_cmd_type_name(msg->cmd_type),
                          msg->seq_num);
 
                 /* 转发到内部队列 */
-                ret = OS_QueuePut(g_can_rx_queue, &frame, sizeof(frame), 0);
+                ret = OSAL_QueuePut(g_can_rx_queue, &frame, sizeof(frame), 0);
                 if (ret == OS_SUCCESS)
                 {
                     atomic_fetch_add(&g_stats.rx_count, 1);
                 }
                 else
                 {
-                    OS_printf("[CAN Gateway] 队列满，丢弃消息\n");
+                    OSAL_Printf("[CAN Gateway] 队列满，丢弃消息\n");
                     atomic_fetch_add(&g_stats.err_count, 1);
                 }
             }
         }
         else if (ret != OS_ERROR_TIMEOUT)
         {
-            OS_printf("[CAN Gateway] 接收错误: %s\n", OS_GetErrorName(ret));
+            OSAL_Printf("[CAN Gateway] 接收错误: %s\n", OS_GetErrorName(ret));
             atomic_fetch_add(&g_stats.err_count, 1);
-            OS_TaskDelay(100);  /* 错误后延时 */
+            OSAL_TaskDelay(100);  /* 错误后延时 */
         }
     }
 }
@@ -100,34 +100,34 @@ static void can_tx_task(void *arg)
     int32 ret;
     uint32 size;
 
-    OS_printf("[CAN Gateway] TX任务启动\n");
+    OSAL_Printf("[CAN Gateway] TX任务启动\n");
 
     while (1)
     {
         /* 从发送队列获取消息 */
-        ret = OS_QueueGet(g_can_tx_queue, &frame, sizeof(frame), &size, OS_PEND);
+        ret = OSAL_QueueGet(g_can_tx_queue, &frame, sizeof(frame), &size, OS_PEND);
 
         if (ret == OS_SUCCESS)
         {
             /* 发送到CAN总线 */
-            ret = HAL_CAN_Send(g_can_handle, &frame);
+            ret = HAL_CanSend(g_can_handle, &frame);
 
             if (ret == OS_SUCCESS)
             {
                 can_msg_t *msg = (can_msg_t *)frame.data;
-                OS_printf("[CAN Gateway] 发送CAN消息: type=%s, seq=%u\n",
+                OSAL_Printf("[CAN Gateway] 发送CAN消息: type=%s, seq=%u\n",
                          can_get_msg_type_name(msg->msg_type),
                          msg->seq_num);
                 atomic_fetch_add(&g_stats.tx_count, 1);
             }
             else
             {
-                OS_printf("[CAN Gateway] 发送失败: %s\n", OS_GetErrorName(ret));
+                OSAL_Printf("[CAN Gateway] 发送失败: %s\n", OS_GetErrorName(ret));
                 atomic_fetch_add(&g_stats.err_count, 1);
 
                 /* 发送失败，重试一次 */
-                OS_TaskDelay(10);
-                ret = HAL_CAN_Send(g_can_handle, &frame);
+                OSAL_TaskDelay(10);
+                ret = HAL_CanSend(g_can_handle, &frame);
                 if (ret == OS_SUCCESS)
                 {
                     atomic_fetch_add(&g_stats.tx_count, 1);
@@ -147,18 +147,18 @@ static void can_heartbeat_task(void *arg __attribute__((unused)))
     can_frame_t frame;
     uint32 uptime = 0;
 
-    OS_printf("[CAN Gateway] 心跳任务启动\n");
+    OSAL_Printf("[CAN Gateway] 心跳任务启动\n");
 
     while (1)
     {
         /* 延时5秒 */
-        OS_TaskDelay(5000);
+        OSAL_TaskDelay(5000);
 
         /* 构造心跳消息 */
         can_build_heartbeat(&frame, uptime);
 
         /* 发送心跳 */
-        OS_QueuePut(g_can_tx_queue, &frame, sizeof(frame), 0);
+        OSAL_QueuePut(g_can_tx_queue, &frame, sizeof(frame), 0);
 
         uptime += 5;
     }
@@ -176,7 +176,7 @@ int32 CAN_Gateway_Init(void)
     osal_id_t task_id;
     hal_can_config_t can_config;
 
-    OS_printf("[CAN Gateway] 初始化...\n");
+    OSAL_Printf("[CAN Gateway] 初始化...\n");
 
     /* 初始化原子变量 */
     atomic_init(&g_stats.rx_count, 0);
@@ -184,27 +184,27 @@ int32 CAN_Gateway_Init(void)
     atomic_init(&g_stats.err_count, 0);
 
     /* 创建互斥锁保护序列号 */
-    ret = OS_MutexCreate(&g_stats_mutex, "CAN_SEQ_MUTEX", 0);
+    ret = OSAL_MutexCreate(&g_stats_mutex, "CAN_SEQ_MUTEX", 0);
     if (ret != OS_SUCCESS)
     {
-        OS_printf("[CAN Gateway] 创建互斥锁失败\n");
+        OSAL_Printf("[CAN Gateway] 创建互斥锁失败\n");
         return ret;
     }
 
     /* 创建消息队列 */
-    ret = OS_QueueCreate(&g_can_rx_queue, "CAN_RX_QUEUE",
+    ret = OSAL_QueueCreate(&g_can_rx_queue, "CAN_RX_QUEUE",
                          CAN_RX_QUEUE_DEPTH, sizeof(can_frame_t), 0);
     if (ret != OS_SUCCESS)
     {
-        OS_printf("[CAN Gateway] 创建RX队列失败\n");
+        OSAL_Printf("[CAN Gateway] 创建RX队列失败\n");
         return ret;
     }
 
-    ret = OS_QueueCreate(&g_can_tx_queue, "CAN_TX_QUEUE",
+    ret = OSAL_QueueCreate(&g_can_tx_queue, "CAN_TX_QUEUE",
                          CAN_TX_QUEUE_DEPTH, sizeof(can_frame_t), 0);
     if (ret != OS_SUCCESS)
     {
-        OS_printf("[CAN Gateway] 创建TX队列失败\n");
+        OSAL_Printf("[CAN Gateway] 创建TX队列失败\n");
         return ret;
     }
 
@@ -214,48 +214,48 @@ int32 CAN_Gateway_Init(void)
     can_config.rx_timeout = CAN_TIMEOUT_MS;
     can_config.tx_timeout = CAN_TIMEOUT_MS;
 
-    ret = HAL_CAN_Init(&can_config, &g_can_handle);
+    ret = HAL_CanInit(&can_config, &g_can_handle);
     if (ret != OS_SUCCESS)
     {
-        OS_printf("[CAN Gateway] CAN驱动初始化失败\n");
+        OSAL_Printf("[CAN Gateway] CAN驱动初始化失败\n");
         return ret;
     }
 
     /* 设置CAN过滤器：只接收卫星平台消息 */
-    HAL_CAN_SetFilter(g_can_handle, CAN_ID_SAT_TO_BRIDGE, 0x7FF);
+    HAL_CanSetFilter(g_can_handle, CAN_ID_SAT_TO_BRIDGE, 0x7FF);
 
     /* 创建任务 */
-    ret = OS_TaskCreate(&task_id, "CAN_RX",
+    ret = OSAL_TaskCreate(&task_id, "CAN_RX",
                         can_rx_task, NULL,
                         TASK_STACK_SIZE_MEDIUM,
                         PRIORITY_CRITICAL, 0);
     if (ret != OS_SUCCESS)
     {
-        OS_printf("[CAN Gateway] 创建RX任务失败\n");
+        OSAL_Printf("[CAN Gateway] 创建RX任务失败\n");
         return ret;
     }
 
-    ret = OS_TaskCreate(&task_id, "CAN_TX",
+    ret = OSAL_TaskCreate(&task_id, "CAN_TX",
                         can_tx_task, NULL,
                         TASK_STACK_SIZE_MEDIUM,
                         PRIORITY_CRITICAL, 0);
     if (ret != OS_SUCCESS)
     {
-        OS_printf("[CAN Gateway] 创建TX任务失败\n");
+        OSAL_Printf("[CAN Gateway] 创建TX任务失败\n");
         return ret;
     }
 
-    ret = OS_TaskCreate(&task_id, "CAN_HB",
+    ret = OSAL_TaskCreate(&task_id, "CAN_HB",
                         can_heartbeat_task, NULL,
                         TASK_STACK_SIZE_SMALL,
                         PRIORITY_LOW, 0);
     if (ret != OS_SUCCESS)
     {
-        OS_printf("[CAN Gateway] 创建心跳任务失败\n");
+        OSAL_Printf("[CAN Gateway] 创建心跳任务失败\n");
         return ret;
     }
 
-    OS_printf("[CAN Gateway] 初始化完成\n");
+    OSAL_Printf("[CAN Gateway] 初始化完成\n");
     return OS_SUCCESS;
 }
 
@@ -290,7 +290,7 @@ int32 CAN_Gateway_SendResponse(uint16 seq_num, can_status_t status, uint32 resul
 
     can_build_cmd_response(&frame, seq_num, status, result);
 
-    return OS_QueuePut(g_can_tx_queue, &frame, sizeof(frame), 0);
+    return OSAL_QueuePut(g_can_tx_queue, &frame, sizeof(frame), 0);
 }
 
 /**
@@ -306,13 +306,13 @@ int32 CAN_Gateway_SendStatus(uint32 status_data)
     uint16 seq;
 
     /* 使用互斥锁保护序列号递增 */
-    OS_MutexLock(g_stats_mutex);
+    OSAL_MutexLock(g_stats_mutex);
     seq = g_seq_num++;
-    OS_MutexUnlock(g_stats_mutex);
+    OSAL_MutexUnlock(g_stats_mutex);
 
     can_build_status_report(&frame, seq, status_data);
 
-    return OS_QueuePut(g_can_tx_queue, &frame, sizeof(frame), 0);
+    return OSAL_QueuePut(g_can_tx_queue, &frame, sizeof(frame), 0);
 }
 
 /**

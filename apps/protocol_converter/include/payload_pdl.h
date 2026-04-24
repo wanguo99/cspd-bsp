@@ -7,7 +7,7 @@
 #ifndef PAYLOAD_SERVICE_H
 #define PAYLOAD_SERVICE_H
 
-#include "osa_types.h"
+#include "osal_types.h"
 
 /*
  * ============================================================================

@@ -180,28 +180,28 @@ static can_status_t execute_ipmi_command(can_cmd_type_t cmd_type, uint32 param _
             break;
 
         default:
-            OS_printf("[Protocol Converter] 不支持的命令类型: %d\n", cmd_type);
+            OSAL_Printf("[Protocol Converter] 不支持的命令类型: %d\n", cmd_type);
             return STATUS_INVALID_CMD;
     }
 
-    OS_printf("[Protocol Converter] 执行IPMI命令: %s\n", cmd_buf);
+    OSAL_Printf("[Protocol Converter] 执行IPMI命令: %s\n", cmd_buf);
 
     ret = PayloadService_Send(g_payload_handle, cmd_buf, strlen(cmd_buf));
     if (ret < 0)
     {
-        OS_printf("[Protocol Converter] 发送命令失败\n");
+        OSAL_Printf("[Protocol Converter] 发送命令失败\n");
         return STATUS_COMM_ERROR;
     }
 
     ret = PayloadService_Recv(g_payload_handle, resp_buf, sizeof(resp_buf) - 1, CMD_TIMEOUT_MS);
     if (ret == OS_ERROR_TIMEOUT)
     {
-        OS_printf("[Protocol Converter] 命令超时\n");
+        OSAL_Printf("[Protocol Converter] 命令超时\n");
         return STATUS_TIMEOUT;
     }
     else if (ret < 0)
     {
-        OS_printf("[Protocol Converter] 接收响应失败\n");
+        OSAL_Printf("[Protocol Converter] 接收响应失败\n");
         return STATUS_COMM_ERROR;
     }
 
@@ -209,7 +209,7 @@ static can_status_t execute_ipmi_command(can_cmd_type_t cmd_type, uint32 param _
     if (ret >= (int32)sizeof(resp_buf))
         ret = sizeof(resp_buf) - 1;
     resp_buf[ret] = '\0';
-    OS_printf("[Protocol Converter] 收到响应: %s\n", resp_buf);
+    OSAL_Printf("[Protocol Converter] 收到响应: %s\n", resp_buf);
 
     /* 解析响应 */
     return parse_ipmi_response(cmd_type, resp_buf, result);
@@ -228,7 +228,7 @@ static void protocol_converter_task(void *arg __attribute__((unused)))
     can_status_t status;
     uint32 result;
 
-    OS_printf("[Protocol Converter] 任务启动\n");
+    OSAL_Printf("[Protocol Converter] 任务启动\n");
 
     /* 获取CAN接收队列 */
     osal_id_t can_rx_queue = CAN_Gateway_GetRxQueue();
@@ -236,7 +236,7 @@ static void protocol_converter_task(void *arg __attribute__((unused)))
     while (1)
     {
         /* 从CAN网关接收命令 */
-        ret = OS_QueueGet(can_rx_queue, &frame, sizeof(frame), &size, OS_PEND);
+        ret = OSAL_QueueGet(can_rx_queue, &frame, sizeof(frame), &size, OS_PEND);
 
         if (ret != OS_SUCCESS)
 
@@ -255,14 +255,14 @@ static void protocol_converter_task(void *arg __attribute__((unused)))
 
         atomic_fetch_add(&g_stats.cmd_count, 1);
 
-        OS_printf("[Protocol Converter] 处理命令: %s (seq=%u)\n",
+        OSAL_Printf("[Protocol Converter] 处理命令: %s (seq=%u)\n",
                  can_get_cmd_type_name(msg->cmd_type),
                  msg->seq_num);
 
         /* 检查载荷连接 */
         if (!PayloadService_IsConnected(g_payload_handle))
         {
-            OS_printf("[Protocol Converter] 载荷未连接\n");
+            OSAL_Printf("[Protocol Converter] 载荷未连接\n");
             status = STATUS_PAYLOAD_OFFLINE;
             result = 0;
             atomic_fetch_add(&g_stats.fail_count, 1);
@@ -303,7 +303,7 @@ int32 Protocol_Converter_Init(void)
     osal_id_t task_id;
     payload_service_config_t service_config;
 
-    OS_printf("[Protocol Converter] 初始化...\n");
+    OSAL_Printf("[Protocol Converter] 初始化...\n");
 
     /* 配置载荷服务 */
     service_config.ethernet.ip_addr = SERVER_IP_ADDRESS;
@@ -319,23 +319,23 @@ int32 Protocol_Converter_Init(void)
     ret = PayloadService_Init(&service_config, &g_payload_handle);
     if (ret != OS_SUCCESS)
     {
-        OS_printf("[Protocol Converter] 载荷服务初始化失败\n");
+        OSAL_Printf("[Protocol Converter] 载荷服务初始化失败\n");
         return ret;
     }
 
     /* 创建协议转换任务 */
-    ret = OS_TaskCreate(&task_id, "PROTO_CONV",
+    ret = OSAL_TaskCreate(&task_id, "PROTO_CONV",
                         protocol_converter_task, NULL,
                         TASK_STACK_SIZE_LARGE,
                         PRIORITY_HIGH, 0);
     if (ret != OS_SUCCESS)
     {
-        OS_printf("[Protocol Converter] 创建任务失败\n");
+        OSAL_Printf("[Protocol Converter] 创建任务失败\n");
         PayloadService_Deinit(g_payload_handle);
         return ret;
     }
 
-    OS_printf("[Protocol Converter] 初始化完成\n");
+    OSAL_Printf("[Protocol Converter] 初始化完成\n");
     return OS_SUCCESS;
 }
 

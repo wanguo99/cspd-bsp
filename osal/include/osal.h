@@ -13,17 +13,17 @@
 #ifndef OSAL_H
 #define OSAL_H
 
-#include "osa_types.h"
-#include "osapi_error.h"
-#include "osapi_task.h"
-#include "osapi_queue.h"
-#include "osapi_mutex.h"
-#include "osapi_clock.h"
-#include "osapi_network.h"
-#include "osapi_heap.h"
-#include "osapi_log.h"
-#include "osapi_file.h"
-#include "osapi_signal.h"
+#include "osal_types.h"
+#include "osal_error.h"
+#include "osal_task.h"
+#include "osal_queue.h"
+#include "osal_mutex.h"
+#include "osal_clock.h"
+#include "osal_network.h"
+#include "osal_heap.h"
+#include "osal_log.h"
+#include "osal_file.h"
+#include "osal_signal.h"
 
 /*
  * OSAL版本信息

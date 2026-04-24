@@ -32,8 +32,8 @@ __attribute__((unused)) static void setUp(void)
 __attribute__((unused)) static void tearDown(void)
 {
     /* 恢复默认信号处理 */
-    OS_SignalIgnore(OS_SIGNAL_INT);
-    OS_SignalIgnore(OS_SIGNAL_TERM);
+    OSAL_SignalIgnore(OS_SIGNAL_INT);
+    OSAL_SignalIgnore(OS_SIGNAL_TERM);
     OS_API_Teardown();
 }
 
@@ -44,7 +44,7 @@ void test_OS_SignalRegister_Success(void)
     int32 ret;
 
     /* 注册SIGINT处理函数 */
-    ret = OS_SignalRegister(OS_SIGNAL_INT, test_signal_handler);
+    ret = OSAL_SignalRegister(OS_SIGNAL_INT, test_signal_handler);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     /* 发送信号给自己 */
@@ -66,11 +66,11 @@ void test_OS_SignalIgnore_Success(void)
     int32 ret;
 
     /* 先注册处理函数 */
-    ret = OS_SignalRegister(OS_SIGNAL_TERM, test_signal_handler);
+    ret = OSAL_SignalRegister(OS_SIGNAL_TERM, test_signal_handler);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     /* 然后忽略信号 */
-    ret = OS_SignalIgnore(OS_SIGNAL_TERM);
+    ret = OSAL_SignalIgnore(OS_SIGNAL_TERM);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     /* 发送信号 */
@@ -90,11 +90,11 @@ void test_OS_SignalBlock_Success(void)
     int32 ret;
 
     /* 阻塞SIGINT */
-    ret = OS_SignalBlock(OS_SIGNAL_INT);
+    ret = OSAL_SignalBlock(OS_SIGNAL_INT);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     /* 注册处理函数 */
-    ret = OS_SignalRegister(OS_SIGNAL_INT, test_signal_handler);
+    ret = OSAL_SignalRegister(OS_SIGNAL_INT, test_signal_handler);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     /* 发送信号 */
@@ -105,7 +105,7 @@ void test_OS_SignalBlock_Success(void)
     TEST_ASSERT_EQUAL(0, g_signal_received);
 
     /* 解除阻塞 */
-    ret = OS_SignalUnblock(OS_SIGNAL_INT);
+    ret = OSAL_SignalUnblock(OS_SIGNAL_INT);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     /* 等待信号处理 */
@@ -124,11 +124,11 @@ void test_OS_SignalDefault_Success(void)
     int32 ret;
 
     /* 先注册处理函数 */
-    ret = OS_SignalRegister(OS_SIGNAL_INT, test_signal_handler);
+    ret = OSAL_SignalRegister(OS_SIGNAL_INT, test_signal_handler);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     /* 恢复默认处理 */
-    ret = OS_SignalDefault(OS_SIGNAL_INT);
+    ret = OSAL_SignalDefault(OS_SIGNAL_INT);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     /* 注意：发送SIGINT会导致进程终止（默认行为），所以这里不测试实际效果 */
@@ -144,13 +144,13 @@ void test_OS_SignalRegister_Multiple(void)
     int32 ret;
 
     /* 注册多个信号 */
-    ret = OS_SignalRegister(OS_SIGNAL_INT, test_signal_handler);
+    ret = OSAL_SignalRegister(OS_SIGNAL_INT, test_signal_handler);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
-    ret = OS_SignalRegister(OS_SIGNAL_TERM, test_signal_handler);
+    ret = OSAL_SignalRegister(OS_SIGNAL_TERM, test_signal_handler);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
-    ret = OS_SignalRegister(OS_SIGNAL_USR1, test_signal_handler);
+    ret = OSAL_SignalRegister(OS_SIGNAL_USR1, test_signal_handler);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     /* 发送SIGUSR1 */
@@ -170,7 +170,7 @@ void test_OS_SignalRegister_InvalidParams(void)
     int32 ret;
 
     /* NULL处理函数 */
-    ret = OS_SignalRegister(OS_SIGNAL_INT, NULL);
+    ret = OSAL_SignalRegister(OS_SIGNAL_INT, NULL);
     TEST_ASSERT_EQUAL(OS_INVALID_POINTER, ret);
 
     tearDown();

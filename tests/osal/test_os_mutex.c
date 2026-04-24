@@ -30,12 +30,12 @@ void test_OS_MutexCreate_Success(void)
     setUp();
     osal_id_t mutex_id;
 
-    int32 ret = OS_MutexCreate(&mutex_id, "TEST_MUTEX", 0);
+    int32 ret = OSAL_MutexCreate(&mutex_id, "TEST_MUTEX", 0);
 
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
     TEST_ASSERT_NOT_EQUAL(OS_OBJECT_ID_UNDEFINED, mutex_id);
 
-    OS_MutexDelete(mutex_id);
+    OSAL_MutexDelete(mutex_id);
     tearDown();
 }
 
@@ -43,7 +43,7 @@ void test_OS_MutexCreate_Success(void)
 void test_OS_MutexCreate_NullPointer(void)
 {
     setUp();
-    int32 ret = OS_MutexCreate(NULL, "TEST", 0);
+    int32 ret = OSAL_MutexCreate(NULL, "TEST", 0);
     TEST_ASSERT_EQUAL(OS_INVALID_POINTER, ret);
     tearDown();
 }
@@ -54,13 +54,13 @@ void test_OS_MutexCreate_NameTaken(void)
     setUp();
     osal_id_t mutex_id1, mutex_id2;
 
-    int32 ret = OS_MutexCreate(&mutex_id1, "DUP_MUTEX", 0);
+    int32 ret = OSAL_MutexCreate(&mutex_id1, "DUP_MUTEX", 0);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
-    ret = OS_MutexCreate(&mutex_id2, "DUP_MUTEX", 0);
+    ret = OSAL_MutexCreate(&mutex_id2, "DUP_MUTEX", 0);
     TEST_ASSERT_EQUAL(OS_ERR_NAME_TAKEN, ret);
 
-    OS_MutexDelete(mutex_id1);
+    OSAL_MutexDelete(mutex_id1);
     tearDown();
 }
 
@@ -69,15 +69,15 @@ void test_OS_MutexLockUnlock_Success(void)
 {
     setUp();
     osal_id_t mutex_id;
-    OS_MutexCreate(&mutex_id, "TEST_MTX", 0);
+    OSAL_MutexCreate(&mutex_id, "TEST_MTX", 0);
 
-    int32 ret = OS_MutexLock(mutex_id);
+    int32 ret = OSAL_MutexLock(mutex_id);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
-    ret = OS_MutexUnlock(mutex_id);
+    ret = OSAL_MutexUnlock(mutex_id);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
-    OS_MutexDelete(mutex_id);
+    OSAL_MutexDelete(mutex_id);
     tearDown();
 }
 
@@ -85,7 +85,7 @@ void test_OS_MutexLockUnlock_Success(void)
 void test_OS_MutexLock_InvalidId(void)
 {
     setUp();
-    int32 ret = OS_MutexLock(9999);
+    int32 ret = OSAL_MutexLock(9999);
     TEST_ASSERT_EQUAL(OS_ERR_INVALID_ID, ret);
     tearDown();
 }
@@ -94,7 +94,7 @@ void test_OS_MutexLock_InvalidId(void)
 void test_OS_MutexUnlock_InvalidId(void)
 {
     setUp();
-    int32 ret = OS_MutexUnlock(9999);
+    int32 ret = OSAL_MutexUnlock(9999);
     TEST_ASSERT_EQUAL(OS_ERR_INVALID_ID, ret);
     tearDown();
 }
@@ -105,14 +105,14 @@ void test_OS_MutexGetIdByName_Success(void)
     setUp();
     osal_id_t mutex_id1, mutex_id2;
 
-    OS_MutexCreate(&mutex_id1, "NAMED_MTX", 0);
+    OSAL_MutexCreate(&mutex_id1, "NAMED_MTX", 0);
 
-    int32 ret = OS_MutexGetIdByName(&mutex_id2, "NAMED_MTX");
+    int32 ret = OSAL_MutexGetIdByName(&mutex_id2, "NAMED_MTX");
 
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
     TEST_ASSERT_EQUAL(mutex_id1, mutex_id2);
 
-    OS_MutexDelete(mutex_id1);
+    OSAL_MutexDelete(mutex_id1);
     tearDown();
 }
 
@@ -122,7 +122,7 @@ void test_OS_MutexGetIdByName_NotFound(void)
     setUp();
     osal_id_t mutex_id;
 
-    int32 ret = OS_MutexGetIdByName(&mutex_id, "NONEXISTENT");
+    int32 ret = OSAL_MutexGetIdByName(&mutex_id, "NONEXISTENT");
     TEST_ASSERT_EQUAL(OS_ERR_NAME_NOT_FOUND, ret);
     tearDown();
 }
@@ -132,9 +132,9 @@ void test_OS_MutexDelete_Success(void)
 {
     setUp();
     osal_id_t mutex_id;
-    OS_MutexCreate(&mutex_id, "TEST_MTX", 0);
+    OSAL_MutexCreate(&mutex_id, "TEST_MTX", 0);
 
-    int32 ret = OS_MutexDelete(mutex_id);
+    int32 ret = OSAL_MutexDelete(mutex_id);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
     tearDown();
 }
@@ -143,7 +143,7 @@ void test_OS_MutexDelete_Success(void)
 void test_OS_MutexDelete_InvalidId(void)
 {
     setUp();
-    int32 ret = OS_MutexDelete(9999);
+    int32 ret = OSAL_MutexDelete(9999);
     TEST_ASSERT_EQUAL(OS_ERR_INVALID_ID, ret);
     tearDown();
 }
@@ -154,9 +154,9 @@ static void* increment_thread(void *arg)
     osal_id_t *mutex_id = (osal_id_t *)arg;
 
     for (int i = 0; i < 1000; i++) {
-        OS_MutexLock(*mutex_id);
+        OSAL_MutexLock(*mutex_id);
         shared_counter++;
-        OS_MutexUnlock(*mutex_id);
+        OSAL_MutexUnlock(*mutex_id);
     }
 
     return NULL;
@@ -167,7 +167,7 @@ void test_OS_Mutex_ProtectSharedResource(void)
 {
     setUp();
     osal_id_t mutex_id;
-    OS_MutexCreate(&mutex_id, "PROTECT_MTX", 0);
+    OSAL_MutexCreate(&mutex_id, "PROTECT_MTX", 0);
 
     pthread_t thread1, thread2;
 
@@ -182,7 +182,7 @@ void test_OS_Mutex_ProtectSharedResource(void)
     /* 验证计数器正确 */
     TEST_ASSERT_EQUAL(2000, shared_counter);
 
-    OS_MutexDelete(mutex_id);
+    OSAL_MutexDelete(mutex_id);
     tearDown();
 }
 

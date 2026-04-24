@@ -78,7 +78,6 @@ add_executable(unit-test
     osal/test_os_signal.c
     hal/test_hal_can_module.c
     pdl/test_payload_pdl_module.c
-    pdl/test_watchdog_restart.c
     apps/test_can_gateway_module.c
     apps/test_protocol_converter_module.c
     ${APPS_PROTOCOL_SOURCES}

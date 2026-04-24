@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "osapi_log.h"
+#include "osal_log.h"
 
 /* 测试统计 - 声明为extern，在unittest_runner.c中定义 */
 extern int test_total;
@@ -28,9 +28,9 @@ extern const char *current_test_name;
         test_total = 0; \
         test_passed = 0; \
         test_failed = 0; \
-        OS_printf("\n========================================\n"); \
-        OS_printf("Starting Test Suite\n"); \
-        OS_printf("========================================\n\n"); \
+        OSAL_Printf("\n========================================\n"); \
+        OSAL_Printf("Starting Test Suite\n"); \
+        OSAL_Printf("========================================\n\n"); \
     } while(0)
 
 #define TEST_START(name) \
@@ -38,24 +38,24 @@ extern const char *current_test_name;
         test_total = 0; \
         test_passed = 0; \
         test_failed = 0; \
-        OS_printf("\n========================================\n"); \
-        OS_printf("Starting %s\n", name); \
-        OS_printf("========================================\n\n"); \
+        OSAL_Printf("\n========================================\n"); \
+        OSAL_Printf("Starting %s\n", name); \
+        OSAL_Printf("========================================\n\n"); \
     } while(0)
 
 /* 测试结束 */
 #define TEST_END() \
     ({ \
-        OS_printf("\n========================================\n"); \
-        OS_printf("Test Results:\n"); \
-        OS_printf("  Total:   %d\n", test_total); \
-        OS_printf("  " COLOR_GREEN "Passed:  %d" COLOR_RESET "\n", test_passed); \
+        OSAL_Printf("\n========================================\n"); \
+        OSAL_Printf("Test Results:\n"); \
+        OSAL_Printf("  Total:   %d\n", test_total); \
+        OSAL_Printf("  " COLOR_GREEN "Passed:  %d" COLOR_RESET "\n", test_passed); \
         if (test_failed > 0) { \
-            OS_printf("  " COLOR_RED "Failed:  %d" COLOR_RESET "\n", test_failed); \
+            OSAL_Printf("  " COLOR_RED "Failed:  %d" COLOR_RESET "\n", test_failed); \
         } else { \
-            OS_printf("  Failed:  %d\n", test_failed); \
+            OSAL_Printf("  Failed:  %d\n", test_failed); \
         } \
-        OS_printf("========================================\n"); \
+        OSAL_Printf("========================================\n"); \
         (test_failed == 0) ? 0 : 1; \
     })
 
@@ -64,9 +64,9 @@ extern const char *current_test_name;
     do { \
         current_test_name = #test_func; \
         test_total++; \
-        OS_printf("[ RUN      ] %s\n", current_test_name ? current_test_name : "Unknown"); \
+        OSAL_Printf("[ RUN      ] %s\n", current_test_name ? current_test_name : "Unknown"); \
         test_func(); \
-        OS_printf(COLOR_GREEN "[       OK ] %s\n" COLOR_RESET, current_test_name ? current_test_name : "Unknown"); \
+        OSAL_Printf(COLOR_GREEN "[       OK ] %s\n" COLOR_RESET, current_test_name ? current_test_name : "Unknown"); \
         test_passed++; \
     } while(0)
 
@@ -74,7 +74,7 @@ extern const char *current_test_name;
 #define TEST_ASSERT(condition) \
     do { \
         if (!(condition)) { \
-            OS_printf(COLOR_RED "[  FAILED  ] %s:%d: Assertion failed: %s\n" COLOR_RESET, \
+            OSAL_Printf(COLOR_RED "[  FAILED  ] %s:%d: Assertion failed: %s\n" COLOR_RESET, \
                    __FILE__, __LINE__, #condition); \
             test_failed++; \
             return; \
@@ -84,7 +84,7 @@ extern const char *current_test_name;
 #define TEST_ASSERT_EQUAL(expected, actual) \
     do { \
         if ((expected) != (actual)) { \
-            OS_printf(COLOR_RED "[  FAILED  ] %s:%d: Expected %d, got %d\n" COLOR_RESET, \
+            OSAL_Printf(COLOR_RED "[  FAILED  ] %s:%d: Expected %d, got %d\n" COLOR_RESET, \
                    __FILE__, __LINE__, (int)(expected), (int)(actual)); \
             test_failed++; \
             return; \
@@ -94,7 +94,7 @@ extern const char *current_test_name;
 #define TEST_ASSERT_NOT_EQUAL(expected, actual) \
     do { \
         if ((expected) == (actual)) { \
-            OS_printf(COLOR_RED "[  FAILED  ] %s:%d: Expected not equal to %d\n" COLOR_RESET, \
+            OSAL_Printf(COLOR_RED "[  FAILED  ] %s:%d: Expected not equal to %d\n" COLOR_RESET, \
                    __FILE__, __LINE__, (int)(expected)); \
             test_failed++; \
             return; \
@@ -104,7 +104,7 @@ extern const char *current_test_name;
 #define TEST_ASSERT_NULL(ptr) \
     do { \
         if ((ptr) != NULL) { \
-            OS_printf(COLOR_RED "[  FAILED  ] %s:%d: Expected NULL pointer\n" COLOR_RESET, \
+            OSAL_Printf(COLOR_RED "[  FAILED  ] %s:%d: Expected NULL pointer\n" COLOR_RESET, \
                    __FILE__, __LINE__); \
             test_failed++; \
             return; \
@@ -114,7 +114,7 @@ extern const char *current_test_name;
 #define TEST_ASSERT_NOT_NULL(ptr) \
     do { \
         if ((ptr) == NULL) { \
-            OS_printf(COLOR_RED "[  FAILED  ] %s:%d: Expected non-NULL pointer\n" COLOR_RESET, \
+            OSAL_Printf(COLOR_RED "[  FAILED  ] %s:%d: Expected non-NULL pointer\n" COLOR_RESET, \
                    __FILE__, __LINE__); \
             test_failed++; \
             return; \
@@ -127,7 +127,7 @@ extern const char *current_test_name;
 #define TEST_ASSERT_GREATER_OR_EQUAL(threshold, actual) \
     do { \
         if ((actual) < (threshold)) { \
-            OS_printf(COLOR_RED "[  FAILED  ] %s:%d: Expected >= %d, got %d\n" COLOR_RESET, \
+            OSAL_Printf(COLOR_RED "[  FAILED  ] %s:%d: Expected >= %d, got %d\n" COLOR_RESET, \
                    __FILE__, __LINE__, (int)(threshold), (int)(actual)); \
             test_failed++; \
             return; \
@@ -137,7 +137,7 @@ extern const char *current_test_name;
 #define TEST_ASSERT_STRING_EQUAL(expected, actual) \
     do { \
         if (strcmp((expected), (actual)) != 0) { \
-            OS_printf(COLOR_RED "[  FAILED  ] %s:%d: Expected \"%s\", got \"%s\"\n" COLOR_RESET, \
+            OSAL_Printf(COLOR_RED "[  FAILED  ] %s:%d: Expected \"%s\", got \"%s\"\n" COLOR_RESET, \
                    __FILE__, __LINE__, (expected), (actual)); \
             test_failed++; \
             return; \
@@ -149,7 +149,7 @@ extern const char *current_test_name;
 #define TEST_ASSERT_LESS_OR_EQUAL(threshold, actual) \
     do { \
         if ((actual) > (threshold)) { \
-            OS_printf(COLOR_RED "[  FAILED  ] %s:%d: Expected <= %d, got %d\n" COLOR_RESET, \
+            OSAL_Printf(COLOR_RED "[  FAILED  ] %s:%d: Expected <= %d, got %d\n" COLOR_RESET, \
                    __FILE__, __LINE__, (int)(threshold), (int)(actual)); \
             test_failed++; \
             return; \
@@ -158,9 +158,9 @@ extern const char *current_test_name;
 
 /* 测试消息 */
 #define TEST_MESSAGE(msg) \
-    OS_printf(COLOR_YELLOW "[  INFO    ] %s\n" COLOR_RESET, msg)
+    OSAL_Printf(COLOR_YELLOW "[  INFO    ] %s\n" COLOR_RESET, msg)
 
 #define TEST_WARNING(msg) \
-    OS_printf(COLOR_YELLOW "[ WARNING  ] %s\n" COLOR_RESET, msg)
+    OSAL_Printf(COLOR_YELLOW "[ WARNING  ] %s\n" COLOR_RESET, msg)
 
 #endif /* TEST_FRAMEWORK_H */

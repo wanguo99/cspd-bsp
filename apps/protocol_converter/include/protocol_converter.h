@@ -5,7 +5,7 @@
 #ifndef PROTOCOL_CONVERTER_H
 #define PROTOCOL_CONVERTER_H
 
-#include "osa_types.h"
+#include "osal_types.h"
 #include "payload_pdl.h"
 
 /**

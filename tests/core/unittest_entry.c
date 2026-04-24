@@ -6,7 +6,7 @@
 
 #include "unittest_runner.h"
 #include "unittest_framework.h"
-#include "osapi_log.h"
+#include "osal_log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,17 +32,17 @@ void set_terminal_mode(int enable)
 /* 等待用户按键 */
 void wait_for_key(void)
 {
-    OS_printf("\nPress 'q' to quit, or any other key to continue...");
+    OSAL_Printf("\nPress 'q' to quit, or any other key to continue...");
     fflush(stdout);
 
     set_terminal_mode(1);
     int ch = getchar();
     set_terminal_mode(0);
 
-    OS_printf("\n");
+    OSAL_Printf("\n");
 
     if (ch == 'q' || ch == 'Q') {
-        OS_printf("Exiting...\n");
+        OSAL_Printf("Exiting...\n");
         exit(0);
     }
 }
@@ -60,7 +60,6 @@ extern const test_module_t test_hal_can;
 
 /* 外部测试模块声明 - Service层 */
 extern const test_module_t test_payload_service;
-extern const test_module_t test_watchdog_restart;
 
 /* 外部测试模块声明 - Apps层 */
 extern const test_module_t test_can_gateway;
@@ -91,7 +90,6 @@ static const test_module_t *hal_modules[] = {
 /* Service层测试模块 */
 static const test_module_t *service_modules[] = {
     &test_payload_service,
-    &test_watchdog_restart,
 };
 
 /* Apps层测试模块 */
@@ -241,57 +239,57 @@ void interactive_run_single_test(void)
     char input[256];
 
     /* 第一步：显示所有层级 */
-    OS_printf("\nAvailable layers:\n");
+    OSAL_Printf("\nAvailable layers:\n");
     for (uint32_t i = 0; i < LAYER_COUNT; i++) {
-        OS_printf("  [%u] %s (%u modules)\n", i + 1, all_layers[i].layer_name, all_layers[i].module_count);
+        OSAL_Printf("  [%u] %s (%u modules)\n", i + 1, all_layers[i].layer_name, all_layers[i].module_count);
     }
 
-    OS_printf("\nEnter layer number: ");
+    OSAL_Printf("\nEnter layer number: ");
     if (fgets(input, sizeof(input), stdin) == NULL) {
         return;
     }
 
     uint32_t layer_num = (uint32_t)atoi(input);
     if (layer_num == 0 || layer_num > LAYER_COUNT) {
-        OS_printf("Invalid layer number\n");
+        OSAL_Printf("Invalid layer number\n");
         return;
     }
 
     const test_layer_t *selected_layer = &all_layers[layer_num - 1];
 
     /* 第二步：显示该层级的所有模块 */
-    OS_printf("\nAvailable modules in %s layer:\n", selected_layer->layer_name);
+    OSAL_Printf("\nAvailable modules in %s layer:\n", selected_layer->layer_name);
     for (uint32_t i = 0; i < selected_layer->module_count; i++) {
-        OS_printf("  [%u] %s\n", i + 1, selected_layer->modules[i]->module_name);
+        OSAL_Printf("  [%u] %s\n", i + 1, selected_layer->modules[i]->module_name);
     }
 
-    OS_printf("\nEnter module number: ");
+    OSAL_Printf("\nEnter module number: ");
     if (fgets(input, sizeof(input), stdin) == NULL) {
         return;
     }
 
     uint32_t module_num = (uint32_t)atoi(input);
     if (module_num == 0 || module_num > selected_layer->module_count) {
-        OS_printf("Invalid module number\n");
+        OSAL_Printf("Invalid module number\n");
         return;
     }
 
     const test_module_t *selected_module = selected_layer->modules[module_num - 1];
 
     /* 第三步：显示该模块的所有测试用例 */
-    OS_printf("\nAvailable tests in %s:\n", selected_module->module_name);
+    OSAL_Printf("\nAvailable tests in %s:\n", selected_module->module_name);
     for (uint32_t i = 0; i < selected_module->test_count; i++) {
-        OS_printf("  [%u] %s\n", i + 1, selected_module->test_cases[i].name);
+        OSAL_Printf("  [%u] %s\n", i + 1, selected_module->test_cases[i].name);
     }
 
-    OS_printf("\nEnter test number: ");
+    OSAL_Printf("\nEnter test number: ");
     if (fgets(input, sizeof(input), stdin) == NULL) {
         return;
     }
 
     uint32_t test_num = (uint32_t)atoi(input);
     if (test_num == 0 || test_num > selected_module->test_count) {
-        OS_printf("Invalid test number\n");
+        OSAL_Printf("Invalid test number\n");
         return;
     }
 
@@ -306,15 +304,15 @@ void interactive_run_module_tests(void)
 {
     char input[256];
 
-    OS_printf("\nAvailable modules:\n");
+    OSAL_Printf("\nAvailable modules:\n");
     for (uint32_t i = 0; i < LAYER_COUNT; i++) {
-        OS_printf("  [%s Layer]\n", all_layers[i].layer_name);
+        OSAL_Printf("  [%s Layer]\n", all_layers[i].layer_name);
         for (uint32_t j = 0; j < all_layers[i].module_count; j++) {
-            OS_printf("    - %s\n", all_layers[i].modules[j]->module_name);
+            OSAL_Printf("    - %s\n", all_layers[i].modules[j]->module_name);
         }
     }
 
-    OS_printf("\nEnter module name: ");
+    OSAL_Printf("\nEnter module name: ");
     if (fgets(input, sizeof(input), stdin) == NULL) {
         return;
     }
@@ -330,20 +328,20 @@ void interactive_menu(void)
     int choice;
 
     while (1) {
-        OS_printf("\n========================================\n");
-        OS_printf("CSPD-BSP Test Suite - Interactive Menu\n");
-        OS_printf("========================================\n");
-        OS_printf("1. Run all tests (all layers)\n");
-        OS_printf("2. Run OSAL layer tests\n");
-        OS_printf("3. Run HAL layer tests\n");
-        OS_printf("4. Run Service layer tests\n");
-        OS_printf("5. Run Apps layer tests\n");
-        OS_printf("6. Run specific module tests\n");
-        OS_printf("7. Run single test\n");
-        OS_printf("8. List all tests\n");
-        OS_printf("0. Exit\n");
-        OS_printf("========================================\n");
-        OS_printf("Enter your choice (or 'q' to quit): ");
+        OSAL_Printf("\n========================================\n");
+        OSAL_Printf("CSPD-BSP Test Suite - Interactive Menu\n");
+        OSAL_Printf("========================================\n");
+        OSAL_Printf("1. Run all tests (all layers)\n");
+        OSAL_Printf("2. Run OSAL layer tests\n");
+        OSAL_Printf("3. Run HAL layer tests\n");
+        OSAL_Printf("4. Run Service layer tests\n");
+        OSAL_Printf("5. Run Apps layer tests\n");
+        OSAL_Printf("6. Run specific module tests\n");
+        OSAL_Printf("7. Run single test\n");
+        OSAL_Printf("8. List all tests\n");
+        OSAL_Printf("0. Exit\n");
+        OSAL_Printf("========================================\n");
+        OSAL_Printf("Enter your choice (or 'q' to quit): ");
 
         if (fgets(input, sizeof(input), stdin) == NULL) {
             break;
@@ -351,7 +349,7 @@ void interactive_menu(void)
 
         /* 检查是否输入q退出 */
         if (input[0] == 'q' || input[0] == 'Q') {
-            OS_printf("\nExiting...\n");
+            OSAL_Printf("\nExiting...\n");
             return;
         }
 
@@ -391,11 +389,11 @@ void interactive_menu(void)
                 break;
 
             case 0:
-                OS_printf("\nExiting...\n");
+                OSAL_Printf("\nExiting...\n");
                 return;
 
             default:
-                OS_printf("\nInvalid choice. Please try again.\n");
+                OSAL_Printf("\nInvalid choice. Please try again.\n");
                 break;
         }
 
@@ -406,10 +404,10 @@ void interactive_menu(void)
 /* 主函数 */
 int main(int argc, char *argv[])
 {
-    OS_printf("\n========================================\n");
-    OS_printf("CSPD-BSP Unified Test Suite\n");
-    OS_printf("Version 1.0.0\n");
-    OS_printf("========================================\n");
+    OSAL_Printf("\n========================================\n");
+    OSAL_Printf("CSPD-BSP Unified Test Suite\n");
+    OSAL_Printf("Version 1.0.0\n");
+    OSAL_Printf("========================================\n");
 
     /* 无参数或-i参数：交互模式 */
     if (argc == 1 || (argc == 2 && (strcmp(argv[1], "-i") == 0 || strcmp(argv[1], "--interactive") == 0))) {
@@ -444,7 +442,7 @@ int main(int argc, char *argv[])
             return (g_test_stats.failed == 0) ? 0 : 1;
         }
         else {
-            OS_printf("Error: Unknown option '%s'\n", argv[1]);
+            OSAL_Printf("Error: Unknown option '%s'\n", argv[1]);
             print_usage(argv[0]);
             return 1;
         }

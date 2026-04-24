@@ -25,7 +25,7 @@ static void signal_handler(int sig)
 {
     if (sig == SIGINT || sig == SIGTERM)
     {
-        OS_printf("\n收到退出信号，正在关闭协议转换器...\n");
+        OSAL_Printf("\n收到退出信号，正在关闭协议转换器...\n");
         g_running = false;
     }
 }
@@ -37,18 +37,18 @@ static void stats_task(void *arg __attribute__((unused)))
 {
     uint32 cmd_count, success, fail, timeout;
 
-    OS_printf("[Stats] 任务启动\n");
+    OSAL_Printf("[Stats] 任务启动\n");
 
     while (g_running)
     {
-        OS_TaskDelay(30000);  /* 30秒 */
+        OSAL_TaskDelay(30000);  /* 30秒 */
 
         Protocol_Converter_GetStats(&cmd_count, &success, &fail, &timeout);
 
-        OS_printf("\n========== 协议转换统计 ==========\n");
-        OS_printf("命令总数: %u\n", cmd_count);
-        OS_printf("成功: %u, 失败: %u, 超时: %u\n", success, fail, timeout);
-        OS_printf("==================================\n\n");
+        OSAL_Printf("\n========== 协议转换统计 ==========\n");
+        OSAL_Printf("命令总数: %u\n", cmd_count);
+        OSAL_Printf("成功: %u, 失败: %u, 超时: %u\n", success, fail, timeout);
+        OSAL_Printf("==================================\n\n");
     }
 }
 
@@ -91,7 +91,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     }
 
     /* 创建统计任务 */
-    ret = OS_TaskCreate(&task_id, "STATS",
+    ret = OSAL_TaskCreate(&task_id, "STATS",
                         stats_task, NULL,
                         TASK_STACK_SIZE_SMALL,
                         PRIORITY_LOW, 0);
@@ -101,17 +101,17 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
         return EXIT_FAILURE;
     }
 
-    OS_printf("\n协议转换器启动完成，按 Ctrl+C 退出\n\n");
+    OSAL_Printf("\n协议转换器启动完成，按 Ctrl+C 退出\n\n");
 
     /* 主循环 */
     while (g_running)
     {
-        OS_TaskDelay(1000);
+        OSAL_TaskDelay(1000);
     }
 
     /* 清理 */
-    OS_printf("\n正在清理资源...\n");
-    OS_TaskDelay(2000);
+    OSAL_Printf("\n正在清理资源...\n");
+    OSAL_TaskDelay(2000);
 
     OS_API_Teardown();
 

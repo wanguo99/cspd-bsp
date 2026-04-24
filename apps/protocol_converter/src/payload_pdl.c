@@ -87,7 +87,7 @@ int32 PayloadService_Init(const payload_service_config_t *config,
     /* 参数验证 */
     if (config->ethernet.ip_addr == NULL || config->uart.device == NULL)
     {
-        OS_printf("[PayloadService] 无效的配置参数\n");
+        OSAL_Printf("[PayloadService] 无效的配置参数\n");
         return OS_INVALID_POINTER;
     }
 
@@ -95,7 +95,7 @@ int32 PayloadService_Init(const payload_service_config_t *config,
     ctx = (payload_service_context_t *)malloc(sizeof(payload_service_context_t));
     if (!ctx)
     {
-        OS_printf("[PayloadService] 内存分配失败\n");
+        OSAL_Printf("[PayloadService] 内存分配失败\n");
         return OS_ERROR;
     }
 
@@ -108,10 +108,10 @@ int32 PayloadService_Init(const payload_service_config_t *config,
     ctx->state = CONN_STATE_DISCONNECTED;
 
     /* 创建互斥锁 */
-    ret = OS_MutexCreate(&ctx->mutex, "PAYLOAD_MTX", 0);
+    ret = OSAL_MutexCreate(&ctx->mutex, "PAYLOAD_MTX", 0);
     if (ret != OS_SUCCESS)
     {
-        OS_printf("[PayloadService] 创建互斥锁失败\n");
+        OSAL_Printf("[PayloadService] 创建互斥锁失败\n");
         free(ctx);
         return ret;
     }
@@ -120,28 +120,28 @@ int32 PayloadService_Init(const payload_service_config_t *config,
     ret = ethernet_connect(ctx);
     if (ret == OS_SUCCESS)
     {
-        OS_printf("[PayloadService] 以太网连接成功\n");
+        OSAL_Printf("[PayloadService] 以太网连接成功\n");
         ctx->connected = true;
         ctx->state = CONN_STATE_CONNECTED;
     }
     else
     {
-        OS_printf("[PayloadService] 以太网连接失败，尝试UART\n");
+        OSAL_Printf("[PayloadService] 以太网连接失败，尝试UART\n");
 
         /* 尝试打开UART */
         ret = uart_open(ctx);
         if (ret == OS_SUCCESS)
         {
-            OS_printf("[PayloadService] UART打开成功\n");
+            OSAL_Printf("[PayloadService] UART打开成功\n");
             ctx->current_channel = PAYLOAD_CHANNEL_UART;
             ctx->connected = true;
             ctx->state = CONN_STATE_CONNECTED;
         }
         else
         {
-            OS_printf("[PayloadService] UART打开失败\n");
+            OSAL_Printf("[PayloadService] UART打开失败\n");
             ctx->state = CONN_STATE_ERROR;
-            OS_MutexDelete(ctx->mutex);
+            OSAL_MutexDelete(ctx->mutex);
             free(ctx);
             return OS_ERROR;
         }
@@ -160,7 +160,7 @@ int32 PayloadService_Deinit(payload_service_handle_t handle)
         return OS_INVALID_POINTER;
     }
 
-    OS_MutexLock(ctx->mutex);
+    OSAL_MutexLock(ctx->mutex);
 
     ethernet_disconnect(ctx);
     uart_close(ctx);
@@ -168,12 +168,12 @@ int32 PayloadService_Deinit(payload_service_handle_t handle)
     ctx->connected = false;
     ctx->state = CONN_STATE_DISCONNECTED;
 
-    OS_MutexUnlock(ctx->mutex);
-    OS_MutexDelete(ctx->mutex);
+    OSAL_MutexUnlock(ctx->mutex);
+    OSAL_MutexDelete(ctx->mutex);
 
     free(ctx);
 
-    OS_printf("[PayloadService] 服务已关闭\n");
+    OSAL_Printf("[PayloadService] 服务已关闭\n");
     return OS_SUCCESS;
 }
 
@@ -189,11 +189,11 @@ int32 PayloadService_Send(payload_service_handle_t handle,
         return OS_INVALID_POINTER;
     }
 
-    OS_MutexLock(ctx->mutex);
+    OSAL_MutexLock(ctx->mutex);
 
     if (!ctx->connected)
     {
-        OS_MutexUnlock(ctx->mutex);
+        OSAL_MutexUnlock(ctx->mutex);
         return OS_ERROR;
     }
 
@@ -223,7 +223,7 @@ int32 PayloadService_Send(payload_service_handle_t handle,
     {
         if (ctx->fail_count >= ctx->config.retry_count)
         {
-            OS_printf("[PayloadService] 通道失败次数过多(%u)，尝试切换\n",
+            OSAL_Printf("[PayloadService] 通道失败次数过多(%u)，尝试切换\n",
                      ctx->fail_count);
 
             payload_channel_t new_channel = (ctx->current_channel == PAYLOAD_CHANNEL_ETHERNET) ?
@@ -238,7 +238,7 @@ int32 PayloadService_Send(payload_service_handle_t handle,
                     ctx->current_channel = PAYLOAD_CHANNEL_ETHERNET;
                     ctx->connected = true;
                     ctx->fail_count = 0;
-                    OS_printf("[PayloadService] 已切换到以太网\n");
+                    OSAL_Printf("[PayloadService] 已切换到以太网\n");
                 }
             }
             else
@@ -249,13 +249,13 @@ int32 PayloadService_Send(payload_service_handle_t handle,
                     ctx->current_channel = PAYLOAD_CHANNEL_UART;
                     ctx->connected = true;
                     ctx->fail_count = 0;
-                    OS_printf("[PayloadService] 已切换到UART\n");
+                    OSAL_Printf("[PayloadService] 已切换到UART\n");
                 }
             }
         }
     }
 
-    OS_MutexUnlock(ctx->mutex);
+    OSAL_MutexUnlock(ctx->mutex);
     return ret;
 }
 
@@ -272,11 +272,11 @@ int32 PayloadService_Recv(payload_service_handle_t handle,
         return OS_INVALID_POINTER;
     }
 
-    OS_MutexLock(ctx->mutex);
+    OSAL_MutexLock(ctx->mutex);
 
     if (!ctx->connected)
     {
-        OS_MutexUnlock(ctx->mutex);
+        OSAL_MutexUnlock(ctx->mutex);
         return OS_ERROR;
     }
 
@@ -299,7 +299,7 @@ int32 PayloadService_Recv(payload_service_handle_t handle,
         ctx->rx_errors++;
     }
 
-    OS_MutexUnlock(ctx->mutex);
+    OSAL_MutexUnlock(ctx->mutex);
     return ret;
 }
 
@@ -313,9 +313,9 @@ bool PayloadService_IsConnected(payload_service_handle_t handle)
     }
 
     bool connected;
-    OS_MutexLock(ctx->mutex);
+    OSAL_MutexLock(ctx->mutex);
     connected = ctx->connected && (ctx->state == CONN_STATE_CONNECTED);
-    OS_MutexUnlock(ctx->mutex);
+    OSAL_MutexUnlock(ctx->mutex);
 
     return connected;
 }
@@ -331,15 +331,15 @@ int32 PayloadService_SwitchChannel(payload_service_handle_t handle,
         return OS_INVALID_POINTER;
     }
 
-    OS_MutexLock(ctx->mutex);
+    OSAL_MutexLock(ctx->mutex);
 
     if (ctx->current_channel == channel)
     {
-        OS_MutexUnlock(ctx->mutex);
+        OSAL_MutexUnlock(ctx->mutex);
         return OS_SUCCESS;
     }
 
-    OS_printf("[PayloadService] 切换通道: %s -> %s\n",
+    OSAL_Printf("[PayloadService] 切换通道: %s -> %s\n",
              ctx->current_channel == PAYLOAD_CHANNEL_ETHERNET ? "以太网" : "UART",
              channel == PAYLOAD_CHANNEL_ETHERNET ? "以太网" : "UART");
 
@@ -378,7 +378,7 @@ int32 PayloadService_SwitchChannel(payload_service_handle_t handle,
         }
     }
 
-    OS_MutexUnlock(ctx->mutex);
+    OSAL_MutexUnlock(ctx->mutex);
     return ret;
 }
 
@@ -392,9 +392,9 @@ payload_channel_t PayloadService_GetChannel(payload_service_handle_t handle)
     }
 
     payload_channel_t channel;
-    OS_MutexLock(ctx->mutex);
+    OSAL_MutexLock(ctx->mutex);
     channel = ctx->current_channel;
-    OS_MutexUnlock(ctx->mutex);
+    OSAL_MutexUnlock(ctx->mutex);
 
     return channel;
 }
@@ -412,7 +412,7 @@ static int32 ethernet_connect(payload_service_context_t *ctx)
     ctx->eth_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (ctx->eth_fd < 0)
     {
-        OS_printf("[PayloadService] 创建socket失败: %s\n", strerror(errno));
+        OSAL_Printf("[PayloadService] 创建socket失败: %s\n", strerror(errno));
         return OS_ERROR;
     }
 
@@ -431,7 +431,7 @@ static int32 ethernet_connect(payload_service_context_t *ctx)
 
     if (inet_pton(AF_INET, ctx->config.ethernet.ip_addr, &server_addr.sin_addr) <= 0)
     {
-        OS_printf("[PayloadService] 无效的IP地址: %s\n", ctx->config.ethernet.ip_addr);
+        OSAL_Printf("[PayloadService] 无效的IP地址: %s\n", ctx->config.ethernet.ip_addr);
         close(ctx->eth_fd);
         ctx->eth_fd = -1;
         return OS_ERROR;
@@ -442,7 +442,7 @@ static int32 ethernet_connect(payload_service_context_t *ctx)
     {
         if (errno != EINPROGRESS)
         {
-            OS_printf("[PayloadService] 连接失败: %s\n", strerror(errno));
+            OSAL_Printf("[PayloadService] 连接失败: %s\n", strerror(errno));
             close(ctx->eth_fd);
             ctx->eth_fd = -1;
             return OS_ERROR;
@@ -459,7 +459,7 @@ static int32 ethernet_connect(payload_service_context_t *ctx)
         int ret = select(ctx->eth_fd + 1, NULL, &writefds, NULL, &tv);
         if (ret <= 0)
         {
-            OS_printf("[PayloadService] 连接超时\n");
+            OSAL_Printf("[PayloadService] 连接超时\n");
             close(ctx->eth_fd);
             ctx->eth_fd = -1;
             return OS_ERROR;
@@ -471,7 +471,7 @@ static int32 ethernet_connect(payload_service_context_t *ctx)
         getsockopt(ctx->eth_fd, SOL_SOCKET, SO_ERROR, &error, &len);
         if (error != 0)
         {
-            OS_printf("[PayloadService] 连接失败: %s\n", strerror(error));
+            OSAL_Printf("[PayloadService] 连接失败: %s\n", strerror(error));
             close(ctx->eth_fd);
             ctx->eth_fd = -1;
             return OS_ERROR;
@@ -507,7 +507,7 @@ static int32 ethernet_send(payload_service_context_t *ctx, const void *data, uin
     ret = send(ctx->eth_fd, data, len, MSG_NOSIGNAL);
     if (ret < 0)
     {
-        OS_printf("[PayloadService] 以太网发送失败: %s\n", strerror(errno));
+        OSAL_Printf("[PayloadService] 以太网发送失败: %s\n", strerror(errno));
         return OS_ERROR;
     }
 
@@ -538,19 +538,19 @@ static int32 ethernet_recv(payload_service_context_t *ctx, void *buf, uint32 buf
     }
     else if (ret < 0)
     {
-        OS_printf("[PayloadService] select失败: %s\n", strerror(errno));
+        OSAL_Printf("[PayloadService] select失败: %s\n", strerror(errno));
         return OS_ERROR;
     }
 
     ret = recv(ctx->eth_fd, buf, buf_size, 0);
     if (ret < 0)
     {
-        OS_printf("[PayloadService] 以太网接收失败: %s\n", strerror(errno));
+        OSAL_Printf("[PayloadService] 以太网接收失败: %s\n", strerror(errno));
         return OS_ERROR;
     }
     else if (ret == 0)
     {
-        OS_printf("[PayloadService] 连接已关闭\n");
+        OSAL_Printf("[PayloadService] 连接已关闭\n");
         return OS_ERROR;
     }
 
@@ -568,7 +568,7 @@ static int32 uart_open(payload_service_context_t *ctx)
     ctx->uart_fd = open(ctx->config.uart.device, O_RDWR | O_NOCTTY);
     if (ctx->uart_fd < 0)
     {
-        OS_printf("[PayloadService] 打开UART失败: %s (%s)\n",
+        OSAL_Printf("[PayloadService] 打开UART失败: %s (%s)\n",
                  strerror(errno), ctx->config.uart.device);
         return OS_ERROR;
     }
@@ -577,7 +577,7 @@ static int32 uart_open(payload_service_context_t *ctx)
     memset(&tty, 0, sizeof(tty));
     if (tcgetattr(ctx->uart_fd, &tty) != 0)
     {
-        OS_printf("[PayloadService] 获取UART属性失败: %s\n", strerror(errno));
+        OSAL_Printf("[PayloadService] 获取UART属性失败: %s\n", strerror(errno));
         close(ctx->uart_fd);
         ctx->uart_fd = -1;
         return OS_ERROR;
@@ -593,7 +593,7 @@ static int32 uart_open(payload_service_context_t *ctx)
         case 57600:  speed = B57600; break;
         case 115200: speed = B115200; break;
         default:
-            OS_printf("[PayloadService] 不支持的波特率: %u\n", ctx->config.uart.baudrate);
+            OSAL_Printf("[PayloadService] 不支持的波特率: %u\n", ctx->config.uart.baudrate);
             speed = B115200;
     }
 
@@ -625,7 +625,7 @@ static int32 uart_open(payload_service_context_t *ctx)
 
     if (tcsetattr(ctx->uart_fd, TCSANOW, &tty) != 0)
     {
-        OS_printf("[PayloadService] 设置UART属性失败: %s\n", strerror(errno));
+        OSAL_Printf("[PayloadService] 设置UART属性失败: %s\n", strerror(errno));
         close(ctx->uart_fd);
         ctx->uart_fd = -1;
         return OS_ERROR;
@@ -659,7 +659,7 @@ static int32 uart_send(payload_service_context_t *ctx, const void *data, uint32 
     ret = write(ctx->uart_fd, data, len);
     if (ret < 0)
     {
-        OS_printf("[PayloadService] UART发送失败: %s\n", strerror(errno));
+        OSAL_Printf("[PayloadService] UART发送失败: %s\n", strerror(errno));
         return OS_ERROR;
     }
 
@@ -693,14 +693,14 @@ static int32 uart_recv(payload_service_context_t *ctx, void *buf, uint32 buf_siz
     }
     else if (ret < 0)
     {
-        OS_printf("[PayloadService] select失败: %s\n", strerror(errno));
+        OSAL_Printf("[PayloadService] select失败: %s\n", strerror(errno));
         return OS_ERROR;
     }
 
     ret = read(ctx->uart_fd, buf, buf_size);
     if (ret < 0)
     {
-        OS_printf("[PayloadService] UART接收失败: %s\n", strerror(errno));
+        OSAL_Printf("[PayloadService] UART接收失败: %s\n", strerror(errno));
         return OS_ERROR;
     }
 

@@ -36,13 +36,13 @@ void test_OS_FileOpen_Close_Success(void)
     int32 ret;
 
     /* 创建并打开文件 */
-    ret = OS_FileOpen(&fd, TEST_FILE_PATH, OS_FILE_MODE_WRITE,
+    ret = OSAL_FileOpen(&fd, TEST_FILE_PATH, OS_FILE_MODE_WRITE,
                       OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
     TEST_ASSERT_NOT_EQUAL(0, fd);
 
     /* 关闭文件 */
-    ret = OS_FileClose(fd);
+    ret = OSAL_FileClose(fd);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     tearDown();
@@ -58,27 +58,27 @@ void test_OS_FileWrite_Read_Success(void)
     uint32 data_len = strlen(TEST_DATA);
 
     /* 打开文件写入 */
-    ret = OS_FileOpen(&fd, TEST_FILE_PATH, OS_FILE_MODE_WRITE,
+    ret = OSAL_FileOpen(&fd, TEST_FILE_PATH, OS_FILE_MODE_WRITE,
                       OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     /* 写入数据 */
-    ret = OS_FileWrite(fd, TEST_DATA, data_len);
+    ret = OSAL_FileWrite(fd, TEST_DATA, data_len);
     TEST_ASSERT_EQUAL((int32)data_len, ret);
 
-    OS_FileClose(fd);
+    OSAL_FileClose(fd);
 
     /* 打开文件读取 */
-    ret = OS_FileOpen(&fd, TEST_FILE_PATH, OS_FILE_MODE_READ, OS_FILE_FLAG_NONE);
+    ret = OSAL_FileOpen(&fd, TEST_FILE_PATH, OS_FILE_MODE_READ, OS_FILE_FLAG_NONE);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     /* 读取数据 */
     memset(read_buffer, 0, sizeof(read_buffer));
-    ret = OS_FileRead(fd, read_buffer, sizeof(read_buffer));
+    ret = OSAL_FileRead(fd, read_buffer, sizeof(read_buffer));
     TEST_ASSERT_EQUAL((int32)data_len, ret);
     TEST_ASSERT_EQUAL_STRING(TEST_DATA, (char *)read_buffer);
 
-    OS_FileClose(fd);
+    OSAL_FileClose(fd);
     tearDown();
 }
 
@@ -92,28 +92,28 @@ void test_OS_FileSeek_Success(void)
     uint32 data_len = strlen(TEST_DATA);
 
     /* 创建测试文件 */
-    ret = OS_FileOpen(&fd, TEST_FILE_PATH, OS_FILE_MODE_RDWR,
+    ret = OSAL_FileOpen(&fd, TEST_FILE_PATH, OS_FILE_MODE_RDWR,
                       OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
-    ret = OS_FileWrite(fd, TEST_DATA, data_len);
+    ret = OSAL_FileWrite(fd, TEST_DATA, data_len);
     TEST_ASSERT_EQUAL((int32)data_len, ret);
 
     /* 定位到文件开头 */
-    ret = OS_FileSeek(fd, 0, OS_FILE_SEEK_SET);
+    ret = OSAL_FileSeek(fd, 0, OS_FILE_SEEK_SET);
     TEST_ASSERT_EQUAL(0, ret);
 
     /* 读取前6个字节 "Hello " */
     memset(buffer, 0, sizeof(buffer));
-    ret = OS_FileRead(fd, buffer, 6);
+    ret = OSAL_FileRead(fd, buffer, 6);
     TEST_ASSERT_EQUAL(6, ret);
     TEST_ASSERT_EQUAL_STRING("Hello ", (char *)buffer);
 
     /* 定位到文件末尾 */
-    ret = OS_FileSeek(fd, 0, OS_FILE_SEEK_END);
+    ret = OSAL_FileSeek(fd, 0, OS_FILE_SEEK_END);
     TEST_ASSERT_EQUAL((int32)data_len, ret);
 
-    OS_FileClose(fd);
+    OSAL_FileClose(fd);
     tearDown();
 }
 
@@ -125,20 +125,20 @@ void test_OS_FileSetFlags_Success(void)
     int32 ret;
     uint32 flags;
 
-    ret = OS_FileOpen(&fd, TEST_FILE_PATH, OS_FILE_MODE_WRITE,
+    ret = OSAL_FileOpen(&fd, TEST_FILE_PATH, OS_FILE_MODE_WRITE,
                       OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     /* 设置非阻塞标志 */
-    ret = OS_FileSetFlags(fd, OS_FILE_FLAG_NONBLOCK);
+    ret = OSAL_FileSetFlags(fd, OS_FILE_FLAG_NONBLOCK);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     /* 获取标志验证 */
-    ret = OS_FileGetFlags(fd, &flags);
+    ret = OSAL_FileGetFlags(fd, &flags);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
     TEST_ASSERT_TRUE(flags & OS_FILE_FLAG_NONBLOCK);
 
-    OS_FileClose(fd);
+    OSAL_FileClose(fd);
     tearDown();
 }
 
@@ -150,11 +150,11 @@ void test_OS_FileOpen_InvalidParams(void)
     int32 ret;
 
     /* NULL指针 */
-    ret = OS_FileOpen(NULL, TEST_FILE_PATH, OS_FILE_MODE_READ, OS_FILE_FLAG_NONE);
+    ret = OSAL_FileOpen(NULL, TEST_FILE_PATH, OS_FILE_MODE_READ, OS_FILE_FLAG_NONE);
     TEST_ASSERT_EQUAL(OS_INVALID_POINTER, ret);
 
     /* NULL路径 */
-    ret = OS_FileOpen(&fd, NULL, OS_FILE_MODE_READ, OS_FILE_FLAG_NONE);
+    ret = OSAL_FileOpen(&fd, NULL, OS_FILE_MODE_READ, OS_FILE_FLAG_NONE);
     TEST_ASSERT_EQUAL(OS_INVALID_POINTER, ret);
 
     tearDown();
@@ -167,10 +167,10 @@ void test_OS_FileClose_InvalidID(void)
     int32 ret;
 
     /* 无效的文件描述符 */
-    ret = OS_FileClose(0);
+    ret = OSAL_FileClose(0);
     TEST_ASSERT_EQUAL(OS_ERR_INVALID_ID, ret);
 
-    ret = OS_FileClose(999);
+    ret = OSAL_FileClose(999);
     TEST_ASSERT_EQUAL(OS_ERR_INVALID_ID, ret);
 
     tearDown();

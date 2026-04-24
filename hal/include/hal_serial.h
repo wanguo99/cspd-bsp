@@ -38,13 +38,13 @@ typedef struct
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 HAL_Serial_Open(const char *device, const hal_serial_config_t *config,
+int32 HAL_SerialOpen(const char *device, const hal_serial_config_t *config,
                       hal_serial_handle_t *handle);
 
 /**
  * @brief 关闭串口设备
  */
-int32 HAL_Serial_Close(hal_serial_handle_t handle);
+int32 HAL_SerialClose(hal_serial_handle_t handle);
 
 /**
  * @brief 向串口写入数据
@@ -53,7 +53,7 @@ int32 HAL_Serial_Close(hal_serial_handle_t handle);
  *
  * @return 实际写入的字节数，负值表示错误
  */
-int32 HAL_Serial_Write(hal_serial_handle_t handle, const void *buffer,
+int32 HAL_SerialWrite(hal_serial_handle_t handle, const void *buffer,
                        uint32 size, int32 timeout);
 
 /**
@@ -63,18 +63,18 @@ int32 HAL_Serial_Write(hal_serial_handle_t handle, const void *buffer,
  *
  * @return 实际读取的字节数，负值表示错误
  */
-int32 HAL_Serial_Read(hal_serial_handle_t handle, void *buffer,
+int32 HAL_SerialRead(hal_serial_handle_t handle, void *buffer,
                       uint32 size, int32 timeout);
 
 /**
  * @brief 刷新串口缓冲区
  */
-int32 HAL_Serial_Flush(hal_serial_handle_t handle);
+int32 HAL_SerialFlush(hal_serial_handle_t handle);
 
 /**
  * @brief 设置串口配置
  */
-int32 HAL_Serial_SetConfig(hal_serial_handle_t handle,
+int32 HAL_SerialSetConfig(hal_serial_handle_t handle,
                            const hal_serial_config_t *config);
 
 #endif /* HAL_SERIAL_H */

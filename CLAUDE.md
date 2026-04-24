@@ -14,7 +14,6 @@
 - **CAN通信**：与卫星平台进行CAN总线通信
 - **协议转换**：卫星命令 ↔ IPMI/Redfish命令
 - **通信冗余**：以太网主通道 + UART备份通道
-- **看门狗机制**：任务监控、自动重启、故障恢复
 - **状态监控**：定期查询载荷状态并上报
 
 ## 代码结构（4层架构 + 模块化配置）
@@ -51,9 +50,7 @@ cspd-bsp/
 │   │   ├── pdl_satellite.h      # 卫星平台接口
 │   │   ├── pdl_payload_bmc.h    # BMC载荷接口
 │   │   ├── pdl_payload_linux.h  # Linux载荷接口
-│   │   ├── pdl_power.h          # 电源管理接口
-│   │   └── config/              # PDL配置（模块独立）
-│   │       └── watchdog_config.h # 看门狗配置
+│   │   └── pdl_power.h          # 电源管理接口
 │   └── src/
 │       ├── peripherals/         # 外设驱动实现
 │       │   ├── core/            # 外设管理核心
@@ -61,13 +58,12 @@ cspd-bsp/
 │       │   ├── satellite/       # 卫星外设适配器
 │       │   ├── payload_bmc/     # BMC外设适配器
 │       │   └── payload_linux/   # Linux载荷适配器
-│       └── linux/               # 平台相关实现
-│           ├── watchdog.c       # 看门狗服务
-│           ├── persistent_queue.c # 持久化命令队列
-│           ├── pdl_satellite.c  # 卫星平台服务
-│           ├── pdl_payload_bmc.c # BMC载荷服务
-│           ├── pdl_payload_linux.c # Linux载荷服务
-│           └── pdl_power.c      # 电源管理服务
+│       ├── pdl_core/            # 外设管理核心
+│       ├── pdl_mcu/             # MCU外设驱动
+│       ├── pdl_satellite/       # 卫星平台服务
+│       ├── pdl_payload_bmc/     # BMC载荷服务
+│       ├── pdl_payload_os/      # Linux载荷服务
+│       └── pdl_power/           # 电源管理服务
 ├── apps/                    # 应用层
 │   ├── can_gateway/         # CAN网关应用
 │   │   ├── include/config/  # CAN网关配置（模块独立）
@@ -122,21 +118,7 @@ cspd-bsp/
 - **PDL层**：外设驱动层，统一管理卫星/载荷/MCU等外设
 - **Apps层**：应用逻辑，通过PDL层访问底层
 
-### 2. 看门狗机制（重点）
-- 文件：`pdl/src/linux/watchdog.c`
-- 配置：`pdl/include/config/watchdog_config.h`
-- 功能：
-  - 监控任务心跳，检测任务失败
-  - 自动重启失败任务（最多3次）
-  - 重启失败后进入安全模式
-  - 支持多任务监控
-- 关键API：
-  - `Watchdog_Init()` - 初始化看门狗
-  - `Watchdog_RegisterTask()` - 注册需要监控的任务
-  - `Watchdog_Heartbeat()` - 任务发送心跳
-  - `Watchdog_GetSystemHealth()` - 获取系统健康状态
-
-### 3. 任务管理（优雅关闭）
+### 2. 任务管理（优雅关闭）
 - 文件：`osal/src/linux/os_task.c`
 - 配置：`osal/include/config/task_config.h`
 - 特点：
@@ -201,7 +183,7 @@ output/
 ### 测试覆盖
 - **OSAL层**：6个模块（task, queue, mutex, file, network, signal）
 - **HAL层**：1个模块（CAN驱动）
-- **PDL层**：2个模块（payload pdl, watchdog）
+- **PDL层**：1个模块（payload pdl）
 - **Apps层**：2个模块（CAN gateway, protocol converter）
 
 ### 交互式菜单特点
@@ -235,17 +217,10 @@ static void my_task_entry(void *arg)
 {
     osal_id_t task_id = OS_TaskGetId();
     
-    // 注册到看门狗
-    Watchdog_RegisterTask(task_id, "MY_TASK", 1000, 
-                         my_task_entry, arg, 8192, 50, 3);
-    
     while (!OS_TaskShouldShutdown())  // 检查退出标志
     {
         // 执行任务逻辑
         do_work();
-        
-        // 发送心跳
-        Watchdog_Heartbeat(task_id);
         
         // 延时
         OS_TaskDelay(100);
@@ -268,8 +243,6 @@ static void my_task_entry(void *arg)
   - `can_config.h` - CAN接口、波特率
   - `ethernet_config.h` - 以太网IP、端口
   - `uart_config.h` - 串口设备、波特率
-- **PDL配置**：`pdl/include/config/`
-  - `watchdog_config.h` - 看门狗超时、重启次数
 - **Apps配置**：`apps/*/include/config/`
   - `apps/can_gateway/include/config/app_config.h` - 系统版本号
   - `apps/can_gateway/include/config/can_protocol.h` - CAN协议定义
@@ -305,12 +278,7 @@ static void my_task_entry(void *arg)
 - 串口测试失败：需要串口设备（/dev/ttyS0）
 - 这些失败是正常的，不影响代码逻辑
 
-### 3. 看门狗重启机制
-- 任务必须定期调用`Watchdog_Heartbeat()`
-- 连续3次超时后触发重启
-- 重启3次失败后进入安全模式
-
-### 4. 任务优雅退出
+### 3. 任务优雅退出
 - 任务循环必须检查`OS_TaskShouldShutdown()`
 - 不要使用无限循环`while(1)`
 - 退出前清理资源
@@ -370,24 +338,18 @@ static void my_task_entry(void *arg)
 - 删除：`examples/`目录（示例代码）
 - 删除：`osal/freertos/`目录（FreeRTOS示例）
 - 删除：`config/`目录（全局配置，已下沉到各模块）
-
-### 看门狗优化
-- 修复任务重启机制（完成TODO）
-- 消除pthread_cancel死锁风险
-- 实现优雅关闭（shutdown标志）
-- 增强Watchdog_Deinit（清理所有监控任务）
+- 删除：看门狗和持久化队列模块（暂不需要）
 
 ## 开发建议
 
 1. **遵循分层架构**：不要跨层直接调用
 2. **模块独立性**：各模块只依赖自己的 `include/config/` 目录，不要引用其他模块的配置
 3. **使用OSAL接口**：不要直接使用pthread/socket等系统API
-4. **注册看门狗**：关键任务必须注册到看门狗
-5. **优雅退出**：任务循环检查`OS_TaskShouldShutdown()`
-6. **错误处理**：所有返回值必须检查
-7. **日志规范**：使用`LOG_*`宏，不要用`printf`
-8. **测试驱动**：新功能必须编写单元测试
-9. **配置管理**：修改配置时只修改对应模块的 `include/config/` 目录
+4. **优雅退出**：任务循环检查`OS_TaskShouldShutdown()`
+5. **错误处理**：所有返回值必须检查
+6. **日志规范**：使用`LOG_*`宏，不要用`printf`
+7. **测试驱动**：新功能必须编写单元测试
+8. **配置管理**：修改配置时只修改对应模块的 `include/config/` 目录
 
 ## 性能指标
 

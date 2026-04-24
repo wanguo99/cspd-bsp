@@ -23,7 +23,7 @@ static void signal_handler(int sig)
 {
     if (sig == SIGINT || sig == SIGTERM)
     {
-        OS_printf("\n收到退出信号，正在关闭CAN网关...\n");
+        OSAL_Printf("\n收到退出信号，正在关闭CAN网关...\n");
         g_running = false;
     }
 }
@@ -35,17 +35,17 @@ static void stats_task(void *arg __attribute__((unused)))
 {
     uint32 rx_count, tx_count, err_count;
 
-    OS_printf("[Stats] 任务启动\n");
+    OSAL_Printf("[Stats] 任务启动\n");
 
     while (g_running)
     {
-        OS_TaskDelay(30000);  /* 30秒 */
+        OSAL_TaskDelay(30000);  /* 30秒 */
 
         CAN_Gateway_GetStats(&rx_count, &tx_count, &err_count);
 
-        OS_printf("\n========== CAN网关统计 ==========\n");
-        OS_printf("接收: %u, 发送: %u, 错误: %u\n", rx_count, tx_count, err_count);
-        OS_printf("================================\n\n");
+        OSAL_Printf("\n========== CAN网关统计 ==========\n");
+        OSAL_Printf("接收: %u, 发送: %u, 错误: %u\n", rx_count, tx_count, err_count);
+        OSAL_Printf("================================\n\n");
     }
 }
 
@@ -86,7 +86,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     }
 
     /* 创建统计任务 */
-    ret = OS_TaskCreate(&task_id, "STATS",
+    ret = OSAL_TaskCreate(&task_id, "STATS",
                         stats_task, NULL,
                         TASK_STACK_SIZE_SMALL,
                         PRIORITY_LOW, 0);
@@ -96,17 +96,17 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
         return EXIT_FAILURE;
     }
 
-    OS_printf("\nCAN网关启动完成，按 Ctrl+C 退出\n\n");
+    OSAL_Printf("\nCAN网关启动完成，按 Ctrl+C 退出\n\n");
 
     /* 主循环 */
     while (g_running)
     {
-        OS_TaskDelay(1000);
+        OSAL_TaskDelay(1000);
     }
 
     /* 清理 */
-    OS_printf("\n正在清理资源...\n");
-    OS_TaskDelay(2000);
+    OSAL_Printf("\n正在清理资源...\n");
+    OSAL_TaskDelay(2000);
 
     OS_API_Teardown();
 

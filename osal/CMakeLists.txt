@@ -2,17 +2,17 @@
 
 # OSAL源文件
 set(OSAL_SOURCES
-    src/linux/os_task.c
-    src/linux/os_queue.c
-    src/linux/os_mutex.c
-    src/linux/os_clock.c
-    src/linux/os_heap.c
-    src/linux/os_error.c
-    src/linux/os_init.c
-    src/linux/os_log.c
-    src/linux/os_file.c
-    src/linux/os_network.c
-    src/linux/os_signal.c
+    src/linux/osal_task.c
+    src/linux/osal_queue.c
+    src/linux/osal_mutex.c
+    src/linux/osal_clock.c
+    src/linux/osal_heap.c
+    src/linux/osal_error.c
+    src/linux/osal_init.c
+    src/linux/osal_log.c
+    src/linux/osal_file.c
+    src/linux/osal_network.c
+    src/linux/osal_signal.c
 )
 
 # 创建OSAL静态库

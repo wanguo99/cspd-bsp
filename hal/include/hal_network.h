@@ -7,7 +7,7 @@
 #ifndef HAL_NETWORK_H
 #define HAL_NETWORK_H
 
-#include "osa_types.h"
+#include "osal_types.h"
 
 typedef enum
 {
@@ -35,7 +35,7 @@ typedef struct
  * @return OS_INVALID_POINTER 参数为空
  * @return OS_ERROR 连接失败
  */
-int32 HAL_Network_Open(const hal_network_config_t *config, hal_network_handle_t *handle);
+int32 HAL_NetworkOpen(const hal_network_config_t *config, hal_network_handle_t *handle);
 
 /**
  * @brief 关闭网络连接
@@ -45,7 +45,7 @@ int32 HAL_Network_Open(const hal_network_config_t *config, hal_network_handle_t 
  * @return OS_SUCCESS 成功
  * @return OS_ERR_INVALID_ID 无效句柄
  */
-int32 HAL_Network_Close(hal_network_handle_t handle);
+int32 HAL_NetworkClose(hal_network_handle_t handle);
 
 /**
  * @brief 发送数据
@@ -59,7 +59,7 @@ int32 HAL_Network_Close(hal_network_handle_t handle);
  * @return OS_ERROR 发送失败
  * @return OS_ERROR_TIMEOUT 超时
  */
-int32 HAL_Network_Send(hal_network_handle_t handle, const void *buffer, uint32 size, int32 timeout);
+int32 HAL_NetworkSend(hal_network_handle_t handle, const void *buffer, uint32 size, int32 timeout);
 
 /**
  * @brief 接收数据
@@ -73,7 +73,7 @@ int32 HAL_Network_Send(hal_network_handle_t handle, const void *buffer, uint32 s
  * @return OS_ERROR 接收失败
  * @return OS_ERROR_TIMEOUT 超时
  */
-int32 HAL_Network_Recv(hal_network_handle_t handle, void *buffer, uint32 size, int32 timeout);
+int32 HAL_NetworkRecv(hal_network_handle_t handle, void *buffer, uint32 size, int32 timeout);
 
 /**
  * @brief 检查连接状态

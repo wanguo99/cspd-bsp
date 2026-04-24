@@ -3,7 +3,7 @@
  ************************************************************************/
 
 #include "hal_network.h"
-#include "osapi_log.h"
+#include "osal_log.h"
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -24,7 +24,7 @@ typedef struct
     bool                 connected;
 } hal_network_context_t;
 
-int32 HAL_Network_Open(const hal_network_config_t *config, hal_network_handle_t *handle)
+int32 HAL_NetworkOpen(const hal_network_config_t *config, hal_network_handle_t *handle)
 {
     if (config == NULL || handle == NULL) {
         return OS_INVALID_POINTER;
@@ -95,7 +95,7 @@ int32 HAL_Network_Open(const hal_network_config_t *config, hal_network_handle_t 
 /*
  * 关闭网络连接
  */
-int32 HAL_Network_Close(hal_network_handle_t handle)
+int32 HAL_NetworkClose(hal_network_handle_t handle)
 {
     if (handle == NULL) {
         return OS_ERR_INVALID_ID;
@@ -118,7 +118,7 @@ int32 HAL_Network_Close(hal_network_handle_t handle)
 /*
  * 发送数据
  */
-int32 HAL_Network_Send(hal_network_handle_t handle, const void *buffer, uint32 size, int32 timeout)
+int32 HAL_NetworkSend(hal_network_handle_t handle, const void *buffer, uint32 size, int32 timeout)
 {
     if (handle == NULL || buffer == NULL) {
         return OS_ERROR;
@@ -173,7 +173,7 @@ int32 HAL_Network_Send(hal_network_handle_t handle, const void *buffer, uint32 s
 /*
  * 接收数据
  */
-int32 HAL_Network_Recv(hal_network_handle_t handle, void *buffer, uint32 size, int32 timeout)
+int32 HAL_NetworkRecv(hal_network_handle_t handle, void *buffer, uint32 size, int32 timeout)
 {
     if (handle == NULL || buffer == NULL) {
         return OS_ERROR;
