@@ -72,6 +72,7 @@ find_package(Threads REQUIRED)
 add_subdirectory(osal)
 add_subdirectory(hal)
 add_subdirectory(pdl)
+add_subdirectory(xconfig)
 add_subdirectory(apps)
 
 # 添加测试（可选，通过BUILD_TESTING控制）
@@ -92,7 +93,7 @@ file(MAKE_DIRECTORY ${OUTPUT_TARGET}/lib)
 add_custom_target(copy_libs ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${OUTPUT_BUILD}/lib ${OUTPUT_TARGET}/lib
     COMMENT "Copying libraries to target directory"
-    DEPENDS osal hal pdl can_gateway_lib protocol_converter_lib
+    DEPENDS osal hal pdl xconfig can_gateway_lib protocol_converter_lib
 )
 
 # 打印配置信息

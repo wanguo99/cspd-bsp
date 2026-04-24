@@ -461,7 +461,121 @@ typedef struct {
 - `SetConfig` 接口缺失：头文件声明但未实现，无法动态修改配置
 - 设备权限要求：需要读写 `/dev/ttyS0` 权限（通常需root或dialout组）
 
-### 2.3 PDL层 (外设驱动层)
+### 2.3 XConfig层 (硬件配置层)
+
+**职责**：管理硬件配置和APP配置，实现配置与代码分离
+
+**设计理念**：两层配置架构 - APP层关注"用哪个外设"，硬件层关注"外设怎么连接"
+
+**核心模块**：
+
+#### 2.3.1 硬件配置 (Hardware Config)
+
+**文件**：
+- `xconfig/include/hw_config_types.h` - 配置数据结构定义
+- `xconfig/include/hw_config_api.h` - 配置API接口
+- `xconfig/src/hw_config_api.c` - 配置管理实现
+- `xconfig/src/hw_config_register.c` - 配置注册实现
+
+**配置组织**：
+```
+xconfig/platform/{vendor}/{soc}/{product}_{variant}.c
+例如：xconfig/platform/ti/am625/h200_payload_base.c
+```
+
+**硬件配置结构**：
+- **外设类型**：MCU、BMC、卫星接口、传感器、存储设备
+- **接口类型**：CAN、UART、I2C、SPI、Ethernet、1553B
+- **配置继承**：base → v1 → v2（版本演进）
+
+**关键接口**：
+- `XCONFIG_Init()` - 初始化配置系统
+- `XCONFIG_HW_GetMCU(id)` - 获取MCU配置
+- `XCONFIG_HW_GetBMC(id)` - 获取BMC配置
+- `XCONFIG_HW_GetSatellite(id)` - 获取卫星接口配置
+- `XCONFIG_HW_GetSensor(id)` - 获取传感器配置
+- `XCONFIG_HW_GetStorage(id)` - 获取存储设备配置
+
+**配置选择机制**：
+1. 环境变量：`HW_CONFIG=h200_payload_v2`
+2. 编译选项：`-DHW_CONFIG_DEFAULT="h200_payload_v2"`
+3. 默认配置：第一个注册的配置
+
+#### 2.3.2 APP配置 (Application Config)
+
+**设计目标**：APP只关心外设逻辑功能，不关心硬件接口细节
+
+**APP配置结构**：
+```c
+typedef struct {
+    const char *app_name;              // APP名称
+    hw_app_device_mapping_t *devices;  // 外设映射列表
+    uint32_t device_count;             // 外设数量
+} hw_app_config_t;
+```
+
+**外设映射**：
+```c
+typedef struct {
+    const char *logical_name;     // 逻辑名称（如"satellite_comm"）
+    hw_device_type_t device_type; // 外设类型（如HW_DEVICE_SATELLITE）
+    uint32_t device_id;           // 外设ID（如0）
+    uint32_t backup_device_id;    // 备用外设ID（冗余配置）
+} hw_app_device_mapping_t;
+```
+
+**关键接口**：
+- `XCONFIG_APP_Find(app_name)` - 查找APP配置
+- `XCONFIG_APP_FindDevice(app_cfg, logical_name)` - 查找外设映射
+- `XCONFIG_APP_GetDeviceByMapping(mapping)` - 获取外设配置
+
+**使用示例**：
+```c
+// 1. 初始化配置系统
+XCONFIG_Init();
+
+// 2. 查找APP配置
+const hw_app_config_t *app = XCONFIG_APP_Find("can_gateway");
+
+// 3. 查找外设映射
+const hw_app_device_mapping_t *mapping = 
+    XCONFIG_APP_FindDevice(app, "satellite_comm");
+
+// 4. 获取硬件配置
+const void *device = XCONFIG_APP_GetDeviceByMapping(mapping);
+const hw_satellite_config_t *sat = (const hw_satellite_config_t *)device;
+
+// 5. 使用硬件配置
+if (sat->interface.type == HW_INTERFACE_CAN) {
+    can_id = sat->interface.config.can.can_id;
+}
+```
+
+**配置示例**（h200_payload_v1.c）：
+```c
+static hw_app_device_mapping_t app_can_gateway_devices_v1[] = {
+    {
+        .logical_name = "satellite_comm",
+        .device_type = HW_DEVICE_SATELLITE,
+        .device_id = 0,              // 主接口：CAN0
+        .backup_device_id = 1        // 备用接口：CAN1（冗余）
+    }
+};
+
+static hw_app_config_t app_can_gateway_v1 = {
+    .app_name = "can_gateway",
+    .devices = app_can_gateway_devices_v1,
+    .device_count = 1
+};
+```
+
+**优势**：
+- **关注点分离**：APP代码不依赖具体硬件接口
+- **配置复用**：同一APP可用于不同硬件平台
+- **冗余支持**：通过backup_device_id实现主备切换
+- **类型安全**：编译时检查外设类型匹配
+
+### 2.4 PDL层 (外设驱动层)
 
 **职责**：管理卫星/载荷/MCU等外设，提供统一的外设服务接口
 
@@ -469,7 +583,7 @@ typedef struct {
 
 **核心模块**：
 
-#### 2.3.1 卫星平台服务 (pdl_satellite)
+#### 2.4.1 卫星平台服务 (pdl_satellite)
 
 **文件**：
 - `pdl_satellite.h` - 对外业务接口
@@ -513,7 +627,7 @@ typedef struct {
 - 发送计数（tx_count）
 - 错误计数（error_count）
 
-#### 2.3.2 BMC载荷服务 (pdl_bmc)
+#### 2.4.2 BMC载荷服务 (pdl_bmc)
 
 **文件**：
 - `pdl_bmc.h` - 对外业务接口
@@ -587,7 +701,7 @@ typedef struct {
 - 传感器读取（`bmc_ipmi_read_sensors` 返回 `OS_ERROR`）
 - 原始命令执行（`PDL_BMC_ExecuteCommand` 返回 `OS_ERROR`）
 
-#### 2.3.3 MCU外设服务 (pdl_mcu)
+#### 2.4.3 MCU外设服务 (pdl_mcu)
 
 **文件**：
 - `pdl_mcu.h` - 对外业务接口
@@ -665,13 +779,13 @@ typedef struct {
 - I2C/SPI接口（返回 `OS_ERROR`）
 - 固件升级（`PDL_MCU_FirmwareUpdate` 返回 `OS_ERROR`）
 
-### 2.4 Apps层 (应用层)
+### 2.5 Apps层 (应用层)
 
 **职责**：实现具体业务逻辑
 
 **核心应用**：
 
-#### 2.4.1 CAN网关 (can_gateway)
+#### 2.5.1 CAN网关 (can_gateway)
 
 **文件**：
 - `can_gateway.h` - 接口定义
@@ -779,7 +893,7 @@ void CAN_Gateway_GetStats(uint32 *rx_count, uint32 *tx_count, uint32 *err_count)
 }
 ```
 
-#### 2.4.2 协议转换器 (protocol_converter)
+#### 2.5.2 协议转换器 (protocol_converter)
 
 **文件**：
 - `protocol_converter.h` - 转换器接口
