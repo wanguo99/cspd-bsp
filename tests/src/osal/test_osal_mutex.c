@@ -2,9 +2,9 @@
  * OSAL互斥锁单元测试
  ************************************************************************/
 
-#include "../core/unittest_framework.h"
+#include "test_framework.h"
 #ifndef STANDALONE_TEST
-#include "../core/unittest_runner.h"
+#include "test_runner.h"
 #endif
 #include "osal.h"
 #include <pthread.h>
@@ -25,7 +25,7 @@ __attribute__((unused)) static void tearDown(void)
 }
 
 /* 测试用例1: 互斥锁创建成功 */
-void test_OS_MutexCreate_Success(void)
+void test_OSAL_MutexCreate_Success(void)
 {
     setUp();
     osal_id_t mutex_id;
@@ -40,7 +40,7 @@ void test_OS_MutexCreate_Success(void)
 }
 
 /* 测试用例2: 互斥锁创建失败 - 空指针 */
-void test_OS_MutexCreate_NullPointer(void)
+void test_OSAL_MutexCreate_NullPointer(void)
 {
     setUp();
     int32 ret = OSAL_MutexCreate(NULL, "TEST", 0);
@@ -49,7 +49,7 @@ void test_OS_MutexCreate_NullPointer(void)
 }
 
 /* 测试用例3: 互斥锁创建失败 - 名称重复 */
-void test_OS_MutexCreate_NameTaken(void)
+void test_OSAL_MutexCreate_NameTaken(void)
 {
     setUp();
     osal_id_t mutex_id1, mutex_id2;
@@ -65,7 +65,7 @@ void test_OS_MutexCreate_NameTaken(void)
 }
 
 /* 测试用例4: 互斥锁加锁解锁 */
-void test_OS_MutexLockUnlock_Success(void)
+void test_OSAL_MutexLockUnlock_Success(void)
 {
     setUp();
     osal_id_t mutex_id;
@@ -82,7 +82,7 @@ void test_OS_MutexLockUnlock_Success(void)
 }
 
 /* 测试用例5: 互斥锁加锁失败 - 无效ID */
-void test_OS_MutexLock_InvalidId(void)
+void test_OSAL_MutexLock_InvalidId(void)
 {
     setUp();
     int32 ret = OSAL_MutexLock(9999);
@@ -91,7 +91,7 @@ void test_OS_MutexLock_InvalidId(void)
 }
 
 /* 测试用例6: 互斥锁解锁失败 - 无效ID */
-void test_OS_MutexUnlock_InvalidId(void)
+void test_OSAL_MutexUnlock_InvalidId(void)
 {
     setUp();
     int32 ret = OSAL_MutexUnlock(9999);
@@ -100,7 +100,7 @@ void test_OS_MutexUnlock_InvalidId(void)
 }
 
 /* 测试用例7: 根据名称获取互斥锁ID */
-void test_OS_MutexGetIdByName_Success(void)
+void test_OSAL_MutexGetIdByName_Success(void)
 {
     setUp();
     osal_id_t mutex_id1, mutex_id2;
@@ -117,7 +117,7 @@ void test_OS_MutexGetIdByName_Success(void)
 }
 
 /* 测试用例8: 根据名称获取互斥锁ID - 未找到 */
-void test_OS_MutexGetIdByName_NotFound(void)
+void test_OSAL_MutexGetIdByName_NotFound(void)
 {
     setUp();
     osal_id_t mutex_id;
@@ -128,7 +128,7 @@ void test_OS_MutexGetIdByName_NotFound(void)
 }
 
 /* 测试用例9: 互斥锁删除 */
-void test_OS_MutexDelete_Success(void)
+void test_OSAL_MutexDelete_Success(void)
 {
     setUp();
     osal_id_t mutex_id;
@@ -140,7 +140,7 @@ void test_OS_MutexDelete_Success(void)
 }
 
 /* 测试用例10: 互斥锁删除失败 - 无效ID */
-void test_OS_MutexDelete_InvalidId(void)
+void test_OSAL_MutexDelete_InvalidId(void)
 {
     setUp();
     int32 ret = OSAL_MutexDelete(9999);
@@ -163,7 +163,7 @@ static void* increment_thread(void *arg)
 }
 
 /* 测试用例11: 互斥锁保护共享资源 */
-void test_OS_Mutex_ProtectSharedResource(void)
+void test_OSAL_Mutex_ProtectSharedResource(void)
 {
     setUp();
     osal_id_t mutex_id;
@@ -187,21 +187,21 @@ void test_OS_Mutex_ProtectSharedResource(void)
 }
 
 /* 模块注册 */
-#include "../core/unittest_runner.h"
+#include "test_runner.h"
 
-TEST_MODULE_BEGIN(test_os_mutex)
-    TEST_CASE(test_OS_MutexCreate_Success)
-    TEST_CASE(test_OS_MutexCreate_NullPointer)
-    TEST_CASE(test_OS_MutexCreate_NameTaken)
-    TEST_CASE(test_OS_MutexLockUnlock_Success)
-    TEST_CASE(test_OS_MutexLock_InvalidId)
-    TEST_CASE(test_OS_MutexUnlock_InvalidId)
-    TEST_CASE(test_OS_MutexGetIdByName_Success)
-    TEST_CASE(test_OS_MutexGetIdByName_NotFound)
-    TEST_CASE(test_OS_MutexDelete_Success)
-    TEST_CASE(test_OS_MutexDelete_InvalidId)
-    TEST_CASE(test_OS_Mutex_ProtectSharedResource)
-TEST_MODULE_END(test_os_mutex)
+TEST_MODULE_BEGIN(test_osal_mutex)
+    TEST_CASE(test_OSAL_MutexCreate_Success)
+    TEST_CASE(test_OSAL_MutexCreate_NullPointer)
+    TEST_CASE(test_OSAL_MutexCreate_NameTaken)
+    TEST_CASE(test_OSAL_MutexLockUnlock_Success)
+    TEST_CASE(test_OSAL_MutexLock_InvalidId)
+    TEST_CASE(test_OSAL_MutexUnlock_InvalidId)
+    TEST_CASE(test_OSAL_MutexGetIdByName_Success)
+    TEST_CASE(test_OSAL_MutexGetIdByName_NotFound)
+    TEST_CASE(test_OSAL_MutexDelete_Success)
+    TEST_CASE(test_OSAL_MutexDelete_InvalidId)
+    TEST_CASE(test_OSAL_Mutex_ProtectSharedResource)
+TEST_MODULE_END(test_osal_mutex)
 
 /* 独立运行时的主函数 */
 #ifdef STANDALONE_TEST
@@ -209,17 +209,17 @@ int main(void)
 {
     TEST_BEGIN();
 
-    RUN_TEST(test_OS_MutexCreate_Success);
-    RUN_TEST(test_OS_MutexCreate_NullPointer);
-    RUN_TEST(test_OS_MutexCreate_NameTaken);
-    RUN_TEST(test_OS_MutexLockUnlock_Success);
-    RUN_TEST(test_OS_MutexLock_InvalidId);
-    RUN_TEST(test_OS_MutexUnlock_InvalidId);
-    RUN_TEST(test_OS_MutexGetIdByName_Success);
-    RUN_TEST(test_OS_MutexGetIdByName_NotFound);
-    RUN_TEST(test_OS_MutexDelete_Success);
-    RUN_TEST(test_OS_MutexDelete_InvalidId);
-    RUN_TEST(test_OS_Mutex_ProtectSharedResource);
+    RUN_TEST(test_OSAL_MutexCreate_Success);
+    RUN_TEST(test_OSAL_MutexCreate_NullPointer);
+    RUN_TEST(test_OSAL_MutexCreate_NameTaken);
+    RUN_TEST(test_OSAL_MutexLockUnlock_Success);
+    RUN_TEST(test_OSAL_MutexLock_InvalidId);
+    RUN_TEST(test_OSAL_MutexUnlock_InvalidId);
+    RUN_TEST(test_OSAL_MutexGetIdByName_Success);
+    RUN_TEST(test_OSAL_MutexGetIdByName_NotFound);
+    RUN_TEST(test_OSAL_MutexDelete_Success);
+    RUN_TEST(test_OSAL_MutexDelete_InvalidId);
+    RUN_TEST(test_OSAL_Mutex_ProtectSharedResource);
 
     TEST_END();
 }

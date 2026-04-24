@@ -2,8 +2,8 @@
  * 测试运行器实现
  ************************************************************************/
 
-#include "unittest_runner.h"
-#include "unittest_framework.h"
+#include "test_runner.h"
+#include "test_framework.h"
 #include "osal_log.h"
 
 /* 全局测试统计 */

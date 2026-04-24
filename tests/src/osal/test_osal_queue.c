@@ -2,9 +2,9 @@
  * OSAL消息队列单元测试
  ************************************************************************/
 
-#include "../core/unittest_framework.h"
+#include "test_framework.h"
 #ifndef STANDALONE_TEST
-#include "../core/unittest_runner.h"
+#include "test_runner.h"
 #endif
 #include "osal.h"
 #include <string.h>
@@ -22,7 +22,7 @@ __attribute__((unused)) static void tearDown(void)
 }
 
 /* 测试用例1: 队列创建成功 */
-void test_OS_QueueCreate_Success(void)
+void test_OSAL_QueueCreate_Success(void)
 {
     setUp();
     osal_id_t queue_id;
@@ -38,7 +38,7 @@ void test_OS_QueueCreate_Success(void)
 }
 
 /* 测试用例2: 队列创建失败 - 空指针 */
-void test_OS_QueueCreate_NullPointer(void)
+void test_OSAL_QueueCreate_NullPointer(void)
 {
     setUp();
     int32 ret = OSAL_QueueCreate(NULL, "TEST", 10, 64, 0);
@@ -47,7 +47,7 @@ void test_OS_QueueCreate_NullPointer(void)
 }
 
 /* 测试用例3: 队列创建失败 - 无效大小 */
-void test_OS_QueueCreate_InvalidSize(void)
+void test_OSAL_QueueCreate_InvalidSize(void)
 {
     setUp();
     osal_id_t queue_id;
@@ -63,7 +63,7 @@ void test_OS_QueueCreate_InvalidSize(void)
 }
 
 /* 测试用例4: 队列创建失败 - 名称重复 */
-void test_OS_QueueCreate_NameTaken(void)
+void test_OSAL_QueueCreate_NameTaken(void)
 {
     setUp();
     osal_id_t queue_id1, queue_id2;
@@ -79,7 +79,7 @@ void test_OS_QueueCreate_NameTaken(void)
 }
 
 /* 测试用例5: 队列发送和接收 */
-void test_OS_QueuePutGet_Success(void)
+void test_OSAL_QueuePutGet_Success(void)
 {
     setUp();
     osal_id_t queue_id;
@@ -106,7 +106,7 @@ void test_OS_QueuePutGet_Success(void)
 }
 
 /* 测试用例6: 队列接收 - 空队列非阻塞 */
-void test_OS_QueueGet_Empty(void)
+void test_OSAL_QueueGet_Empty(void)
 {
     setUp();
     osal_id_t queue_id;
@@ -123,7 +123,7 @@ void test_OS_QueueGet_Empty(void)
 }
 
 /* 测试用例7: 队列接收 - 超时 */
-void test_OS_QueueGet_Timeout(void)
+void test_OSAL_QueueGet_Timeout(void)
 {
     setUp();
     osal_id_t queue_id;
@@ -148,7 +148,7 @@ void test_OS_QueueGet_Timeout(void)
 }
 
 /* 测试用例8: 队列满 */
-void test_OS_QueuePut_Full(void)
+void test_OSAL_QueuePut_Full(void)
 {
     setUp();
     osal_id_t queue_id;
@@ -167,7 +167,7 @@ void test_OS_QueuePut_Full(void)
 }
 
 /* 测试用例9: 多消息发送接收 */
-void test_OS_QueuePutGet_Multiple(void)
+void test_OSAL_QueuePutGet_Multiple(void)
 {
     setUp();
     osal_id_t queue_id;
@@ -199,7 +199,7 @@ void test_OS_QueuePutGet_Multiple(void)
 }
 
 /* 测试用例10: 根据名称获取队列ID */
-void test_OS_QueueGetIdByName_Success(void)
+void test_OSAL_QueueGetIdByName_Success(void)
 {
     setUp();
     osal_id_t queue_id1, queue_id2;
@@ -216,7 +216,7 @@ void test_OS_QueueGetIdByName_Success(void)
 }
 
 /* 测试用例11: 根据名称获取队列ID - 未找到 */
-void test_OS_QueueGetIdByName_NotFound(void)
+void test_OSAL_QueueGetIdByName_NotFound(void)
 {
     setUp();
     osal_id_t queue_id;
@@ -227,7 +227,7 @@ void test_OS_QueueGetIdByName_NotFound(void)
 }
 
 /* 测试用例12: 队列删除 */
-void test_OS_QueueDelete_Success(void)
+void test_OSAL_QueueDelete_Success(void)
 {
     setUp();
     osal_id_t queue_id;
@@ -239,7 +239,7 @@ void test_OS_QueueDelete_Success(void)
 }
 
 /* 测试用例13: 队列删除 - 无效ID */
-void test_OS_QueueDelete_InvalidId(void)
+void test_OSAL_QueueDelete_InvalidId(void)
 {
     setUp();
     int32 ret = OSAL_QueueDelete(9999);
@@ -248,23 +248,23 @@ void test_OS_QueueDelete_InvalidId(void)
 }
 
 /* 模块注册 */
-#include "../core/unittest_runner.h"
+#include "test_runner.h"
 
-TEST_MODULE_BEGIN(test_os_queue)
-    TEST_CASE(test_OS_QueueCreate_Success)
-    TEST_CASE(test_OS_QueueCreate_NullPointer)
-    TEST_CASE(test_OS_QueueCreate_InvalidSize)
-    TEST_CASE(test_OS_QueueCreate_NameTaken)
-    TEST_CASE(test_OS_QueuePutGet_Success)
-    TEST_CASE(test_OS_QueueGet_Empty)
-    TEST_CASE(test_OS_QueueGet_Timeout)
-    TEST_CASE(test_OS_QueuePut_Full)
-    TEST_CASE(test_OS_QueuePutGet_Multiple)
-    TEST_CASE(test_OS_QueueGetIdByName_Success)
-    TEST_CASE(test_OS_QueueGetIdByName_NotFound)
-    TEST_CASE(test_OS_QueueDelete_Success)
-    TEST_CASE(test_OS_QueueDelete_InvalidId)
-TEST_MODULE_END(test_os_queue)
+TEST_MODULE_BEGIN(test_osal_queue)
+    TEST_CASE(test_OSAL_QueueCreate_Success)
+    TEST_CASE(test_OSAL_QueueCreate_NullPointer)
+    TEST_CASE(test_OSAL_QueueCreate_InvalidSize)
+    TEST_CASE(test_OSAL_QueueCreate_NameTaken)
+    TEST_CASE(test_OSAL_QueuePutGet_Success)
+    TEST_CASE(test_OSAL_QueueGet_Empty)
+    TEST_CASE(test_OSAL_QueueGet_Timeout)
+    TEST_CASE(test_OSAL_QueuePut_Full)
+    TEST_CASE(test_OSAL_QueuePutGet_Multiple)
+    TEST_CASE(test_OSAL_QueueGetIdByName_Success)
+    TEST_CASE(test_OSAL_QueueGetIdByName_NotFound)
+    TEST_CASE(test_OSAL_QueueDelete_Success)
+    TEST_CASE(test_OSAL_QueueDelete_InvalidId)
+TEST_MODULE_END(test_osal_queue)
 
 /* 独立运行时的主函数 */
 #ifdef STANDALONE_TEST
@@ -272,19 +272,19 @@ int main(void)
 {
     TEST_BEGIN();
 
-    RUN_TEST(test_OS_QueueCreate_Success);
-    RUN_TEST(test_OS_QueueCreate_NullPointer);
-    RUN_TEST(test_OS_QueueCreate_InvalidSize);
-    RUN_TEST(test_OS_QueueCreate_NameTaken);
-    RUN_TEST(test_OS_QueuePutGet_Success);
-    RUN_TEST(test_OS_QueueGet_Empty);
-    RUN_TEST(test_OS_QueueGet_Timeout);
-    RUN_TEST(test_OS_QueuePut_Full);
-    RUN_TEST(test_OS_QueuePutGet_Multiple);
-    RUN_TEST(test_OS_QueueGetIdByName_Success);
-    RUN_TEST(test_OS_QueueGetIdByName_NotFound);
-    RUN_TEST(test_OS_QueueDelete_Success);
-    RUN_TEST(test_OS_QueueDelete_InvalidId);
+    RUN_TEST(test_OSAL_QueueCreate_Success);
+    RUN_TEST(test_OSAL_QueueCreate_NullPointer);
+    RUN_TEST(test_OSAL_QueueCreate_InvalidSize);
+    RUN_TEST(test_OSAL_QueueCreate_NameTaken);
+    RUN_TEST(test_OSAL_QueuePutGet_Success);
+    RUN_TEST(test_OSAL_QueueGet_Empty);
+    RUN_TEST(test_OSAL_QueueGet_Timeout);
+    RUN_TEST(test_OSAL_QueuePut_Full);
+    RUN_TEST(test_OSAL_QueuePutGet_Multiple);
+    RUN_TEST(test_OSAL_QueueGetIdByName_Success);
+    RUN_TEST(test_OSAL_QueueGetIdByName_NotFound);
+    RUN_TEST(test_OSAL_QueueDelete_Success);
+    RUN_TEST(test_OSAL_QueueDelete_InvalidId);
 
     TEST_END();
 }

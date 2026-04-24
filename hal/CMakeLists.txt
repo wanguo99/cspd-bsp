@@ -2,9 +2,9 @@
 
 # HAL源文件
 set(HAL_SOURCES
-    src/linux/hal_can_linux.c
-    src/linux/hal_network_linux.c
-    src/linux/hal_serial_linux.c
+    src/linux/hal_can.c
+    src/linux/hal_network.c
+    src/linux/hal_serial.c
 )
 
 # 创建HAL静态库

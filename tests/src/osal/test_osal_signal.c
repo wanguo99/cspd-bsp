@@ -2,9 +2,9 @@
  * OSAL信号处理单元测试
  ************************************************************************/
 
-#include "../core/unittest_framework.h"
+#include "test_framework.h"
 #ifndef STANDALONE_TEST
-#include "../core/unittest_runner.h"
+#include "test_runner.h"
 #endif
 #include "osal.h"
 #include <unistd.h>
@@ -38,7 +38,7 @@ __attribute__((unused)) static void tearDown(void)
 }
 
 /* 测试用例1: 注册信号处理函数 */
-void test_OS_SignalRegister_Success(void)
+void test_OSAL_SignalRegister_Success(void)
 {
     setUp();
     int32 ret;
@@ -60,7 +60,7 @@ void test_OS_SignalRegister_Success(void)
 }
 
 /* 测试用例2: 忽略信号 */
-void test_OS_SignalIgnore_Success(void)
+void test_OSAL_SignalIgnore_Success(void)
 {
     setUp();
     int32 ret;
@@ -84,7 +84,7 @@ void test_OS_SignalIgnore_Success(void)
 }
 
 /* 测试用例3: 阻塞信号 */
-void test_OS_SignalBlock_Success(void)
+void test_OSAL_SignalBlock_Success(void)
 {
     setUp();
     int32 ret;
@@ -118,7 +118,7 @@ void test_OS_SignalBlock_Success(void)
 }
 
 /* 测试用例4: 恢复默认信号处理 */
-void test_OS_SignalDefault_Success(void)
+void test_OSAL_SignalDefault_Success(void)
 {
     setUp();
     int32 ret;
@@ -138,7 +138,7 @@ void test_OS_SignalDefault_Success(void)
 }
 
 /* 测试用例5: 多个信号处理 */
-void test_OS_SignalRegister_Multiple(void)
+void test_OSAL_SignalRegister_Multiple(void)
 {
     setUp();
     int32 ret;
@@ -164,7 +164,7 @@ void test_OS_SignalRegister_Multiple(void)
 }
 
 /* 测试用例7: 无效参数测试 */
-void test_OS_SignalRegister_InvalidParams(void)
+void test_OSAL_SignalRegister_InvalidParams(void)
 {
     setUp();
     int32 ret;
@@ -177,16 +177,16 @@ void test_OS_SignalRegister_InvalidParams(void)
 }
 
 /* 模块注册 */
-#include "../core/unittest_runner.h"
+#include "test_runner.h"
 
-TEST_MODULE_BEGIN(test_os_signal)
-    TEST_CASE(test_OS_SignalRegister_Success)
-    TEST_CASE(test_OS_SignalIgnore_Success)
-    TEST_CASE(test_OS_SignalBlock_Success)
-    TEST_CASE(test_OS_SignalDefault_Success)
-    TEST_CASE(test_OS_SignalRegister_Multiple)
-    TEST_CASE(test_OS_SignalRegister_InvalidParams)
-TEST_MODULE_END(test_os_signal)
+TEST_MODULE_BEGIN(test_osal_signal)
+    TEST_CASE(test_OSAL_SignalRegister_Success)
+    TEST_CASE(test_OSAL_SignalIgnore_Success)
+    TEST_CASE(test_OSAL_SignalBlock_Success)
+    TEST_CASE(test_OSAL_SignalDefault_Success)
+    TEST_CASE(test_OSAL_SignalRegister_Multiple)
+    TEST_CASE(test_OSAL_SignalRegister_InvalidParams)
+TEST_MODULE_END(test_osal_signal)
 
 /* 独立运行时的主函数 */
 #ifdef STANDALONE_TEST
@@ -194,12 +194,12 @@ int main(void)
 {
     TEST_BEGIN();
 
-    RUN_TEST(test_OS_SignalRegister_Success);
-    RUN_TEST(test_OS_SignalIgnore_Success);
-    RUN_TEST(test_OS_SignalBlock_Success);
-    RUN_TEST(test_OS_SignalDefault_Success);
-    RUN_TEST(test_OS_SignalRegister_Multiple);
-    RUN_TEST(test_OS_SignalRegister_InvalidParams);
+    RUN_TEST(test_OSAL_SignalRegister_Success);
+    RUN_TEST(test_OSAL_SignalIgnore_Success);
+    RUN_TEST(test_OSAL_SignalBlock_Success);
+    RUN_TEST(test_OSAL_SignalDefault_Success);
+    RUN_TEST(test_OSAL_SignalRegister_Multiple);
+    RUN_TEST(test_OSAL_SignalRegister_InvalidParams);
 
     return TEST_END();
 }

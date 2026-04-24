@@ -2,9 +2,9 @@
  * OSAL文件I/O单元测试
  ************************************************************************/
 
-#include "../core/unittest_framework.h"
+#include "test_framework.h"
 #ifndef STANDALONE_TEST
-#include "../core/unittest_runner.h"
+#include "test_runner.h"
 #endif
 #include "osal.h"
 #include <unistd.h>
@@ -29,7 +29,7 @@ __attribute__((unused)) static void tearDown(void)
 }
 
 /* 测试用例1: 文件打开和关闭 */
-void test_OS_FileOpen_Close_Success(void)
+void test_OSAL_FileOpen_Close_Success(void)
 {
     setUp();
     osal_id_t fd;
@@ -49,7 +49,7 @@ void test_OS_FileOpen_Close_Success(void)
 }
 
 /* 测试用例2: 文件写入和读取 */
-void test_OS_FileWrite_Read_Success(void)
+void test_OSAL_FileWrite_Read_Success(void)
 {
     setUp();
     osal_id_t fd;
@@ -83,7 +83,7 @@ void test_OS_FileWrite_Read_Success(void)
 }
 
 /* 测试用例3: 文件定位 */
-void test_OS_FileSeek_Success(void)
+void test_OSAL_FileSeek_Success(void)
 {
     setUp();
     osal_id_t fd;
@@ -118,7 +118,7 @@ void test_OS_FileSeek_Success(void)
 }
 
 /* 测试用例4: 设置非阻塞标志 */
-void test_OS_FileSetFlags_Success(void)
+void test_OSAL_FileSetFlags_Success(void)
 {
     setUp();
     osal_id_t fd;
@@ -143,7 +143,7 @@ void test_OS_FileSetFlags_Success(void)
 }
 
 /* 测试用例5: 无效参数测试 */
-void test_OS_FileOpen_InvalidParams(void)
+void test_OSAL_FileOpen_InvalidParams(void)
 {
     setUp();
     osal_id_t fd;
@@ -161,7 +161,7 @@ void test_OS_FileOpen_InvalidParams(void)
 }
 
 /* 测试用例6: 关闭无效文件描述符 */
-void test_OS_FileClose_InvalidID(void)
+void test_OSAL_FileClose_InvalidID(void)
 {
     setUp();
     int32 ret;
@@ -177,16 +177,16 @@ void test_OS_FileClose_InvalidID(void)
 }
 
 /* 模块注册 */
-#include "../core/unittest_runner.h"
+#include "test_runner.h"
 
-TEST_MODULE_BEGIN(test_os_file)
-    TEST_CASE(test_OS_FileOpen_Close_Success)
-    TEST_CASE(test_OS_FileWrite_Read_Success)
-    TEST_CASE(test_OS_FileSeek_Success)
-    TEST_CASE(test_OS_FileSetFlags_Success)
-    TEST_CASE(test_OS_FileOpen_InvalidParams)
-    TEST_CASE(test_OS_FileClose_InvalidID)
-TEST_MODULE_END(test_os_file)
+TEST_MODULE_BEGIN(test_osal_file)
+    TEST_CASE(test_OSAL_FileOpen_Close_Success)
+    TEST_CASE(test_OSAL_FileWrite_Read_Success)
+    TEST_CASE(test_OSAL_FileSeek_Success)
+    TEST_CASE(test_OSAL_FileSetFlags_Success)
+    TEST_CASE(test_OSAL_FileOpen_InvalidParams)
+    TEST_CASE(test_OSAL_FileClose_InvalidID)
+TEST_MODULE_END(test_osal_file)
 
 /* 独立运行时的主函数 */
 #ifdef STANDALONE_TEST
@@ -194,12 +194,12 @@ int main(void)
 {
     TEST_BEGIN();
 
-    RUN_TEST(test_OS_FileOpen_Close_Success);
-    RUN_TEST(test_OS_FileWrite_Read_Success);
-    RUN_TEST(test_OS_FileSeek_Success);
-    RUN_TEST(test_OS_FileSetFlags_Success);
-    RUN_TEST(test_OS_FileOpen_InvalidParams);
-    RUN_TEST(test_OS_FileClose_InvalidID);
+    RUN_TEST(test_OSAL_FileOpen_Close_Success);
+    RUN_TEST(test_OSAL_FileWrite_Read_Success);
+    RUN_TEST(test_OSAL_FileSeek_Success);
+    RUN_TEST(test_OSAL_FileSetFlags_Success);
+    RUN_TEST(test_OSAL_FileOpen_InvalidParams);
+    RUN_TEST(test_OSAL_FileClose_InvalidID);
 
     return TEST_END();
 }

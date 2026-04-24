@@ -20,8 +20,7 @@ endif()
 # 包含源代码目录（更新为include/目录结构）
 set(CSPD_BSP_ROOT ${CMAKE_SOURCE_DIR})
 include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/core
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CSPD_BSP_ROOT}/osal/include
     ${CSPD_BSP_ROOT}/hal/include
     ${CSPD_BSP_ROOT}/pdl/include
@@ -60,26 +59,25 @@ list(FILTER APPS_PROTOCOL_SOURCES EXCLUDE REGEX ".*/main\\.c$")
 
 # 测试运行器库
 add_library(test_runner STATIC
-    core/unittest_runner.c
+    src/test_runner.c
 )
 target_include_directories(test_runner PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/core
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 # 统一测试主程序（唯一的测试可执行文件）
 add_executable(unit-test
-    core/unittest_entry.c
-    osal/test_os_task.c
-    osal/test_os_queue.c
-    osal/test_os_mutex.c
-    osal/test_os_file.c
-    osal/test_os_network.c
-    osal/test_os_signal.c
-    hal/test_hal_can_module.c
-    pdl/test_payload_pdl_module.c
-    apps/test_can_gateway_module.c
-    apps/test_protocol_converter_module.c
+    src/test_entry.c
+    src/osal/test_osal_task.c
+    src/osal/test_osal_queue.c
+    src/osal/test_osal_mutex.c
+    src/osal/test_osal_file.c
+    src/osal/test_osal_network.c
+    src/osal/test_osal_signal.c
+    src/hal/test_hal_can.c
+    src/pdl/test_pdl_satellite.c
+    src/apps/test_can_gateway.c
+    src/apps/test_protocol_converter.c
     ${APPS_PROTOCOL_SOURCES}
     ${APPS_GATEWAY_SOURCES}
     ${SERVICE_SOURCES}

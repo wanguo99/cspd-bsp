@@ -3,8 +3,8 @@
  * 用于统一测试入口
  ************************************************************************/
 
-#include "unittest_runner.h"
-#include "unittest_framework.h"
+#include "test_runner.h"
+#include "test_framework.h"
 #include "payload_pdl.h"
 #include "osal.h"
 #include <pthread.h>
@@ -188,7 +188,7 @@ void test_PayloadService_Init_NullConfig(void)
 }
 
 /* 注册测试模块 */
-TEST_MODULE_BEGIN(test_payload_service)
+TEST_MODULE_BEGIN(test_pdl_satellite)
     TEST_CASE(test_PayloadService_Init_Success)
     TEST_CASE(test_PayloadService_Init_NullConfig)
-TEST_MODULE_END(test_payload_service)
+TEST_MODULE_END(test_pdl_satellite)

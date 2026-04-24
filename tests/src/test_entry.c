@@ -4,8 +4,8 @@
  * 整合所有层的测试：OSAL、HAL、Service、Apps
  ************************************************************************/
 
-#include "unittest_runner.h"
-#include "unittest_framework.h"
+#include "test_runner.h"
+#include "test_framework.h"
 #include "osal_log.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,18 +48,18 @@ void wait_for_key(void)
 }
 
 /* 外部测试模块声明 - OSAL层 */
-extern const test_module_t test_os_file;
-extern const test_module_t test_os_network;
-extern const test_module_t test_os_signal;
-extern const test_module_t test_os_task;
-extern const test_module_t test_os_mutex;
-extern const test_module_t test_os_queue;
+extern const test_module_t test_osal_file;
+extern const test_module_t test_osal_network;
+extern const test_module_t test_osal_signal;
+extern const test_module_t test_osal_task;
+extern const test_module_t test_osal_mutex;
+extern const test_module_t test_osal_queue;
 
 /* 外部测试模块声明 - HAL层 */
 extern const test_module_t test_hal_can;
 
 /* 外部测试模块声明 - Service层 */
-extern const test_module_t test_payload_service;
+extern const test_module_t test_pdl_satellite;
 
 /* 外部测试模块声明 - Apps层 */
 extern const test_module_t test_can_gateway;
@@ -74,12 +74,12 @@ typedef struct {
 
 /* OSAL层测试模块 */
 static const test_module_t *osal_modules[] = {
-    &test_os_file,
-    &test_os_network,
-    &test_os_signal,
-    &test_os_task,
-    &test_os_mutex,
-    &test_os_queue,
+    &test_osal_file,
+    &test_osal_network,
+    &test_osal_signal,
+    &test_osal_task,
+    &test_osal_mutex,
+    &test_osal_queue,
 };
 
 /* HAL层测试模块 */
@@ -89,7 +89,7 @@ static const test_module_t *hal_modules[] = {
 
 /* Service层测试模块 */
 static const test_module_t *service_modules[] = {
-    &test_payload_service,
+    &test_pdl_satellite,
 };
 
 /* Apps层测试模块 */
