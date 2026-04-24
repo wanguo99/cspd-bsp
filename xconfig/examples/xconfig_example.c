@@ -4,7 +4,7 @@
  * 演示如何使用硬件配置库
  ************************************************************************/
 
-#include "hw_config_api.h"
+#include "xconfig_api.h"
 #include "os_log.h"
 #include "pdl_mcu.h"
 #include <stdio.h>
@@ -85,7 +85,7 @@ static void example_find_config(void)
 static void example_mcu_init(void)
 {
     const xconfig_board_config_t *board;
-    const hw_mcu_config_t *mcu_cfg;
+    const xconfig_mcu_cfg_t *mcu_cfg;
     mcu_handle_t mcu_handle;
     mcu_version_t version;
     int32 ret;
@@ -103,7 +103,7 @@ static void example_mcu_init(void)
     }
 
     /* 查找MCU配置 */
-    mcu_cfg = XCONFIG_FindMCU(board, "stm32_mcu");
+    mcu_cfg = XCONFIG_HW_FindMCU(board, "stm32_mcu");
     if (mcu_cfg == NULL) {
         OS_printf("MCU 'stm32_mcu' not found in configuration\n");
         return;

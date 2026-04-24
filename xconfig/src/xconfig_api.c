@@ -7,7 +7,7 @@
  * - XCONFIG_APP_*   - APP配置接口
  ************************************************************************/
 
-#include "hw_config_api.h"
+#include "xconfig_api.h"
 #include "osal_log.h"
 #include "osal.h"
 #include <string.h>

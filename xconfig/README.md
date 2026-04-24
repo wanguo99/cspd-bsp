@@ -26,7 +26,7 @@ XConfig是一个类似Linux设备树（Device Tree）的硬件配置管理库，
 **XConfig方式（外设为单位）**：
 ```c
 /* MCU外设配置（包含其通信接口） */
-hw_mcu_cfg_t mcu_stm32 = {
+xconfig_mcu_cfg_t mcu_stm32 = {
     .name = "stm32_mcu",
     .interface_type = HW_INTERFACE_UART,  /* 使用UART通信 */
     .interface_cfg.uart = {
@@ -51,24 +51,24 @@ hw_mcu_cfg_t mcu_stm32 = {
 ```
 xconfig/
 ├── include/                    # 头文件
-│   ├── hw_config_types.h       # 硬件配置类型定义
-│   └── hw_config_api.h         # API接口
+│   ├── xconfig_types.h       # 硬件配置类型定义
+│   └── xconfig_api.h         # API接口
 ├── src/                        # 源代码
-│   ├── hw_config_api.c         # API实现
-│   └── hw_config_register.c    # 配置注册
+│   ├── xconfig_api.c         # API实现
+│   └── xconfig_register.c    # 配置注册
 ├── platform/                   # 平台配置
 │   └── ti/am625/               # TI AM625平台
 │       ├── h200_payload_base.c # H200基础配置
 │       ├── h200_payload_v1.c   # H200 V1.0配置
 │       └── h200_payload_v2.c   # H200 V2.0配置
 ├── examples/                   # 示例代码
-│   └── hw_config_example.c     # 使用示例
+│   └── xconfig_example.c     # 使用示例
 └── CMakeLists.txt              # 构建配置
 ```
 
 ## 支持的外设类型
 
-### 1. MCU外设（hw_mcu_cfg_t）
+### 1. MCU外设（xconfig_mcu_cfg_t）
 
 MCU作为一个完整的外设单元，包含其通信接口配置。
 
@@ -78,12 +78,12 @@ typedef struct {
     bool enabled;                     /* 是否启用 */
     
     /* 通信接口配置（使用联合体） */
-    hw_interface_type_t interface_type;
+    xconfig_interface_type_t interface_type;
     union {
-        hw_can_cfg_t  can;
-        hw_uart_cfg_t uart;
-        hw_i2c_cfg_t  i2c;
-        hw_spi_cfg_t  spi;
+        xconfig_can_cfg_t  can;
+        xconfig_uart_cfg_t uart;
+        xconfig_i2c_cfg_t  i2c;
+        xconfig_spi_cfg_t  spi;
     } interface_cfg;
     
     /* MCU特定配置 */
@@ -92,14 +92,14 @@ typedef struct {
     bool enable_crc;
     
     /* GPIO控制 */
-    hw_gpio_config_t *reset_gpio;
-    hw_gpio_config_t *irq_gpio;
-} hw_mcu_cfg_t;
+    xconfig_gpio_config_t *reset_gpio;
+    xconfig_gpio_config_t *irq_gpio;
+} xconfig_mcu_cfg_t;
 ```
 
 **示例**：
 ```c
-static hw_mcu_cfg_t mcu_stm32 = {
+static xconfig_mcu_cfg_t mcu_stm32 = {
     .name = "stm32_mcu",
     .enabled = true,
     .interface_type = HW_INTERFACE_UART,
@@ -118,7 +118,7 @@ static hw_mcu_cfg_t mcu_stm32 = {
 };
 ```
 
-### 2. BMC外设（hw_bmc_cfg_t）
+### 2. BMC外设（xconfig_bmc_cfg_t）
 
 BMC作为一个完整的外设单元，包含主备双通道配置。
 
@@ -129,14 +129,14 @@ typedef struct {
     
     /* 主通道配置（以太网） */
     struct {
-        hw_interface_type_t type;
-        hw_ethernet_cfg_t cfg;
+        xconfig_interface_type_t type;
+        xconfig_ethernet_cfg_t cfg;
     } primary_channel;
     
     /* 备份通道配置（串口） */
     struct {
-        hw_interface_type_t type;
-        hw_uart_cfg_t cfg;
+        xconfig_interface_type_t type;
+        xconfig_uart_cfg_t cfg;
     } backup_channel;
     
     /* BMC特定配置 */
@@ -144,14 +144,14 @@ typedef struct {
     uint32 failover_threshold;
     
     /* GPIO控制 */
-    hw_gpio_config_t *power_gpio;
-    hw_gpio_config_t *reset_gpio;
-} hw_bmc_cfg_t;
+    xconfig_gpio_config_t *power_gpio;
+    xconfig_gpio_config_t *reset_gpio;
+} xconfig_bmc_cfg_t;
 ```
 
 **示例**：
 ```c
-static hw_bmc_cfg_t bmc_payload = {
+static xconfig_bmc_cfg_t bmc_payload = {
     .name = "payload_bmc",
     .enabled = true,
     .primary_channel = {
@@ -177,7 +177,7 @@ static hw_bmc_cfg_t bmc_payload = {
 };
 ```
 
-### 3. 卫星平台接口（hw_satellite_cfg_t）
+### 3. 卫星平台接口（xconfig_satellite_cfg_t）
 
 卫星平台作为一个外设单元，通常使用CAN或1553B。
 
@@ -187,20 +187,20 @@ typedef struct {
     bool enabled;
     
     /* 通信接口配置 */
-    hw_interface_type_t interface_type;
+    xconfig_interface_type_t interface_type;
     union {
-        hw_can_cfg_t can;
-        hw_1553b_cfg_t bus_1553b;
-        hw_spacewire_cfg_t spacewire;
+        xconfig_can_cfg_t can;
+        xconfig_1553b_cfg_t bus_1553b;
+        xconfig_spacewire_cfg_t spacewire;
     } interface_cfg;
     
     /* 卫星平台特定配置 */
     uint32 heartbeat_interval_ms;
     uint32 cmd_timeout_ms;
-} hw_satellite_cfg_t;
+} xconfig_satellite_cfg_t;
 ```
 
-### 4. 传感器外设（hw_sensor_cfg_t）
+### 4. 传感器外设（xconfig_sensor_cfg_t）
 
 传感器作为一个外设单元，包含其通信接口和采样配置。
 
@@ -211,11 +211,11 @@ typedef struct {
     bool enabled;
     
     /* 通信接口配置 */
-    hw_interface_type_t interface_type;
+    xconfig_interface_type_t interface_type;
     union {
-        hw_i2c_cfg_t i2c;
-        hw_spi_cfg_t spi;
-        hw_uart_cfg_t uart;
+        xconfig_i2c_cfg_t i2c;
+        xconfig_spi_cfg_t spi;
+        xconfig_uart_cfg_t uart;
     } interface_cfg;
     
     /* 传感器特定配置 */
@@ -223,11 +223,11 @@ typedef struct {
     uint32 resolution;
     
     /* GPIO控制 */
-    hw_gpio_config_t *power_gpio;
-} hw_sensor_cfg_t;
+    xconfig_gpio_config_t *power_gpio;
+} xconfig_sensor_cfg_t;
 ```
 
-### 5. 存储设备（hw_storage_cfg_t）
+### 5. 存储设备（xconfig_storage_cfg_t）
 
 存储设备配置。
 
@@ -239,8 +239,8 @@ typedef struct {
     const char *device_path;
     uint64 capacity_mb;
     uint32 block_size;
-    hw_gpio_config_t *power_gpio;
-} hw_storage_cfg_t;
+    xconfig_gpio_config_t *power_gpio;
+} xconfig_storage_cfg_t;
 ```
 
 ## 板级配置结构
@@ -256,24 +256,24 @@ typedef struct {
     const char *description;
     
     /* 外设配置列表（以外设为单位） */
-    hw_mcu_cfg_t **mcus;
+    xconfig_mcu_cfg_t **mcus;
     uint32 mcu_count;
     
-    hw_bmc_cfg_t **bmcs;
+    xconfig_bmc_cfg_t **bmcs;
     uint32 bmc_count;
     
-    hw_satellite_cfg_t **satellites;
+    xconfig_satellite_cfg_t **satellites;
     uint32 satellite_count;
     
-    hw_sensor_cfg_t **sensors;
+    xconfig_sensor_cfg_t **sensors;
     uint32 sensor_count;
     
-    hw_storage_cfg_t **storages;
+    xconfig_storage_cfg_t **storages;
     uint32 storage_count;
     
-    hw_power_domain_t **power_domains;
+    xconfig_power_domain_t **power_domains;
     uint32 power_domain_count;
-} hw_board_config_t;
+} xconfig_board_config_t;
 ```
 
 ## API接口
@@ -288,30 +288,30 @@ int32 HW_Config_Init(void);
 int32 HW_Config_RegisterAll(void);
 
 /* 选择默认配置 */
-const hw_board_config_t* HW_Config_SelectDefault(void);
+const xconfig_board_config_t* HW_Config_SelectDefault(void);
 ```
 
 ### 外设配置查询（以外设为单位）
 
 ```c
 /* 查找MCU外设配置 */
-const hw_mcu_cfg_t* HW_Config_FindMCU(const hw_board_config_t *board,
+const xconfig_mcu_cfg_t* XCONFIG_HW_FindMCU(const xconfig_board_config_t *board,
                                        const char *name);
 
 /* 查找BMC外设配置 */
-const hw_bmc_cfg_t* HW_Config_FindBMC(const hw_board_config_t *board,
+const xconfig_bmc_cfg_t* XCONFIG_HW_FindBMC(const xconfig_board_config_t *board,
                                        const char *name);
 
 /* 查找卫星平台接口配置 */
-const hw_satellite_cfg_t* HW_Config_FindSatellite(const hw_board_config_t *board,
+const xconfig_satellite_cfg_t* XCONFIG_HW_FindSatellite(const xconfig_board_config_t *board,
                                                     const char *name);
 
 /* 查找传感器外设配置 */
-const hw_sensor_cfg_t* HW_Config_FindSensor(const hw_board_config_t *board,
+const xconfig_sensor_cfg_t* XCONFIG_HW_FindSensor(const xconfig_board_config_t *board,
                                              const char *name);
 
 /* 查找存储设备配置 */
-const hw_storage_cfg_t* HW_Config_FindStorage(const hw_board_config_t *board,
+const xconfig_storage_cfg_t* XCONFIG_HW_FindStorage(const xconfig_board_config_t *board,
                                                 const char *name);
 ```
 
@@ -320,7 +320,7 @@ const hw_storage_cfg_t* HW_Config_FindStorage(const hw_board_config_t *board,
 ### 1. 基本使用
 
 ```c
-#include "hw_config_api.h"
+#include "xconfig_api.h"
 
 int main(void)
 {
@@ -329,7 +329,7 @@ int main(void)
     HW_Config_RegisterAll();
     
     /* 选择配置 */
-    const hw_board_config_t *board = HW_Config_SelectDefault();
+    const xconfig_board_config_t *board = HW_Config_SelectDefault();
     
     /* 打印配置 */
     HW_Config_Print(board);
@@ -342,10 +342,10 @@ int main(void)
 
 ```c
 /* 获取板级配置 */
-const hw_board_config_t *board = HW_Config_GetBoard();
+const xconfig_board_config_t *board = HW_Config_GetBoard();
 
 /* 查找MCU外设配置 */
-const hw_mcu_cfg_t *mcu_cfg = HW_Config_FindMCU(board, "stm32_mcu");
+const xconfig_mcu_cfg_t *mcu_cfg = XCONFIG_HW_FindMCU(board, "stm32_mcu");
 if (mcu_cfg == NULL) {
     printf("MCU not found\n");
     return -1;
@@ -367,7 +367,7 @@ if (mcu_cfg->interface_type == HW_INTERFACE_UART) {
 
 ```c
 /* 查找BMC外设配置 */
-const hw_bmc_cfg_t *bmc_cfg = HW_Config_FindBMC(board, "payload_bmc");
+const xconfig_bmc_cfg_t *bmc_cfg = XCONFIG_HW_FindBMC(board, "payload_bmc");
 
 /* 初始化主通道（以太网） */
 if (bmc_cfg->primary_channel.type == HW_INTERFACE_ETHERNET) {
@@ -386,10 +386,10 @@ if (bmc_cfg->backup_channel.type == HW_INTERFACE_UART) {
 ### 4. 遍历所有传感器外设
 
 ```c
-const hw_board_config_t *board = HW_Config_GetBoard();
+const xconfig_board_config_t *board = HW_Config_GetBoard();
 
 for (uint32 i = 0; i < board->sensor_count; i++) {
-    const hw_sensor_cfg_t *sensor = board->sensors[i];
+    const xconfig_sensor_cfg_t *sensor = board->sensors[i];
     
     if (!sensor->enabled) {
         continue;
@@ -414,17 +414,17 @@ for (uint32 i = 0; i < board->sensor_count; i++) {
 完整的配置文件示例（`h200_payload_base.c`）：
 
 ```c
-#include "hw_config_types.h"
+#include "xconfig_types.h"
 
 /* GPIO定义 */
-static hw_gpio_config_t gpio_mcu_reset = {
+static xconfig_gpio_config_t gpio_mcu_reset = {
     .gpio_num = 42,
     .active_low = true,
     .pull_up = true
 };
 
 /* MCU外设配置 */
-static hw_mcu_cfg_t mcu_stm32 = {
+static xconfig_mcu_cfg_t mcu_stm32 = {
     .name = "stm32_mcu",
     .enabled = true,
     .interface_type = HW_INTERFACE_UART,
@@ -442,7 +442,7 @@ static hw_mcu_cfg_t mcu_stm32 = {
 };
 
 /* BMC外设配置 */
-static hw_bmc_cfg_t bmc_payload = {
+static xconfig_bmc_cfg_t bmc_payload = {
     .name = "payload_bmc",
     .enabled = true,
     .primary_channel = {
@@ -458,11 +458,11 @@ static hw_bmc_cfg_t bmc_payload = {
 };
 
 /* 外设列表 */
-static hw_mcu_cfg_t *mcu_list[] = { &mcu_stm32 };
-static hw_bmc_cfg_t *bmc_list[] = { &bmc_payload };
+static xconfig_mcu_cfg_t *mcu_list[] = { &mcu_stm32 };
+static xconfig_bmc_cfg_t *bmc_list[] = { &bmc_payload };
 
 /* 板级配置 */
-const hw_board_config_t hw_config_h200_base = {
+const xconfig_board_config_t xconfig_h200_base = {
     .platform = "ti/am625",
     .product = "h200_payload",
     .version = "base",
@@ -484,7 +484,7 @@ const hw_board_config_t hw_config_h200_base = {
 
 ```c
 /* 新增MCU外设 */
-static hw_mcu_cfg_t mcu_new = {
+static xconfig_mcu_cfg_t mcu_new = {
     .name = "new_mcu",
     .enabled = true,
     .interface_type = HW_INTERFACE_CAN,  /* 使用CAN通信 */
@@ -503,7 +503,7 @@ static hw_mcu_cfg_t mcu_new = {
 ### 步骤2：添加到外设列表
 
 ```c
-static hw_mcu_cfg_t *mcu_list[] = {
+static xconfig_mcu_cfg_t *mcu_list[] = {
     &mcu_stm32,
     &mcu_new  /* 添加新MCU */
 };
@@ -512,7 +512,7 @@ static hw_mcu_cfg_t *mcu_list[] = {
 ### 步骤3：更新板级配置
 
 ```c
-const hw_board_config_t hw_config_xxx = {
+const xconfig_board_config_t xconfig_xxx = {
     /* ... */
     .mcus = mcu_list,
     .mcu_count = sizeof(mcu_list) / sizeof(mcu_list[0]),

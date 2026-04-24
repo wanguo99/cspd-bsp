@@ -19,8 +19,8 @@ include_directories(
 
 # 源文件
 set(XCONFIG_SOURCES
-    src/hw_config_api.c
-    src/hw_config_register.c
+    src/xconfig_api.c
+    src/xconfig_register.c
 )
 
 # 平台配置源文件
@@ -43,8 +43,8 @@ target_link_libraries(xconfig
 
 # 安装头文件
 install(FILES
-    include/hw_config_types.h
-    include/hw_config_api.h
+    include/xconfig_types.h
+    include/xconfig_api.h
     DESTINATION include
 )
 
@@ -57,11 +57,11 @@ install(TARGETS xconfig
 option(BUILD_XCONFIG_EXAMPLES "Build xconfig examples" OFF)
 
 if(BUILD_XCONFIG_EXAMPLES)
-    add_executable(hw_config_example
-        examples/hw_config_example.c
+    add_executable(xconfig_example
+        examples/xconfig_example.c
     )
 
-    target_link_libraries(hw_config_example
+    target_link_libraries(xconfig_example
         xconfig
         pdl
         hal
@@ -69,7 +69,7 @@ if(BUILD_XCONFIG_EXAMPLES)
         pthread
     )
 
-    install(TARGETS hw_config_example
+    install(TARGETS xconfig_example
         RUNTIME DESTINATION bin
     )
 endif()

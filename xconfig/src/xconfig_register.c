@@ -6,7 +6,7 @@
  * - 在系统启动时调用
  ************************************************************************/
 
-#include "hw_config_api.h"
+#include "xconfig_api.h"
 #include "osal_log.h"
 #include <stdlib.h>
 
@@ -20,7 +20,7 @@ extern const xconfig_board_config_t xconfig_h200_v1;
 extern const xconfig_board_config_t xconfig_h200_v2;
 
 /* 其他平台配置可以在这里添加 */
-/* extern const xconfig_board_config_t hw_config_xxx; */
+/* extern const xconfig_board_config_t xconfig_xxx; */
 
 /*===========================================================================
  * 配置注册表

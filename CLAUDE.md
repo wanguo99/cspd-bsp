@@ -1,4 +1,6 @@
-# CSPD-BSP 项目说明
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## 项目概述
 
@@ -7,6 +9,42 @@
 **系统架构**：
 ```
 卫星平台 <--CAN--> 转接板(CSPD-BSP) <--Ethernet/UART--> 算存载荷
+```
+
+## 快速命令参考
+
+### 编译
+```bash
+./build.sh              # Release模式编译
+./build.sh -d           # Debug模式编译
+./build.sh -c           # 清理构建目录
+./build.sh --target can_gateway  # 仅编译CAN网关
+```
+
+### 测试
+```bash
+./output/target/bin/unit-test -i    # 交互式菜单（推荐）
+./output/target/bin/unit-test -a    # 运行所有测试
+./output/target/bin/unit-test -L OSAL  # 运行OSAL层测试
+./output/target/bin/unit-test -m test_osal_task  # 运行指定模块
+./output/target/bin/unit-test -l    # 列出所有测试
+```
+
+### 运行应用
+```bash
+sudo ./output/target/bin/can_gateway      # CAN网关
+sudo ./output/target/bin/protocol_converter  # 协议转换器
+```
+
+### CAN调试
+```bash
+# 配置CAN接口
+sudo ip link set can0 type can bitrate 500000
+sudo ip link set can0 up
+
+# 发送测试消息
+cansend can0 100#0110000100000000  # 上电命令
+candump can0                        # 监控CAN消息
 ```
 
 ## 核心功能
@@ -146,18 +184,48 @@ cspd-bsp/
 - 自动切换：连续5次失败后切换到备份通道
 - 定期恢复：尝试恢复主通道
 
-## 构建系统
+## 开发工作流
 
-### 编译
+### 添加新功能
+1. 在对应层的 `include/` 目录添加接口定义
+2. 在 `src/` 目录实现功能
+3. 在 `tests/` 目录添加单元测试
+4. 运行 `./build.sh -d` 验证编译
+5. 运行 `./output/target/bin/unit-test -a` 验证测试
+
+### 修改配置
+1. 找到对应模块的 `include/config/` 目录
+2. 修改配置文件（如 `can_config.h`）
+3. 重新编译：`./build.sh`
+
+### 添加新测试
+1. 在 `tests/src/<layer>/` 创建测试文件
+2. 使用 `TEST_MODULE_BEGIN/END` 宏注册测试模块
+3. 在 `tests/src/test_entry.c` 添加模块引用
+4. 重新编译
+
+### 调试
 ```bash
-./build.sh           # Release模式
-./build.sh -d        # Debug模式
-./build.sh -c        # 清理后编译
+# Debug模式编译
+./build.sh -d
+
+# 使用GDB
+sudo gdb ./output/target/bin/can_gateway
+(gdb) run
+(gdb) bt  # 查看调用栈
+
+# 查看日志
+tail -f /var/log/cspd-bsp.log
+
+# 查看统计信息（程序每30秒自动打印）
+grep "Statistics" /var/log/cspd-bsp.log
 ```
 
-### 输出
+## 构建输出
+
 ```
 output/
+├── build.log        # 构建日志
 ├── build/           # 编译中间文件
 └── target/
     ├── bin/         # 可执行文件
@@ -170,21 +238,15 @@ output/
         └── libpdl.a
 ```
 
-## 测试系统
+## 测试覆盖
 
-### 统一测试入口
-```bash
-./output/target/bin/unit-test -i    # 交互式菜单
-./output/target/bin/unit-test -a    # 运行所有测试
-./output/target/bin/unit-test -L OSAL  # 运行OSAL层测试
-./output/target/bin/unit-test -m test_os_task  # 运行指定模块
-```
-
-### 测试覆盖
-- **OSAL层**：6个模块（task, queue, mutex, file, network, signal）
-- **HAL层**：1个模块（CAN驱动）
-- **PDL层**：1个模块（payload pdl）
-- **Apps层**：2个模块（CAN gateway, protocol converter）
+| 层级 | 模块数 | 测试用例数 | 覆盖范围 |
+|------|--------|-----------|---------|
+| OSAL | 6 | 60 | 任务、队列、互斥锁、网络、文件、信号 |
+| HAL | 1 | 3 | CAN驱动 |
+| PDL | 1 | 2 | 卫星平台服务 |
+| Apps | 2 | 5 | CAN网关、协议转换器 |
+| **总计** | **10** | **70** | **完整的4层架构** |
 
 ### 交互式菜单特点
 - 三级选择：层级 → 模块 → 测试用例
@@ -269,60 +331,61 @@ static void my_task_entry(void *arg)
 
 ## 常见问题
 
-### 1. 编译警告处理
+### 编译警告处理
 - 项目使用`-Werror`，所有警告视为错误
 - 必须修复所有警告才能编译通过
 
-### 2. 测试失败（硬件相关）
+### 测试失败（硬件相关）
 - CAN测试失败：需要CAN设备（can0）
 - 串口测试失败：需要串口设备（/dev/ttyS0）
 - 这些失败是正常的，不影响代码逻辑
 
-### 3. 任务优雅退出
+### 任务优雅退出
 - 任务循环必须检查`OS_TaskShouldShutdown()`
 - 不要使用无限循环`while(1)`
 - 退出前清理资源
 
+### CAN接口无法启动
+检查CAN驱动是否加载：
+```bash
+lsmod | grep can
+sudo modprobe can
+sudo modprobe can_raw
+sudo modprobe vcan
+```
+
+### 权限不足
+需要root权限访问CAN设备：
+```bash
+sudo ./output/target/bin/can_gateway
+```
+
+### 载荷连接失败
+检查网络连接和IP配置：
+```bash
+ping 192.168.1.100
+telnet 192.168.1.100 623
+```
+
 ## 最近重构（2026-04-24）
 
-### Service层重命名为PDL层（最新）
-- **重命名原因**：原名称`service`容易与业务服务混淆，新名称`pdl`（Peripheral Driver Layer，外设驱动层）更准确
-- **架构理念**：管理板为核心，卫星/载荷/BMC/MCU统一抽象为外设
-- **命名变更**：
-  - 目录：`service/` → `pdl/`
-  - 头文件：`service_*.h` → `pdl_*.h`
-  - 源文件：`service_*.c` → `pdl_*.c`
-  - 函数前缀：`SatelliteService_*` → `SatellitePDL_*`
-  - 宏定义：`SERVICE_*` → `PDL_*`
-- **外设框架**：新增统一外设接口（`peripheral_device.h`），支持MCU/卫星/BMC/Linux载荷
-- **适配器模式**：保留传统接口100%兼容，通过适配器包装到外设框架
-- **详细文档**：见 `docs/PDL_RENAME.md`、`docs/SERVICE_REFACTOR.md`、`docs/SERVICE_MIGRATION.md`
+### Service层重命名为PDL层
+- 原名称`service`容易与业务服务混淆，新名称`pdl`（Peripheral Driver Layer，外设驱动层）更准确
+- 架构理念：管理板为核心，卫星/载荷/BMC/MCU统一抽象为外设
+- 命名变更：`service/` → `pdl/`, `service_*.h` → `pdl_*.h`, `SatelliteService_*` → `SatellitePDL_*`
+- 外设框架：新增统一外设接口（`peripheral_device.h`），支持MCU/卫星/BMC/Linux载荷
+- 适配器模式：保留传统接口100%兼容，通过适配器包装到外设框架
 
 ### 目录结构标准化
-- **inc → include**：统一使用 `include/` 目录存放头文件
-- **linux → src/linux**：统一使用 `src/linux/` 目录存放Linux平台实现
-- **config 移入 include**：配置文件统一放在 `include/config/` 目录
-- **apps 源码分离**：应用层源码移至 `src/` 目录，头文件在 `include/`
-- **标准化结构**：
-  ```
-  module/
-  ├── include/           # 头文件
-  │   └── config/        # 配置文件
-  └── src/linux/         # Linux平台实现
-  ```
-- **引用规范**：配置文件使用 `#include "config/xxx_config.h"` 引用
+- `inc` → `include`：统一使用 `include/` 目录存放头文件
+- `linux` → `src/linux`：统一使用 `src/linux/` 目录存放Linux平台实现
+- `config` 移入 `include`：配置文件统一放在 `include/config/` 目录
+- 标准化结构：`module/include/` + `module/src/linux/` + `module/include/config/`
 
 ### 模块化配置重构
-- **配置下沉**：将全局 `config/` 目录拆分，配置文件下沉到各模块内部
-- **目录结构**：
-  - `osal/include/config/` - OSAL层配置（task_config.h, queue_config.h, log_config.h）
-  - `hal/include/config/` - HAL层配置（can_types.h, can_config.h, ethernet_config.h, uart_config.h）
-  - `pdl/include/config/` - PDL层配置（watchdog_config.h）
-  - `apps/can_gateway/include/config/` - CAN网关配置（app_config.h, can_protocol.h）
-  - `apps/protocol_converter/include/config/` - 协议转换配置（app_config.h）
-- **依赖隔离**：各模块只依赖自己的配置，便于多人协作和多仓库拆分
-- **构建日志**：`build.log` 生成到 `output/` 目录，所有构建产物统一管理
-- **删除**：移除全局 `config/` 目录和 `system_config.h`
+- 配置下沉：将全局 `config/` 目录拆分，配置文件下沉到各模块内部
+- 依赖隔离：各模块只依赖自己的配置，便于多人协作和多仓库拆分
+- 构建日志：`build.log` 生成到 `output/` 目录，所有构建产物统一管理
 
 ### 测试框架重构
 - 重命名：`test_framework.h` → `unittest_framework.h`
@@ -330,15 +393,6 @@ static void my_task_entry(void *arg)
 - 重命名：`test_main_unified.c` → `unittest_entry.c`
 - 统一日志：所有`printf`替换为`OS_printf`
 - 目录重组：测试核心文件移至`tests/core/`目录
-
-### 清理遗留代码
-- 删除：`tests/osal/test_main.c`（已被统一入口替代）
-- 删除：`tests/apps/CMakeLists.txt`（独立测试配置）
-- 删除：`tests/pdl/CMakeLists.txt`（独立测试配置）
-- 删除：`examples/`目录（示例代码）
-- 删除：`osal/freertos/`目录（FreeRTOS示例）
-- 删除：`config/`目录（全局配置，已下沉到各模块）
-- 删除：看门狗和持久化队列模块（暂不需要）
 
 ## 开发建议
 
@@ -357,3 +411,18 @@ static void my_task_entry(void *arg)
 - 命令处理时间：< 100ms
 - 内存占用：< 128MB
 - CPU占用（空闲）：< 5%
+
+## 关键配置文件位置
+
+### OSAL配置
+- `osal/include/config/task_config.h` - 任务栈大小、优先级定义
+- `osal/include/config/queue_config.h` - 队列大小配置
+- `osal/include/config/log_config.h` - 日志级别、文件路径
+
+### HAL配置
+- `hal/include/config/can_config.h` - CAN接口、波特率（默认500Kbps）
+- `hal/include/config/uart_config.h` - 串口设备、波特率
+
+### Apps配置
+- `apps/can_gateway/include/config/can_protocol.h` - CAN协议定义
+- `apps/protocol_converter/include/config/app_config.h` - 超时、重试配置

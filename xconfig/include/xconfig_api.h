@@ -15,7 +15,7 @@
 #ifndef XCONFIG_API_H
 #define XCONFIG_API_H
 
-#include "hw_config_types.h"
+#include "xconfig_types.h"
 
 /*===========================================================================
  * 配置库初始化
