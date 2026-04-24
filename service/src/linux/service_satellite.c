@@ -5,7 +5,7 @@
 #include "hal_can.h"
 #include "service_satellite.h"
 #include "osal.h"
-#include "system_config.h"
+#include "config/task_config.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -68,10 +68,11 @@ static void can_rx_task(void *arg)
             ctx->rx_count++;
 
             /* 解析命令 */
-            if (frame.msg.msg_type == CAN_MSG_TYPE_CMD_REQ) {
+            can_msg_t *msg = (can_msg_t *)frame.data;
+            if (msg->msg_type == CAN_MSG_TYPE_CMD_REQ) {
                 /* 调用回调函数 */
                 if (ctx->callback != NULL) {
-                    ctx->callback(frame.msg.cmd_type, frame.msg.data, ctx->user_data);
+                    ctx->callback(msg->cmd_type, msg->data, ctx->user_data);
                 }
             }
         } else if (ret != OS_ERROR_TIMEOUT) {
@@ -211,10 +212,11 @@ int32 SatelliteService_SendResponse(satellite_service_handle_t handle,
 
     /* 构造响应帧 */
     can_frame_t frame;
-    frame.msg.msg_type = CAN_MSG_TYPE_CMD_RESP;
-    frame.msg.seq_num = seq_num;
-    frame.msg.cmd_type = status;
-    frame.msg.data = result;
+    can_msg_t *msg = (can_msg_t *)frame.data;
+    msg->msg_type = CAN_MSG_TYPE_CMD_RESP;
+    msg->seq_num = seq_num;
+    msg->cmd_type = status;
+    msg->data = result;
 
     /* 发送 */
     int32 ret = HAL_CAN_Send(ctx->can_handle, &frame);
@@ -242,10 +244,11 @@ int32 SatelliteService_SendHeartbeat(satellite_service_handle_t handle,
 
     /* 构造心跳帧 */
     can_frame_t frame;
-    frame.msg.msg_type = CAN_MSG_TYPE_HEARTBEAT;
-    frame.msg.seq_num = 0;
-    frame.msg.cmd_type = status;
-    frame.msg.data = 0;
+    can_msg_t *msg = (can_msg_t *)frame.data;
+    msg->msg_type = CAN_MSG_TYPE_HEARTBEAT;
+    msg->seq_num = 0;
+    msg->cmd_type = status;
+    msg->data = 0;
 
     /* 发送 */
     int32 ret = HAL_CAN_Send(ctx->can_handle, &frame);

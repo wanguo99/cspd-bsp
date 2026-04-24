@@ -6,7 +6,7 @@
 #define CAN_GATEWAY_H
 
 #include "osa_types.h"
-#include "protocol/can_protocol.h"
+#include "config/can_protocol.h"
 
 /**
  * @brief 初始化CAN网关

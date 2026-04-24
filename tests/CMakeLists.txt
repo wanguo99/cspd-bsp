@@ -17,39 +17,37 @@ if(ENABLE_COVERAGE)
     add_link_options(--coverage)
 endif()
 
-# 包含源代码目录
+# 包含源代码目录（更新为include/目录结构）
 set(CSPD_BSP_ROOT ${CMAKE_SOURCE_DIR})
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/core
-    ${CSPD_BSP_ROOT}/osal/inc
-    ${CSPD_BSP_ROOT}/hal/inc
-    ${CSPD_BSP_ROOT}/service/inc
+    ${CSPD_BSP_ROOT}/osal/include
+    ${CSPD_BSP_ROOT}/hal/include
+    ${CSPD_BSP_ROOT}/service/include
     ${CSPD_BSP_ROOT}/apps/protocol_converter
+    ${CSPD_BSP_ROOT}/apps/protocol_converter/include
     ${CSPD_BSP_ROOT}/apps/can_gateway
-    ${CSPD_BSP_ROOT}/config
-    ${CSPD_BSP_ROOT}/config/hardware
-    ${CSPD_BSP_ROOT}/config/system
-    ${CSPD_BSP_ROOT}/config/protocol
+    ${CSPD_BSP_ROOT}/apps/can_gateway/include
 )
 
 # 查找pthread库
 find_package(Threads REQUIRED)
 
 # 收集源文件（排除_fixed文件和main.c）
-file(GLOB OSAL_SOURCES ${CSPD_BSP_ROOT}/osal/linux/*.c)
+file(GLOB OSAL_SOURCES ${CSPD_BSP_ROOT}/osal/src/linux/*.c)
 list(FILTER OSAL_SOURCES EXCLUDE REGEX ".*_fixed\\.c$")
 
-file(GLOB HAL_SOURCES ${CSPD_BSP_ROOT}/hal/linux/*.c)
+file(GLOB HAL_SOURCES ${CSPD_BSP_ROOT}/hal/src/linux/*.c)
 list(FILTER HAL_SOURCES EXCLUDE REGEX ".*_fixed\\.c$")
 
-file(GLOB SERVICE_SOURCES ${CSPD_BSP_ROOT}/service/linux/*.c)
+file(GLOB SERVICE_SOURCES ${CSPD_BSP_ROOT}/service/src/linux/*.c)
 
-file(GLOB APPS_GATEWAY_SOURCES ${CSPD_BSP_ROOT}/apps/can_gateway/*.c)
+file(GLOB APPS_GATEWAY_SOURCES ${CSPD_BSP_ROOT}/apps/can_gateway/src/*.c)
 list(FILTER APPS_GATEWAY_SOURCES EXCLUDE REGEX ".*_fixed\\.c$")
 list(FILTER APPS_GATEWAY_SOURCES EXCLUDE REGEX ".*/main\\.c$")
 
-file(GLOB APPS_PROTOCOL_SOURCES ${CSPD_BSP_ROOT}/apps/protocol_converter/*.c)
+file(GLOB APPS_PROTOCOL_SOURCES ${CSPD_BSP_ROOT}/apps/protocol_converter/src/*.c)
 list(FILTER APPS_PROTOCOL_SOURCES EXCLUDE REGEX ".*_fixed\\.c$")
 list(FILTER APPS_PROTOCOL_SOURCES EXCLUDE REGEX ".*/main\\.c$")
 

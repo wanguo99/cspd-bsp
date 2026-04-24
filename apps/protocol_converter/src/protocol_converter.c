@@ -7,8 +7,11 @@
  ************************************************************************/
 
 #include "osal.h"
-#include "system_config.h"
-#include "protocol/can_protocol.h"
+#include "config/app_config.h"
+#include "config/ethernet_config.h"
+#include "config/uart_config.h"
+#include "config/task_config.h"
+#include "config/can_protocol.h"
 #include "can_gateway.h"
 #include "payload_service.h"
 #include <stdatomic.h>
@@ -236,12 +239,16 @@ static void protocol_converter_task(void *arg __attribute__((unused)))
         ret = OS_QueueGet(can_rx_queue, &frame, sizeof(frame), &size, OS_PEND);
 
         if (ret != OS_SUCCESS)
+
         {
             continue;
         }
 
+        /* 解析CAN消息 */
+        can_msg_t *msg = (can_msg_t *)frame.data;
+
         /* 只处理命令请求 */
-        if (frame.msg.msg_type != CAN_MSG_TYPE_CMD_REQ)
+        if (msg->msg_type != CAN_MSG_TYPE_CMD_REQ)
         {
             continue;
         }
@@ -249,8 +256,8 @@ static void protocol_converter_task(void *arg __attribute__((unused)))
         atomic_fetch_add(&g_stats.cmd_count, 1);
 
         OS_printf("[Protocol Converter] 处理命令: %s (seq=%u)\n",
-                 can_get_cmd_type_name(frame.msg.cmd_type),
-                 frame.msg.seq_num);
+                 can_get_cmd_type_name(msg->cmd_type),
+                 msg->seq_num);
 
         /* 检查载荷连接 */
         if (!PayloadService_IsConnected(g_payload_handle))
@@ -263,7 +270,7 @@ static void protocol_converter_task(void *arg __attribute__((unused)))
         else
         {
             /* 执行命令 */
-            status = execute_ipmi_command(frame.msg.cmd_type, frame.msg.data, &result);
+            status = execute_ipmi_command(msg->cmd_type, msg->data, &result);
 
             if (status == STATUS_OK)
             {
@@ -280,7 +287,7 @@ static void protocol_converter_task(void *arg __attribute__((unused)))
         }
 
         /* 发送响应 */
-        CAN_Gateway_SendResponse(frame.msg.seq_num, status, result);
+        CAN_Gateway_SendResponse(msg->seq_num, status, result);
     }
 }
 

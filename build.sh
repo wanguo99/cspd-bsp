@@ -90,29 +90,48 @@ fi
 mkdir -p "$OUTPUT_DIR/build"
 cd "$OUTPUT_DIR/build"
 
+# 构建日志文件
+BUILD_LOG="../build.log"
+
 # 运行CMake配置
 print_info "运行CMake配置 (构建类型: $BUILD_TYPE)..."
-cmake ../.. \
-    -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
-    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-    -DBUILD_TESTING=ON
+{
+    cmake ../.. \
+        -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+        -DBUILD_TESTING=ON
+} 2>&1 | tee "$BUILD_LOG"
+
+if [ ${PIPESTATUS[0]} -ne 0 ]; then
+    print_error "CMake配置失败，详见 $OUTPUT_DIR/build.log"
+    cd ../..
+    exit 1
+fi
 
 # 编译
 print_info "开始编译..."
 CPU_CORES=$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
 
 if [ "$BUILD_TARGET" = "all" ]; then
-    make -j"$CPU_CORES"
+    make -j"$CPU_CORES" 2>&1 | tee -a "$BUILD_LOG"
+    BUILD_STATUS=${PIPESTATUS[0]}
 else
     print_info "构建目标: $BUILD_TARGET"
-    make -j"$CPU_CORES" "$BUILD_TARGET"
+    make -j"$CPU_CORES" "$BUILD_TARGET" 2>&1 | tee -a "$BUILD_LOG"
+    BUILD_STATUS=${PIPESTATUS[0]}
 fi
 
 cd ../..
 
+if [ $BUILD_STATUS -ne 0 ]; then
+    print_error "编译失败，详见 $OUTPUT_DIR/build.log"
+    exit 1
+fi
+
 print_info "编译成功！"
 print_info ""
 print_info "输出目录:"
+print_info "  构建日志: output/build.log"
 print_info "  编译文件: output/build/"
 print_info "  目标产物: output/target/"
 print_info ""

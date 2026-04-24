@@ -17,43 +17,63 @@
 - **看门狗机制**：任务监控、自动重启、故障恢复
 - **状态监控**：定期查询载荷状态并上报
 
-## 代码结构（4层架构）
+## 代码结构（4层架构 + 模块化配置）
 
 ```
 cspd-bsp/
 ├── osal/                    # 操作系统抽象层 (OSAL)
-│   ├── inc/                 # 接口定义
-│   └── linux/               # Linux实现
+│   ├── include/             # 接口定义
+│   │   └── config/          # OSAL配置（模块独立）
+│   │       ├── task_config.h    # 任务配置（栈大小、优先级）
+│   │       ├── queue_config.h   # 队列配置
+│   │       └── log_config.h     # 日志配置
+│   └── src/linux/           # Linux实现
 │       ├── os_task.c        # 任务管理（pthread）
 │       ├── os_queue.c       # 消息队列
 │       ├── os_mutex.c       # 互斥锁（带死锁检测）
 │       ├── os_log.c         # 日志系统（带轮转）
-│       ├── os_heap.c        # 堆内存监控
 │       └── ...
 ├── hal/                     # 硬件抽象层 (HAL)
-│   ├── inc/                 # 接口定义
-│   └── linux/               # Linux驱动
+│   ├── include/             # 接口定义
+│   │   └── config/          # HAL配置（模块独立）
+│   │       ├── can_types.h      # CAN帧类型定义
+│   │       ├── can_config.h     # CAN硬件配置
+│   │       ├── ethernet_config.h # 以太网配置
+│   │       └── uart_config.h    # 串口配置
+│   └── src/linux/           # Linux驱动
 │       ├── hal_can_linux.c  # CAN驱动（SocketCAN）
 │       ├── hal_serial_linux.c # 串口驱动
 │       └── hal_network_linux.c # 网络驱动
 ├── service/                 # 服务层
-│   ├── inc/                 # 接口定义
-│   └── linux/               # 服务实现
+│   ├── include/             # 接口定义
+│   │   └── config/          # Service配置（模块独立）
+│   │       └── watchdog_config.h # 看门狗配置
+│   └── src/linux/           # 服务实现
 │       ├── watchdog.c       # 看门狗服务（任务监控+重启）
 │       ├── persistent_queue.c # 持久化命令队列
 │       ├── service_payload_*.c # 载荷通信服务
 │       └── service_power.c  # 电源管理服务
 ├── apps/                    # 应用层
 │   ├── can_gateway/         # CAN网关应用
-│   │   ├── can_gateway.c    # CAN消息处理
-│   │   └── main.c           # 主程序入口
+│   │   ├── include/config/  # CAN网关配置（模块独立）
+│   │   │   ├── app_config.h     # 应用配置（版本号等）
+│   │   │   └── can_protocol.h   # CAN协议定义
+│   │   └── src/             # 源代码
+│   │       ├── can_gateway.c    # CAN消息处理
+│   │       └── main.c           # 主程序入口
 │   └── protocol_converter/  # 协议转换应用
-│       ├── protocol_converter.c # 协议转换逻辑
-│       ├── payload_service.c    # 载荷服务封装
-│       └── main.c           # 主程序入口
-├── config/                  # 配置文件
-│   ├── system_config.h      # 系统配置
-│   └── can_protocol.h       # CAN协议定义
+│       ├── include/config/  # 协议转换配置（模块独立）
+│       │   └── app_config.h     # 应用配置（超时、重试等）
+│       └── src/             # 源代码
+│           ├── protocol_converter.c # 协议转换逻辑
+│           ├── payload_service.c    # 载荷服务封装
+│           └── main.c           # 主程序入口
+├── output/                  # 构建输出目录
+│   ├── build.log            # 构建日志
+│   ├── build/               # 编译中间文件
+│   └── target/              # 最终产物
+│       ├── bin/             # 可执行文件
+│       └── lib/             # 静态库
 └── tests/                   # 测试框架
     ├── core/                # 测试核心文件
     │   ├── unittest_entry.c     # 统一测试入口
@@ -68,14 +88,28 @@ cspd-bsp/
 
 ## 关键设计特点
 
-### 1. 分层隔离
+### 1. 模块化配置（重要）
+- **配置下沉**：每个模块的配置文件放在模块内部的 `include/config/` 目录
+- **模块独立**：各模块只依赖自己的配置，便于多人协作和多仓库拆分
+- **依赖隔离**：
+  - OSAL层：只依赖自己的 `osal/include/config/`
+  - HAL层：依赖 `hal/include/config/` 和 OSAL接口
+  - Service层：依赖 `service/include/config/`、HAL接口、OSAL接口
+  - Apps层：依赖 `apps/*/include/config/`、Service接口、HAL接口、OSAL接口
+- **配置文件示例**：
+  - `osal/include/config/task_config.h` - 任务栈大小、优先级定义
+  - `hal/include/config/can_config.h` - CAN接口、波特率配置
+  - `apps/can_gateway/include/config/can_protocol.h` - CAN协议定义
+
+### 2. 分层隔离
 - **OSAL层**：封装操作系统API，支持跨平台移植
 - **HAL层**：封装硬件驱动，隔离硬件差异
 - **Service层**：提供业务服务，不直接依赖硬件
 - **Apps层**：应用逻辑，通过Service层访问底层
 
 ### 2. 看门狗机制（重点）
-- 文件：`service/linux/watchdog.c`
+- 文件：`service/src/linux/watchdog.c`
+- 配置：`service/include/config/watchdog_config.h`
 - 功能：
   - 监控任务心跳，检测任务失败
   - 自动重启失败任务（最多3次）
@@ -88,7 +122,8 @@ cspd-bsp/
   - `Watchdog_GetSystemHealth()` - 获取系统健康状态
 
 ### 3. 任务管理（优雅关闭）
-- 文件：`osal/linux/os_task.c`
+- 文件：`osal/src/linux/os_task.c`
+- 配置：`osal/include/config/task_config.h`
 - 特点：
   - 使用shutdown标志而非pthread_cancel（避免死锁）
   - 任务通过`OS_TaskShouldShutdown()`检查是否需要退出
@@ -96,7 +131,8 @@ cspd-bsp/
   - 超时后使用`pthread_detach`而非强制取消
 
 ### 4. 日志系统
-- 文件：`osal/linux/os_log.c`
+- 文件：`osal/src/linux/os_log.c`
+- 配置：`osal/include/config/log_config.h`
 - 功能：
   - 支持多级别日志（DEBUG/INFO/WARN/ERROR/FATAL）
   - 日志轮转（按大小，保留N个文件）
@@ -109,6 +145,7 @@ cspd-bsp/
 ### 5. 通信冗余
 - 主通道：以太网（IPMI over LAN）
 - 备份通道：UART（IPMI over Serial）
+- 配置：`hal/include/config/ethernet_config.h` 和 `hal/include/config/uart_config.h`
 - 自动切换：连续5次失败后切换到备份通道
 - 定期恢复：尝试恢复主通道
 
@@ -206,18 +243,37 @@ static void my_task_entry(void *arg)
 
 ## 关键配置
 
+### 模块配置文件位置
+- **OSAL配置**：`osal/include/config/`
+  - `task_config.h` - 任务栈大小、优先级定义
+  - `queue_config.h` - 队列大小配置
+  - `log_config.h` - 日志级别、文件路径
+- **HAL配置**：`hal/include/config/`
+  - `can_types.h` - CAN帧类型定义
+  - `can_config.h` - CAN接口、波特率
+  - `ethernet_config.h` - 以太网IP、端口
+  - `uart_config.h` - 串口设备、波特率
+- **Service配置**：`service/include/config/`
+  - `watchdog_config.h` - 看门狗超时、重启次数
+- **Apps配置**：`apps/*/include/config/`
+  - `apps/can_gateway/include/config/app_config.h` - 系统版本号
+  - `apps/can_gateway/include/config/can_protocol.h` - CAN协议定义
+  - `apps/protocol_converter/include/config/app_config.h` - 超时、重试配置
+
 ### CAN配置
-- 文件：`config/system_config.h`
+- 文件：`hal/include/config/can_config.h`
 - 接口：`can0`
 - 波特率：500Kbps
-- 协议：自定义8字节协议（见`config/can_protocol.h`）
+- 协议：自定义8字节协议（见`apps/can_gateway/include/config/can_protocol.h`）
 
 ### 载荷通信
 - 主通道：以太网（192.168.1.100:623）
 - 备份通道：UART（/dev/ttyS0, 115200）
+- 配置文件：`hal/include/config/ethernet_config.h` 和 `hal/include/config/uart_config.h`
 - 协议：IPMI/Redfish
 
 ### 看门狗配置
+- 文件：`service/include/config/watchdog_config.h`
 - 检查间隔：100ms
 - 任务超时：500ms
 - 最大重启次数：3次
@@ -246,6 +302,32 @@ static void my_task_entry(void *arg)
 
 ## 最近重构（2026-04-24）
 
+### 目录结构标准化（最新）
+- **inc → include**：统一使用 `include/` 目录存放头文件
+- **linux → src/linux**：统一使用 `src/linux/` 目录存放Linux平台实现
+- **config 移入 include**：配置文件统一放在 `include/config/` 目录
+- **apps 源码分离**：应用层源码移至 `src/` 目录，头文件在 `include/`
+- **标准化结构**：
+  ```
+  module/
+  ├── include/           # 头文件
+  │   └── config/        # 配置文件
+  └── src/linux/         # Linux平台实现
+  ```
+- **引用规范**：配置文件使用 `#include "config/xxx_config.h"` 引用
+
+### 模块化配置重构
+- **配置下沉**：将全局 `config/` 目录拆分，配置文件下沉到各模块内部
+- **目录结构**：
+  - `osal/include/config/` - OSAL层配置（task_config.h, queue_config.h, log_config.h）
+  - `hal/include/config/` - HAL层配置（can_types.h, can_config.h, ethernet_config.h, uart_config.h）
+  - `service/include/config/` - Service层配置（watchdog_config.h）
+  - `apps/can_gateway/include/config/` - CAN网关配置（app_config.h, can_protocol.h）
+  - `apps/protocol_converter/include/config/` - 协议转换配置（app_config.h）
+- **依赖隔离**：各模块只依赖自己的配置，便于多人协作和多仓库拆分
+- **构建日志**：`build.log` 生成到 `output/` 目录，所有构建产物统一管理
+- **删除**：移除全局 `config/` 目录和 `system_config.h`
+
 ### 测试框架重构
 - 重命名：`test_framework.h` → `unittest_framework.h`
 - 重命名：`test_runner.c/h` → `unittest_runner.c/h`
@@ -253,19 +335,13 @@ static void my_task_entry(void *arg)
 - 统一日志：所有`printf`替换为`OS_printf`
 - 目录重组：测试核心文件移至`tests/core/`目录
 
-### 配置文件重组
-- 拆分`system_config.h`为多个子配置文件
-- 新增`config/hardware/`目录：can_config.h, ethernet_config.h, uart_config.h
-- 新增`config/system/`目录：task_config.h, queue_config.h, log_config.h, watchdog_config.h
-- 新增`config/protocol/`目录：can_protocol.h
-- `system_config.h`作为主入口，包含所有子配置
-
 ### 清理遗留代码
 - 删除：`tests/osal/test_main.c`（已被统一入口替代）
 - 删除：`tests/apps/CMakeLists.txt`（独立测试配置）
 - 删除：`tests/service/CMakeLists.txt`（独立测试配置）
 - 删除：`examples/`目录（示例代码）
 - 删除：`osal/freertos/`目录（FreeRTOS示例）
+- 删除：`config/`目录（全局配置，已下沉到各模块）
 
 ### 看门狗优化
 - 修复任务重启机制（完成TODO）
@@ -276,12 +352,14 @@ static void my_task_entry(void *arg)
 ## 开发建议
 
 1. **遵循分层架构**：不要跨层直接调用
-2. **使用OSAL接口**：不要直接使用pthread/socket等系统API
-3. **注册看门狗**：关键任务必须注册到看门狗
-4. **优雅退出**：任务循环检查`OS_TaskShouldShutdown()`
-5. **错误处理**：所有返回值必须检查
-6. **日志规范**：使用`LOG_*`宏，不要用`printf`
-7. **测试驱动**：新功能必须编写单元测试
+2. **模块独立性**：各模块只依赖自己的 `include/config/` 目录，不要引用其他模块的配置
+3. **使用OSAL接口**：不要直接使用pthread/socket等系统API
+4. **注册看门狗**：关键任务必须注册到看门狗
+5. **优雅退出**：任务循环检查`OS_TaskShouldShutdown()`
+6. **错误处理**：所有返回值必须检查
+7. **日志规范**：使用`LOG_*`宏，不要用`printf`
+8. **测试驱动**：新功能必须编写单元测试
+9. **配置管理**：修改配置时只修改对应模块的 `include/config/` 目录
 
 ## 性能指标
 

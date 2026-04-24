@@ -2,25 +2,25 @@
 
 # OSAL源文件
 set(OSAL_SOURCES
-    linux/os_task.c
-    linux/os_queue.c
-    linux/os_mutex.c
-    linux/os_clock.c
-    linux/os_heap.c
-    linux/os_error.c
-    linux/os_init.c
-    linux/os_log.c
-    linux/os_file.c
-    linux/os_network.c
-    linux/os_signal.c
+    src/linux/os_task.c
+    src/linux/os_queue.c
+    src/linux/os_mutex.c
+    src/linux/os_clock.c
+    src/linux/os_heap.c
+    src/linux/os_error.c
+    src/linux/os_init.c
+    src/linux/os_log.c
+    src/linux/os_file.c
+    src/linux/os_network.c
+    src/linux/os_signal.c
 )
 
 # 创建OSAL静态库
 add_library(osal STATIC ${OSAL_SOURCES})
 
-# 包含目录
+# 包含目录（include包含接口和config）
 target_include_directories(osal PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 # 链接库

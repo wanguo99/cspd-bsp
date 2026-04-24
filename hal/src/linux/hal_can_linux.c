@@ -191,7 +191,7 @@ int32 HAL_CAN_Send(hal_can_handle_t handle, const can_frame_t *frame)
     memset(&can_frame, 0, sizeof(can_frame));
     can_frame.can_id = frame->can_id;
     can_frame.can_dlc = frame->dlc;
-    memcpy(can_frame.data, &frame->msg, frame->dlc);
+    memcpy(can_frame.data, frame->data, frame->dlc);
 
     /* 发送 */
     ret = write(impl->sockfd, &can_frame, sizeof(struct can_frame));
@@ -272,7 +272,7 @@ int32 HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32 timeout)
     if (can_frame.can_dlc > 8)
         can_frame.can_dlc = 8;
 
-    memcpy(&frame->msg, can_frame.data, can_frame.can_dlc);
+    memcpy(frame->data, can_frame.data, can_frame.can_dlc);
     frame->timestamp = OS_GetTickCount();
 
     impl->rx_count++;

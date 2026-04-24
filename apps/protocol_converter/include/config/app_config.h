@@ -1,48 +1,21 @@
 /************************************************************************
- * 系统配置文件（主入口）
- *
- * 包含所有子配置文件
+ * 协议转换应用配置
  ************************************************************************/
 
-#ifndef SYSTEM_CONFIG_H
-#define SYSTEM_CONFIG_H
+#ifndef APP_CONFIG_H
+#define APP_CONFIG_H
 
 /*
  * ============================================================================
- * 系统基础配置
+ * 系统版本
  * ============================================================================
  */
 
-/* 系统版本 */
 #define SYSTEM_VERSION_MAJOR    1
 #define SYSTEM_VERSION_MINOR    0
 #define SYSTEM_VERSION_PATCH    0
 
-/* 系统名称 */
 #define SYSTEM_NAME             "CSPD-BSP"
-
-/* 调试模式 */
-#define DEBUG_MODE              1
-
-/*
- * ============================================================================
- * 包含子配置文件
- * ============================================================================
- */
-
-/* 硬件配置 */
-#include "hardware/can_config.h"
-#include "hardware/ethernet_config.h"
-#include "hardware/uart_config.h"
-
-/* 系统配置 */
-#include "system/task_config.h"
-#include "system/queue_config.h"
-#include "system/log_config.h"
-#include "system/watchdog_config.h"
-
-/* 协议定义 */
-#include "protocol/can_protocol.h"
 
 /*
  * ============================================================================
@@ -83,4 +56,4 @@
 /* 缓存持久化周期(ms) */
 #define CACHE_PERSIST_PERIOD_MS 60000
 
-#endif /* SYSTEM_CONFIG_H */
+#endif /* APP_CONFIG_H */

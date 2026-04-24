@@ -8,6 +8,7 @@
 #define CAN_PROTOCOL_H
 
 #include "osa_types.h"
+#include "config/can_types.h"  /* 使用HAL层的can_frame_t定义 */
 
 /*
  * ============================================================================
@@ -68,20 +69,6 @@ typedef struct
 
 /*
  * ============================================================================
- * CAN消息帧
- * ============================================================================
- */
-
-typedef struct
-{
-    uint32     can_id;
-    uint8      dlc;
-    can_msg_t  msg;
-    uint32     timestamp;
-} can_frame_t;
-
-/*
- * ============================================================================
  * 辅助函数
  * ============================================================================
  */
@@ -94,12 +81,13 @@ static inline void can_build_cmd_request(can_frame_t *frame,
                                          uint16 seq_num,
                                          uint32 param)
 {
+    can_msg_t *msg = (can_msg_t *)frame->data;
     frame->can_id = CAN_ID_BRIDGE_TO_SAT;
     frame->dlc = 8;
-    frame->msg.msg_type = CAN_MSG_TYPE_CMD_REQ;
-    frame->msg.cmd_type = cmd_type;
-    frame->msg.seq_num = seq_num;
-    frame->msg.data = param;
+    msg->msg_type = CAN_MSG_TYPE_CMD_REQ;
+    msg->cmd_type = cmd_type;
+    msg->seq_num = seq_num;
+    msg->data = param;
 }
 
 /**
@@ -110,12 +98,13 @@ static inline void can_build_cmd_response(can_frame_t *frame,
                                           can_status_t status,
                                           uint32 result)
 {
+    can_msg_t *msg = (can_msg_t *)frame->data;
     frame->can_id = CAN_ID_BRIDGE_TO_SAT;
     frame->dlc = 8;
-    frame->msg.msg_type = CAN_MSG_TYPE_CMD_RESP;
-    frame->msg.cmd_type = status;
-    frame->msg.seq_num = seq_num;
-    frame->msg.data = result;
+    msg->msg_type = CAN_MSG_TYPE_CMD_RESP;
+    msg->cmd_type = status;
+    msg->seq_num = seq_num;
+    msg->data = result;
 }
 
 /**
@@ -125,12 +114,13 @@ static inline void can_build_status_report(can_frame_t *frame,
                                            uint16 seq_num,
                                            uint32 status_data)
 {
+    can_msg_t *msg = (can_msg_t *)frame->data;
     frame->can_id = CAN_ID_BRIDGE_TO_SAT;
     frame->dlc = 8;
-    frame->msg.msg_type = CAN_MSG_TYPE_STATUS_REPORT;
-    frame->msg.cmd_type = STATUS_OK;
-    frame->msg.seq_num = seq_num;
-    frame->msg.data = status_data;
+    msg->msg_type = CAN_MSG_TYPE_STATUS_REPORT;
+    msg->cmd_type = STATUS_OK;
+    msg->seq_num = seq_num;
+    msg->data = status_data;
 }
 
 /**
@@ -138,12 +128,13 @@ static inline void can_build_status_report(can_frame_t *frame,
  */
 static inline void can_build_heartbeat(can_frame_t *frame, uint32 uptime_sec)
 {
+    can_msg_t *msg = (can_msg_t *)frame->data;
     frame->can_id = CAN_ID_BRIDGE_TO_SAT;
     frame->dlc = 8;
-    frame->msg.msg_type = CAN_MSG_TYPE_HEARTBEAT;
-    frame->msg.cmd_type = STATUS_OK;
-    frame->msg.seq_num = 0;
-    frame->msg.data = uptime_sec;
+    msg->msg_type = CAN_MSG_TYPE_HEARTBEAT;
+    msg->cmd_type = STATUS_OK;
+    msg->seq_num = 0;
+    msg->data = uptime_sec;
 }
 
 /**

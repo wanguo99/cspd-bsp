@@ -2,17 +2,22 @@
 
 # HAL源文件
 set(HAL_SOURCES
-    linux/hal_can_linux.c
-    linux/hal_network_linux.c
-    linux/hal_serial_linux.c
+    src/linux/hal_can_linux.c
+    src/linux/hal_network_linux.c
+    src/linux/hal_serial_linux.c
 )
 
 # 创建HAL静态库
 add_library(hal STATIC ${HAL_SOURCES})
 
-# 包含目录
+# 包含目录（include包含接口和config）
 target_include_directories(hal PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+# 私有包含OSAL（实现依赖，不暴露给上层）
+target_include_directories(hal PRIVATE
+    ${CMAKE_SOURCE_DIR}/osal/include
 )
 
 # 依赖OSAL

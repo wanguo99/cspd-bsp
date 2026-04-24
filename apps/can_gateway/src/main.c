@@ -5,8 +5,11 @@
  ************************************************************************/
 
 #include "osal.h"
-#include "system_config.h"
+
 #include "can_gateway.h"
+#include "config/app_config.h"
+#include "config/can_config.h"
+#include "config/task_config.h"
 #include <stdio.h>
 #include <signal.h>
 #include <stdlib.h>

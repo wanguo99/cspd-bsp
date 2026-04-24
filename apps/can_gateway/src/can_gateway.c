@@ -8,9 +8,10 @@
  ************************************************************************/
 
 #include "osal.h"
-#include "system_config.h"
-#include "protocol/can_protocol.h"
+#include "config/can_config.h"
+#include "config/can_protocol.h"
 #include "hal_can.h"
+#include "config/task_config.h"
 #include <string.h>
 
 /*
@@ -59,10 +60,11 @@ static void can_rx_task(void *arg)
             /* 过滤：只接收卫星平台发来的消息 */
             if (frame.can_id == CAN_ID_SAT_TO_BRIDGE)
             {
+                can_msg_t *msg = (can_msg_t *)frame.data;
                 OS_printf("[CAN Gateway] 收到CAN消息: type=%s, cmd=%s, seq=%u\n",
-                         can_get_msg_type_name(frame.msg.msg_type),
-                         can_get_cmd_type_name(frame.msg.cmd_type),
-                         frame.msg.seq_num);
+                         can_get_msg_type_name(msg->msg_type),
+                         can_get_cmd_type_name(msg->cmd_type),
+                         msg->seq_num);
 
                 /* 转发到内部队列 */
                 ret = OS_QueuePut(g_can_rx_queue, &frame, sizeof(frame), 0);
@@ -112,9 +114,10 @@ static void can_tx_task(void *arg)
 
             if (ret == OS_SUCCESS)
             {
+                can_msg_t *msg = (can_msg_t *)frame.data;
                 OS_printf("[CAN Gateway] 发送CAN消息: type=%s, seq=%u\n",
-                         can_get_msg_type_name(frame.msg.msg_type),
-                         frame.msg.seq_num);
+                         can_get_msg_type_name(msg->msg_type),
+                         msg->seq_num);
                 atomic_fetch_add(&g_stats.tx_count, 1);
             }
             else

@@ -59,11 +59,10 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_BUILD}/lib)
 # 最终目标产物目录
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_TARGET}/bin)
 
-# 包含目录
+# 包含目录（移除全局config，各模块使用自己的config）
 include_directories(
     ${CMAKE_SOURCE_DIR}/osal/inc
     ${CMAKE_SOURCE_DIR}/hal/inc
-    ${CMAKE_SOURCE_DIR}/config
 )
 
 # 查找依赖库

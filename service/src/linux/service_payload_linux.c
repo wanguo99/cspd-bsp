@@ -9,7 +9,7 @@
 #include "hal_network.h"
 #include "service_payload_linux.h"
 #include "osal.h"
-#include "system_config.h"
+#include "config/ethernet_config.h"
 #include <stdlib.h>
 #include <string.h>
 
