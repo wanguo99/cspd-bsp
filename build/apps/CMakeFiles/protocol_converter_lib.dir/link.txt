@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../lib/libprotocol_converter_lib.a CMakeFiles/protocol_converter_lib.dir/protocol_converter/src/protocol_converter.c.o CMakeFiles/protocol_converter_lib.dir/protocol_converter/src/payload_pdl.c.o
-/usr/bin/ranlib ../lib/libprotocol_converter_lib.a

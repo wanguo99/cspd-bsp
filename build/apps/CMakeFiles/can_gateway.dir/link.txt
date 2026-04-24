@@ -1,1 +1,0 @@
-/usr/bin/cc  -Wall -Wextra -Werror -D_POSIX_C_SOURCE=200809L CMakeFiles/can_gateway.dir/can_gateway/src/can_gateway.c.o CMakeFiles/can_gateway.dir/can_gateway/src/main.c.o -o ../../target/bin/can_gateway  ../lib/libosal.a ../lib/libhal.a -lrt ../lib/libosal.a -lrt 

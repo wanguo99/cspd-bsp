@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../lib/libhal.a CMakeFiles/hal.dir/src/linux/hal_can.c.o CMakeFiles/hal.dir/src/linux/hal_network.c.o CMakeFiles/hal.dir/src/linux/hal_serial.c.o
-/usr/bin/ranlib ../lib/libhal.a

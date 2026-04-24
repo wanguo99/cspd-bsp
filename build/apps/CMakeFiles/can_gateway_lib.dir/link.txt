@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../lib/libcan_gateway_lib.a CMakeFiles/can_gateway_lib.dir/can_gateway/src/can_gateway.c.o
-/usr/bin/ranlib ../lib/libcan_gateway_lib.a

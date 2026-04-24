@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../lib/libosal.a CMakeFiles/osal.dir/src/linux/osal_task.c.o CMakeFiles/osal.dir/src/linux/osal_queue.c.o CMakeFiles/osal.dir/src/linux/osal_mutex.c.o CMakeFiles/osal.dir/src/linux/osal_clock.c.o CMakeFiles/osal.dir/src/linux/osal_heap.c.o CMakeFiles/osal.dir/src/linux/osal_error.c.o CMakeFiles/osal.dir/src/linux/osal_init.c.o CMakeFiles/osal.dir/src/linux/osal_log.c.o CMakeFiles/osal.dir/src/linux/osal_file.c.o CMakeFiles/osal.dir/src/linux/osal_network.c.o CMakeFiles/osal.dir/src/linux/osal_signal.c.o
-/usr/bin/ranlib ../lib/libosal.a
