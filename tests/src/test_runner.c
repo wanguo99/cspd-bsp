@@ -4,8 +4,8 @@
 
 #include "test_runner.h"
 #include "test_framework.h"
-#include "osal_log.h"
-#include "osal_string.h"
+#include "util/osal_log.h"
+#include "lib/osal_string.h"
 
 /* 全局测试统计 */
 test_stats_t g_test_stats = {0};

@@ -8,6 +8,18 @@
 #include "osal_types.h"
 #include <stdbool.h>
 
+/* 任务栈大小配置 */
+#define OSAL_TASK_STACK_SIZE_SMALL   (32 * 1024)   /* 32KB */
+#define OSAL_TASK_STACK_SIZE_MEDIUM  (64 * 1024)   /* 64KB */
+#define OSAL_TASK_STACK_SIZE_LARGE   (128 * 1024)  /* 128KB */
+
+/* 任务优先级定义（数字越小优先级越高） */
+#define OSAL_TASK_PRIORITY_CRITICAL  10   /* 关键任务 */
+#define OSAL_TASK_PRIORITY_HIGH      50   /* 高优先级 */
+#define OSAL_TASK_PRIORITY_NORMAL    100  /* 普通优先级 */
+#define OSAL_TASK_PRIORITY_LOW       150  /* 低优先级 */
+#define OSAL_TASK_PRIORITY_IDLE      200  /* 空闲任务 */
+
 typedef void (*osal_task_entry)(void *arg);
 
 typedef struct

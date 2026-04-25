@@ -2,7 +2,7 @@
  * OSAL - termios系统调用封装实现（Linux）
  ************************************************************************/
 
-#include "osal_termios.h"
+#include "net/osal_termios.h"
 #include <termios.h>
 #include <unistd.h>
 #include <string.h>

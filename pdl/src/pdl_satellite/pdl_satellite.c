@@ -10,7 +10,6 @@
 #include "pdl_satellite.h"
 #include "pdl_satellite_internal.h"
 #include "osal.h"
-#include "config/task_config.h"
 
 /*
  * 卫星平台服务上下文
@@ -135,8 +134,8 @@ int32 PDL_Satellite_Init(const satellite_service_config_t *config,
     /* 创建CAN接收任务 */
     ret = OSAL_TaskCreate(&ctx->rx_task_id, "SAT_RX",
                         can_rx_task, (uint32 *)ctx,
-                        TASK_STACK_SIZE_MEDIUM,
-                        PRIORITY_HIGH, 0);
+                        OSAL_TASK_STACK_SIZE_MEDIUM,
+                        OSAL_TASK_PRIORITY_HIGH, 0);
     if (ret != OS_SUCCESS)
     {
         LOG_ERROR("SAT", "Failed to create RX task");
@@ -148,8 +147,8 @@ int32 PDL_Satellite_Init(const satellite_service_config_t *config,
     /* 创建心跳任务 */
     ret = OSAL_TaskCreate(&ctx->heartbeat_task_id, "SAT_HB",
                         heartbeat_task, (uint32 *)ctx,
-                        TASK_STACK_SIZE_SMALL,
-                        PRIORITY_LOW, 0);
+                        OSAL_TASK_STACK_SIZE_SMALL,
+                        OSAL_TASK_PRIORITY_LOW, 0);
     if (ret != OS_SUCCESS)
     {
         LOG_ERROR("SAT", "Failed to create heartbeat task");

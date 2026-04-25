@@ -14,22 +14,30 @@
 #define OSAL_H
 
 #include "osal_types.h"
-#include "osal_error.h"
-#include "osal_task.h"
-#include "osal_queue.h"
-#include "osal_mutex.h"
-#include "osal_clock.h"
-#include "osal_heap.h"
-#include "osal_log.h"
-#include "osal_signal.h"
-#include "osal_string.h"
 
-/* 系统调用封装模块 */
-#include "osal_unistd.h"
-#include "osal_socket.h"
-#include "osal_select.h"
-#include "osal_termios.h"
-#include "osal_errno.h"
+/* IPC - 进程间通信 */
+#include "ipc/osal_task.h"
+#include "ipc/osal_queue.h"
+#include "ipc/osal_mutex.h"
+
+/* SYS - 系统调用封装 */
+#include "sys/osal_clock.h"
+#include "sys/osal_signal.h"
+#include "sys/osal_unistd.h"
+#include "sys/osal_select.h"
+
+/* NET - 网络相关 */
+#include "net/osal_socket.h"
+#include "net/osal_termios.h"
+
+/* LIB - 标准库封装 */
+#include "lib/osal_string.h"
+#include "lib/osal_heap.h"
+#include "lib/osal_errno.h"
+
+/* UTIL - 工具类 */
+#include "util/osal_log.h"
+#include "util/osal_error.h"
 
 /*
  * OSAL版本信息

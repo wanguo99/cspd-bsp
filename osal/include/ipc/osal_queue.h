@@ -7,6 +7,11 @@
 
 #include "osal_types.h"
 
+/* 队列配置 */
+#define OSAL_QUEUE_MAX_DEPTH        50      /* 默认队列深度 */
+#define OSAL_QUEUE_MAX_MESSAGE_SIZE 512     /* 默认消息最大字节数 */
+#define OSAL_QUEUE_MAX_COMMAND_SIZE 100     /* 命令缓存大小 */
+
 /**
  * @brief 创建消息队列
  *

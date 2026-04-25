@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "osal_log.h"
+#include "util/osal_log.h"
 
 /* 测试统计 - 声明为extern，在unittest_runner.c中定义 */
 extern int test_total;

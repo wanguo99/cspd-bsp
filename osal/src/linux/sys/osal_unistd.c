@@ -3,7 +3,7 @@
  ************************************************************************/
 
 #define _DEFAULT_SOURCE  /* 启用usleep等函数 */
-#include "osal_unistd.h"
+#include "sys/osal_unistd.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>

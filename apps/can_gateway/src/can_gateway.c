@@ -8,10 +8,9 @@
  ************************************************************************/
 
 #include "osal.h"
-#include "config/can_config.h"
 #include "config/can_protocol.h"
+#include "config/can_gateway_config.h"
 #include "hal_can.h"
-#include "config/task_config.h"
 #include <string.h>
 
 /*
@@ -227,8 +226,8 @@ int32 CAN_Gateway_Init(void)
     /* 创建任务 */
     ret = OSAL_TaskCreate(&task_id, "CAN_RX",
                         can_rx_task, NULL,
-                        TASK_STACK_SIZE_MEDIUM,
-                        PRIORITY_CRITICAL, 0);
+                        OSAL_TASK_STACK_SIZE_MEDIUM,
+                        OSAL_TASK_PRIORITY_CRITICAL, 0);
     if (ret != OS_SUCCESS)
     {
         OSAL_Printf("[CAN Gateway] 创建RX任务失败\n");
@@ -237,8 +236,8 @@ int32 CAN_Gateway_Init(void)
 
     ret = OSAL_TaskCreate(&task_id, "CAN_TX",
                         can_tx_task, NULL,
-                        TASK_STACK_SIZE_MEDIUM,
-                        PRIORITY_CRITICAL, 0);
+                        OSAL_TASK_STACK_SIZE_MEDIUM,
+                        OSAL_TASK_PRIORITY_CRITICAL, 0);
     if (ret != OS_SUCCESS)
     {
         OSAL_Printf("[CAN Gateway] 创建TX任务失败\n");
@@ -247,8 +246,8 @@ int32 CAN_Gateway_Init(void)
 
     ret = OSAL_TaskCreate(&task_id, "CAN_HB",
                         can_heartbeat_task, NULL,
-                        TASK_STACK_SIZE_SMALL,
-                        PRIORITY_LOW, 0);
+                        OSAL_TASK_STACK_SIZE_SMALL,
+                        OSAL_TASK_PRIORITY_LOW, 0);
     if (ret != OS_SUCCESS)
     {
         OSAL_Printf("[CAN Gateway] 创建心跳任务失败\n");

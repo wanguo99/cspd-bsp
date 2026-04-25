@@ -2,7 +2,7 @@
  * OSAL - string系统调用封装实现（Linux）
  ************************************************************************/
 
-#include "osal_string.h"
+#include "lib/osal_string.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>

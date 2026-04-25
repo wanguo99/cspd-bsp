@@ -7,10 +7,8 @@
  ************************************************************************/
 
 #include "osal.h"
-#include "config/app_config.h"
+#include "config/protocol_converter_config.h"
 #include "config/ethernet_config.h"
-#include "config/uart_config.h"
-#include "config/task_config.h"
 #include "config/can_protocol.h"
 #include "can_gateway.h"
 #include "payload_pdl.h"
@@ -324,8 +322,8 @@ int32 Protocol_Converter_Init(void)
     /* 创建协议转换任务 */
     ret = OSAL_TaskCreate(&task_id, "PROTO_CONV",
                         protocol_converter_task, NULL,
-                        TASK_STACK_SIZE_LARGE,
-                        PRIORITY_HIGH, 0);
+                        OSAL_TASK_STACK_SIZE_LARGE,
+                        OSAL_TASK_PRIORITY_HIGH, 0);
     if (ret != OS_SUCCESS)
     {
         OSAL_Printf("[Protocol Converter] 创建任务失败\n");

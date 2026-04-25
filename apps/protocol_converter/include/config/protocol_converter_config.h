@@ -2,8 +2,8 @@
  * 协议转换应用配置
  ************************************************************************/
 
-#ifndef APP_CONFIG_H
-#define APP_CONFIG_H
+#ifndef PROTOCOL_CONVERTER_APP_CONFIG_H
+#define PROTOCOL_CONVERTER_APP_CONFIG_H
 
 /*
  * ============================================================================
@@ -28,6 +28,11 @@
 
 /* 最大重试次数 */
 #define CMD_RETRY_COUNT         3
+
+/* UART配置 */
+#define UART_DEVICE             "/dev/ttyS0"
+#define UART_BAUDRATE           115200
+#define UART_TIMEOUT_MS         1000
 
 /*
  * ============================================================================
@@ -56,4 +61,4 @@
 /* 缓存持久化周期(ms) */
 #define CACHE_PERSIST_PERIOD_MS 60000
 
-#endif /* APP_CONFIG_H */
+#endif /* PROTOCOL_CONVERTER_APP_CONFIG_H */

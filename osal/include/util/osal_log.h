@@ -16,6 +16,12 @@
 #define OS_LOG_LEVEL_ERROR  3
 #define OS_LOG_LEVEL_FATAL  4
 
+/* 日志配置 */
+#define OSAL_LOG_DEFAULT_LEVEL       OS_LOG_LEVEL_INFO
+#define OSAL_LOG_FILE_PATH           "/var/log/pmc-bsp.log"
+#define OSAL_LOG_FILE_MAX_SIZE_MB    10
+#define OSAL_LOG_FILE_BACKUP_COUNT   5
+
 /**
  * @brief 初始化日志系统
  *

@@ -1,0 +1,15 @@
+#ifndef CAN_GATEWAY_APP_CONFIG_H
+#define CAN_GATEWAY_APP_CONFIG_H
+
+#define SYSTEM_VERSION_MAJOR 1
+#define SYSTEM_VERSION_MINOR 0
+#define SYSTEM_VERSION_PATCH 0
+
+/* CAN配置 */
+#define CAN_INTERFACE       "can0"
+#define CAN_BAUDRATE        500000
+#define CAN_TIMEOUT_MS      100
+#define CAN_RX_QUEUE_DEPTH  50
+#define CAN_TX_QUEUE_DEPTH  50
+
+#endif /* CAN_GATEWAY_APP_CONFIG_H */

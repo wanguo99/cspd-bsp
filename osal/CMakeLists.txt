@@ -2,21 +2,30 @@
 
 # OSAL源文件
 set(OSAL_SOURCES
-    src/linux/osal_task.c
-    src/linux/osal_queue.c
-    src/linux/osal_mutex.c
-    src/linux/osal_clock.c
-    src/linux/osal_heap.c
-    src/linux/osal_error.c
-    src/linux/osal_init.c
-    src/linux/osal_log.c
-    src/linux/osal_signal.c
-    src/linux/osal_string.c
-    src/linux/osal_socket.c
-    src/linux/osal_unistd.c
-    src/linux/osal_errno.c
-    src/linux/osal_select.c
-    src/linux/osal_termios.c
+    # IPC - 进程间通信
+    src/linux/ipc/osal_task.c
+    src/linux/ipc/osal_queue.c
+    src/linux/ipc/osal_mutex.c
+
+    # SYS - 系统调用封装
+    src/linux/sys/osal_clock.c
+    src/linux/sys/osal_signal.c
+    src/linux/sys/osal_unistd.c
+    src/linux/sys/osal_select.c
+
+    # NET - 网络相关
+    src/linux/net/osal_socket.c
+    src/linux/net/osal_termios.c
+
+    # LIB - 标准库封装
+    src/linux/lib/osal_heap.c
+    src/linux/lib/osal_string.c
+    src/linux/lib/osal_errno.c
+
+    # UTIL - 工具类
+    src/linux/util/osal_error.c
+    src/linux/util/osal_init.c
+    src/linux/util/osal_log.c
 )
 
 # 创建OSAL静态库

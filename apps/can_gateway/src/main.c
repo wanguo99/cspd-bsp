@@ -7,9 +7,7 @@
 #include "osal.h"
 
 #include "can_gateway.h"
-#include "config/app_config.h"
-#include "config/can_config.h"
-#include "config/task_config.h"
+#include "config/can_gateway_config.h"
 #include <signal.h>
 #include <stdlib.h>
 
@@ -87,8 +85,8 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     /* 创建统计任务 */
     ret = OSAL_TaskCreate(&task_id, "STATS",
                         stats_task, NULL,
-                        TASK_STACK_SIZE_SMALL,
-                        PRIORITY_LOW, 0);
+                        OSAL_TASK_STACK_SIZE_SMALL,
+                        OSAL_TASK_PRIORITY_LOW, 0);
     if (ret != OS_SUCCESS)
     {
         OSAL_Printf("创建统计任务失败: %s\n", OS_GetErrorName(ret));
