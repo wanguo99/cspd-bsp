@@ -1,8 +1,8 @@
 /************************************************************************
- * TI AM625平台 - H200载荷板 V1.0配置
+ * TI AM625平台 - H200-100P载荷板 V1.0配置
  *
  * 平台：TI AM625
- * 产品：H200算存载荷转接板
+ * 产品：H200-100P算存载荷转接板（100P算力）
  * 版本：V1.0（首批生产版本）
  *
  * 硬件变更（相对于base）：
@@ -229,11 +229,11 @@ static xconfig_app_config_t *app_list_v1[] = {
  * 板级配置（导出）
  *===========================================================================*/
 
-const xconfig_board_config_t xconfig_h200_v1 = {
+const xconfig_board_config_t xconfig_h200_100p_v1 = {
     .platform = "ti/am625",
-    .product = "h200_payload",
+    .product = "H200_100P",
     .version = "v1.0",
-    .description = "H200 Payload Adapter Board V1.0 - with redundant MCU and IMU sensors",
+    .description = "H200-100P Payload Adapter Board V1.0 - with redundant MCU and IMU sensors",
 
     /* V1.0特有外设（base外设在运行时合并） */
     .mcus = mcu_list_v1,

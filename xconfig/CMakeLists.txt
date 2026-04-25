@@ -23,11 +23,12 @@ set(XCONFIG_SOURCES
     src/xconfig_register.c
 )
 
-# 平台配置源文件
-file(GLOB PLATFORM_CONFIGS
-    platform/ti/am625/*.c
+# 平台配置源文件（递归查找所有平台配置）
+file(GLOB_RECURSE PLATFORM_CONFIGS
+    platform/ti/am625/*/*.c
+    platform/nvidia/mcu_test/*/*.c
     # 其他平台配置可以在这里添加
-    # platform/xilinx/zynq/*.c
+    # platform/xilinx/zynq/*/*.c
 )
 
 # 创建静态库
@@ -43,8 +44,17 @@ target_link_libraries(xconfig
 
 # 安装头文件
 install(FILES
-    include/xconfig_types.h
+    include/xconfig.h
     include/xconfig_api.h
+    include/xconfig_common.h
+    include/xconfig_hardware_interface.h
+    include/xconfig_mcu.h
+    include/xconfig_bmc.h
+    include/xconfig_satellite.h
+    include/xconfig_sensor.h
+    include/xconfig_storage.h
+    include/xconfig_app.h
+    include/xconfig_board.h
     DESTINATION include
 )
 

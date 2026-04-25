@@ -1,8 +1,8 @@
 /************************************************************************
- * TI AM625平台 - H200载荷板 V2.0配置
+ * TI AM625平台 - H200-32P载荷板 V2.0配置
  *
  * 平台：TI AM625
- * 产品：H200算存载荷转接板
+ * 产品：H200-32P算存载荷转接板（32P算力）
  * 版本：V2.0（改进版本）
  *
  * 硬件变更（相对于V1.0）：
@@ -256,11 +256,11 @@ static xconfig_app_config_t *app_list_v2[] = {
  * 板级配置（导出）
  *===========================================================================*/
 
-const xconfig_board_config_t xconfig_h200_v2 = {
+const xconfig_board_config_t xconfig_h200_32p_v2 = {
     .platform = "ti/am625",
-    .product = "h200_payload",
+    .product = "H200_32P",
     .version = "v2.0",
-    .description = "H200 Payload Adapter Board V2.0 - with 1553B, GPS and NVMe",
+    .description = "H200-32P Payload Adapter Board V2.0 - with 1553B, GPS and NVMe",
 
     /* V2.0特有外设 */
     .mcus = NULL,

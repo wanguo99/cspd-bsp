@@ -1,8 +1,8 @@
 /************************************************************************
- * TI AM625平台 - H200载荷板基础配置
+ * TI AM625平台 - H200-32P载荷板基础配置
  *
  * 平台：TI AM625 (Sitara ARM Cortex-A53)
- * 产品：H200算存载荷转接板
+ * 产品：H200-32P算存载荷转接板（32P算力）
  * 版本：Base（基础配置，所有版本共享）
  *
  * 配置理念：以外设为单位进行配置
@@ -353,11 +353,11 @@ static xconfig_app_config_t *app_list[] = {
  * 板级配置（导出）
  *===========================================================================*/
 
-const xconfig_board_config_t xconfig_h200_base = {
+const xconfig_board_config_t xconfig_h200_32p_base = {
     .platform = "ti/am625",
-    .product = "h200_payload",
+    .product = "H200_32P",
     .version = "base",
-    .description = "H200 Payload Adapter Board - Base Configuration",
+    .description = "H200-32P Payload Adapter Board (32P Computing Power) - Base Configuration",
 
     /* 外设配置（以外设为单位） */
     .mcus = mcu_list,
