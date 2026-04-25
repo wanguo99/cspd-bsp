@@ -8,7 +8,7 @@
 #include "can_gateway.h"
 #include "osal.h"
 
-void test_CANGateway_Init_Success(void)
+void test_can_gateway_init_success(void)
 {
     OS_API_Init();
 
@@ -23,7 +23,7 @@ void test_CANGateway_Init_Success(void)
     OS_API_Teardown();
 }
 
-void test_CANGateway_GetRxQueue(void)
+void test_can_gateway_get_rx_queue(void)
 {
     OS_API_Init();
 
@@ -41,7 +41,7 @@ void test_CANGateway_GetRxQueue(void)
     OS_API_Teardown();
 }
 
-void test_CANGateway_GetTxQueue(void)
+void test_can_gateway_get_tx_queue(void)
 {
     OS_API_Init();
 
@@ -61,7 +61,7 @@ void test_CANGateway_GetTxQueue(void)
 
 /* 注册测试模块 */
 TEST_MODULE_BEGIN(test_can_gateway)
-    TEST_CASE(test_CANGateway_Init_Success)
-    TEST_CASE(test_CANGateway_GetRxQueue)
-    TEST_CASE(test_CANGateway_GetTxQueue)
+    TEST_CASE(test_can_gateway_init_success)
+    TEST_CASE(test_can_gateway_get_rx_queue)
+    TEST_CASE(test_can_gateway_get_tx_queue)
 TEST_MODULE_END(test_can_gateway)

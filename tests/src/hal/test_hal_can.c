@@ -12,7 +12,7 @@
 static hal_can_handle_t test_handle;
 
 /* 测试用例 */
-void test_HAL_CAN_Init_Success(void)
+void test_hal_can_init_success(void)
 {
     OS_API_Init();
 
@@ -36,7 +36,7 @@ void test_HAL_CAN_Init_Success(void)
     OS_API_Teardown();
 }
 
-void test_HAL_CAN_Init_NullConfig(void)
+void test_hal_can_init_null_config(void)
 {
     OS_API_Init();
 
@@ -46,7 +46,7 @@ void test_HAL_CAN_Init_NullConfig(void)
     OS_API_Teardown();
 }
 
-void test_HAL_CAN_Init_NullHandle(void)
+void test_hal_can_init_null_handle(void)
 {
     OS_API_Init();
 
@@ -65,7 +65,7 @@ void test_HAL_CAN_Init_NullHandle(void)
 
 /* 注册测试模块 */
 TEST_MODULE_BEGIN(test_hal_can)
-    TEST_CASE(test_HAL_CAN_Init_Success)
-    TEST_CASE(test_HAL_CAN_Init_NullConfig)
-    TEST_CASE(test_HAL_CAN_Init_NullHandle)
+    TEST_CASE(test_hal_can_init_success)
+    TEST_CASE(test_hal_can_init_null_config)
+    TEST_CASE(test_hal_can_init_null_handle)
 TEST_MODULE_END(test_hal_can)

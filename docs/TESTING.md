@@ -7,21 +7,21 @@ PMC-BSP 提供了统一的测试入口程序，支持交互式菜单和命令行
 ## 测试层次结构
 
 ```
-PMC-BSP Test Suite
-├── OSAL Layer (6 modules)
-│   ├── test_os_task      - 任务管理测试
-│   ├── test_os_queue     - 消息队列测试
-│   ├── test_os_mutex     - 互斥锁测试
-│   ├── test_os_file      - 文件I/O测试
-│   ├── test_os_network   - 网络通信测试
-│   └── test_os_signal    - 信号处理测试
-├── HAL Layer (1 module)
+PMC-BSP Test Suite (70个测试用例)
+├── OSAL Layer (6 modules, 60 tests)
+│   ├── test_osal_task      - 任务管理测试
+│   ├── test_osal_queue     - 消息队列测试
+│   ├── test_osal_mutex     - 互斥锁测试
+│   ├── test_osal_file      - 文件I/O测试
+│   ├── test_osal_network   - 网络通信测试
+│   └── test_osal_signal    - 信号处理测试
+├── HAL Layer (1 module, 3 tests)
 │   └── test_hal_can      - CAN驱动测试
-├── Service Layer (1 module)
-│   └── test_payload_service - 载荷服务测试
-└── Apps Layer (2 modules)
-    ├── test_can_gateway        - CAN网关测试
-    └── test_protocol_converter - 协议转换测试
+├── PDL Layer (1 module, 2 tests)
+│   └── test_pdl_satellite - 卫星平台服务测试
+└── Apps Layer (2 modules, 5 tests)
+    ├── test_apps_can_gateway        - CAN网关测试
+    └── test_apps_protocol_converter - 协议转换测试
 ```
 
 ## 构建测试
@@ -55,7 +55,7 @@ cd build
 1. Run all tests (all layers)        - 运行所有测试
 2. Run OSAL layer tests              - 运行OSAL层测试
 3. Run HAL layer tests               - 运行HAL层测试
-4. Run Service layer tests           - 运行PDL层测试
+4. Run PDL layer tests               - 运行PDL层测试
 5. Run Apps layer tests              - 运行Apps层测试
 6. Run specific module tests         - 运行指定模块测试
 7. Run single test                   - 运行单个测试
@@ -74,21 +74,22 @@ cd build
 ```bash
 ./bin/unit-test -L OSAL      # 运行OSAL层所有测试
 ./bin/unit-test -L HAL       # 运行HAL层所有测试
-./bin/unit-test -L Service   # 运行PDL层所有测试
+./bin/unit-test -L PDL       # 运行PDL层所有测试
 ./bin/unit-test -L Apps      # 运行Apps层所有测试
 ```
 
 **运行指定模块的测试**
 ```bash
-./bin/unit-test -m test_os_file          # 运行文件I/O测试
+./bin/unit-test -m test_osal_file        # 运行文件I/O测试
 ./bin/unit-test -m test_hal_can          # 运行CAN驱动测试
-./bin/unit-test -m test_can_gateway      # 运行CAN网关测试
+./bin/unit-test -m test_pdl_satellite    # 运行卫星平台服务测试
+./bin/unit-test -m test_apps_can_gateway # 运行CAN网关测试
 ```
 
 **运行单个测试用例**
 ```bash
-./bin/unit-test -t test_os_file test_OS_FileOpen_Close_Success
-./bin/unit-test -t test_os_task test_OS_TaskCreate_Success
+./bin/unit-test -t test_osal_file test_OSAL_FileOpen_Close_Success
+./bin/unit-test -t test_osal_task test_OSAL_TaskCreate_Success
 ```
 
 **列出所有测试**
@@ -132,8 +133,8 @@ ctest --output-on-failure
 **运行特定测试**
 ```bash
 cd build
-ctest -R test_os_task        # 运行名称匹配的测试
-ctest -V                     # 详细模式
+ctest -R test_osal_task        # 运行名称匹配的测试
+ctest -V                       # 详细模式
 ```
 
 ### 方式4：直接运行独立测试程序
@@ -144,22 +145,22 @@ ctest -V                     # 详细模式
 cd build/bin
 
 # OSAL层测试
-./test_os_task
-./test_os_queue
-./test_os_mutex
-./test_os_file
-./test_os_network
-./test_os_signal
+./test_osal_task
+./test_osal_queue
+./test_osal_mutex
+./test_osal_file
+./test_osal_network
+./test_osal_signal
 
 # HAL层测试
 ./test_hal_can
 
 # PDL层测试
-./test_payload_service
+./test_pdl_satellite
 
 # Apps层测试
-./test_can_gateway
-./test_protocol_converter
+./test_apps_can_gateway
+./test_apps_protocol_converter
 ```
 
 ## 代码覆盖率
@@ -185,12 +186,12 @@ Running ALL Tests
 >>> Testing Layer: OSAL
 
 ========================================
-Running module: test_os_file
+Running module: test_osal_file
 Total tests: 10
 ========================================
 
-[RUN ] test_os_file::test_OS_FileOpen_Close_Success
-[PASS] test_os_file::test_OS_FileOpen_Close_Success
+[RUN ] test_osal_file::test_osal_file_open_close_success
+[PASS] test_osal_file::test_osal_file_open_close_success
 ...
 
 ========================================
@@ -205,9 +206,9 @@ Test Summary:
 
 ### 失败的测试输出
 ```
-[RUN ] test_os_file::test_OS_FileOpen_InvalidPath
-[  FAILED  ] test_os_file.c:45: Expected -1, got 0
-[FAIL] test_os_file::test_OS_FileOpen_InvalidPath
+[RUN ] test_osal_file::test_osal_file_open_invalid_path
+[  FAILED  ] test_osal_file.c:45: Expected -1, got 0
+[FAIL] test_osal_file::test_osal_file_open_invalid_path
 
 ========================================
 Test Summary:

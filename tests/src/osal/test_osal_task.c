@@ -37,7 +37,7 @@ __attribute__((unused)) static void tearDown(void)
 }
 
 /* 测试用例1: 任务创建成功 */
-void test_OSAL_TaskCreate_Success(void)
+void test_osal_task_create_success(void)
 {
     setUp();
     osal_id_t task_id;
@@ -59,7 +59,7 @@ void test_OSAL_TaskCreate_Success(void)
 }
 
 /* 测试用例2: 任务创建失败 - 空指针 */
-void test_OSAL_TaskCreate_NullPointer(void)
+void test_osal_task_create_null_pointer(void)
 {
     setUp();
     int32 ret = OSAL_TaskCreate(NULL, "TEST", test_task_func,
@@ -69,7 +69,7 @@ void test_OSAL_TaskCreate_NullPointer(void)
 }
 
 /* 测试用例3: 任务创建失败 - 名称过长 */
-void test_OSAL_TaskCreate_NameTooLong(void)
+void test_osal_task_create_name_too_long(void)
 {
     setUp();
     osal_id_t task_id;
@@ -85,7 +85,7 @@ void test_OSAL_TaskCreate_NameTooLong(void)
 }
 
 /* 测试用例4: 任务创建失败 - 无效优先级 */
-void test_OSAL_TaskCreate_InvalidPriority(void)
+void test_osal_task_create_invalid_priority(void)
 {
     setUp();
     osal_id_t task_id;
@@ -101,7 +101,7 @@ void test_OSAL_TaskCreate_InvalidPriority(void)
 }
 
 /* 测试用例5: 任务创建失败 - 名称重复 */
-void test_OSAL_TaskCreate_NameTaken(void)
+void test_osal_task_create_name_taken(void)
 {
     setUp();
     osal_id_t task_id1, task_id2;
@@ -119,7 +119,7 @@ void test_OSAL_TaskCreate_NameTaken(void)
 }
 
 /* 测试用例6: 任务删除成功 */
-void test_OSAL_TaskDelete_Success(void)
+void test_osal_task_delete_success(void)
 {
     setUp();
     osal_id_t task_id;
@@ -134,7 +134,7 @@ void test_OSAL_TaskDelete_Success(void)
 }
 
 /* 测试用例7: 任务删除失败 - 无效ID */
-void test_OSAL_TaskDelete_InvalidId(void)
+void test_osal_task_delete_invalid_id(void)
 {
     setUp();
     int32 ret = OSAL_TaskDelete(9999);
@@ -143,7 +143,7 @@ void test_OSAL_TaskDelete_InvalidId(void)
 }
 
 /* 测试用例8: 任务延时 */
-void test_OSAL_TaskDelay_Success(void)
+void test_osal_task_delay_success(void)
 {
     setUp();
     uint32 start = OS_GetTickCount();
@@ -158,7 +158,7 @@ void test_OSAL_TaskDelay_Success(void)
 }
 
 /* 测试用例9: 获取当前任务ID */
-void test_OSAL_TaskGetId_Success(void)
+void test_osal_task_get_id_success(void)
 {
     setUp();
     osal_id_t task_id = OSAL_TaskGetId();
@@ -168,7 +168,7 @@ void test_OSAL_TaskGetId_Success(void)
 }
 
 /* 测试用例10: 根据名称获取任务ID */
-void test_OSAL_TaskGetIdByName_Success(void)
+void test_osal_task_get_id_by_name_success(void)
 {
     setUp();
     osal_id_t task_id1, task_id2;
@@ -186,7 +186,7 @@ void test_OSAL_TaskGetIdByName_Success(void)
 }
 
 /* 测试用例11: 根据名称获取任务ID - 未找到 */
-void test_OSAL_TaskGetIdByName_NotFound(void)
+void test_osal_task_get_id_by_name_not_found(void)
 {
     setUp();
     osal_id_t task_id;
@@ -197,7 +197,7 @@ void test_OSAL_TaskGetIdByName_NotFound(void)
 }
 
 /* 测试用例12: 设置任务优先级 */
-void test_OSAL_TaskSetPriority_Success(void)
+void test_osal_task_set_priority_success(void)
 {
     setUp();
     osal_id_t task_id;
@@ -213,7 +213,7 @@ void test_OSAL_TaskSetPriority_Success(void)
 }
 
 /* 测试用例13: 获取任务信息 */
-void test_OSAL_TaskGetInfo_Success(void)
+void test_osal_task_get_info_success(void)
 {
     setUp();
     osal_id_t task_id;
@@ -236,19 +236,19 @@ void test_OSAL_TaskGetInfo_Success(void)
 #include "test_runner.h"
 
 TEST_MODULE_BEGIN(test_osal_task)
-    TEST_CASE(test_OSAL_TaskCreate_Success)
-    TEST_CASE(test_OSAL_TaskCreate_NullPointer)
-    TEST_CASE(test_OSAL_TaskCreate_NameTooLong)
-    TEST_CASE(test_OSAL_TaskCreate_InvalidPriority)
-    TEST_CASE(test_OSAL_TaskCreate_NameTaken)
-    TEST_CASE(test_OSAL_TaskDelete_Success)
-    TEST_CASE(test_OSAL_TaskDelete_InvalidId)
-    TEST_CASE(test_OSAL_TaskDelay_Success)
-    TEST_CASE(test_OSAL_TaskGetId_Success)
-    TEST_CASE(test_OSAL_TaskGetIdByName_Success)
-    TEST_CASE(test_OSAL_TaskGetIdByName_NotFound)
-    TEST_CASE(test_OSAL_TaskSetPriority_Success)
-    TEST_CASE(test_OSAL_TaskGetInfo_Success)
+    TEST_CASE(test_osal_task_create_success)
+    TEST_CASE(test_osal_task_create_null_pointer)
+    TEST_CASE(test_osal_task_create_name_too_long)
+    TEST_CASE(test_osal_task_create_invalid_priority)
+    TEST_CASE(test_osal_task_create_name_taken)
+    TEST_CASE(test_osal_task_delete_success)
+    TEST_CASE(test_osal_task_delete_invalid_id)
+    TEST_CASE(test_osal_task_delay_success)
+    TEST_CASE(test_osal_task_get_id_success)
+    TEST_CASE(test_osal_task_get_id_by_name_success)
+    TEST_CASE(test_osal_task_get_id_by_name_not_found)
+    TEST_CASE(test_osal_task_set_priority_success)
+    TEST_CASE(test_osal_task_get_info_success)
 TEST_MODULE_END(test_osal_task)
 
 /* 独立运行时的主函数 */
@@ -257,19 +257,19 @@ int main(void)
 {
     TEST_BEGIN();
 
-    RUN_TEST(test_OSAL_TaskCreate_Success);
-    RUN_TEST(test_OSAL_TaskCreate_NullPointer);
-    RUN_TEST(test_OSAL_TaskCreate_NameTooLong);
-    RUN_TEST(test_OSAL_TaskCreate_InvalidPriority);
-    RUN_TEST(test_OSAL_TaskCreate_NameTaken);
-    RUN_TEST(test_OSAL_TaskDelete_Success);
-    RUN_TEST(test_OSAL_TaskDelete_InvalidId);
-    RUN_TEST(test_OSAL_TaskDelay_Success);
-    RUN_TEST(test_OSAL_TaskGetId_Success);
-    RUN_TEST(test_OSAL_TaskGetIdByName_Success);
-    RUN_TEST(test_OSAL_TaskGetIdByName_NotFound);
-    RUN_TEST(test_OSAL_TaskSetPriority_Success);
-    RUN_TEST(test_OSAL_TaskGetInfo_Success);
+    RUN_TEST(test_osal_task_create_success);
+    RUN_TEST(test_osal_task_create_null_pointer);
+    RUN_TEST(test_osal_task_create_name_too_long);
+    RUN_TEST(test_osal_task_create_invalid_priority);
+    RUN_TEST(test_osal_task_create_name_taken);
+    RUN_TEST(test_osal_task_delete_success);
+    RUN_TEST(test_osal_task_delete_invalid_id);
+    RUN_TEST(test_osal_task_delay_success);
+    RUN_TEST(test_osal_task_get_id_success);
+    RUN_TEST(test_osal_task_get_id_by_name_success);
+    RUN_TEST(test_osal_task_get_id_by_name_not_found);
+    RUN_TEST(test_osal_task_set_priority_success);
+    RUN_TEST(test_osal_task_get_info_success);
 
     TEST_END();
 }

@@ -8,7 +8,7 @@
 #include "protocol_converter.h"
 #include "osal.h"
 
-void test_ProtocolConverter_Init_Success(void)
+void test_protocol_converter_init_success(void)
 {
     OS_API_Init();
 
@@ -24,7 +24,7 @@ void test_ProtocolConverter_Init_Success(void)
     OS_API_Teardown();
 }
 
-void test_ProtocolConverter_GetStats(void)
+void test_protocol_converter_get_stats(void)
 {
     OS_API_Init();
 
@@ -45,6 +45,6 @@ void test_ProtocolConverter_GetStats(void)
 
 /* 注册测试模块 */
 TEST_MODULE_BEGIN(test_protocol_converter)
-    TEST_CASE(test_ProtocolConverter_Init_Success)
-    TEST_CASE(test_ProtocolConverter_GetStats)
+    TEST_CASE(test_protocol_converter_init_success)
+    TEST_CASE(test_protocol_converter_get_stats)
 TEST_MODULE_END(test_protocol_converter)

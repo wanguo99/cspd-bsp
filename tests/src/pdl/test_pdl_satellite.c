@@ -101,7 +101,7 @@ static void* mock_tcp_server_thread(void *arg)
     return NULL;
 }
 
-void test_PayloadService_Init_Success(void)
+void test_payload_service_init_success(void)
 {
     OS_API_Init();
 
@@ -177,7 +177,7 @@ void test_PayloadService_Init_Success(void)
     OS_API_Teardown();
 }
 
-void test_PayloadService_Init_NullConfig(void)
+void test_payload_service_init_null_config(void)
 {
     OS_API_Init();
 
@@ -189,6 +189,6 @@ void test_PayloadService_Init_NullConfig(void)
 
 /* 注册测试模块 */
 TEST_MODULE_BEGIN(test_pdl_satellite)
-    TEST_CASE(test_PayloadService_Init_Success)
-    TEST_CASE(test_PayloadService_Init_NullConfig)
+    TEST_CASE(test_payload_service_init_success)
+    TEST_CASE(test_payload_service_init_null_config)
 TEST_MODULE_END(test_pdl_satellite)

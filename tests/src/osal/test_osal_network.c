@@ -27,7 +27,7 @@ __attribute__((unused)) static void tearDown(void)
 }
 
 /* 测试用例1: Socket创建和关闭 */
-void test_OSAL_SocketOpen_Close_Success(void)
+void test_osal_socket_open_close_success(void)
 {
     setUp();
     osal_id_t sock_id;
@@ -46,7 +46,7 @@ void test_OSAL_SocketOpen_Close_Success(void)
 }
 
 /* 测试用例2: UDP Socket创建 */
-void test_OSAL_SocketOpen_UDP_Success(void)
+void test_osal_socket_open_udP_Success(void)
 {
     setUp();
     osal_id_t sock_id;
@@ -64,7 +64,7 @@ void test_OSAL_SocketOpen_UDP_Success(void)
 }
 
 /* 测试用例3: Socket绑定 */
-void test_OSAL_SocketBind_Success(void)
+void test_osal_socket_bind_success(void)
 {
     setUp();
     osal_id_t sock_id;
@@ -82,7 +82,7 @@ void test_OSAL_SocketBind_Success(void)
 }
 
 /* 测试用例4: TCP服务器监听 */
-void test_OSAL_SocketListen_Success(void)
+void test_osal_socket_listen_success(void)
 {
     setUp();
     osal_id_t sock_id;
@@ -103,7 +103,7 @@ void test_OSAL_SocketListen_Success(void)
 }
 
 /* 测试用例5: Socket选项设置 */
-void test_OSAL_SocketSetOpt_Success(void)
+void test_osal_socket_setopt_Success(void)
 {
     setUp();
     osal_id_t sock_id;
@@ -131,7 +131,7 @@ void test_OSAL_SocketSetOpt_Success(void)
 }
 
 /* 测试用例6: UDP发送和接收 */
-void test_OSAL_SocketSendTo_RecvFrom_Success(void)
+void test_osal_socket_sendto_RecvFrom_Success(void)
 {
     setUp();
     osal_id_t send_sock, recv_sock;
@@ -172,7 +172,7 @@ void test_OSAL_SocketSendTo_RecvFrom_Success(void)
 }
 
 /* 测试用例7: 无效参数测试 */
-void test_OSAL_SocketOpen_InvalidParams(void)
+void test_osal_socket_open_invalidparams(void)
 {
     setUp();
     osal_id_t sock_id;
@@ -190,7 +190,7 @@ void test_OSAL_SocketOpen_InvalidParams(void)
 }
 
 /* 测试用例8: 关闭无效Socket */
-void test_OSAL_SocketClose_InvalidID(void)
+void test_osal_socket_close_invalidiD(void)
 {
     setUp();
     int32 ret;
@@ -206,7 +206,7 @@ void test_OSAL_SocketClose_InvalidID(void)
 }
 
 /* 测试用例9: TCP连接超时 */
-void test_OSAL_SocketConnect_Timeout(void)
+void test_osal_socket_connect_timeout(void)
 {
     setUp();
     osal_id_t sock_id;
@@ -325,7 +325,7 @@ static void tcp_server_thread(void *arg)
 }
 
 /* 测试用例10: TCP客户端-服务器连接测试(使用线程) */
-void test_OSAL_SocketConnect_ClientServer_Success(void)
+void test_osal_socket_connect_clientserver_Success(void)
 {
     setUp();
     osal_id_t server_task_id;
@@ -398,7 +398,7 @@ void test_OSAL_SocketConnect_ClientServer_Success(void)
 }
 
 /* 测试用例11: TCP多次连接测试 */
-void test_OSAL_SocketConnect_Multiple_Success(void)
+void test_osal_socket_connect_multiple_success(void)
 {
     setUp();
     osal_id_t server_task_id;
@@ -476,17 +476,17 @@ void test_OSAL_SocketConnect_Multiple_Success(void)
 #include "test_runner.h"
 
 TEST_MODULE_BEGIN(test_osal_network)
-    TEST_CASE(test_OSAL_SocketOpen_Close_Success)
-    TEST_CASE(test_OSAL_SocketOpen_UDP_Success)
-    TEST_CASE(test_OSAL_SocketBind_Success)
-    TEST_CASE(test_OSAL_SocketListen_Success)
-    TEST_CASE(test_OSAL_SocketSetOpt_Success)
-    TEST_CASE(test_OSAL_SocketSendTo_RecvFrom_Success)
-    TEST_CASE(test_OSAL_SocketOpen_InvalidParams)
-    TEST_CASE(test_OSAL_SocketClose_InvalidID)
-    TEST_CASE(test_OSAL_SocketConnect_Timeout)
-    TEST_CASE(test_OSAL_SocketConnect_ClientServer_Success)
-    TEST_CASE(test_OSAL_SocketConnect_Multiple_Success)
+    TEST_CASE(test_osal_socket_open_close_success)
+    TEST_CASE(test_osal_socket_open_udP_Success)
+    TEST_CASE(test_osal_socket_bind_success)
+    TEST_CASE(test_osal_socket_listen_success)
+    TEST_CASE(test_osal_socket_setopt_Success)
+    TEST_CASE(test_osal_socket_sendto_RecvFrom_Success)
+    TEST_CASE(test_osal_socket_open_invalidparams)
+    TEST_CASE(test_osal_socket_close_invalidiD)
+    TEST_CASE(test_osal_socket_connect_timeout)
+    TEST_CASE(test_osal_socket_connect_clientserver_Success)
+    TEST_CASE(test_osal_socket_connect_multiple_success)
 TEST_MODULE_END(test_osal_network)
 
 /* 独立运行时的主函数 */
@@ -495,17 +495,17 @@ int main(void)
 {
     TEST_BEGIN();
 
-    RUN_TEST(test_OSAL_SocketOpen_Close_Success);
-    RUN_TEST(test_OSAL_SocketOpen_UDP_Success);
-    RUN_TEST(test_OSAL_SocketBind_Success);
-    RUN_TEST(test_OSAL_SocketListen_Success);
-    RUN_TEST(test_OSAL_SocketSetOpt_Success);
-    RUN_TEST(test_OSAL_SocketSendTo_RecvFrom_Success);
-    RUN_TEST(test_OSAL_SocketOpen_InvalidParams);
-    RUN_TEST(test_OSAL_SocketClose_InvalidID);
-    RUN_TEST(test_OSAL_SocketConnect_Timeout);
-    RUN_TEST(test_OSAL_SocketConnect_ClientServer_Success);
-    RUN_TEST(test_OSAL_SocketConnect_Multiple_Success);
+    RUN_TEST(test_osal_SocketOpen_close_Success);
+    RUN_TEST(test_osal_SocketOpen_UDP_Success);
+    RUN_TEST(test_osal_SocketBind_Success);
+    RUN_TEST(test_osal_SocketListen_Success);
+    RUN_TEST(test_osal_SocketSetOpt_Success);
+    RUN_TEST(test_osal_SocketSendTo_RecvFrom_Success);
+    RUN_TEST(test_osal_SocketOpen_InvalidParams);
+    RUN_TEST(test_osal_SocketClose_InvalidID);
+    RUN_TEST(test_osal_SocketConnect_Timeout);
+    RUN_TEST(test_osal_SocketConnect_ClientServer_Success);
+    RUN_TEST(test_osal_SocketConnect_multiple_Success);
 
     return TEST_END();
 }

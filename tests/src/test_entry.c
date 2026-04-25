@@ -124,7 +124,7 @@ void print_usage(const char *prog_name)
     LOG_INFO("TEST", "  %s -a                   # Run all tests", prog_name);
     LOG_INFO("TEST", "  %s -L OSAL              # Run all OSAL layer tests", prog_name);
     LOG_INFO("TEST", "  %s -m test_os_file      # Run all file I/O tests", prog_name);
-    LOG_INFO("TEST", "  %s -t test_os_file test_OS_FileOpen_Close_Success", prog_name);
+    LOG_INFO("TEST", "  %s -t test_os_file test_os_FileOpen_close_Success", prog_name);
     LOG_INFO("TEST", "  %s -i                   # Interactive menu", prog_name);
 }
 
