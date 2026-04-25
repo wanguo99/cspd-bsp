@@ -230,7 +230,7 @@ static xconfig_app_config_t *app_list_v1[] = {
  *===========================================================================*/
 
 const xconfig_board_config_t xconfig_h200_100p_v1 = {
-    .platform = "ti/am625",
+    .platform = "ti/am6254",
     .product = "H200_100P",
     .version = "v1.0",
     .description = "H200-100P Payload Adapter Board V1.0 - with redundant MCU and IMU sensors",

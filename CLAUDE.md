@@ -97,20 +97,21 @@ cspd-bsp/
 │   │   ├── xconfig_api.c   # API实现
 │   │   └── xconfig_register.c # 配置注册
 │   └── platform/            # 平台配置（嵌套目录结构）
-│       ├── ti/am625/        # TI AM625平台
+│       ├── ti/am6254/        # TI AM6254平台
 │       │   ├── H200_100P/  # H200-100P产品（100P算力）
-│       │   │   ├── h200_100p_payload_base.c
-│       │   │   ├── h200_100p_payload_v1.c
-│       │   │   └── h200_100p_payload_v2.c
+│       │   │   ├── h200_100p_base.c
+│       │   │   ├── h200_100p_v1.c
+│       │   │   └── h200_100p_v2.c
 │       │   └── H200_32P/   # H200-32P产品（32P算力）
-│       │       ├── h200_32p_payload_base.c
-│       │       ├── h200_32p_payload_v1.c
-│       │       └── h200_32p_payload_v2.c
-│       └── platform_demo/     # 演示平台
-│           └── project_demo/   # 演示项目（2P算力，演示用）
-│               ├── product_demo_base.c
-│               ├── product_demo_v1.c
-│               └── product_demo_v2.c
+│       │       ├── h200_32p_base.c
+│       │       ├── h200_32p_v1.c
+│       │       └── h200_32p_v2.c
+│       └── vendor_demo/     # 演示厂商
+│           └── platform_demo/   # 演示平台
+│               └── project_demo/   # 演示项目（2P算力，演示用）
+│                   ├── product_demo_base.c
+│                   ├── product_demo_v1.c
+│                   └── product_demo_v2.c
 ├── pdl/                     # 外设驱动层 (Peripheral Driver Layer)
 │   ├── include/             # 接口定义
 │   │   ├── peripheral_device.h  # 统一外设接口

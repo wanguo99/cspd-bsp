@@ -354,7 +354,7 @@ static xconfig_app_config_t *app_list[] = {
  *===========================================================================*/
 
 const xconfig_board_config_t xconfig_h200_32p_base = {
-    .platform = "ti/am625",
+    .platform = "ti/am6254",
     .product = "H200_32P",
     .version = "base",
     .description = "H200-32P Payload Adapter Board (32P Computing Power) - Base Configuration",

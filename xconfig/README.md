@@ -50,36 +50,40 @@ xconfig_mcu_cfg_t mcu_stm32 = {
 
 ```
 xconfig/
-├── include/                           # 头文件
-│   ├── xconfig.h                     # 总头文件
-│   ├── xconfig_api.h                 # API接口
-│   ├── xconfig_common.h              # 通用类型（GPIO、电源域）
-│   ├── xconfig_hardware_interface.h  # 硬件接口定义
-│   ├── xconfig_mcu.h                 # MCU外设配置
-│   ├── xconfig_bmc.h                 # BMC外设配置
-│   ├── xconfig_satellite.h           # 卫星平台接口配置
-│   ├── xconfig_sensor.h              # 传感器外设配置
-│   ├── xconfig_storage.h             # 存储设备配置
-│   ├── xconfig_app.h                 # APP配置
-│   └── xconfig_board.h               # 板级配置
+├── include/                           # 头文件（三层结构）
+│   ├── api/                          # 对外API（供PDL层使用）
+│   │   └── xconfig_api.h            # API接口函数
+│   ├── internal/                     # 内部公共头文件
+│   │   ├── xconfig.h                # 内部总头文件
+│   │   ├── xconfig_common.h         # 通用类型（GPIO、电源域）
+│   │   └── xconfig_board.h          # 板级配置结构
+│   └── peripheral/                   # 外设私有头文件
+│       ├── xconfig_hardware_interface.h  # 硬件接口定义
+│       ├── xconfig_mcu.h            # MCU外设配置
+│       ├── xconfig_bmc.h            # BMC外设配置
+│       ├── xconfig_satellite.h      # 卫星平台接口配置
+│       ├── xconfig_sensor.h         # 传感器外设配置
+│       ├── xconfig_storage.h        # 存储设备配置
+│       └── xconfig_app.h            # APP配置
 ├── src/                               # 源代码
 │   ├── xconfig_api.c                 # API实现
 │   └── xconfig_register.c            # 配置注册
 ├── platform/                          # 平台配置（嵌套目录结构）
-│   ├── ti/am625/                     # TI AM625平台
+│   ├── ti/am6254/                    # TI AM6254平台
 │   │   ├── H200_100P/                # H200-100P产品（100P算力）
-│   │   │   ├── h200_100p_payload_base.c  # 基础配置
-│   │   │   ├── h200_100p_payload_v1.c    # V1.0配置
-│   │   │   └── h200_100p_payload_v2.c    # V2.0配置
+│   │   │   ├── h200_100p_base.c      # 基础配置
+│   │   │   ├── h200_100p_v1.c        # V1.0配置
+│   │   │   └── h200_100p_v2.c        # V2.0配置
 │   │   └── H200_32P/                 # H200-32P产品（32P算力）
-│   │       ├── h200_32p_payload_base.c   # 基础配置
-│   │       ├── h200_32p_payload_v1.c     # V1.0配置
-│   │       └── h200_32p_payload_v2.c     # V2.0配置
-│   └── platform_demo/                # 演示平台
-│       └── project_demo/             # 演示项目（2P算力，演示用）
-│           ├── product_demo_base.c       # 基础配置
-│           ├── product_demo_v1.c         # V1.0配置
-│           └── product_demo_v2.c         # V2.0配置
+│   │       ├── h200_32p_base.c       # 基础配置
+│   │       ├── h200_32p_v1.c         # V1.0配置
+│   │       └── h200_32p_v2.c         # V2.0配置
+│   └── vendor_demo/                  # 演示厂商
+│       └── platform_demo/            # 演示平台
+│           └── project_demo/         # 演示项目（2P算力，演示用）
+│               ├── product_demo_base.c   # 基础配置
+│               ├── product_demo_v1.c     # V1.0配置
+│               └── product_demo_v2.c     # V2.0配置
 ├── examples/                          # 示例代码
 │   └── xconfig_example.c             # 使用示例
 └── CMakeLists.txt                     # 构建配置
@@ -87,7 +91,7 @@ xconfig/
 
 ## 支持的平台和产品
 
-### TI AM625平台
+### TI AM6254平台
 
 **H200-100P系列**（100P算力）：
 - `xconfig_h200_100p_base` - 基础配置

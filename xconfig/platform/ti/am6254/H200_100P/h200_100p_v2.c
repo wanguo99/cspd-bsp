@@ -257,7 +257,7 @@ static xconfig_app_config_t *app_list_v2[] = {
  *===========================================================================*/
 
 const xconfig_board_config_t xconfig_h200_100p_v2 = {
-    .platform = "ti/am625",
+    .platform = "ti/am6254",
     .product = "H200_100P",
     .version = "v2.0",
     .description = "H200-100P Payload Adapter Board V2.0 - with 1553B, GPS and NVMe",
