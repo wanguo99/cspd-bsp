@@ -46,7 +46,7 @@ int32 bmc_redfish_init(const char *ip_addr, uint16 port, uint32 timeout_ms, void
         return OS_ERROR;
     }
 
-    memset(ctx, 0, sizeof(bmc_redfish_context_t));
+    OSAL_Memset(ctx, 0, sizeof(bmc_redfish_context_t));
     ctx->timeout_ms = timeout_ms;
 
     /* 创建TCP Socket */
@@ -144,7 +144,7 @@ int32 bmc_serial_init(const char *device, uint32 baudrate, uint32 timeout_ms, vo
         return OS_ERROR;
     }
 
-    memset(ctx, 0, sizeof(bmc_serial_context_t));
+    OSAL_Memset(ctx, 0, sizeof(bmc_serial_context_t));
     ctx->timeout_ms = timeout_ms;
 
     /* 打开串口 */

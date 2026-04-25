@@ -13,6 +13,7 @@ set(OSAL_SOURCES
     src/linux/osal_file.c
     src/linux/osal_network.c
     src/linux/osal_signal.c
+    src/linux/osal_string.c
 )
 
 # 创建OSAL静态库

@@ -43,7 +43,7 @@ int32 bmc_ipmi_pack_command(uint8 cmd_code,
 
     if (data != NULL && data_len > 0)
     {
-        memcpy(&frame[pos], data, data_len);
+        OSAL_Memcpy(&frame[pos], data, data_len);
         pos += data_len;
     }
 
@@ -76,7 +76,7 @@ int32 bmc_ipmi_unpack_response(const uint8 *frame,
     if (data != NULL && frame_len > 1)
     {
         uint32 copy_len = (frame_len - 1 < data_size) ? (frame_len - 1) : data_size;
-        memcpy(data, &frame[1], copy_len);
+        OSAL_Memcpy(data, &frame[1], copy_len);
 
         if (actual_size != NULL)
         {

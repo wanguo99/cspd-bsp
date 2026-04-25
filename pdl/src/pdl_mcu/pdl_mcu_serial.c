@@ -51,7 +51,7 @@ int32 mcu_serial_init(const void *config, void **handle)
         return OS_ERROR;
     }
 
-    memset(ctx, 0, sizeof(mcu_serial_context_t));
+    OSAL_Memset(ctx, 0, sizeof(mcu_serial_context_t));
     ctx->enable_crc = mcu_cfg->enable_crc;
 
     /* 打开串口设备 */
@@ -130,7 +130,7 @@ static int32 mcu_serial_pack_frame(uint8 cmd_code,
     /* 数据 */
     if (data != NULL && data_len > 0)
     {
-        memcpy(&frame[pos], data, data_len);
+        OSAL_Memcpy(&frame[pos], data, data_len);
         pos += data_len;
     }
 
@@ -192,7 +192,7 @@ static int32 mcu_serial_unpack_frame(const uint8 *frame,
     if (data != NULL && data_len > 0)
     {
         uint32 copy_len = (data_len < data_size) ? data_len : data_size;
-        memcpy(data, &frame[4], copy_len);
+        OSAL_Memcpy(data, &frame[4], copy_len);
         if (actual_size != NULL)
         {
             *actual_size = copy_len;

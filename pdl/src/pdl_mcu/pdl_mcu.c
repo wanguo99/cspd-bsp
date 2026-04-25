@@ -44,8 +44,8 @@ int32 PDL_MCU_Init(const mcu_config_t *config, mcu_handle_t *handle)
         return OS_ERROR;
     }
 
-    memset(ctx, 0, sizeof(mcu_context_t));
-    memcpy(&ctx->config, config, sizeof(mcu_config_t));
+    OSAL_Memset(ctx, 0, sizeof(mcu_context_t));
+    OSAL_Memcpy(&ctx->config, config, sizeof(mcu_config_t));
     ctx->interface = config->interface;
 
     /* 创建互斥锁 */
@@ -179,7 +179,7 @@ int32 PDL_MCU_GetVersion(mcu_handle_t handle, mcu_version_t *version)
         version->minor = resp[1];
         version->patch = resp[2];
         version->build = resp[3];
-        snprintf(version->version_string, sizeof(version->version_string),
+        OSAL_Snprintf(version->version_string, sizeof(version->version_string),
                 "%d.%d.%d.%d", version->major, version->minor,
                 version->patch, version->build);
     }

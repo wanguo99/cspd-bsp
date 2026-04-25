@@ -106,7 +106,10 @@ module/
 | 信号量 | `sem_wait`, `sem_post` | `OSAL_SemTake`, `OSAL_SemGive` |
 | 队列 | `mq_send`, `mq_receive` | `OSAL_QueuePut`, `OSAL_QueueGet` |
 | 文件 | `open`, `close`, `read`, `write` | `OSAL_FileOpen`, `OSAL_FileClose`, `OSAL_FileRead`, `OSAL_FileWrite` |
-| 内存 | `malloc`, `free`, `mmap` | `OSAL_Malloc`, `OSAL_Free` |
+| 内存分配 | `malloc`, `free`, `mmap` | `OSAL_Malloc`, `OSAL_Free` |
+| 内存操作 | `memset`, `memcpy`, `memmove`, `memcmp` | `OSAL_Memset`, `OSAL_Memcpy`, `OSAL_Memmove`, `OSAL_Memcmp` |
+| 字符串操作 | `strlen`, `strcmp`, `strncmp`, `strcpy`, `strncpy`, `strcat`, `strncat` | `OSAL_Strlen`, `OSAL_Strcmp`, `OSAL_Strncmp`, `OSAL_Strcpy`, `OSAL_Strncpy`, `OSAL_Strcat`, `OSAL_Strncat` |
+| 字符串格式化 | `sprintf`, `snprintf`, `sscanf` | `OSAL_Sprintf`, `OSAL_Snprintf`, `OSAL_Sscanf` |
 | 时间 | `sleep`, `usleep`, `nanosleep` | `OSAL_TaskDelay` |
 | 定时器 | `timer_create`, `timer_settime` | `OSAL_TimerCreate`, `OSAL_TimerSet` |
 | 日志 | `printf`, `fprintf`, `syslog` | `OSAL_INFO`, `OSAL_ERROR` 等 |

@@ -42,7 +42,7 @@ int32 mcu_can_init(const void *config, void **handle)
         return OS_ERROR;
     }
 
-    memset(ctx, 0, sizeof(mcu_can_context_t));
+    OSAL_Memset(ctx, 0, sizeof(mcu_can_context_t));
     ctx->tx_id = mcu_cfg->can.tx_id;
     ctx->rx_id = mcu_cfg->can.rx_id;
 
@@ -120,7 +120,7 @@ int32 mcu_can_send_command(void *handle,
     if (data != NULL && data_len > 0)
     {
         uint32 copy_len = (data_len > 6) ? 6 : data_len;  /* CAN最多8字节，留2字节给头 */
-        memcpy(&tx_frame[tx_len], data, copy_len);
+        OSAL_Memcpy(&tx_frame[tx_len], data, copy_len);
         tx_len += copy_len;
     }
 
@@ -128,7 +128,7 @@ int32 mcu_can_send_command(void *handle,
     can_frame_t can_frame;
     can_frame.can_id = ctx->tx_id;
     can_frame.dlc = tx_len;
-    memcpy(can_frame.data, tx_frame, tx_len);
+    OSAL_Memcpy(can_frame.data, tx_frame, tx_len);
 
     if (HAL_CAN_Send(ctx->can_handle, &can_frame) != OS_SUCCESS)
     {
@@ -166,7 +166,7 @@ int32 mcu_can_send_command(void *handle,
             {
                 uint32 copy_len = (resp_len < resp_size) ? resp_len : resp_size;
                 copy_len = (copy_len < ((uint32)rx_frame.dlc - 2)) ? copy_len : ((uint32)rx_frame.dlc - 2);
-                memcpy(response, &rx_frame.data[2], copy_len);
+                OSAL_Memcpy(response, &rx_frame.data[2], copy_len);
 
                 if (actual_size != NULL)
                 {

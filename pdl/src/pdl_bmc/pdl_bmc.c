@@ -57,8 +57,8 @@ int32 PDL_BMC_Init(const bmc_config_t *config,
         return OS_ERROR;
     }
 
-    memset(ctx, 0, sizeof(bmc_context_t));
-    memcpy(&ctx->config, config, sizeof(bmc_config_t));
+    OSAL_Memset(ctx, 0, sizeof(bmc_context_t));
+    OSAL_Memcpy(&ctx->config, config, sizeof(bmc_config_t));
     ctx->current_channel = config->primary_channel;
 
     /* 创建互斥锁 */

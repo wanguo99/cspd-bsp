@@ -121,8 +121,8 @@ int32 PDL_Satellite_Init(const satellite_service_config_t *config,
         return OS_ERROR;
     }
 
-    memset(ctx, 0, sizeof(satellite_service_context_t));
-    memcpy(&ctx->config, config, sizeof(satellite_service_config_t));
+    OSAL_Memset(ctx, 0, sizeof(satellite_service_context_t));
+    OSAL_Memcpy(&ctx->config, config, sizeof(satellite_service_config_t));
     ctx->running = true;
 
     /* 初始化CAN通信 */

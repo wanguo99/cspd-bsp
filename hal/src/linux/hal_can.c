@@ -52,10 +52,10 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
     if (config == NULL || handle == NULL)
         return OS_INVALID_POINTER;
 
-    if (config->interface == NULL || strlen(config->interface) == 0)
+    if (config->interface == NULL || OSAL_Strlen(config->interface) == 0)
         return OS_ERROR;
 
-    if (strlen(config->interface) >= IFNAMSIZ)
+    if (OSAL_Strlen(config->interface) >= IFNAMSIZ)
         return OS_ERR_NAME_TOO_LONG;
 
     /* 分配句柄 */
@@ -66,8 +66,8 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
         return OS_ERROR;
     }
 
-    memset(impl, 0, sizeof(hal_can_context_t));
-    strncpy(impl->interface, config->interface, IFNAMSIZ - 1);
+    OSAL_Memset(impl, 0, sizeof(hal_can_context_t));
+    OSAL_Strncpy(impl->interface, config->interface, IFNAMSIZ - 1);
     impl->interface[IFNAMSIZ - 1] = '\0';
     impl->baudrate = config->baudrate;
     impl->initialized = false;
@@ -82,8 +82,8 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
     }
 
     /* 获取接口索引 */
-    memset(&ifr, 0, sizeof(ifr));
-    strncpy(ifr.ifr_name, config->interface, IFNAMSIZ - 1);
+    OSAL_Memset(&ifr, 0, sizeof(ifr));
+    OSAL_Strncpy(ifr.ifr_name, config->interface, IFNAMSIZ - 1);
     ret = ioctl(impl->sockfd, SIOCGIFINDEX, &ifr);
     if (ret < 0)
     {
@@ -96,7 +96,7 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
     }
 
     /* 绑定到CAN接口 */
-    memset(&addr, 0, sizeof(addr));
+    OSAL_Memset(&addr, 0, sizeof(addr));
     addr.can_family = AF_CAN;
     addr.can_ifindex = ifr.ifr_ifindex;
 
@@ -188,10 +188,10 @@ int32 HAL_CAN_Send(hal_can_handle_t handle, const can_frame_t *frame)
     }
 
     /* 转换为SocketCAN格式 */
-    memset(&can_frame, 0, sizeof(can_frame));
+    OSAL_Memset(&can_frame, 0, sizeof(can_frame));
     can_frame.can_id = frame->can_id;
     can_frame.can_dlc = frame->dlc;
-    memcpy(can_frame.data, frame->data, frame->dlc);
+    OSAL_Memcpy(can_frame.data, frame->data, frame->dlc);
 
     /* 发送 */
     ret = write(impl->sockfd, &can_frame, sizeof(struct can_frame));
@@ -264,7 +264,7 @@ int32 HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32 timeout)
     }
 
     /* 转换为内部格式 */
-    memset(frame, 0, sizeof(can_frame_t));
+    OSAL_Memset(frame, 0, sizeof(can_frame_t));
     frame->can_id = can_frame.can_id;
     frame->dlc = can_frame.can_dlc;
 
@@ -272,7 +272,7 @@ int32 HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32 timeout)
     if (can_frame.can_dlc > 8)
         can_frame.can_dlc = 8;
 
-    memcpy(frame->data, can_frame.data, can_frame.can_dlc);
+    OSAL_Memcpy(frame->data, can_frame.data, can_frame.can_dlc);
     frame->timestamp = OS_GetTickCount();
 
     impl->rx_count++;

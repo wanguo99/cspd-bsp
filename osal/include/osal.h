@@ -24,6 +24,7 @@
 #include "osal_log.h"
 #include "osal_file.h"
 #include "osal_signal.h"
+#include "osal_string.h"
 
 /*
  * OSAL版本信息
