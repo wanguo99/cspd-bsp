@@ -10,9 +10,6 @@
 #include "pdl_mcu.h"
 #include "pdl_mcu_internal.h"
 #include "osal.h"
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
 
 /*
  * MCU驱动上下文

@@ -9,11 +9,6 @@
 #include "pdl_bmc_internal.h"
 #include "osal.h"
 #include "hal_serial.h"
-#include <stdlib.h>
-#include <string.h>
-#include <sys/time.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 
 /*
  * 网络通信上下文
@@ -61,18 +56,18 @@ int32 bmc_redfish_init(const char *ip_addr, uint16 port, uint32 timeout_ms, void
     }
 
     /* 设置超时 */
-    struct timeval tv;
+    osal_timeval_t tv;
     tv.tv_sec = timeout_ms / 1000;
     tv.tv_usec = (timeout_ms % 1000) * 1000;
     OSAL_setsockopt(ctx->sockfd, OSAL_SOL_SOCKET, OSAL_SO_RCVTIMEO, &tv, sizeof(tv));
     OSAL_setsockopt(ctx->sockfd, OSAL_SOL_SOCKET, OSAL_SO_SNDTIMEO, &tv, sizeof(tv));
 
     /* 连接到远程地址 */
-    struct sockaddr_in server_addr;
+    osal_sockaddr_in_t server_addr;
     OSAL_Memset(&server_addr, 0, sizeof(server_addr));
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(port);
-    if (inet_pton(AF_INET, ip_addr, &server_addr.sin_addr) <= 0)
+    server_addr.sin_family = OSAL_AF_INET;
+    server_addr.sin_port = OSAL_htons(port);
+    if (OSAL_inet_pton(OSAL_AF_INET, ip_addr, &server_addr.sin_addr) <= 0)
     {
         OSAL_close(ctx->sockfd);
         OSAL_Free(ctx);

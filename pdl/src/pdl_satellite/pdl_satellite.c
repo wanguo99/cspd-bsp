@@ -11,8 +11,6 @@
 #include "pdl_satellite_internal.h"
 #include "osal.h"
 #include "config/task_config.h"
-#include <stdlib.h>
-#include <string.h>
 
 /*
  * 卫星平台服务上下文

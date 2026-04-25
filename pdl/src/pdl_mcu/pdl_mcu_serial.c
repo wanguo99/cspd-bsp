@@ -11,8 +11,6 @@
 #include "pdl_mcu.h"
 #include "hal_serial.h"
 #include "osal.h"
-#include <string.h>
-#include <stdlib.h>
 
 /*
  * 串口协议帧格式：

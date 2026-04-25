@@ -8,7 +8,6 @@
 
 #include "pdl_bmc_internal.h"
 #include "osal.h"
-#include <string.h>
 
 /*
  * IPMI帧格式（简化版）：

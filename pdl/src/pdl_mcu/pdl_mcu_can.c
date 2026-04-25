@@ -11,8 +11,6 @@
 #include "pdl_mcu.h"
 #include "hal_can.h"
 #include "osal.h"
-#include <string.h>
-#include <stdlib.h>
 
 /*
  * CAN通信上下文

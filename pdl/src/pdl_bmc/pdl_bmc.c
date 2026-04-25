@@ -10,8 +10,6 @@
 #include "pdl_bmc.h"
 #include "pdl_bmc_internal.h"
 #include "osal.h"
-#include <stdlib.h>
-#include <string.h>
 
 /*
  * BMC服务上下文
