@@ -48,8 +48,6 @@ void wait_for_key(void)
 }
 
 /* 外部测试模块声明 - OSAL层 */
-extern const test_module_t test_osal_file;
-extern const test_module_t test_osal_network;
 extern const test_module_t test_osal_signal;
 extern const test_module_t test_osal_task;
 extern const test_module_t test_osal_mutex;
@@ -74,8 +72,6 @@ typedef struct {
 
 /* OSAL层测试模块 */
 static const test_module_t *osal_modules[] = {
-    &test_osal_file,
-    &test_osal_network,
     &test_osal_signal,
     &test_osal_task,
     &test_osal_mutex,

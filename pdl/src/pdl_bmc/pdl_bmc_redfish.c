@@ -11,13 +11,16 @@
 #include "hal_serial.h"
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 /*
  * 网络通信上下文
  */
 typedef struct
 {
-    osal_id_t sock_id;
+    int32 sockfd;
     uint32 timeout_ms;
 } bmc_redfish_context_t;
 
@@ -50,16 +53,35 @@ int32 bmc_redfish_init(const char *ip_addr, uint16 port, uint32 timeout_ms, void
     ctx->timeout_ms = timeout_ms;
 
     /* 创建TCP Socket */
-    if (OSAL_SocketOpen(&ctx->sock_id, 0, OS_SOCK_STREAM) != OS_SUCCESS)
+    ctx->sockfd = OSAL_socket(OSAL_AF_INET, OSAL_SOCK_STREAM, 0);
+    if (ctx->sockfd < 0)
     {
         OSAL_Free(ctx);
         return OS_ERROR;
     }
 
+    /* 设置超时 */
+    struct timeval tv;
+    tv.tv_sec = timeout_ms / 1000;
+    tv.tv_usec = (timeout_ms % 1000) * 1000;
+    OSAL_setsockopt(ctx->sockfd, OSAL_SOL_SOCKET, OSAL_SO_RCVTIMEO, &tv, sizeof(tv));
+    OSAL_setsockopt(ctx->sockfd, OSAL_SOL_SOCKET, OSAL_SO_SNDTIMEO, &tv, sizeof(tv));
+
     /* 连接到远程地址 */
-    if (OSAL_SocketConnect(ctx->sock_id, ip_addr, port, timeout_ms) != OS_SUCCESS)
+    struct sockaddr_in server_addr;
+    OSAL_Memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(port);
+    if (inet_pton(AF_INET, ip_addr, &server_addr.sin_addr) <= 0)
     {
-        OSAL_SocketClose(ctx->sock_id);
+        OSAL_close(ctx->sockfd);
+        OSAL_Free(ctx);
+        return OS_ERROR;
+    }
+
+    if (OSAL_connect(ctx->sockfd, (osal_sockaddr_t *)&server_addr, sizeof(server_addr)) < 0)
+    {
+        OSAL_close(ctx->sockfd);
         OSAL_Free(ctx);
         return OS_ERROR;
     }
@@ -80,7 +102,7 @@ int32 bmc_redfish_deinit(void *handle)
 
     bmc_redfish_context_t *ctx = (bmc_redfish_context_t *)handle;
 
-    OSAL_SocketClose(ctx->sock_id);
+    OSAL_close(ctx->sockfd);
     OSAL_Free(ctx);
 
     return OS_SUCCESS;
@@ -104,8 +126,8 @@ int32 bmc_redfish_send_recv(void *handle,
     bmc_redfish_context_t *ctx = (bmc_redfish_context_t *)handle;
 
     /* 发送请求 */
-    int32 sent = OSAL_SocketSend(ctx->sock_id, request, req_size, ctx->timeout_ms);
-    if (sent != (int32)req_size)
+    osal_ssize_t sent = OSAL_send(ctx->sockfd, request, req_size, 0);
+    if (sent != (osal_ssize_t)req_size)
     {
         return OS_ERROR;
     }
@@ -113,7 +135,7 @@ int32 bmc_redfish_send_recv(void *handle,
     /* 接收响应 */
     if (response != NULL && resp_size > 0)
     {
-        int32 recv_len = OSAL_SocketRecv(ctx->sock_id, response, resp_size, ctx->timeout_ms);
+        osal_ssize_t recv_len = OSAL_recv(ctx->sockfd, response, resp_size, 0);
         if (recv_len < 0)
         {
             return OS_ERROR;
@@ -121,7 +143,7 @@ int32 bmc_redfish_send_recv(void *handle,
 
         if (actual_size != NULL)
         {
-            *actual_size = recv_len;
+            *actual_size = (uint32)recv_len;
         }
     }
 

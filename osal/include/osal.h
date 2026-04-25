@@ -19,10 +19,8 @@
 #include "osal_queue.h"
 #include "osal_mutex.h"
 #include "osal_clock.h"
-#include "osal_network.h"
 #include "osal_heap.h"
 #include "osal_log.h"
-#include "osal_file.h"
 #include "osal_signal.h"
 #include "osal_string.h"
 

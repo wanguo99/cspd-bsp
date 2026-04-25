@@ -10,8 +10,6 @@ set(OSAL_SOURCES
     src/linux/osal_error.c
     src/linux/osal_init.c
     src/linux/osal_log.c
-    src/linux/osal_file.c
-    src/linux/osal_network.c
     src/linux/osal_signal.c
     src/linux/osal_string.c
     src/linux/osal_socket.c

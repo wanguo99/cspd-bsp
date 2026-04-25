@@ -71,8 +71,6 @@ add_executable(unit-test
     src/osal/test_osal_task.c
     src/osal/test_osal_queue.c
     src/osal/test_osal_mutex.c
-    src/osal/test_osal_file.c
-    src/osal/test_osal_network.c
     src/osal/test_osal_signal.c
     src/hal/test_hal_can.c
     src/pdl/test_pdl_satellite.c
