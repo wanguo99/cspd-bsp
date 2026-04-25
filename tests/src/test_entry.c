@@ -1,5 +1,5 @@
 /************************************************************************
- * CSPD-BSP 统一测试入口程序
+ * PMC-BSP 统一测试入口程序
  * 支持交互式菜单和命令行参数
  * 整合所有层的测试：OSAL、HAL、Service、Apps
  ************************************************************************/
@@ -132,7 +132,7 @@ void print_usage(const char *prog_name)
 void list_all_tests(void)
 {
     LOG_INFO("TEST", "\n========================================");
-    LOG_INFO("TEST", "CSPD-BSP Test Suite");
+    LOG_INFO("TEST", "PMC-BSP Test Suite");
     LOG_INFO("TEST", "========================================");
 
     for (uint32_t i = 0; i < LAYER_COUNT; i++) {
@@ -329,7 +329,7 @@ void interactive_menu(void)
 
     while (1) {
         OSAL_Printf("\n========================================\n");
-        OSAL_Printf("CSPD-BSP Test Suite - Interactive Menu\n");
+        OSAL_Printf("PMC-BSP Test Suite - Interactive Menu\n");
         OSAL_Printf("========================================\n");
         OSAL_Printf("1. Run all tests (all layers)\n");
         OSAL_Printf("2. Run OSAL layer tests\n");
@@ -405,7 +405,7 @@ void interactive_menu(void)
 int main(int argc, char *argv[])
 {
     OSAL_Printf("\n========================================\n");
-    OSAL_Printf("CSPD-BSP Unified Test Suite\n");
+    OSAL_Printf("PMC-BSP Unified Test Suite\n");
     OSAL_Printf("Version 1.0.0\n");
     OSAL_Printf("========================================\n");
 

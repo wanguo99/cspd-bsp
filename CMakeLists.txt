@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(CSPD-BSP VERSION 1.0.0 LANGUAGES C)
+project(PMC-BSP VERSION 1.0.0 LANGUAGES C)
 
 # 设置C标准
 set(CMAKE_C_STANDARD 99)
@@ -99,7 +99,7 @@ add_custom_target(copy_libs ALL
 # 打印配置信息
 message(STATUS "")
 message(STATUS "========================================")
-message(STATUS "  CSPD-BSP Configuration")
+message(STATUS "  PMC-BSP Configuration")
 message(STATUS "========================================")
 message(STATUS "  Version: ${PROJECT_VERSION}")
 message(STATUS "  Platform: ${PLATFORM}")

@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-**CSPD-BSP** (Compute and Storage Payload Board Support Package) 是为卫星算存载荷设计的板级支持包，作为卫星平台与算存载荷之间的通信桥接和管理中间层。
+**PMC-BSP** (Payload Management Controller Board Support Package) 是为卫星算存载荷设计的板级支持包，作为卫星平台与算存载荷之间的通信桥接和管理中间层。
 
 **系统架构**：
 ```
-卫星平台 <--CAN--> 转接板(CSPD-BSP) <--Ethernet/UART--> 算存载荷
+卫星平台 <--CAN--> 转接板(PMC-BSP) <--Ethernet/UART--> 算存载荷
 ```
 
 ## 快速命令参考
@@ -57,7 +57,7 @@ candump can0                        # 监控CAN消息
 ## 代码结构（5层架构 + 模块化配置）
 
 ```
-cspd-bsp/
+pmc-bsp/
 ├── osal/                    # 操作系统抽象层 (OSAL)
 │   ├── include/             # 接口定义
 │   │   └── config/          # OSAL配置（模块独立）
@@ -246,10 +246,10 @@ sudo gdb ./output/target/bin/can_gateway
 (gdb) bt  # 查看调用栈
 
 # 查看日志
-tail -f /var/log/cspd-bsp.log
+tail -f /var/log/pmc-bsp.log
 
 # 查看统计信息（程序每30秒自动打印）
-grep "Statistics" /var/log/cspd-bsp.log
+grep "Statistics" /var/log/pmc-bsp.log
 ```
 
 ## 构建输出

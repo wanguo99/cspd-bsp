@@ -1,14 +1,14 @@
-# CSPD-BSP
+# PMC-BSP
 
-卫星算存载荷板级支持包 (Compute and Storage Payload Board Support Package)
+载荷管理控制器板级支持包 (Payload Management Controller Board Support Package)
 
 ## 系统概述
 
-CSPD-BSP 是专为卫星算存载荷设计的板级支持包，作为卫星平台与算存载荷之间的通信桥接和管理中间层。
+PMC-BSP 是专为卫星算存载荷设计的板级支持包，作为卫星平台与算存载荷之间的通信桥接和管理中间层。
 
 **系统架构**：
 ```
-卫星平台 <--CAN--> 转接板(CSPD-BSP) <--Ethernet/UART--> 算存载荷
+卫星平台 <--CAN--> 转接板(PMC-BSP) <--Ethernet/UART--> 算存载荷
 ```
 
 ## 核心功能
@@ -183,7 +183,7 @@ sudo ./output/target/bin/protocol_converter
 ## 目录结构
 
 ```
-cspd-bsp/
+pmc-bsp/
 ├── osal/                    # 操作系统抽象层 (OSAL)
 │   ├── include/             # 接口定义
 │   │   └── config/          # OSAL配置（模块独立）
@@ -521,10 +521,10 @@ candump -l can0
 
 ```bash
 # 实时查看
-tail -f /var/log/cspd-bsp.log
+tail -f /var/log/pmc-bsp.log
 
 # 查看统计信息（程序每30秒自动打印）
-grep "Statistics" /var/log/cspd-bsp.log
+grep "Statistics" /var/log/pmc-bsp.log
 ```
 
 ### 调试模式
@@ -607,5 +607,5 @@ Apache 2.0
 
 ## 联系方式
 
-- 项目主页：https://github.com/your-org/cspd-bsp
-- 问题反馈：https://github.com/your-org/cspd-bsp/issues
+- 项目主页：https://github.com/your-org/pmc-bsp
+- 问题反馈：https://github.com/your-org/pmc-bsp/issues

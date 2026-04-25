@@ -5,7 +5,7 @@
 #include "osal.h"
 #include <unistd.h>
 
-#define OS_VERSION_STRING "CSPD-BSP OSAL v1.0.0"
+#define OS_VERSION_STRING "PMC-BSP OSAL v1.0.0"
 
 /* 外部初始化函数声明 */
 extern void OS_TaskTableInit(void);

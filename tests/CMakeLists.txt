@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # 测试项目配置
-project(CSPD_BSP_Tests C)
+project(PMC_BSP_Tests C)
 
 # 设置C标准
 set(CMAKE_C_STANDARD 99)
@@ -18,35 +18,35 @@ if(ENABLE_COVERAGE)
 endif()
 
 # 包含源代码目录（更新为include/目录结构）
-set(CSPD_BSP_ROOT ${CMAKE_SOURCE_DIR})
+set(PMC_BSP_ROOT ${CMAKE_SOURCE_DIR})
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CSPD_BSP_ROOT}/osal/include
-    ${CSPD_BSP_ROOT}/hal/include
-    ${CSPD_BSP_ROOT}/pdl/include
-    ${CSPD_BSP_ROOT}/apps/protocol_converter
-    ${CSPD_BSP_ROOT}/apps/protocol_converter/include
-    ${CSPD_BSP_ROOT}/apps/can_gateway
-    ${CSPD_BSP_ROOT}/apps/can_gateway/include
+    ${PMC_BSP_ROOT}/osal/include
+    ${PMC_BSP_ROOT}/hal/include
+    ${PMC_BSP_ROOT}/pdl/include
+    ${PMC_BSP_ROOT}/apps/protocol_converter
+    ${PMC_BSP_ROOT}/apps/protocol_converter/include
+    ${PMC_BSP_ROOT}/apps/can_gateway
+    ${PMC_BSP_ROOT}/apps/can_gateway/include
 )
 
 # 查找pthread库
 find_package(Threads REQUIRED)
 
 # 收集源文件（排除_fixed文件和main.c）
-file(GLOB OSAL_SOURCES ${CSPD_BSP_ROOT}/osal/src/linux/*.c)
+file(GLOB OSAL_SOURCES ${PMC_BSP_ROOT}/osal/src/linux/*.c)
 list(FILTER OSAL_SOURCES EXCLUDE REGEX ".*_fixed\\.c$")
 
-file(GLOB HAL_SOURCES ${CSPD_BSP_ROOT}/hal/src/linux/*.c)
+file(GLOB HAL_SOURCES ${PMC_BSP_ROOT}/hal/src/linux/*.c)
 list(FILTER HAL_SOURCES EXCLUDE REGEX ".*_fixed\\.c$")
 
-file(GLOB SERVICE_SOURCES ${CSPD_BSP_ROOT}/pdl/src/linux/*.c)
+file(GLOB SERVICE_SOURCES ${PMC_BSP_ROOT}/pdl/src/linux/*.c)
 
-file(GLOB APPS_GATEWAY_SOURCES ${CSPD_BSP_ROOT}/apps/can_gateway/src/*.c)
+file(GLOB APPS_GATEWAY_SOURCES ${PMC_BSP_ROOT}/apps/can_gateway/src/*.c)
 list(FILTER APPS_GATEWAY_SOURCES EXCLUDE REGEX ".*_fixed\\.c$")
 list(FILTER APPS_GATEWAY_SOURCES EXCLUDE REGEX ".*/main\\.c$")
 
-file(GLOB APPS_PROTOCOL_SOURCES ${CSPD_BSP_ROOT}/apps/protocol_converter/src/*.c)
+file(GLOB APPS_PROTOCOL_SOURCES ${PMC_BSP_ROOT}/apps/protocol_converter/src/*.c)
 list(FILTER APPS_PROTOCOL_SOURCES EXCLUDE REGEX ".*_fixed\\.c$")
 list(FILTER APPS_PROTOCOL_SOURCES EXCLUDE REGEX ".*/main\\.c$")
 
@@ -274,7 +274,7 @@ install(TARGETS
 
 message(STATUS "")
 message(STATUS "========================================")
-message(STATUS "  CSPD-BSP Unit Tests Configuration")
+message(STATUS "  PMC-BSP Unit Tests Configuration")
 message(STATUS "========================================")
 message(STATUS "  Test framework: Custom (unittest_framework.h + unittest_runner.h)")
 message(STATUS "  Total test modules: 10")

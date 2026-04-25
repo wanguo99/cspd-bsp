@@ -15,7 +15,7 @@
 #define SYSTEM_VERSION_MINOR    0
 #define SYSTEM_VERSION_PATCH    0
 
-#define SYSTEM_NAME             "CSPD-BSP"
+#define SYSTEM_NAME             "PMC-BSP"
 
 /*
  * ============================================================================
@@ -48,7 +48,7 @@
  */
 
 /* 缓存文件路径 */
-#define CACHE_FILE_PATH         "/var/cache/cspd-bsp.cache"
+#define CACHE_FILE_PATH         "/var/cache/pmc-bsp.cache"
 
 /* 缓存最大条目数 */
 #define CACHE_MAX_ENTRIES       1000

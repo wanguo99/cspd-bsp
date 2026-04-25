@@ -19,7 +19,7 @@ typedef enum
 #define LOG_LEVEL               LOG_LEVEL_INFO
 
 /* 日志文件路径 */
-#define LOG_FILE_PATH           "/var/log/cspd-bsp.log"
+#define LOG_FILE_PATH           "/var/log/pmc-bsp.log"
 
 /* 日志文件最大大小(MB) */
 #define LOG_FILE_MAX_SIZE_MB    10

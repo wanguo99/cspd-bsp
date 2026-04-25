@@ -1,9 +1,9 @@
-# CSPD-BSP 编码规范
+# PMC-BSP 编码规范
 
 ## 1. 总则
 
 ### 1.1 适用范围
-本规范适用于 CSPD-BSP 项目的所有 C 代码，包括 OSAL、HAL、XConfig、PDL 和 Apps 层。
+本规范适用于 PMC-BSP 项目的所有 C 代码，包括 OSAL、HAL、XConfig、PDL 和 Apps 层。
 
 ### 1.2 设计原则
 - **航空航天级可靠性**：代码必须具备容错和自愈能力
@@ -737,4 +737,4 @@ static void task_entry(void *arg)
 
 **版本**：v1.0  
 **日期**：2026-04-25  
-**维护者**：CSPD-BSP 开发团队
+**维护者**：PMC-BSP 开发团队

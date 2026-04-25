@@ -1,13 +1,13 @@
-# CSPD-BSP 测试系统使用指南
+# PMC-BSP 测试系统使用指南
 
 ## 概述
 
-CSPD-BSP 提供了统一的测试入口程序，支持交互式菜单和命令行参数，可以方便地运行所有层的测试。
+PMC-BSP 提供了统一的测试入口程序，支持交互式菜单和命令行参数，可以方便地运行所有层的测试。
 
 ## 测试层次结构
 
 ```
-CSPD-BSP Test Suite
+PMC-BSP Test Suite
 ├── OSAL Layer (6 modules)
 │   ├── test_os_task      - 任务管理测试
 │   ├── test_os_queue     - 消息队列测试

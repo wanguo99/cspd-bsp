@@ -85,7 +85,7 @@ xconfig/
 └── CMakeLists.txt              # 构建配置
 ```
 
-### 集成到CSPD-BSP
+### 集成到PMC-BSP
 
 - 已集成到主项目CMakeLists.txt
 - 已更新主项目README.md

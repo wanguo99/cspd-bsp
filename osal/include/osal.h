@@ -1,5 +1,5 @@
 /************************************************************************
- * CSPD-BSP - Compute and Storage Payload Board Support Package
+ * PMC-BSP - Payload Management Controller Board Support Package
  *
  * 基于NASA cFS OSAL设计的轻量化操作系统抽象层
  *

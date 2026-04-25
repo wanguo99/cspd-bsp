@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# CSPD-BSP 构建脚本
+# PMC-BSP 构建脚本
 
 set -e
 
