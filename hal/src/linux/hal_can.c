@@ -10,7 +10,7 @@
 #include <net/if.h>           /* struct ifreq 定义 */
 #include <linux/can.h>
 #include <linux/can/raw.h>
-#include <sys/ioctl.h>        /* ioctl系统调用 - 待OSAL封装 */
+#include <sys/ioctl.h>        /* SIOCGIFINDEX 宏定义 */
 #include "hal_can.h"
 #include "osal.h"
 
@@ -76,7 +76,7 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
     /* 获取接口索引 */
     OSAL_Memset(&ifr, 0, sizeof(ifr));
     OSAL_Strncpy(ifr.ifr_name, config->interface, IFNAMSIZ - 1);
-    ret = ioctl(impl->sockfd, SIOCGIFINDEX, &ifr);
+    ret = OSAL_ioctl(impl->sockfd, SIOCGIFINDEX, &ifr);
     if (ret < 0)
     {
         OSAL_LogError("HAL_CAN", "Failed to get interface index: %s (interface: %s)",

@@ -51,6 +51,7 @@ typedef struct {
 #define OSAL_IGNCR   0000200  /* 忽略CR */
 #define OSAL_ICRNL   0000400  /* 将CR映射为NL */
 #define OSAL_IXON    0002000  /* 启用输出软件流控 */
+#define OSAL_IXANY   0004000  /* 任意字符重启输出 */
 #define OSAL_IXOFF   0010000  /* 启用输入软件流控 */
 
 /*===========================================================================
@@ -101,41 +102,6 @@ typedef struct {
 #define OSAL_VMIN     6   /* 读最小字符数 */
 #define OSAL_VSTART   8   /* START字符 */
 #define OSAL_VSTOP    9   /* STOP字符 */
-
-/*===========================================================================
- * 波特率常量
- *===========================================================================*/
-#define OSAL_B0       0000000  /* 挂断 */
-#define OSAL_B50      0000001  /* 50 baud */
-#define OSAL_B75      0000002  /* 75 baud */
-#define OSAL_B110     0000003  /* 110 baud */
-#define OSAL_B134     0000004  /* 134.5 baud */
-#define OSAL_B150     0000005  /* 150 baud */
-#define OSAL_B200     0000006  /* 200 baud */
-#define OSAL_B300     0000007  /* 300 baud */
-#define OSAL_B600     0000010  /* 600 baud */
-#define OSAL_B1200    0000011  /* 1200 baud */
-#define OSAL_B1800    0000012  /* 1800 baud */
-#define OSAL_B2400    0000013  /* 2400 baud */
-#define OSAL_B4800    0000014  /* 4800 baud */
-#define OSAL_B9600    0000015  /* 9600 baud */
-#define OSAL_B19200   0000016  /* 19200 baud */
-#define OSAL_B38400   0000017  /* 38400 baud */
-#define OSAL_B57600   0010001  /* 57600 baud */
-#define OSAL_B115200  0010002  /* 115200 baud */
-#define OSAL_B230400  0010003  /* 230400 baud */
-#define OSAL_B460800  0010004  /* 460800 baud */
-#define OSAL_B500000  0010005  /* 500000 baud */
-#define OSAL_B576000  0010006  /* 576000 baud */
-#define OSAL_B921600  0010007  /* 921600 baud */
-#define OSAL_B1000000 0010010  /* 1000000 baud */
-#define OSAL_B1152000 0010011  /* 1152000 baud */
-#define OSAL_B1500000 0010012  /* 1500000 baud */
-#define OSAL_B2000000 0010013  /* 2000000 baud */
-#define OSAL_B2500000 0010014  /* 2500000 baud */
-#define OSAL_B3000000 0010015  /* 3000000 baud */
-#define OSAL_B3500000 0010016  /* 3500000 baud */
-#define OSAL_B4000000 0010017  /* 4000000 baud */
 
 /*===========================================================================
  * tcsetattr的可选操作
