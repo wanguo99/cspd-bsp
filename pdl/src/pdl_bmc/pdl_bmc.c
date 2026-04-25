@@ -50,7 +50,7 @@ int32 PDL_BMC_Init(const bmc_config_t *config,
     }
 
     /* 分配上下文 */
-    bmc_context_t *ctx = (bmc_context_t *)malloc(sizeof(bmc_context_t));
+    bmc_context_t *ctx = (bmc_context_t *)OSAL_Malloc(sizeof(bmc_context_t));
     if (ctx == NULL)
     {
         LOG_ERROR("BMC", "Failed to allocate context");
@@ -65,7 +65,7 @@ int32 PDL_BMC_Init(const bmc_config_t *config,
     if (OSAL_MutexCreate(&ctx->mutex, "bmc_mutex", 0) != OS_SUCCESS)
     {
         LOG_ERROR("BMC", "Failed to create mutex");
-        free(ctx);
+        OSAL_Free(ctx);
         return OS_ERROR;
     }
 
@@ -147,7 +147,7 @@ int32 PDL_BMC_Deinit(bmc_handle_t handle)
     /* 删除互斥锁 */
     OSAL_MutexDelete(ctx->mutex);
 
-    free(ctx);
+    OSAL_Free(ctx);
     LOG_INFO("BMC", "BMC payload service deinitialized");
 
     return OS_SUCCESS;

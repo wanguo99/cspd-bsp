@@ -40,7 +40,7 @@ int32 bmc_redfish_init(const char *ip_addr, uint16 port, uint32 timeout_ms, void
         return OS_ERROR;
     }
 
-    bmc_redfish_context_t *ctx = (bmc_redfish_context_t *)malloc(sizeof(bmc_redfish_context_t));
+    bmc_redfish_context_t *ctx = (bmc_redfish_context_t *)OSAL_Malloc(sizeof(bmc_redfish_context_t));
     if (ctx == NULL)
     {
         return OS_ERROR;
@@ -52,7 +52,7 @@ int32 bmc_redfish_init(const char *ip_addr, uint16 port, uint32 timeout_ms, void
     /* 创建TCP Socket */
     if (OSAL_SocketOpen(&ctx->sock_id, 0, OS_SOCK_STREAM) != OS_SUCCESS)
     {
-        free(ctx);
+        OSAL_Free(ctx);
         return OS_ERROR;
     }
 
@@ -60,7 +60,7 @@ int32 bmc_redfish_init(const char *ip_addr, uint16 port, uint32 timeout_ms, void
     if (OSAL_SocketConnect(ctx->sock_id, ip_addr, port, timeout_ms) != OS_SUCCESS)
     {
         OSAL_SocketClose(ctx->sock_id);
-        free(ctx);
+        OSAL_Free(ctx);
         return OS_ERROR;
     }
 
@@ -81,7 +81,7 @@ int32 bmc_redfish_deinit(void *handle)
     bmc_redfish_context_t *ctx = (bmc_redfish_context_t *)handle;
 
     OSAL_SocketClose(ctx->sock_id);
-    free(ctx);
+    OSAL_Free(ctx);
 
     return OS_SUCCESS;
 }
@@ -138,7 +138,7 @@ int32 bmc_serial_init(const char *device, uint32 baudrate, uint32 timeout_ms, vo
         return OS_ERROR;
     }
 
-    bmc_serial_context_t *ctx = (bmc_serial_context_t *)malloc(sizeof(bmc_serial_context_t));
+    bmc_serial_context_t *ctx = (bmc_serial_context_t *)OSAL_Malloc(sizeof(bmc_serial_context_t));
     if (ctx == NULL)
     {
         return OS_ERROR;
@@ -157,7 +157,7 @@ int32 bmc_serial_init(const char *device, uint32 baudrate, uint32 timeout_ms, vo
 
     if (HAL_Serial_Open(device, &serial_config, &ctx->serial_handle) != OS_SUCCESS)
     {
-        free(ctx);
+        OSAL_Free(ctx);
         return OS_ERROR;
     }
 
@@ -178,7 +178,7 @@ int32 bmc_serial_deinit(void *handle)
     bmc_serial_context_t *ctx = (bmc_serial_context_t *)handle;
 
     HAL_Serial_Close(ctx->serial_handle);
-    free(ctx);
+    OSAL_Free(ctx);
 
     return OS_SUCCESS;
 }

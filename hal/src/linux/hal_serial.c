@@ -64,10 +64,10 @@ int32 HAL_Serial_Open(const char *device, const hal_serial_config_t *config, hal
         return OS_INVALID_POINTER;
     }
 
-    ctx = (hal_serial_context_t *)malloc(sizeof(hal_serial_context_t));
+    ctx = (hal_serial_context_t *)OSAL_Malloc(sizeof(hal_serial_context_t));
     if (ctx == NULL)
     {
-        OS_printf("[HAL_Serial] Failed to allocate context\n");
+        OSAL_LogError("HAL_Serial", "Failed to allocate context");
         return OS_ERR_NO_MEMORY;
     }
 
@@ -77,8 +77,8 @@ int32 HAL_Serial_Open(const char *device, const hal_serial_config_t *config, hal
     ctx->fd = open(device, O_RDWR | O_NOCTTY | O_NDELAY);
     if (ctx->fd < 0)
     {
-        OS_printf("[HAL_Serial] Failed to open %s: %s\n", device, strerror(errno));
-        free(ctx);
+        OSAL_LogError("HAL_Serial", "Failed to open %s: %s", device, strerror(errno));
+        OSAL_Free(ctx);
         return OS_ERROR;
     }
 
@@ -88,9 +88,9 @@ int32 HAL_Serial_Open(const char *device, const hal_serial_config_t *config, hal
     /* 获取当前配置 */
     if (tcgetattr(ctx->fd, &tty) != 0)
     {
-        OS_printf("[HAL_Serial] Failed to get attributes: %s\n", strerror(errno));
+        OSAL_LogError("HAL_Serial", "Failed to get attributes: %s", strerror(errno));
         close(ctx->fd);
-        free(ctx);
+        OSAL_Free(ctx);
         return OS_ERROR;
     }
 
@@ -157,9 +157,9 @@ int32 HAL_Serial_Open(const char *device, const hal_serial_config_t *config, hal
     /* 应用配置 */
     if (tcsetattr(ctx->fd, TCSANOW, &tty) != 0)
     {
-        OS_printf("[HAL_Serial] Failed to set attributes: %s\n", strerror(errno));
+        OSAL_LogError("HAL_Serial", "Failed to set attributes: %s", strerror(errno));
         close(ctx->fd);
-        free(ctx);
+        OSAL_Free(ctx);
         return OS_ERROR;
     }
 
@@ -173,7 +173,7 @@ int32 HAL_Serial_Open(const char *device, const hal_serial_config_t *config, hal
 
     *handle = (hal_serial_handle_t)ctx;
 
-    OS_printf("[HAL_Serial] Opened %s (baudrate=%u, databits=%u, stopbits=%u, parity=%u)\n",
+    OSAL_LogInfo("HAL_Serial", "Opened %s (baudrate=%u, databits=%u, stopbits=%u, parity=%u)",
               device, config->baud_rate, config->data_bits, config->stop_bits, config->parity);
 
     return OS_SUCCESS;
@@ -194,10 +194,10 @@ int32 HAL_Serial_Close(hal_serial_handle_t handle)
     if (ctx->fd >= 0)
     {
         close(ctx->fd);
-        OS_printf("[HAL_Serial] Closed %s\n", ctx->device);
+        OSAL_LogInfo("HAL_Serial", "Closed %s", ctx->device);
     }
 
-    free(ctx);
+    OSAL_Free(ctx);
     return OS_SUCCESS;
 }
 
@@ -238,7 +238,7 @@ int32 HAL_Serial_Write(hal_serial_handle_t handle, const void *buffer, uint32 si
         }
         else if (ret < 0)
         {
-            OS_printf("[HAL_Serial] Select error: %s\n", strerror(errno));
+            OSAL_LogError("HAL_Serial", "Select error: %s", strerror(errno));
             return OS_ERROR;
         }
     }
@@ -247,7 +247,7 @@ int32 HAL_Serial_Write(hal_serial_handle_t handle, const void *buffer, uint32 si
     written = write(ctx->fd, buffer, size);
     if (written < 0)
     {
-        OS_printf("[HAL_Serial] Write error: %s\n", strerror(errno));
+        OSAL_LogError("HAL_Serial", "Write error: %s", strerror(errno));
         return OS_ERROR;
     }
 
@@ -291,7 +291,7 @@ int32 HAL_Serial_Read(hal_serial_handle_t handle, void *buffer, uint32 size, int
         }
         else if (ret < 0)
         {
-            OS_printf("[HAL_Serial] Select error: %s\n", strerror(errno));
+            OSAL_LogError("HAL_Serial", "Select error: %s", strerror(errno));
             return OS_ERROR;
         }
     }
@@ -300,7 +300,7 @@ int32 HAL_Serial_Read(hal_serial_handle_t handle, void *buffer, uint32 size, int
     nread = read(ctx->fd, buffer, size);
     if (nread < 0)
     {
-        OS_printf("[HAL_Serial] Read error: %s\n", strerror(errno));
+        OSAL_LogError("HAL_Serial", "Read error: %s", strerror(errno));
         return OS_ERROR;
     }
 
@@ -327,7 +327,7 @@ int32 HAL_Serial_Flush(hal_serial_handle_t handle)
     /* 清空输入输出缓冲区 */
     if (tcflush(ctx->fd, TCIOFLUSH) != 0)
     {
-        OS_printf("[HAL_Serial] Flush error: %s\n", strerror(errno));
+        OSAL_LogError("HAL_Serial", "Flush error: %s", strerror(errno));
         return OS_ERROR;
     }
 

@@ -36,7 +36,7 @@ int32 mcu_can_init(const void *config, void **handle)
     }
 
     const mcu_config_t *mcu_cfg = (const mcu_config_t *)config;
-    mcu_can_context_t *ctx = (mcu_can_context_t *)malloc(sizeof(mcu_can_context_t));
+    mcu_can_context_t *ctx = (mcu_can_context_t *)OSAL_Malloc(sizeof(mcu_can_context_t));
     if (ctx == NULL)
     {
         return OS_ERROR;
@@ -56,7 +56,7 @@ int32 mcu_can_init(const void *config, void **handle)
 
     if (HAL_CAN_Init(&can_config, &ctx->can_handle) != OS_SUCCESS)
     {
-        free(ctx);
+        OSAL_Free(ctx);
         return OS_ERROR;
     }
 
@@ -64,7 +64,7 @@ int32 mcu_can_init(const void *config, void **handle)
     if (OSAL_MutexCreate(&ctx->rx_mutex, "mcu_can_rx", 0) != OS_SUCCESS)
     {
         HAL_CAN_Deinit(ctx->can_handle);
-        free(ctx);
+        OSAL_Free(ctx);
         return OS_ERROR;
     }
 
@@ -86,7 +86,7 @@ int32 mcu_can_deinit(void *handle)
 
     HAL_CAN_Deinit(ctx->can_handle);
     OSAL_MutexDelete(ctx->rx_mutex);
-    free(ctx);
+    OSAL_Free(ctx);
 
     return OS_SUCCESS;
 }

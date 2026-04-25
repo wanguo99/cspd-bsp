@@ -118,3 +118,24 @@ int32 OSAL_HeapGetStats(uint32 *current, uint32 *peak)
 
     return OS_SUCCESS;
 }
+
+void *OSAL_Malloc(size_t size)
+{
+    void *ptr = malloc(size);
+    if (ptr != NULL) {
+        pthread_mutex_lock(&g_heap_monitor.lock);
+        g_heap_monitor.current_usage += size;
+        if (g_heap_monitor.current_usage > g_heap_monitor.peak_usage) {
+            g_heap_monitor.peak_usage = g_heap_monitor.current_usage;
+        }
+        pthread_mutex_unlock(&g_heap_monitor.lock);
+    }
+    return ptr;
+}
+
+void OSAL_Free(void *ptr)
+{
+    if (ptr != NULL) {
+        free(ptr);
+    }
+}

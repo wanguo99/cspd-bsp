@@ -45,7 +45,7 @@ int32 mcu_serial_init(const void *config, void **handle)
     }
 
     const mcu_config_t *mcu_cfg = (const mcu_config_t *)config;
-    mcu_serial_context_t *ctx = (mcu_serial_context_t *)malloc(sizeof(mcu_serial_context_t));
+    mcu_serial_context_t *ctx = (mcu_serial_context_t *)OSAL_Malloc(sizeof(mcu_serial_context_t));
     if (ctx == NULL)
     {
         return OS_ERROR;
@@ -65,7 +65,7 @@ int32 mcu_serial_init(const void *config, void **handle)
 
     if (HAL_Serial_Open(mcu_cfg->serial.device, &serial_config, &ctx->serial_handle) != OS_SUCCESS)
     {
-        free(ctx);
+        OSAL_Free(ctx);
         return OS_ERROR;
     }
 
@@ -73,7 +73,7 @@ int32 mcu_serial_init(const void *config, void **handle)
     if (OSAL_MutexCreate(&ctx->rx_mutex, "mcu_serial_rx", 0) != OS_SUCCESS)
     {
         HAL_Serial_Close(ctx->serial_handle);
-        free(ctx);
+        OSAL_Free(ctx);
         return OS_ERROR;
     }
 
@@ -95,7 +95,7 @@ int32 mcu_serial_deinit(void *handle)
 
     HAL_Serial_Close(ctx->serial_handle);
     OSAL_MutexDelete(ctx->rx_mutex);
-    free(ctx);
+    OSAL_Free(ctx);
 
     return OS_SUCCESS;
 }

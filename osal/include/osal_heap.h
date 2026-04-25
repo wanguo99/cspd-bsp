@@ -49,4 +49,20 @@ int32 OSAL_HeapCheckThreshold(bool *exceeded);
  */
 int32 OSAL_HeapGetStats(uint32 *current, uint32 *peak);
 
+/**
+ * @brief 分配内存
+ *
+ * @param[in] size 要分配的字节数
+ *
+ * @return 成功返回内存指针，失败返回NULL
+ */
+void *OSAL_Malloc(size_t size);
+
+/**
+ * @brief 释放内存
+ *
+ * @param[in] ptr 要释放的内存指针
+ */
+void OSAL_Free(void *ptr);
+
 #endif /* OSAPI_HEAP_H */

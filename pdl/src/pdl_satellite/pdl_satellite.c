@@ -114,7 +114,7 @@ int32 PDL_Satellite_Init(const satellite_service_config_t *config,
     }
 
     /* 分配上下文 */
-    satellite_service_context_t *ctx = (satellite_service_context_t *)malloc(sizeof(satellite_service_context_t));
+    satellite_service_context_t *ctx = (satellite_service_context_t *)OSAL_Malloc(sizeof(satellite_service_context_t));
     if (ctx == NULL)
     {
         LOG_ERROR("SAT", "Failed to allocate context");
@@ -130,7 +130,7 @@ int32 PDL_Satellite_Init(const satellite_service_config_t *config,
     if (ret != OS_SUCCESS)
     {
         LOG_ERROR("SAT", "Failed to initialize CAN");
-        free(ctx);
+        OSAL_Free(ctx);
         return ret;
     }
 
@@ -143,7 +143,7 @@ int32 PDL_Satellite_Init(const satellite_service_config_t *config,
     {
         LOG_ERROR("SAT", "Failed to create RX task");
         satellite_can_deinit(ctx->can_handle);
-        free(ctx);
+        OSAL_Free(ctx);
         return ret;
     }
 
@@ -157,7 +157,7 @@ int32 PDL_Satellite_Init(const satellite_service_config_t *config,
         LOG_ERROR("SAT", "Failed to create heartbeat task");
         OSAL_TaskDelete(ctx->rx_task_id);
         satellite_can_deinit(ctx->can_handle);
-        free(ctx);
+        OSAL_Free(ctx);
         return ret;
     }
 
@@ -187,7 +187,7 @@ int32 PDL_Satellite_Deinit(satellite_service_handle_t handle)
     /* 关闭CAN */
     satellite_can_deinit(ctx->can_handle);
 
-    free(ctx);
+    OSAL_Free(ctx);
     LOG_INFO("SAT", "Satellite service deinitialized");
 
     return OS_SUCCESS;
