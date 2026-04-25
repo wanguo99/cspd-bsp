@@ -7,8 +7,7 @@
 #include "xconfig_api.h"
 #include "os_log.h"
 #include "pdl_mcu.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include "osal.h"
 
 /* 外部函数声明 */
 extern int32 XCONFIG_RegisterAll(void);
@@ -118,7 +117,7 @@ static void example_mcu_init(void)
 
     /* 将硬件配置转换为PDL层配置 */
     mcu_config_t pdl_mcu_cfg = {0};
-    strncpy(pdl_mcu_cfg.name, mcu_cfg->name, sizeof(pdl_mcu_cfg.name) - 1);
+    OSAL_Strncpy(pdl_mcu_cfg.name, mcu_cfg->name, sizeof(pdl_mcu_cfg.name) - 1);
 
     /* 根据接口类型设置PDL配置 */
     switch (mcu_cfg->interface_type) {
