@@ -36,14 +36,14 @@ typedef struct
     char interface[IFNAMSIZ];
     uint32 baudrate;
     bool initialized;
-} can_handle_impl_t;
+} hal_can_context_t;
 
 /**
  * @brief 初始化CAN驱动
  */
 int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
 {
-    can_handle_impl_t *impl;
+    hal_can_context_t *impl;
     struct sockaddr_can addr;
     struct ifreq ifr;
     int ret;
@@ -59,14 +59,14 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
         return OS_ERR_NAME_TOO_LONG;
 
     /* 分配句柄 */
-    impl = malloc(sizeof(can_handle_impl_t));
+    impl = malloc(sizeof(hal_can_context_t));
     if (impl == NULL)
     {
-        OSAL_Printf("[HAL CAN] 内存分配失败\n");
+        OS_printf("[HAL CAN] 内存分配失败\n");
         return OS_ERROR;
     }
 
-    memset(impl, 0, sizeof(can_handle_impl_t));
+    memset(impl, 0, sizeof(hal_can_context_t));
     strncpy(impl->interface, config->interface, IFNAMSIZ - 1);
     impl->interface[IFNAMSIZ - 1] = '\0';
     impl->baudrate = config->baudrate;
@@ -76,7 +76,7 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
     impl->sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
     if (impl->sockfd < 0)
     {
-        OSAL_Printf("[HAL CAN] 创建socket失败: %s\n", strerror(errno));
+        OS_printf("[HAL CAN] 创建socket失败: %s\n", strerror(errno));
         free(impl);
         return OS_ERROR;
     }
@@ -87,7 +87,7 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
     ret = ioctl(impl->sockfd, SIOCGIFINDEX, &ifr);
     if (ret < 0)
     {
-        OSAL_Printf("[HAL CAN] 获取接口索引失败: %s (接口: %s)\n",
+        OS_printf("[HAL CAN] 获取接口索引失败: %s (接口: %s)\n",
                  strerror(errno), config->interface);
         /* 提示: CAN接口必须先启动 (sudo ip link set can0 up) */
         close(impl->sockfd);
@@ -103,7 +103,7 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
     ret = bind(impl->sockfd, (struct sockaddr *)&addr, sizeof(addr));
     if (ret < 0)
     {
-        OSAL_Printf("[HAL CAN] 绑定接口失败: %s\n", strerror(errno));
+        OS_printf("[HAL CAN] 绑定接口失败: %s\n", strerror(errno));
         close(impl->sockfd);
         free(impl);
         return OS_ERROR;
@@ -118,7 +118,7 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
 
         if (setsockopt(impl->sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0)
         {
-            OSAL_Printf("[HAL CAN] 设置接收超时失败: %s\n", strerror(errno));
+            OS_printf("[HAL CAN] 设置接收超时失败: %s\n", strerror(errno));
         }
     }
 
@@ -130,14 +130,14 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
 
         if (setsockopt(impl->sockfd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv)) < 0)
         {
-            OSAL_Printf("[HAL CAN] 设置发送超时失败: %s\n", strerror(errno));
+            OS_printf("[HAL CAN] 设置发送超时失败: %s\n", strerror(errno));
         }
     }
 
     impl->initialized = true;
     *handle = (hal_can_handle_t)impl;
 
-    OSAL_Printf("[HAL CAN] 初始化成功: %s @ %u bps\n",
+    OS_printf("[HAL CAN] 初始化成功: %s @ %u bps\n",
              config->interface, config->baudrate);
     return OS_SUCCESS;
 }
@@ -147,7 +147,7 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
  */
 int32 HAL_CAN_Deinit(hal_can_handle_t handle)
 {
-    can_handle_impl_t *impl = (can_handle_impl_t *)handle;
+    hal_can_context_t *impl = (hal_can_context_t *)handle;
 
     if (impl == NULL)
         return OS_ERR_INVALID_ID;
@@ -161,7 +161,7 @@ int32 HAL_CAN_Deinit(hal_can_handle_t handle)
     impl->initialized = false;
     free(impl);
 
-    OSAL_Printf("[HAL CAN] 已关闭\n");
+    OS_printf("[HAL CAN] 已关闭\n");
     return OS_SUCCESS;
 }
 
@@ -170,7 +170,7 @@ int32 HAL_CAN_Deinit(hal_can_handle_t handle)
  */
 int32 HAL_CAN_Send(hal_can_handle_t handle, const can_frame_t *frame)
 {
-    can_handle_impl_t *impl = (can_handle_impl_t *)handle;
+    hal_can_context_t *impl = (hal_can_context_t *)handle;
     struct can_frame can_frame;
     ssize_t ret;
 
@@ -183,7 +183,7 @@ int32 HAL_CAN_Send(hal_can_handle_t handle, const can_frame_t *frame)
 
     if (frame->dlc > 8)
     {
-        OSAL_Printf("[HAL CAN] 无效的DLC: %u\n", frame->dlc);
+        OS_printf("[HAL CAN] 无效的DLC: %u\n", frame->dlc);
         return OS_ERROR;
     }
 
@@ -199,11 +199,11 @@ int32 HAL_CAN_Send(hal_can_handle_t handle, const can_frame_t *frame)
     {
         if (ret < 0)
         {
-            OSAL_Printf("[HAL CAN] 发送失败: %s\n", strerror(errno));
+            OS_printf("[HAL CAN] 发送失败: %s\n", strerror(errno));
         }
         else
         {
-            OSAL_Printf("[HAL CAN] 发送不完整: %zd/%zu 字节\n",
+            OS_printf("[HAL CAN] 发送不完整: %zd/%zu 字节\n",
                      ret, sizeof(struct can_frame));
         }
         impl->err_count++;
@@ -219,7 +219,7 @@ int32 HAL_CAN_Send(hal_can_handle_t handle, const can_frame_t *frame)
  */
 int32 HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32 timeout)
 {
-    can_handle_impl_t *impl = (can_handle_impl_t *)handle;
+    hal_can_context_t *impl = (hal_can_context_t *)handle;
     struct can_frame can_frame;
     ssize_t ret;
 
@@ -239,7 +239,7 @@ int32 HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32 timeout)
 
         if (setsockopt(impl->sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0)
         {
-            OSAL_Printf("[HAL CAN] 警告: 设置临时接收超时失败: %s\n", strerror(errno));
+            OS_printf("[HAL CAN] 警告: 设置临时接收超时失败: %s\n", strerror(errno));
         }
     }
 
@@ -250,14 +250,14 @@ int32 HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32 timeout)
         if (errno == EAGAIN || errno == EWOULDBLOCK)
             return OS_ERROR_TIMEOUT;
 
-        OSAL_Printf("[HAL CAN] 接收失败: %s\n", strerror(errno));
+        OS_printf("[HAL CAN] 接收失败: %s\n", strerror(errno));
         impl->err_count++;
         return OS_ERROR;
     }
 
     if (ret != sizeof(struct can_frame))
     {
-        OSAL_Printf("[HAL CAN] 接收不完整: %zd/%zu 字节\n",
+        OS_printf("[HAL CAN] 接收不完整: %zd/%zu 字节\n",
                  ret, sizeof(struct can_frame));
         impl->err_count++;
         return OS_ERROR;
@@ -284,7 +284,7 @@ int32 HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32 timeout)
  */
 int32 HAL_CAN_SetFilter(hal_can_handle_t handle, uint32 filter_id, uint32 filter_mask)
 {
-    can_handle_impl_t *impl = (can_handle_impl_t *)handle;
+    hal_can_context_t *impl = (hal_can_context_t *)handle;
     struct can_filter rfilter[1];
 
     if (impl == NULL)
@@ -299,11 +299,11 @@ int32 HAL_CAN_SetFilter(hal_can_handle_t handle, uint32 filter_id, uint32 filter
     if (setsockopt(impl->sockfd, SOL_CAN_RAW, CAN_RAW_FILTER,
                    &rfilter, sizeof(rfilter)) < 0)
     {
-        OSAL_Printf("[HAL CAN] 设置过滤器失败: %s\n", strerror(errno));
+        OS_printf("[HAL CAN] 设置过滤器失败: %s\n", strerror(errno));
         return OS_ERROR;
     }
 
-    OSAL_Printf("[HAL CAN] 过滤器已设置: ID=0x%X, Mask=0x%X\n",
+    OS_printf("[HAL CAN] 过滤器已设置: ID=0x%X, Mask=0x%X\n",
              filter_id, filter_mask);
     return OS_SUCCESS;
 }
@@ -316,7 +316,7 @@ int32 HAL_CAN_GetStats(hal_can_handle_t handle,
                        uint32 *rx_count,
                        uint32 *err_count)
 {
-    can_handle_impl_t *impl = (can_handle_impl_t *)handle;
+    hal_can_context_t *impl = (hal_can_context_t *)handle;
 
     if (impl == NULL)
         return OS_ERR_INVALID_ID;
