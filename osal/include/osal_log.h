@@ -93,6 +93,11 @@ void OSAL_LogFatal(const char *module, const char *format, ...);
  */
 void OSAL_Printf(const char *format, ...);
 
+/**
+ * @brief 简单打印（推荐接口）
+ */
+void OS_printf(const char *format, ...);
+
 /*
  * 便捷宏定义
  */

@@ -33,18 +33,18 @@ typedef struct
     atomic_int  ref_count;
     task_state_t state;
     volatile bool shutdown_requested;
-} OS_task_record_t;
+} osal_task_record_t;
 
-static OS_task_record_t OS_task_table[OS_MAX_TASKS];
-static pthread_mutex_t  task_table_mutex = PTHREAD_MUTEX_INITIALIZER;
-static uint32           next_task_id = 1;
+static osal_task_record_t g_osal_task_table[OS_MAX_TASKS];
+static pthread_mutex_t g_task_table_mutex = PTHREAD_MUTEX_INITIALIZER;
+static uint32 g_next_task_id = 1;
 
-void OS_TaskTableInit(void)
+void osal_task_table_init(void)
 {
-    pthread_mutex_lock(&task_table_mutex);
-    memset(OS_task_table, 0, sizeof(OS_task_table));
-    next_task_id = 1;
-    pthread_mutex_unlock(&task_table_mutex);
+    pthread_mutex_lock(&g_task_table_mutex);
+    memset(g_osal_task_table, 0, sizeof(g_osal_task_table));
+    g_next_task_id = 1;
+    pthread_mutex_unlock(&g_task_table_mutex);
 }
 
 typedef struct
@@ -63,48 +63,48 @@ static void *task_wrapper(void *arg)
 
     free(wrapper_arg);
 
-    pthread_mutex_lock(&task_table_mutex);
+    pthread_mutex_lock(&g_task_table_mutex);
     for (uint32 i = 0; i < OS_MAX_TASKS; i++)
     {
-        if (OS_task_table[i].is_used && OS_task_table[i].id == task_id)
+        if (g_osal_task_table[i].is_used && g_osal_task_table[i].id == task_id)
         {
-            OS_task_table[i].state = TASK_STATE_RUNNING;
+            g_osal_task_table[i].state = TASK_STATE_RUNNING;
             break;
         }
     }
-    pthread_mutex_unlock(&task_table_mutex);
+    pthread_mutex_unlock(&g_task_table_mutex);
 
     entry_func(user_arg);
 
-    pthread_mutex_lock(&task_table_mutex);
+    pthread_mutex_lock(&g_task_table_mutex);
     for (uint32 i = 0; i < OS_MAX_TASKS; i++)
     {
-        if (OS_task_table[i].is_used && OS_task_table[i].id == task_id)
+        if (g_osal_task_table[i].is_used && g_osal_task_table[i].id == task_id)
         {
-            OS_task_table[i].state = TASK_STATE_TERMINATED;
+            g_osal_task_table[i].state = TASK_STATE_TERMINATED;
             break;
         }
     }
-    pthread_mutex_unlock(&task_table_mutex);
+    pthread_mutex_unlock(&g_task_table_mutex);
 
     return NULL;
 }
 
-static int32 find_free_task_slot(uint32 *slot)
+static int32 osal_task_find_free_slot(uint32 *slot)
 {
-    pthread_mutex_lock(&task_table_mutex);
+    pthread_mutex_lock(&g_task_table_mutex);
 
     for (uint32 i = 0; i < OS_MAX_TASKS; i++)
     {
-        if (!OS_task_table[i].is_used)
+        if (!g_osal_task_table[i].is_used)
         {
             *slot = i;
-            pthread_mutex_unlock(&task_table_mutex);
+            pthread_mutex_unlock(&g_task_table_mutex);
             return OS_SUCCESS;
         }
     }
 
-    pthread_mutex_unlock(&task_table_mutex);
+    pthread_mutex_unlock(&g_task_table_mutex);
     return OS_ERR_NO_FREE_IDS;
 }
 
@@ -130,17 +130,17 @@ int32 OSAL_TaskCreate(osal_id_t *task_id,
     if (priority < OS_TASK_PRIORITY_MIN || priority > OS_TASK_PRIORITY_MAX)
         return OS_ERR_INVALID_PRIORITY;
 
-    ret = find_free_task_slot(&slot);
+    ret = osal_task_find_free_slot(&slot);
     if (ret != OS_SUCCESS)
         return ret;
 
-    pthread_mutex_lock(&task_table_mutex);
+    pthread_mutex_lock(&g_task_table_mutex);
     for (uint32 i = 0; i < OS_MAX_TASKS; i++)
     {
-        if (OS_task_table[i].is_used &&
-            strcmp(OS_task_table[i].name, task_name) == 0)
+        if (g_osal_task_table[i].is_used &&
+            strcmp(g_osal_task_table[i].name, task_name) == 0)
         {
-            pthread_mutex_unlock(&task_table_mutex);
+            pthread_mutex_unlock(&g_task_table_mutex);
             return OS_ERR_NAME_TAKEN;
         }
     }
@@ -148,11 +148,11 @@ int32 OSAL_TaskCreate(osal_id_t *task_id,
     wrapper_arg = malloc(sizeof(task_wrapper_arg_t));
     if (wrapper_arg == NULL)
     {
-        pthread_mutex_unlock(&task_table_mutex);
+        pthread_mutex_unlock(&g_task_table_mutex);
         return OS_ERROR;
     }
 
-    osal_id_t new_task_id = next_task_id++;
+    osal_id_t new_task_id = g_next_task_id++;
 
     wrapper_arg->entry_func = function_pointer;
     wrapper_arg->user_arg = (void *)stack_pointer;
@@ -169,22 +169,22 @@ int32 OSAL_TaskCreate(osal_id_t *task_id,
         pthread_attr_setstacksize(&attr, stack_size);
     }
 
-    OS_task_table[slot].is_used = true;
-    OS_task_table[slot].id = new_task_id;
-    strncpy(OS_task_table[slot].name, task_name, OS_MAX_API_NAME - 1);
-    OS_task_table[slot].name[OS_MAX_API_NAME - 1] = '\0';
-    OS_task_table[slot].priority = priority;
-    OS_task_table[slot].stack_size = stack_size;
-    OS_task_table[slot].state = TASK_STATE_READY;
-    atomic_init(&OS_task_table[slot].ref_count, 1);
+    g_osal_task_table[slot].is_used = true;
+    g_osal_task_table[slot].id = new_task_id;
+    strncpy(g_osal_task_table[slot].name, task_name, OS_MAX_API_NAME - 1);
+    g_osal_task_table[slot].name[OS_MAX_API_NAME - 1] = '\0';
+    g_osal_task_table[slot].priority = priority;
+    g_osal_task_table[slot].stack_size = stack_size;
+    g_osal_task_table[slot].state = TASK_STATE_READY;
+    atomic_init(&g_osal_task_table[slot].ref_count, 1);
 
-    if (pthread_create(&OS_task_table[slot].thread, &attr,
+    if (pthread_create(&g_osal_task_table[slot].thread, &attr,
                        task_wrapper, wrapper_arg) != 0)
     {
-        OS_task_table[slot].is_used = false;
+        g_osal_task_table[slot].is_used = false;
         pthread_attr_destroy(&attr);
         free(wrapper_arg);
-        pthread_mutex_unlock(&task_table_mutex);
+        pthread_mutex_unlock(&g_task_table_mutex);
         return OS_ERROR;
     }
 
@@ -192,7 +192,7 @@ int32 OSAL_TaskCreate(osal_id_t *task_id,
 
     *task_id = new_task_id;
 
-    pthread_mutex_unlock(&task_table_mutex);
+    pthread_mutex_unlock(&g_task_table_mutex);
 
     return OS_SUCCESS;
 }
@@ -206,21 +206,21 @@ int32 OSAL_TaskDelete(osal_id_t task_id)
     if (task_id == OS_OBJECT_ID_UNDEFINED)
         return OS_ERR_INVALID_ID;
 
-    pthread_mutex_lock(&task_table_mutex);
+    pthread_mutex_lock(&g_task_table_mutex);
 
     for (uint32 i = 0; i < OS_MAX_TASKS; i++)
     {
-        if (OS_task_table[i].is_used && OS_task_table[i].id == task_id)
+        if (g_osal_task_table[i].is_used && g_osal_task_table[i].id == task_id)
         {
-            thread_to_delete = OS_task_table[i].thread;
-            OS_task_table[i].shutdown_requested = true;
+            thread_to_delete = g_osal_task_table[i].thread;
+            g_osal_task_table[i].shutdown_requested = true;
             slot_index = i;
             found = true;
             break;
         }
     }
 
-    pthread_mutex_unlock(&task_table_mutex);
+    pthread_mutex_unlock(&g_task_table_mutex);
 
     if (!found)
         return OS_ERR_INVALID_ID;
@@ -235,7 +235,7 @@ int32 OSAL_TaskDelete(osal_id_t task_id)
     if (ret == ETIMEDOUT)
     {
         /* 超时后分离线程，不强制取消 */
-        OSAL_Printf("[OS_Task] 任务 %u 优雅关闭超时，分离线程\n", task_id);
+        OS_printf("[OS_Task] 任务 %u 优雅关闭超时，分离线程\n", task_id);
         pthread_detach(thread_to_delete);
     }
     else if (ret == EINVAL)
@@ -245,17 +245,17 @@ int32 OSAL_TaskDelete(osal_id_t task_id)
     }
     else if (ret != 0)
     {
-        OSAL_Printf("[OS_Task] 等待任务 %u 退出失败: %d\n", task_id, ret);
+        OS_printf("[OS_Task] 等待任务 %u 退出失败: %d\n", task_id, ret);
         pthread_detach(thread_to_delete);
     }
 
     /* 从任务表中移除 */
-    pthread_mutex_lock(&task_table_mutex);
-    if (OS_task_table[slot_index].is_used && OS_task_table[slot_index].id == task_id)
+    pthread_mutex_lock(&g_task_table_mutex);
+    if (g_osal_task_table[slot_index].is_used && g_osal_task_table[slot_index].id == task_id)
     {
-        OS_task_table[slot_index].is_used = false;
+        g_osal_task_table[slot_index].is_used = false;
     }
-    pthread_mutex_unlock(&task_table_mutex);
+    pthread_mutex_unlock(&g_task_table_mutex);
 
     return OS_SUCCESS;
 }
@@ -280,20 +280,20 @@ osal_id_t OSAL_TaskGetId(void)
 {
     pthread_t self = pthread_self();
 
-    pthread_mutex_lock(&task_table_mutex);
+    pthread_mutex_lock(&g_task_table_mutex);
 
     for (uint32 i = 0; i < OS_MAX_TASKS; i++)
     {
-        if (OS_task_table[i].is_used &&
-            pthread_equal(OS_task_table[i].thread, self))
+        if (g_osal_task_table[i].is_used &&
+            pthread_equal(g_osal_task_table[i].thread, self))
         {
-            osal_id_t id = OS_task_table[i].id;
-            pthread_mutex_unlock(&task_table_mutex);
+            osal_id_t id = g_osal_task_table[i].id;
+            pthread_mutex_unlock(&g_task_table_mutex);
             return id;
         }
     }
 
-    pthread_mutex_unlock(&task_table_mutex);
+    pthread_mutex_unlock(&g_task_table_mutex);
     return OS_OBJECT_ID_UNDEFINED;
 }
 
@@ -301,20 +301,20 @@ bool OSAL_TaskShouldShutdown(void)
 {
     pthread_t self = pthread_self();
 
-    pthread_mutex_lock(&task_table_mutex);
+    pthread_mutex_lock(&g_task_table_mutex);
 
     for (uint32 i = 0; i < OS_MAX_TASKS; i++)
     {
-        if (OS_task_table[i].is_used &&
-            pthread_equal(OS_task_table[i].thread, self))
+        if (g_osal_task_table[i].is_used &&
+            pthread_equal(g_osal_task_table[i].thread, self))
         {
-            bool shutdown = OS_task_table[i].shutdown_requested;
-            pthread_mutex_unlock(&task_table_mutex);
+            bool shutdown = g_osal_task_table[i].shutdown_requested;
+            pthread_mutex_unlock(&g_task_table_mutex);
             return shutdown;
         }
     }
 
-    pthread_mutex_unlock(&task_table_mutex);
+    pthread_mutex_unlock(&g_task_table_mutex);
     return false;
 }
 
@@ -323,20 +323,20 @@ int32 OSAL_TaskGetIdByName(osal_id_t *task_id, const char *task_name)
     if (task_id == NULL || task_name == NULL)
         return OS_INVALID_POINTER;
 
-    pthread_mutex_lock(&task_table_mutex);
+    pthread_mutex_lock(&g_task_table_mutex);
 
     for (uint32 i = 0; i < OS_MAX_TASKS; i++)
     {
-        if (OS_task_table[i].is_used &&
-            strcmp(OS_task_table[i].name, task_name) == 0)
+        if (g_osal_task_table[i].is_used &&
+            strcmp(g_osal_task_table[i].name, task_name) == 0)
         {
-            *task_id = OS_task_table[i].id;
-            pthread_mutex_unlock(&task_table_mutex);
+            *task_id = g_osal_task_table[i].id;
+            pthread_mutex_unlock(&g_task_table_mutex);
             return OS_SUCCESS;
         }
     }
 
-    pthread_mutex_unlock(&task_table_mutex);
+    pthread_mutex_unlock(&g_task_table_mutex);
     return OS_ERR_NAME_NOT_FOUND;
 }
 
@@ -345,20 +345,20 @@ int32 OSAL_TaskSetPriority(osal_id_t task_id, uint32 priority)
     if (priority < OS_TASK_PRIORITY_MIN || priority > OS_TASK_PRIORITY_MAX)
         return OS_ERR_INVALID_PRIORITY;
 
-    pthread_mutex_lock(&task_table_mutex);
+    pthread_mutex_lock(&g_task_table_mutex);
 
     for (uint32 i = 0; i < OS_MAX_TASKS; i++)
     {
-        if (OS_task_table[i].is_used && OS_task_table[i].id == task_id)
+        if (g_osal_task_table[i].is_used && g_osal_task_table[i].id == task_id)
         {
-            OS_task_table[i].priority = priority;
+            g_osal_task_table[i].priority = priority;
             /* Linux用户空间线程优先级调整需要特权 */
-            pthread_mutex_unlock(&task_table_mutex);
+            pthread_mutex_unlock(&g_task_table_mutex);
             return OS_SUCCESS;
         }
     }
 
-    pthread_mutex_unlock(&task_table_mutex);
+    pthread_mutex_unlock(&g_task_table_mutex);
     return OS_ERR_INVALID_ID;
 }
 
@@ -367,19 +367,19 @@ int32 OSAL_TaskGetInfo(osal_id_t task_id, OS_TaskProp_t *task_prop)
     if (task_prop == NULL)
         return OS_INVALID_POINTER;
 
-    pthread_mutex_lock(&task_table_mutex);
+    pthread_mutex_lock(&g_task_table_mutex);
 
     for (uint32 i = 0; i < OS_MAX_TASKS; i++)
     {
-        if (OS_task_table[i].is_used && OS_task_table[i].id == task_id)
+        if (g_osal_task_table[i].is_used && g_osal_task_table[i].id == task_id)
         {
-            task_prop->priority = OS_task_table[i].priority;
-            task_prop->stack_size = OS_task_table[i].stack_size;
-            pthread_mutex_unlock(&task_table_mutex);
+            task_prop->priority = g_osal_task_table[i].priority;
+            task_prop->stack_size = g_osal_task_table[i].stack_size;
+            pthread_mutex_unlock(&g_task_table_mutex);
             return OS_SUCCESS;
         }
     }
 
-    pthread_mutex_unlock(&task_table_mutex);
+    pthread_mutex_unlock(&g_task_table_mutex);
     return OS_ERR_INVALID_ID;
 }

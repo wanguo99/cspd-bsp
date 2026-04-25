@@ -65,7 +65,7 @@ int32 OSAL_SocketOpen(osal_id_t *sock_id, uint32 domain, uint32 type)
     native_fd = socket(native_domain, native_type, 0);
     if (native_fd < 0)
     {
-        OSAL_Printf("[OSAL] 创建socket失败, errno=%d\n", errno);
+        OS_printf("[OSAL] 创建socket失败, errno=%d\n", errno);
         return OS_ERROR;
     }
 
@@ -158,7 +158,7 @@ int32 OSAL_SocketBind(osal_id_t sock_id, const char *addr, uint16 port)
 
     if (bind(native_fd, (struct sockaddr *)&sockaddr, sizeof(sockaddr)) < 0)
     {
-        OSAL_Printf("[OSAL] bind失败, errno=%d\n", errno);
+        OS_printf("[OSAL] bind失败, errno=%d\n", errno);
         return OS_ERROR;
     }
 
@@ -202,13 +202,13 @@ int32 OSAL_SocketConnect(osal_id_t sock_id, const char *addr, uint16 port, int32
         flags = fcntl(native_fd, F_GETFL, 0);
         if (flags < 0)
         {
-            OSAL_Printf("[OSAL] fcntl(F_GETFL) 失败, errno=%d\n", errno);
+            OS_printf("[OSAL] fcntl(F_GETFL) 失败, errno=%d\n", errno);
             return OS_ERROR;
         }
 
         if (fcntl(native_fd, F_SETFL, flags | O_NONBLOCK) < 0)
         {
-            OSAL_Printf("[OSAL] fcntl(F_SETFL) 失败, errno=%d\n", errno);
+            OS_printf("[OSAL] fcntl(F_SETFL) 失败, errno=%d\n", errno);
             return OS_ERROR;
         }
     }
@@ -266,7 +266,7 @@ int32 OSAL_SocketConnect(osal_id_t sock_id, const char *addr, uint16 port, int32
 
     if (result < 0)
     {
-        OSAL_Printf("[OSAL] connect失败, errno=%d\n", errno);
+        OS_printf("[OSAL] connect失败, errno=%d\n", errno);
         return OS_ERROR;
     }
 
@@ -296,7 +296,7 @@ int32 OSAL_SocketListen(osal_id_t sock_id, uint32 backlog)
 
     if (listen(native_fd, (int)backlog) < 0)
     {
-        OSAL_Printf("[OSAL] listen失败, errno=%d\n", errno);
+        OS_printf("[OSAL] listen失败, errno=%d\n", errno);
         return OS_ERROR;
     }
 
@@ -353,7 +353,7 @@ int32 OSAL_SocketAccept(osal_id_t sock_id, osal_id_t *conn_id, char *addr, int32
     conn_fd = accept(native_fd, (struct sockaddr *)&client_addr, &addr_len);
     if (conn_fd < 0)
     {
-        OSAL_Printf("[OSAL] accept失败, errno=%d\n", errno);
+        OS_printf("[OSAL] accept失败, errno=%d\n", errno);
         return OS_ERROR;
     }
 
@@ -687,7 +687,7 @@ int32 OSAL_SocketSetOpt(osal_id_t sock_id, uint32 level, uint32 optname,
 
     if (setsockopt(native_fd, native_level, native_optname, optval, (socklen_t)optlen) < 0)
     {
-        OSAL_Printf("[OSAL] setsockopt失败, errno=%d\n", errno);
+        OS_printf("[OSAL] setsockopt失败, errno=%d\n", errno);
         return OS_ERROR;
     }
 
@@ -771,7 +771,7 @@ int32 OSAL_SocketGetOpt(osal_id_t sock_id, uint32 level, uint32 optname,
 
     if (getsockopt(native_fd, native_level, native_optname, optval, &native_optlen) < 0)
     {
-        OSAL_Printf("[OSAL] getsockopt失败, errno=%d\n", errno);
+        OS_printf("[OSAL] getsockopt失败, errno=%d\n", errno);
         return OS_ERROR;
     }
 

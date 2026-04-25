@@ -8,16 +8,16 @@
 #define OS_VERSION_STRING "PMC-BSP OSAL v1.0.0"
 
 /* 外部初始化函数声明 */
-extern void OS_TaskTableInit(void);
-extern void OS_QueueTableInit(void);
-extern void OS_MutexTableInit(void);
+extern void osal_task_table_init(void);
+extern void osal_queue_table_init(void);
+extern void osal_mutex_table_init(void);
 
 /* 初始化API */
 int32 OS_API_Init(void)
 {
-    OS_TaskTableInit();
-    OS_QueueTableInit();
-    OS_MutexTableInit();
+    osal_task_table_init();
+    osal_queue_table_init();
+    osal_mutex_table_init();
     return OS_SUCCESS;
 }
 

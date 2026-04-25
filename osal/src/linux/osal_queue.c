@@ -39,35 +39,35 @@ typedef struct
     osal_id_t   id;
     char        name[OS_MAX_API_NAME];
     queue_impl_t *impl;
-} OS_queue_record_t;
+} osal_queue_record_t;
 
-static OS_queue_record_t OS_queue_table[OS_MAX_QUEUES];
-static pthread_mutex_t   queue_table_mutex = PTHREAD_MUTEX_INITIALIZER;
-static uint32            next_queue_id = 1;
+static osal_queue_record_t g_osal_queue_table[OS_MAX_QUEUES];
+static pthread_mutex_t   g_queue_table_mutex = PTHREAD_MUTEX_INITIALIZER;
+static uint32            g_next_queue_id = 1;
 
 /*
  * 初始化队列表
  */
-void OS_QueueTableInit(void)
+void osal_queue_table_init(void)
 {
-    pthread_mutex_lock(&queue_table_mutex);
-    memset(OS_queue_table, 0, sizeof(OS_queue_table));
-    next_queue_id = 1;
-    pthread_mutex_unlock(&queue_table_mutex);
+    pthread_mutex_lock(&g_queue_table_mutex);
+    memset(g_osal_queue_table, 0, sizeof(g_osal_queue_table));
+    g_next_queue_id = 1;
+    pthread_mutex_unlock(&g_queue_table_mutex);
 }
 
 /*
  * 增加引用计数（必须在持有table锁时调用）
  */
-static queue_impl_t* queue_acquire(osal_id_t queue_id)
+static queue_impl_t* osal_queue_acquire(osal_id_t queue_id)
 {
     for (uint32 i = 0; i < OS_MAX_QUEUES; i++)
     {
-        if (OS_queue_table[i].is_used &&
-            OS_queue_table[i].id == queue_id &&
-            OS_queue_table[i].impl != NULL)
+        if (g_osal_queue_table[i].is_used &&
+            g_osal_queue_table[i].id == queue_id &&
+            g_osal_queue_table[i].impl != NULL)
         {
-            queue_impl_t *impl = OS_queue_table[i].impl;
+            queue_impl_t *impl = g_osal_queue_table[i].impl;
             if (impl->valid)
             {
                 atomic_fetch_add(&impl->ref_count, 1);
@@ -81,7 +81,7 @@ static queue_impl_t* queue_acquire(osal_id_t queue_id)
 /*
  * 减少引用计数并在必要时释放资源
  */
-static void queue_release(queue_impl_t *impl)
+static void osal_queue_release(queue_impl_t *impl)
 {
     if (impl == NULL) return;
 
@@ -98,21 +98,21 @@ static void queue_release(queue_impl_t *impl)
     }
 }
 
-static int32 find_free_queue_slot(uint32 *slot)
+static int32 osal_queue_find_free_slot(uint32 *slot)
 {
-    pthread_mutex_lock(&queue_table_mutex);
+    pthread_mutex_lock(&g_queue_table_mutex);
 
     for (uint32 i = 0; i < OS_MAX_QUEUES; i++)
     {
-        if (!OS_queue_table[i].is_used)
+        if (!g_osal_queue_table[i].is_used)
         {
             *slot = i;
-            pthread_mutex_unlock(&queue_table_mutex);
+            pthread_mutex_unlock(&g_queue_table_mutex);
             return OS_SUCCESS;
         }
     }
 
-    pthread_mutex_unlock(&queue_table_mutex);
+    pthread_mutex_unlock(&g_queue_table_mutex);
     return OS_ERR_NO_FREE_IDS;
 }
 
@@ -149,18 +149,18 @@ int32 OSAL_QueueCreate(osal_id_t *queue_id,
         }
     }
 
-    ret = find_free_queue_slot(&slot);
+    ret = osal_queue_find_free_slot(&slot);
     if (ret != OS_SUCCESS)
         return ret;
 
     /* 检查名称冲突 */
-    pthread_mutex_lock(&queue_table_mutex);
+    pthread_mutex_lock(&g_queue_table_mutex);
     for (uint32 i = 0; i < OS_MAX_QUEUES; i++)
     {
-        if (OS_queue_table[i].is_used &&
-            strcmp(OS_queue_table[i].name, queue_name) == 0)
+        if (g_osal_queue_table[i].is_used &&
+            strcmp(g_osal_queue_table[i].name, queue_name) == 0)
         {
-            pthread_mutex_unlock(&queue_table_mutex);
+            pthread_mutex_unlock(&g_queue_table_mutex);
             return OS_ERR_NAME_TAKEN;
         }
     }
@@ -169,7 +169,7 @@ int32 OSAL_QueueCreate(osal_id_t *queue_id,
     impl = malloc(sizeof(queue_impl_t));
     if (impl == NULL)
     {
-        pthread_mutex_unlock(&queue_table_mutex);
+        pthread_mutex_unlock(&g_queue_table_mutex);
         return OS_ERR_NO_MEMORY;
     }
 
@@ -181,7 +181,7 @@ int32 OSAL_QueueCreate(osal_id_t *queue_id,
     if (impl->buffer == NULL)
     {
         free(impl);
-        pthread_mutex_unlock(&queue_table_mutex);
+        pthread_mutex_unlock(&g_queue_table_mutex);
         return OS_ERR_NO_MEMORY;
     }
 
@@ -198,15 +198,15 @@ int32 OSAL_QueueCreate(osal_id_t *queue_id,
     pthread_cond_init(&impl->not_full, NULL);
 
     /* 填充队列表 */
-    OS_queue_table[slot].is_used = true;
-    OS_queue_table[slot].id = next_queue_id++;
-    strncpy(OS_queue_table[slot].name, queue_name, OS_MAX_API_NAME - 1);
-    OS_queue_table[slot].name[OS_MAX_API_NAME - 1] = '\0';
-    OS_queue_table[slot].impl = impl;
+    g_osal_queue_table[slot].is_used = true;
+    g_osal_queue_table[slot].id = g_next_queue_id++;
+    strncpy(g_osal_queue_table[slot].name, queue_name, OS_MAX_API_NAME - 1);
+    g_osal_queue_table[slot].name[OS_MAX_API_NAME - 1] = '\0';
+    g_osal_queue_table[slot].impl = impl;
 
-    *queue_id = OS_queue_table[slot].id;
+    *queue_id = g_osal_queue_table[slot].id;
 
-    pthread_mutex_unlock(&queue_table_mutex);
+    pthread_mutex_unlock(&g_queue_table_mutex);
 
     return OS_SUCCESS;
 }
@@ -215,20 +215,20 @@ int32 OSAL_QueueDelete(osal_id_t queue_id)
 {
     queue_impl_t *impl = NULL;
 
-    pthread_mutex_lock(&queue_table_mutex);
+    pthread_mutex_lock(&g_queue_table_mutex);
 
     for (uint32 i = 0; i < OS_MAX_QUEUES; i++)
     {
-        if (OS_queue_table[i].is_used && OS_queue_table[i].id == queue_id)
+        if (g_osal_queue_table[i].is_used && g_osal_queue_table[i].id == queue_id)
         {
-            impl = OS_queue_table[i].impl;
-            OS_queue_table[i].is_used = false;
-            OS_queue_table[i].impl = NULL;
+            impl = g_osal_queue_table[i].impl;
+            g_osal_queue_table[i].is_used = false;
+            g_osal_queue_table[i].impl = NULL;
             break;
         }
     }
 
-    pthread_mutex_unlock(&queue_table_mutex);
+    pthread_mutex_unlock(&g_queue_table_mutex);
 
     if (impl == NULL)
         return OS_ERR_INVALID_ID;
@@ -241,7 +241,7 @@ int32 OSAL_QueueDelete(osal_id_t queue_id)
     pthread_mutex_unlock(&impl->mutex);
 
     /* 释放初始引用 */
-    queue_release(impl);
+    osal_queue_release(impl);
 
     return OS_SUCCESS;
 }
@@ -255,16 +255,16 @@ int32 OSAL_QueuePut(osal_id_t queue_id, const void *data, uint32 size, uint32 fl
         return OS_INVALID_POINTER;
 
     /* 获取队列并增加引用计数 */
-    pthread_mutex_lock(&queue_table_mutex);
-    impl = queue_acquire(queue_id);
-    pthread_mutex_unlock(&queue_table_mutex);
+    pthread_mutex_lock(&g_queue_table_mutex);
+    impl = osal_queue_acquire(queue_id);
+    pthread_mutex_unlock(&g_queue_table_mutex);
 
     if (impl == NULL)
         return OS_ERR_INVALID_ID;
 
     if (size > impl->msg_size)
     {
-        queue_release(impl);
+        osal_queue_release(impl);
         return OS_QUEUE_INVALID_SIZE;
     }
 
@@ -274,7 +274,7 @@ int32 OSAL_QueuePut(osal_id_t queue_id, const void *data, uint32 size, uint32 fl
     if (!impl->valid)
     {
         pthread_mutex_unlock(&impl->mutex);
-        queue_release(impl);
+        osal_queue_release(impl);
         return OS_ERR_INVALID_ID;
     }
 
@@ -299,7 +299,7 @@ int32 OSAL_QueuePut(osal_id_t queue_id, const void *data, uint32 size, uint32 fl
     }
 
     pthread_mutex_unlock(&impl->mutex);
-    queue_release(impl);
+    osal_queue_release(impl);
 
     return result;
 }
@@ -316,9 +316,9 @@ int32 OSAL_QueueGet(osal_id_t queue_id, void *data, uint32 size,
         return OS_INVALID_POINTER;
 
     /* 获取队列并增加引用计数 */
-    pthread_mutex_lock(&queue_table_mutex);
-    impl = queue_acquire(queue_id);
-    pthread_mutex_unlock(&queue_table_mutex);
+    pthread_mutex_lock(&g_queue_table_mutex);
+    impl = osal_queue_acquire(queue_id);
+    pthread_mutex_unlock(&g_queue_table_mutex);
 
     if (impl == NULL)
         return OS_ERR_INVALID_ID;
@@ -329,7 +329,7 @@ int32 OSAL_QueueGet(osal_id_t queue_id, void *data, uint32 size,
     if (!impl->valid)
     {
         pthread_mutex_unlock(&impl->mutex);
-        queue_release(impl);
+        osal_queue_release(impl);
         return OS_ERR_INVALID_ID;
     }
 
@@ -394,7 +394,7 @@ int32 OSAL_QueueGet(osal_id_t queue_id, void *data, uint32 size,
     }
 
     pthread_mutex_unlock(&impl->mutex);
-    queue_release(impl);
+    osal_queue_release(impl);
 
     return result;
 }
@@ -404,19 +404,19 @@ int32 OSAL_QueueGetIdByName(osal_id_t *queue_id, const char *queue_name)
     if (queue_id == NULL || queue_name == NULL)
         return OS_INVALID_POINTER;
 
-    pthread_mutex_lock(&queue_table_mutex);
+    pthread_mutex_lock(&g_queue_table_mutex);
 
     for (uint32 i = 0; i < OS_MAX_QUEUES; i++)
     {
-        if (OS_queue_table[i].is_used &&
-            strcmp(OS_queue_table[i].name, queue_name) == 0)
+        if (g_osal_queue_table[i].is_used &&
+            strcmp(g_osal_queue_table[i].name, queue_name) == 0)
         {
-            *queue_id = OS_queue_table[i].id;
-            pthread_mutex_unlock(&queue_table_mutex);
+            *queue_id = g_osal_queue_table[i].id;
+            pthread_mutex_unlock(&g_queue_table_mutex);
             return OS_SUCCESS;
         }
     }
 
-    pthread_mutex_unlock(&queue_table_mutex);
+    pthread_mutex_unlock(&g_queue_table_mutex);
     return OS_ERR_NAME_NOT_FOUND;
 }

@@ -71,7 +71,7 @@ int32 OSAL_FileOpen(osal_id_t *fd, const char *path, uint32 mode, uint32 flags)
     native_fd = open(path, native_flags, 0666);
     if (native_fd < 0)
     {
-        OSAL_Printf("[OSAL] 打开文件失败: %s, errno=%d\n", path, errno);
+        OS_printf("[OSAL] 打开文件失败: %s, errno=%d\n", path, errno);
         return OS_ERROR;
     }
 

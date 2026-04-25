@@ -354,6 +354,18 @@ void OSAL_LogFatal(const char *module, const char *format, ...)
 }
 
 /**
+ * @brief 简单打印（推荐接口）
+ */
+void OS_printf(const char *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    vprintf(format, args);
+    va_end(args);
+    fflush(stdout);
+}
+
+/**
  * @brief 简单打印（兼容旧接口）
  */
 void OSAL_Printf(const char *format, ...)

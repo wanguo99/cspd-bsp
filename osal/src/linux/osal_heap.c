@@ -96,7 +96,7 @@ int32 OSAL_HeapCheckThreshold(bool *exceeded)
     *exceeded = (usage_percent >= g_heap_monitor.threshold_percent);
     if (*exceeded && !g_heap_monitor.alert_triggered) {
         g_heap_monitor.alert_triggered = true;
-        OSAL_Printf("[HEAP] Memory threshold exceeded: %u%% (threshold: %u%%)\n",
+        OS_printf("[HEAP] Memory threshold exceeded: %u%% (threshold: %u%%)\n",
                   usage_percent, g_heap_monitor.threshold_percent);
     } else if (!*exceeded) {
         g_heap_monitor.alert_triggered = false;
