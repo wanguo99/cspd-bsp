@@ -11,18 +11,11 @@
 
 #include "payload_pdl.h"
 #include "osal.h"
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
 #include <sys/select.h>
-#include <sys/time.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
-#include <unistd.h>
-#include <fcntl.h>
 #include <termios.h>
-#include <errno.h>
 
 /*
  * 连接状态
@@ -92,15 +85,15 @@ int32 PayloadService_Init(const payload_service_config_t *config,
     }
 
     /* 分配上下文 */
-    ctx = (payload_service_context_t *)malloc(sizeof(payload_service_context_t));
+    ctx = (payload_service_context_t *)OSAL_Malloc(sizeof(payload_service_context_t));
     if (!ctx)
     {
         OSAL_Printf("[PayloadService] 内存分配失败\n");
         return OS_ERROR;
     }
 
-    memset(ctx, 0, sizeof(payload_service_context_t));
-    memcpy(&ctx->config, config, sizeof(payload_service_config_t));
+    OSAL_Memset(ctx, 0, sizeof(payload_service_context_t));
+    OSAL_Memcpy(&ctx->config, config, sizeof(payload_service_config_t));
     ctx->eth_fd = -1;
     ctx->uart_fd = -1;
     ctx->current_channel = PAYLOAD_CHANNEL_ETHERNET;
@@ -112,7 +105,7 @@ int32 PayloadService_Init(const payload_service_config_t *config,
     if (ret != OS_SUCCESS)
     {
         OSAL_Printf("[PayloadService] 创建互斥锁失败\n");
-        free(ctx);
+        OSAL_Free(ctx);
         return ret;
     }
 
@@ -142,7 +135,7 @@ int32 PayloadService_Init(const payload_service_config_t *config,
             OSAL_Printf("[PayloadService] UART打开失败\n");
             ctx->state = CONN_STATE_ERROR;
             OSAL_MutexDelete(ctx->mutex);
-            free(ctx);
+            OSAL_Free(ctx);
             return OS_ERROR;
         }
     }
@@ -171,7 +164,7 @@ int32 PayloadService_Deinit(payload_service_handle_t handle)
     OSAL_MutexUnlock(ctx->mutex);
     OSAL_MutexDelete(ctx->mutex);
 
-    free(ctx);
+    OSAL_Free(ctx);
 
     OSAL_Printf("[PayloadService] 服务已关闭\n");
     return OS_SUCCESS;
@@ -409,41 +402,42 @@ static int32 ethernet_connect(payload_service_context_t *ctx)
     int enable = 1;
 
     /* 创建socket */
-    ctx->eth_fd = socket(AF_INET, SOCK_STREAM, 0);
+    ctx->eth_fd = OSAL_socket(OSAL_AF_INET, OSAL_SOCK_STREAM, 0);
     if (ctx->eth_fd < 0)
     {
-        OSAL_Printf("[PayloadService] 创建socket失败: %s\n", strerror(errno));
+        OSAL_Printf("[PayloadService] 创建socket失败: %s\n", OSAL_StrError(OSAL_GetErrno()));
         return OS_ERROR;
     }
 
     /* 设置socket选项 */
-    setsockopt(ctx->eth_fd, SOL_SOCKET, SO_KEEPALIVE, &enable, sizeof(enable));
-    setsockopt(ctx->eth_fd, IPPROTO_TCP, TCP_NODELAY, &enable, sizeof(enable));
+    OSAL_setsockopt(ctx->eth_fd, OSAL_SOL_SOCKET, OSAL_SO_KEEPALIVE, &enable, sizeof(enable));
+    OSAL_setsockopt(ctx->eth_fd, IPPROTO_TCP, TCP_NODELAY, &enable, sizeof(enable));
 
     /* 设置非阻塞 */
-    flags = fcntl(ctx->eth_fd, F_GETFL, 0);
-    fcntl(ctx->eth_fd, F_SETFL, flags | O_NONBLOCK);
+    flags = OSAL_fcntl(ctx->eth_fd, OSAL_F_GETFL, 0);
+    OSAL_fcntl(ctx->eth_fd, OSAL_F_SETFL, flags | OSAL_O_NONBLOCK);
 
     /* 配置服务器地址 */
-    memset(&server_addr, 0, sizeof(server_addr));
+    OSAL_Memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(ctx->config.ethernet.port);
 
     if (inet_pton(AF_INET, ctx->config.ethernet.ip_addr, &server_addr.sin_addr) <= 0)
     {
         OSAL_Printf("[PayloadService] 无效的IP地址: %s\n", ctx->config.ethernet.ip_addr);
-        close(ctx->eth_fd);
+        OSAL_close(ctx->eth_fd);
         ctx->eth_fd = -1;
         return OS_ERROR;
     }
 
     /* 连接 */
-    if (connect(ctx->eth_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
+    if (OSAL_connect(ctx->eth_fd, (osal_sockaddr_t *)&server_addr, sizeof(server_addr)) < 0)
     {
-        if (errno != EINPROGRESS)
+        int32 err = OSAL_GetErrno();
+        if (err != OSAL_EINPROGRESS)
         {
-            OSAL_Printf("[PayloadService] 连接失败: %s\n", strerror(errno));
-            close(ctx->eth_fd);
+            OSAL_Printf("[PayloadService] 连接失败: %s\n", OSAL_StrError(err));
+            OSAL_close(ctx->eth_fd);
             ctx->eth_fd = -1;
             return OS_ERROR;
         }
@@ -460,26 +454,26 @@ static int32 ethernet_connect(payload_service_context_t *ctx)
         if (ret <= 0)
         {
             OSAL_Printf("[PayloadService] 连接超时\n");
-            close(ctx->eth_fd);
+            OSAL_close(ctx->eth_fd);
             ctx->eth_fd = -1;
             return OS_ERROR;
         }
 
         /* 检查连接是否成功 */
         int error = 0;
-        socklen_t len = sizeof(error);
-        getsockopt(ctx->eth_fd, SOL_SOCKET, SO_ERROR, &error, &len);
+        osal_size_t len = sizeof(error);
+        OSAL_getsockopt(ctx->eth_fd, OSAL_SOL_SOCKET, OSAL_SO_ERROR, &error, &len);
         if (error != 0)
         {
-            OSAL_Printf("[PayloadService] 连接失败: %s\n", strerror(error));
-            close(ctx->eth_fd);
+            OSAL_Printf("[PayloadService] 连接失败: %s\n", OSAL_StrError(error));
+            OSAL_close(ctx->eth_fd);
             ctx->eth_fd = -1;
             return OS_ERROR;
         }
     }
 
     /* 恢复阻塞模式 */
-    fcntl(ctx->eth_fd, F_SETFL, flags);
+    OSAL_fcntl(ctx->eth_fd, OSAL_F_SETFL, flags);
 
     return OS_SUCCESS;
 }
@@ -488,8 +482,8 @@ static int32 ethernet_disconnect(payload_service_context_t *ctx)
 {
     if (ctx->eth_fd >= 0)
     {
-        shutdown(ctx->eth_fd, SHUT_RDWR);
-        close(ctx->eth_fd);
+        OSAL_shutdown(ctx->eth_fd, OSAL_SHUT_RDWR);
+        OSAL_close(ctx->eth_fd);
         ctx->eth_fd = -1;
     }
     return OS_SUCCESS;
@@ -497,17 +491,17 @@ static int32 ethernet_disconnect(payload_service_context_t *ctx)
 
 static int32 ethernet_send(payload_service_context_t *ctx, const void *data, uint32 len)
 {
-    ssize_t ret;
+    osal_ssize_t ret;
 
     if (ctx->eth_fd < 0)
     {
         return OS_ERROR;
     }
 
-    ret = send(ctx->eth_fd, data, len, MSG_NOSIGNAL);
+    ret = OSAL_send(ctx->eth_fd, data, len, MSG_NOSIGNAL);
     if (ret < 0)
     {
-        OSAL_Printf("[PayloadService] 以太网发送失败: %s\n", strerror(errno));
+        OSAL_Printf("[PayloadService] 以太网发送失败: %s\n", OSAL_StrError(OSAL_GetErrno()));
         return OS_ERROR;
     }
 
@@ -516,7 +510,7 @@ static int32 ethernet_send(payload_service_context_t *ctx, const void *data, uin
 
 static int32 ethernet_recv(payload_service_context_t *ctx, void *buf, uint32 buf_size, uint32 timeout_ms)
 {
-    ssize_t ret;
+    osal_ssize_t ret;
     fd_set readfds;
     struct timeval tv;
 
@@ -538,14 +532,14 @@ static int32 ethernet_recv(payload_service_context_t *ctx, void *buf, uint32 buf
     }
     else if (ret < 0)
     {
-        OSAL_Printf("[PayloadService] select失败: %s\n", strerror(errno));
+        OSAL_Printf("[PayloadService] select失败: %s\n", OSAL_StrError(OSAL_GetErrno()));
         return OS_ERROR;
     }
 
-    ret = recv(ctx->eth_fd, buf, buf_size, 0);
+    ret = OSAL_recv(ctx->eth_fd, buf, buf_size, 0);
     if (ret < 0)
     {
-        OSAL_Printf("[PayloadService] 以太网接收失败: %s\n", strerror(errno));
+        OSAL_Printf("[PayloadService] 以太网接收失败: %s\n", OSAL_StrError(OSAL_GetErrno()));
         return OS_ERROR;
     }
     else if (ret == 0)
@@ -565,20 +559,20 @@ static int32 uart_open(payload_service_context_t *ctx)
     struct termios tty;
 
     /* 打开串口 */
-    ctx->uart_fd = open(ctx->config.uart.device, O_RDWR | O_NOCTTY);
+    ctx->uart_fd = OSAL_open(ctx->config.uart.device, OSAL_O_RDWR | OSAL_O_NOCTTY, 0);
     if (ctx->uart_fd < 0)
     {
         OSAL_Printf("[PayloadService] 打开UART失败: %s (%s)\n",
-                 strerror(errno), ctx->config.uart.device);
+                 OSAL_StrError(OSAL_GetErrno()), ctx->config.uart.device);
         return OS_ERROR;
     }
 
     /* 配置串口 */
-    memset(&tty, 0, sizeof(tty));
+    OSAL_Memset(&tty, 0, sizeof(tty));
     if (tcgetattr(ctx->uart_fd, &tty) != 0)
     {
-        OSAL_Printf("[PayloadService] 获取UART属性失败: %s\n", strerror(errno));
-        close(ctx->uart_fd);
+        OSAL_Printf("[PayloadService] 获取UART属性失败: %s\n", OSAL_StrError(OSAL_GetErrno()));
+        OSAL_close(ctx->uart_fd);
         ctx->uart_fd = -1;
         return OS_ERROR;
     }
@@ -625,8 +619,8 @@ static int32 uart_open(payload_service_context_t *ctx)
 
     if (tcsetattr(ctx->uart_fd, TCSANOW, &tty) != 0)
     {
-        OSAL_Printf("[PayloadService] 设置UART属性失败: %s\n", strerror(errno));
-        close(ctx->uart_fd);
+        OSAL_Printf("[PayloadService] 设置UART属性失败: %s\n", OSAL_StrError(OSAL_GetErrno()));
+        OSAL_close(ctx->uart_fd);
         ctx->uart_fd = -1;
         return OS_ERROR;
     }
@@ -641,7 +635,7 @@ static int32 uart_close(payload_service_context_t *ctx)
 {
     if (ctx->uart_fd >= 0)
     {
-        close(ctx->uart_fd);
+        OSAL_close(ctx->uart_fd);
         ctx->uart_fd = -1;
     }
     return OS_SUCCESS;
@@ -649,17 +643,17 @@ static int32 uart_close(payload_service_context_t *ctx)
 
 static int32 uart_send(payload_service_context_t *ctx, const void *data, uint32 len)
 {
-    ssize_t ret;
+    osal_ssize_t ret;
 
     if (ctx->uart_fd < 0)
     {
         return OS_ERROR;
     }
 
-    ret = write(ctx->uart_fd, data, len);
+    ret = OSAL_write(ctx->uart_fd, data, len);
     if (ret < 0)
     {
-        OSAL_Printf("[PayloadService] UART发送失败: %s\n", strerror(errno));
+        OSAL_Printf("[PayloadService] UART发送失败: %s\n", OSAL_StrError(OSAL_GetErrno()));
         return OS_ERROR;
     }
 
@@ -671,7 +665,7 @@ static int32 uart_send(payload_service_context_t *ctx, const void *data, uint32 
 
 static int32 uart_recv(payload_service_context_t *ctx, void *buf, uint32 buf_size, uint32 timeout_ms)
 {
-    ssize_t ret;
+    osal_ssize_t ret;
     fd_set readfds;
     struct timeval tv;
 
@@ -693,14 +687,14 @@ static int32 uart_recv(payload_service_context_t *ctx, void *buf, uint32 buf_siz
     }
     else if (ret < 0)
     {
-        OSAL_Printf("[PayloadService] select失败: %s\n", strerror(errno));
+        OSAL_Printf("[PayloadService] select失败: %s\n", OSAL_StrError(OSAL_GetErrno()));
         return OS_ERROR;
     }
 
-    ret = read(ctx->uart_fd, buf, buf_size);
+    ret = OSAL_read(ctx->uart_fd, buf, buf_size);
     if (ret < 0)
     {
-        OSAL_Printf("[PayloadService] UART接收失败: %s\n", strerror(errno));
+        OSAL_Printf("[PayloadService] UART接收失败: %s\n", OSAL_StrError(OSAL_GetErrno()));
         return OS_ERROR;
     }
 

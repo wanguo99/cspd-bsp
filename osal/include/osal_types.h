@@ -32,6 +32,22 @@ typedef uint32 osal_id_t;
 #define OS_OBJECT_ID_UNDEFINED  ((osal_id_t)0)
 
 /*
+ * 平台相关的大小类型
+ * - 32位平台：使用32位类型
+ * - 64位平台：使用64位类型
+ * - 保证应用层代码在不同平台间兼容
+ */
+#if defined(__LP64__) || defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__)
+    /* 64位平台 */
+    typedef uint64 osal_size_t;
+    typedef int64  osal_ssize_t;
+#else
+    /* 32位平台 */
+    typedef uint32 osal_size_t;
+    typedef int32  osal_ssize_t;
+#endif
+
+/*
  * 返回值类型 (参考Linux errno风格)
  * 成功返回0，错误返回正数错误码
  */

@@ -11,8 +11,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <unistd.h>
-#include <string.h>
 
 static payload_service_handle_t test_handle;
 
@@ -36,30 +34,30 @@ static void* mock_tcp_server_thread(void *arg)
     int reuse = 1;
 
     /* 创建socket */
-    g_mock_server.server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    g_mock_server.server_fd = OSAL_socket(OSAL_AF_INET, OSAL_SOCK_STREAM, 0);
     if (g_mock_server.server_fd < 0) {
         g_mock_server.server_ready = false;
         return NULL;
     }
 
     /* 设置地址重用 */
-    setsockopt(g_mock_server.server_fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
+    OSAL_setsockopt(g_mock_server.server_fd, OSAL_SOL_SOCKET, OSAL_SO_REUSEADDR, &reuse, sizeof(reuse));
 
     /* 绑定地址 */
-    memset(&server_addr, 0, sizeof(server_addr));
+    OSAL_Memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
     server_addr.sin_port = htons(g_mock_server.port);
 
-    if (bind(g_mock_server.server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-        close(g_mock_server.server_fd);
+    if (OSAL_bind(g_mock_server.server_fd, (osal_sockaddr_t*)&server_addr, sizeof(server_addr)) < 0) {
+        OSAL_close(g_mock_server.server_fd);
         g_mock_server.server_ready = false;
         return NULL;
     }
 
     /* 开始监听 */
-    if (listen(g_mock_server.server_fd, 5) < 0) {
-        close(g_mock_server.server_fd);
+    if (OSAL_listen(g_mock_server.server_fd, 5) < 0) {
+        OSAL_close(g_mock_server.server_fd);
         g_mock_server.server_ready = false;
         return NULL;
     }
@@ -77,7 +75,8 @@ static void* mock_tcp_server_thread(void *arg)
 
     int ret = select(g_mock_server.server_fd + 1, &readfds, NULL, NULL, &tv);
     if (ret > 0) {
-        client_fd = accept(g_mock_server.server_fd, (struct sockaddr*)&client_addr, &client_len);
+        osal_size_t osal_client_len = client_len;
+        client_fd = OSAL_accept(g_mock_server.server_fd, (osal_sockaddr_t*)&client_addr, &osal_client_len);
         if (client_fd >= 0) {
             /* 保持连接打开，不做任何操作 */
             /* 等待客户端关闭或超时 */
@@ -92,11 +91,11 @@ static void* mock_tcp_server_thread(void *arg)
             /* 等待数据或超时 */
             select(client_fd + 1, &client_readfds, NULL, NULL, &client_tv);
 
-            close(client_fd);
+            OSAL_close(client_fd);
         }
     }
 
-    close(g_mock_server.server_fd);
+    OSAL_close(g_mock_server.server_fd);
     g_mock_server.server_running = false;
     return NULL;
 }
@@ -108,7 +107,7 @@ void test_payload_service_init_success(void)
     pthread_t server_thread;
 
     /* 初始化模拟服务器 */
-    memset(&g_mock_server, 0, sizeof(g_mock_server));
+    OSAL_Memset(&g_mock_server, 0, sizeof(g_mock_server));
     g_mock_server.port = 18080;
     g_mock_server.server_ready = false;
     g_mock_server.server_running = true;
@@ -125,7 +124,7 @@ void test_payload_service_init_success(void)
     /* 等待服务器就绪 */
     int timeout = 0;
     while (!g_mock_server.server_ready && timeout < 50) {
-        usleep(100000);  /* 100ms */
+        OSAL_usleep(100000);  /* 100ms */
         timeout++;
     }
 

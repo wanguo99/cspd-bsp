@@ -181,11 +181,80 @@ pmc-bsp/
   - `hal/include/config/can_config.h` - CAN接口、波特率配置
   - `apps/can_gateway/include/config/can_protocol.h` - CAN协议定义
 
-### 2. 分层隔离
+### 2. 分层隔离与系统调用封装（关键）
 - **OSAL层**：封装操作系统API，支持跨平台移植
+  - **唯一允许直接调用系统调用的层**
+  - 提供两类接口：
+    1. **高层业务接口**：如 `OSAL_TaskCreate()`, `OSAL_SocketOpen()` - 带资源管理和业务逻辑
+    2. **原始系统调用封装**：如 `OSAL_socket()`, `OSAL_bind()`, `OSAL_open()`, `OSAL_close()` - 1:1映射系统调用，仅做跨平台适配
+  - 参考Linux uapi形式，按模块划分（socket/unistd/fcntl等）
 - **HAL层**：封装硬件驱动，隔离硬件差异
+  - **必须使用OSAL封装的系统调用**，禁止直接调用 `socket()`, `bind()`, `open()`, `close()` 等
+  - 允许使用硬件特定的ioctl操作（如CAN的SIOCGIFINDEX）
 - **PDL层**：外设驱动层，统一管理卫星/载荷/MCU等外设
+  - **必须通过HAL层或OSAL接口访问底层**
 - **Apps层**：应用逻辑，通过PDL层访问底层
+  - **严格禁止任何系统调用**
+
+### 2.1 OSAL系统调用封装架构（重要）
+
+**设计原则**：参考Linux uapi，按功能模块划分系统调用封装，便于RTOS移植
+
+**模块划分**（规划中）：
+```
+osal/include/
+├── osal_socket.h      # Socket操作：OSAL_socket, OSAL_bind, OSAL_connect, OSAL_setsockopt
+├── osal_unistd.h      # 文件I/O：OSAL_open, OSAL_close, OSAL_read, OSAL_write
+├── osal_fcntl.h       # 文件控制：OSAL_fcntl
+├── osal_ioctl.h       # 设备控制：OSAL_ioctl
+├── osal_select.h      # I/O多路复用：OSAL_select
+└── osal_termios.h     # 串口控制：OSAL_tcgetattr, OSAL_tcsetattr
+```
+
+**封装原则**：
+1. **1:1映射**：接口名称、参数、返回值与系统调用保持一致
+2. **无业务逻辑**：不引入资源管理、ID分配等额外逻辑
+3. **跨平台适配**：仅做必要的类型转换和平台差异处理
+4. **便于移植**：RTOS移植时只需实现对应模块的封装
+
+**使用示例**（HAL层CAN驱动）：
+```c
+/* ✅ 正确：使用OSAL原始系统调用封装 */
+int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
+{
+    int32 sockfd;
+    struct sockaddr_can addr;
+    struct ifreq ifr;
+    
+    /* 创建socket（使用OSAL封装） */
+    sockfd = OSAL_socket(PF_CAN, SOCK_RAW, CAN_RAW);
+    if (sockfd < 0) {
+        return OS_ERROR;
+    }
+    
+    /* 获取接口索引（硬件操作，允许使用ioctl） */
+    OSAL_ioctl(sockfd, SIOCGIFINDEX, &ifr);
+    
+    /* 绑定接口（使用OSAL封装） */
+    OSAL_bind(sockfd, (struct sockaddr *)&addr, sizeof(addr));
+    
+    return OS_SUCCESS;
+}
+
+/* ❌ 错误：直接调用系统调用 */
+int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
+{
+    int sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW);  // ❌ 禁止
+    bind(sockfd, ...);  // ❌ 禁止
+}
+```
+
+**关键规则**：
+- ✅ HAL/PDL/Apps层必须使用 `OSAL_socket()` 而不是 `socket()`
+- ✅ HAL/PDL/Apps层必须使用 `OSAL_open()` 而不是 `open()`
+- ✅ HAL/PDL/Apps层必须使用 `OSAL_close()` 而不是 `close()`
+- ✅ 所有标准库函数（memcpy/strlen等）必须使用OSAL封装
+- ❌ 除OSAL层外，任何层都不允许 `#include <unistd.h>` 或 `#include <sys/socket.h>`
 
 ### 3. XConfig层（硬件配置库）
 - **两层配置架构**：硬件配置层（定义外设硬件接口）+ APP配置层（定义APP使用哪些外设）
@@ -295,12 +364,24 @@ output/
 
 ## 编码规范
 
+**详细规范请参考**：[docs/CODING_STANDARDS.md](docs/CODING_STANDARDS.md)
+
+### 系统调用封装（最重要）
+- **禁止**HAL/PDL/Apps/Tests层直接使用系统调用
+- **必须**使用OSAL封装的接口：
+  - 文件操作：`OSAL_open()`, `OSAL_close()`, `OSAL_read()`, `OSAL_write()`
+  - Socket操作：`OSAL_socket()`, `OSAL_bind()`, `OSAL_connect()`, `OSAL_setsockopt()`
+  - 内存操作：`OSAL_Memset()`, `OSAL_Memcpy()`, `OSAL_Malloc()`, `OSAL_Free()`
+  - 字符串操作：`OSAL_Strlen()`, `OSAL_Strcmp()`, `OSAL_Strcpy()`, `OSAL_Snprintf()`
+- **违规示例**：直接使用 `socket()`, `bind()`, `open()`, `close()`, `memcpy()`, `strlen()` 等
+
 ### 日志接口
 - **禁止**直接使用`printf`/`fprintf`
 - **使用**OSAL日志接口：
-  - `OS_printf()` - 简单输出
-  - `LOG_INFO("MODULE", "message")` - 信息日志
-  - `LOG_ERROR("MODULE", "message")` - 错误日志
+  - `OSAL_Printf()` - 简单输出（无格式）
+  - `OSAL_INFO("MODULE", "message")` - 信息日志
+  - `OSAL_ERROR("MODULE", "message")` - 错误日志
+- **禁止**直接调用底层函数：`OSAL_LogInfo()`, `OSAL_LogError()` 等（仅供宏内部使用）
 
 ### 错误处理
 - 所有函数返回`int32`状态码
@@ -392,9 +473,22 @@ ping 192.168.1.100
 telnet 192.168.1.100 623
 ```
 
-## 最近重构（2026-04-24）
+## 最近重构
 
-### Service层重命名为PDL层
+### 系统调用封装重构（2026-04-25）
+- **目标**：实现完整的系统调用封装，支持RTOS移植
+- **架构设计**：参考Linux uapi，按模块划分（socket/unistd/fcntl/ioctl等）
+- **封装原则**：1:1映射系统调用，不引入业务逻辑，仅做跨平台适配
+- **实施范围**：
+  - 创建OSAL原始系统调用封装接口（规划中）
+  - 修改HAL层使用OSAL封装（进行中）
+  - 修改PDL/Apps/Tests层使用OSAL封装（待完成）
+- **关键变更**：
+  - HAL层CAN驱动：`socket()` → `OSAL_socket()`, `bind()` → `OSAL_bind()`
+  - HAL层串口驱动：`open()` → `OSAL_open()`, `close()` → `OSAL_close()`
+  - 所有层：`memcpy()` → `OSAL_Memcpy()`, `strlen()` → `OSAL_Strlen()`
+
+### Service层重命名为PDL层（2026-04-24）
 - 原名称`service`容易与业务服务混淆，新名称`pdl`（Peripheral Driver Layer，外设驱动层）更准确
 - 架构理念：管理板为核心，卫星/载荷/BMC/MCU统一抽象为外设
 - 命名变更：`service/` → `pdl/`, `service_*.h` → `pdl_*.h`, `SatelliteService_*` → `SatellitePDL_*`
@@ -421,14 +515,15 @@ telnet 192.168.1.100 623
 
 ## 开发建议
 
-1. **遵循分层架构**：不要跨层直接调用
-2. **模块独立性**：各模块只依赖自己的 `include/config/` 目录，不要引用其他模块的配置
-3. **使用OSAL接口**：不要直接使用pthread/socket等系统API
-4. **优雅退出**：任务循环检查`OS_TaskShouldShutdown()`
-5. **错误处理**：所有返回值必须检查
-6. **日志规范**：使用`LOG_*`宏，不要用`printf`
-7. **测试驱动**：新功能必须编写单元测试
-8. **配置管理**：修改配置时只修改对应模块的 `include/config/` 目录
+1. **系统调用封装（最重要）**：HAL/PDL/Apps/Tests层严禁直接调用系统调用，必须使用OSAL封装
+2. **遵循分层架构**：不要跨层直接调用
+3. **模块独立性**：各模块只依赖自己的 `include/config/` 目录，不要引用其他模块的配置
+4. **使用OSAL接口**：不要直接使用pthread/socket/open/close等系统API
+5. **优雅退出**：任务循环检查`OS_TaskShouldShutdown()`
+6. **错误处理**：所有返回值必须检查
+7. **日志规范**：使用`OSAL_INFO/ERROR`宏，不要用`printf`或直接调用`OSAL_LogInfo`
+8. **测试驱动**：新功能必须编写单元测试
+9. **配置管理**：修改配置时只修改对应模块的 `include/config/` 目录
 
 ## 性能指标
 

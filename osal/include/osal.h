@@ -26,6 +26,13 @@
 #include "osal_signal.h"
 #include "osal_string.h"
 
+/* 系统调用封装模块 */
+#include "osal_unistd.h"
+#include "osal_socket.h"
+#include "osal_select.h"
+#include "osal_termios.h"
+#include "osal_errno.h"
+
 /*
  * OSAL版本信息
  */
