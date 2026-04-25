@@ -17,6 +17,8 @@ set(OSAL_SOURCES
     src/linux/osal_socket.c
     src/linux/osal_unistd.c
     src/linux/osal_errno.c
+    src/linux/osal_select.c
+    src/linux/osal_termios.c
 )
 
 # 创建OSAL静态库
