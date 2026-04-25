@@ -17,6 +17,8 @@
 - 遵循 **MISRA C** 规范（航空航天安全标准）
 - 编译选项：`-Wall -Wextra -Werror`（所有警告视为错误）
 - C 标准：**C99/C11**
+- **系统调用封装**：所有系统调用必须在 OSAL 层封装，其他模块只允许使用 OSAL 对外提供的封装接口
+- **日志接口规范**：非必要情况下，日志打印优先使用 `OSAL_INFO` 等带等级的接口，而不是使用 `OSAL_printf`
 
 ---
 
@@ -83,9 +85,122 @@ module/
 
 ---
 
-## 3. 命名规范
+## 3. 系统调用封装规范
 
-### 3.1 文件命名
+### 3.1 封装原则
+**所有系统调用必须在 OSAL 层封装，其他模块只允许使用 OSAL 对外提供的封装接口。**
+
+**目的**：
+- **平台隔离**：上层代码与操作系统解耦，便于跨平台移植
+- **统一管理**：系统资源（文件、线程、内存）集中管理，便于调试和监控
+- **错误处理**：统一的错误码和日志，提高代码可维护性
+- **安全加固**：在 OSAL 层统一进行参数校验和安全检查
+
+### 3.2 禁止的系统调用
+**HAL、XConfig、PDL、Apps 层禁止直接使用以下系统调用**：
+
+| 类别 | 禁止使用 | 必须使用 OSAL 封装 |
+|------|----------|-------------------|
+| 线程 | `pthread_create`, `pthread_join`, `pthread_exit` | `OSAL_TaskCreate`, `OSAL_TaskDelete` |
+| 互斥锁 | `pthread_mutex_lock`, `pthread_mutex_unlock` | `OSAL_MutexLock`, `OSAL_MutexUnlock` |
+| 信号量 | `sem_wait`, `sem_post` | `OSAL_SemTake`, `OSAL_SemGive` |
+| 队列 | `mq_send`, `mq_receive` | `OSAL_QueuePut`, `OSAL_QueueGet` |
+| 文件 | `open`, `close`, `read`, `write` | `OSAL_FileOpen`, `OSAL_FileClose`, `OSAL_FileRead`, `OSAL_FileWrite` |
+| 内存 | `malloc`, `free`, `mmap` | `OSAL_Malloc`, `OSAL_Free` |
+| 时间 | `sleep`, `usleep`, `nanosleep` | `OSAL_TaskDelay` |
+| 定时器 | `timer_create`, `timer_settime` | `OSAL_TimerCreate`, `OSAL_TimerSet` |
+| 日志 | `printf`, `fprintf`, `syslog` | `OSAL_INFO`, `OSAL_ERROR` 等 |
+
+### 3.3 正确示例
+
+```c
+/* ❌ 错误：HAL层直接使用系统调用 */
+void hal_can_task(void *arg)
+{
+    pthread_mutex_lock(&mutex);  // ❌ 禁止
+    sleep(1);                     // ❌ 禁止
+    printf("CAN task\n");         // ❌ 禁止
+    pthread_mutex_unlock(&mutex); // ❌ 禁止
+}
+
+/* ✅ 正确：使用OSAL封装 */
+void hal_can_task(void *arg)
+{
+    OSAL_MutexLock(mutex_id);     // ✓
+    OSAL_TaskDelay(1000);         // ✓
+    OSAL_INFO("HAL_CAN", "CAN task running");  // ✓
+    OSAL_MutexUnlock(mutex_id);   // ✓
+}
+```
+
+```c
+/* ❌ 错误：PDL层直接使用文件操作 */
+int32 pdl_config_load(const char *path)
+{
+    int fd = open(path, O_RDONLY);  // ❌ 禁止
+    if (fd < 0) {
+        return -1;
+    }
+    read(fd, buffer, size);         // ❌ 禁止
+    close(fd);                      // ❌ 禁止
+    return 0;
+}
+
+/* ✅ 正确：使用OSAL文件接口 */
+int32 pdl_config_load(const char *path)
+{
+    int32 fd;
+    int32 ret;
+    
+    ret = OSAL_FileOpen(path, OS_READ_ONLY, &fd);  // ✓
+    if (ret != OS_SUCCESS) {
+        OSAL_ERROR("PDL", "Failed to open config file: %s", path);
+        return OS_ERROR;
+    }
+    
+    ret = OSAL_FileRead(fd, buffer, size);  // ✓
+    OSAL_FileClose(fd);                     // ✓
+    
+    return ret;
+}
+```
+
+### 3.4 例外情况
+**仅以下情况允许直接使用系统调用**：
+
+1. **OSAL 层内部实现**：OSAL 层封装系统调用时
+2. **HAL 层硬件操作**：访问硬件寄存器、设备文件（如 `/dev/can0`）时，但必须使用 OSAL 的文件接口打开设备
+3. **性能关键路径**：经过充分论证和团队评审后，可在注释中说明原因
+
+```c
+/* HAL层硬件操作示例 */
+int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
+{
+    int32 fd;
+    int32 ret;
+    
+    /* 使用OSAL接口打开设备 */
+    ret = OSAL_FileOpen(config->device, OS_READ_WRITE, &fd);  // ✓
+    if (ret != OS_SUCCESS) {
+        return OS_ERROR;
+    }
+    
+    /* 硬件特定的ioctl操作（允许） */
+    ret = ioctl(fd, SIOCGIFINDEX, &ifr);  // ✓ 硬件操作
+    if (ret < 0) {
+        OSAL_FileClose(fd);
+        return OS_ERROR;
+    }
+    
+    return OS_SUCCESS;
+}
+```
+
+---
+
+## 4. 命名规范
+
+### 4.1 文件命名
 
 #### 源代码文件命名
 
@@ -110,7 +225,7 @@ TEST_MODULE_BEGIN(test_<module>_<submodule>)
 TEST_MODULE_END(test_<module>_<submodule>)
 ```
 
-### 3.2 分层命名规范
+### 4.2 分层命名规范
 
 #### 对外API命名（Public API）
 
@@ -203,7 +318,7 @@ TEST_CASE(test_pdl_satellite_init_success)   // ✓ 全部小写+下划线
 TEST_CASE(test_apps_can_gateway_init_success) // ✓ 全部小写+下划线
 ```
 
-### 3.3 函数命名详解
+### 4.3 函数命名详解
 
 #### 对外API函数（Public API）
 
@@ -266,7 +381,7 @@ static int32 pdl_bmc_send_ipmi_command(uint8 cmd, const uint8 *data, uint32 len)
 - 内部函数：小写前缀 + 小写+下划线（`osal_task_find_by_id`）
 - 内部函数必须声明为 `static`
 
-### 3.4 变量命名
+### 4.4 变量命名
 
 #### 全局变量
 - **格式**：`g_<module>_<name>`
@@ -316,7 +431,7 @@ osal_task_record_t *record = NULL;
 #define DEFAULT_TIMEOUT_MS 1000
 ```
 
-### 3.5 类型命名
+### 4.5 类型命名
 - **结构体**：`<模块>_<名称>_t`，如 `xconfig_board_config_t`
 - **枚举**：`<模块>_<名称>_e`，如 `xconfig_device_type_e`
 - **枚举值**：全大写，如 `XCONFIG_DEV_MCU`
@@ -344,13 +459,13 @@ typedef enum {
 typedef void (*satellite_cmd_callback_t)(uint8 cmd_type, const uint8 *data, void *user_data);
 ```
 
-### 3.6 宏命名
+### 4.6 宏命名
 - **配置宏**：全大写，如 `TASK_STACK_SIZE_DEFAULT`
 - **功能宏**：全大写，如 `LOG_INFO`, `TEST_ASSERT_EQUAL`
 
 ---
 
-## 4. 代码风格
+## 5. 代码风格
 
 ### 4.1 缩进与空格
 - **缩进**：4 个空格（禁止使用 Tab）
@@ -452,9 +567,9 @@ int32 XCONFIG_Register(const xconfig_board_config_t *config);
 
 ---
 
-## 5. 错误处理
+## 6. 错误处理
 
-### 5.1 返回值规范
+### 4.1 返回值规范
 - **成功**：`OS_SUCCESS` (0)
 - **失败**：`OS_ERROR` (-1) 或具体错误码
 - **所有函数返回值必须检查**
@@ -472,7 +587,7 @@ if (ret != OS_SUCCESS) {
 XCONFIG_Register(config);  // ❌
 ```
 
-### 5.2 参数校验
+### 4.2 参数校验
 **对外 API** 必须校验所有参数：
 ```c
 int32 XCONFIG_Register(const xconfig_board_config_t *config)
@@ -500,7 +615,7 @@ static void internal_process(const data_t *data)
 }
 ```
 
-### 5.3 边界检查
+### 4.3 边界检查
 数组访问必须检查边界：
 ```c
 /* 正确 */
@@ -515,14 +630,14 @@ return board->mcus[id];  // ❌ 可能越界
 
 ---
 
-## 6. 内存管理
+## 7. 内存管理
 
-### 6.1 禁止事项
+### 4.1 禁止事项
 - **关键路径禁止动态分配**：中断处理、DMA 传输禁止使用 `malloc`/`kmalloc`
 - **必须检查返回值**：所有 `malloc` 必须检查是否为 NULL
 - **禁止内存泄漏**：每个 `malloc` 必须有对应的 `free`
 
-### 6.2 推荐做法
+### 4.2 推荐做法
 - **预分配内存池**：关键路径使用静态缓冲区或内存池
 - **栈上分配**：小对象优先使用栈（注意栈大小限制）
 
@@ -550,22 +665,34 @@ free(buffer);
 
 ---
 
-## 7. 日志规范
+## 8. 日志规范
 
 ### 7.1 日志接口
 **禁止**直接使用 `printf`/`fprintf`，**必须**使用 OSAL 日志接口：
 
 ```c
-/* 简单输出 */
-OS_printf("message\n");
+/* 带等级的日志接口（推荐） */
+OSAL_INFO("MODULE", "format", ...);
+OSAL_DEBUG("MODULE", "format", ...);
+OSAL_WARN("MODULE", "format", ...);
+OSAL_ERROR("MODULE", "format", ...);
+OSAL_FATAL("MODULE", "format", ...);
 
-/* 带模块名的日志 */
+/* 简单输出（仅在必要时使用） */
+OSAL_printf("message\n");
+
+/* 兼容宏（映射到OSAL接口） */
 LOG_DEBUG("MODULE", "format", ...);
 LOG_INFO("MODULE", "format", ...);
 LOG_WARN("MODULE", "format", ...);
 LOG_ERROR("MODULE", "format", ...);
 LOG_FATAL("MODULE", "format", ...);
 ```
+
+**使用原则**：
+- **优先使用带等级的接口**：`OSAL_INFO`、`OSAL_ERROR` 等，便于日志过滤和分级管理
+- **避免使用 `OSAL_printf`**：仅在简单调试或特殊场景下使用
+- **禁止使用 `OS_printf`**：这是内部接口，应使用 `OSAL_printf` 或带等级的接口
 
 ### 7.2 日志级别
 | 级别 | 用途 | 示例 |
@@ -578,21 +705,25 @@ LOG_FATAL("MODULE", "format", ...);
 
 ### 7.3 日志示例
 ```c
-/* 初始化 */
-LOG_INFO("XCONFIG", "Hardware configuration library initialized");
+/* 推荐：使用带等级的接口 */
+OSAL_INFO("XCONFIG", "Hardware configuration library initialized");
+OSAL_ERROR("XCONFIG", "Failed to register config[%d]: %s/%s/%s",
+           i, config->platform, config->product, config->version);
+OSAL_WARN("XCONFIG", "Config already registered: %s/%s/%s",
+          config->platform, config->product, config->version);
 
-/* 错误 */
+/* 或使用兼容宏 */
+LOG_INFO("XCONFIG", "Hardware configuration library initialized");
 LOG_ERROR("XCONFIG", "Failed to register config[%d]: %s/%s/%s",
           i, config->platform, config->product, config->version);
 
-/* 警告 */
-LOG_WARN("XCONFIG", "Config already registered: %s/%s/%s",
-         config->platform, config->product, config->version);
+/* 不推荐：使用简单输出 */
+OSAL_printf("Hardware configuration library initialized\n");  // ❌ 缺少模块名和等级
 ```
 
 ---
 
-## 8. 任务编程
+## 9. 任务编程
 
 ### 8.1 任务入口函数
 **标准模板**：
@@ -653,7 +784,7 @@ static void heartbeat_task(void *arg)
 
 ---
 
-## 9. 配置管理
+## 10. 配置管理
 
 ### 9.1 配置文件位置
 **配置下沉原则**：每个模块的配置文件放在模块内部的 `include/config/` 目录。
@@ -687,7 +818,7 @@ apps/can_gateway/include/config/app_config.h  # 应用配置
 
 ---
 
-## 10. 安全编程
+## 11. 安全编程
 
 ### 10.1 禁止事项
 - **命令注入**：禁止直接拼接用户输入到 `system()`
@@ -715,7 +846,7 @@ sprintf(buffer, "format %s", str);  // ❌ 可能溢出
 
 ---
 
-## 11. 测试规范
+## 12. 测试规范
 
 ### 11.1 测试框架
 使用项目统一测试框架：
@@ -825,7 +956,7 @@ TEST_MODULE_END(test_osal_file)
 
 ---
 
-## 12. 版本控制
+## 13. 版本控制
 
 ### 12.1 提交信息格式
 ```
@@ -863,7 +994,7 @@ Closes #123
 
 ---
 
-## 13. 性能优化
+## 14. 性能优化
 
 ### 13.1 关键路径优化
 - **零拷贝传输**：避免不必要的 `memcpy`
@@ -878,7 +1009,7 @@ Closes #123
 
 ---
 
-## 14. 文档规范
+## 15. 文档规范
 
 ### 14.1 必需文档
 - `README.md`：模块概述、使用方法
@@ -892,7 +1023,7 @@ Closes #123
 
 ---
 
-## 15. 检查清单
+## 16. 检查清单
 
 ### 15.1 代码提交前检查
 - [ ] 编译无警告（`-Wall -Wextra -Werror`）
@@ -916,7 +1047,7 @@ Closes #123
 
 ---
 
-## 16. 参考资料
+## 17. 参考资料
 
 - [Linux Kernel Coding Style](https://www.kernel.org/doc/html/latest/process/coding-style.html)
 - [MISRA C:2012 Guidelines](https://www.misra.org.uk/)
