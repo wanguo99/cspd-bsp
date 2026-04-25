@@ -443,14 +443,14 @@ static int32 ethernet_connect(payload_service_context_t *ctx)
         }
 
         /* 等待连接完成 */
-        fd_set writefds;
-        struct timeval tv;
-        FD_ZERO(&writefds);
-        FD_SET(ctx->eth_fd, &writefds);
+        osal_fd_set_t writefds;
+        osal_timeval_t tv;
+        OSAL_FD_ZERO(&writefds);
+        OSAL_FD_SET(ctx->eth_fd, &writefds);
         tv.tv_sec = 5;  /* 5秒超时 */
         tv.tv_usec = 0;
 
-        int ret = select(ctx->eth_fd + 1, NULL, &writefds, NULL, &tv);
+        int ret = OSAL_select(ctx->eth_fd + 1, NULL, &writefds, NULL, &tv);
         if (ret <= 0)
         {
             OSAL_Printf("[PayloadService] 连接超时\n");
@@ -511,8 +511,8 @@ static int32 ethernet_send(payload_service_context_t *ctx, const void *data, uin
 static int32 ethernet_recv(payload_service_context_t *ctx, void *buf, uint32 buf_size, uint32 timeout_ms)
 {
     osal_ssize_t ret;
-    fd_set readfds;
-    struct timeval tv;
+    osal_fd_set_t readfds;
+    osal_timeval_t tv;
 
     if (ctx->eth_fd < 0)
     {
@@ -520,12 +520,12 @@ static int32 ethernet_recv(payload_service_context_t *ctx, void *buf, uint32 buf
     }
 
     /* 设置超时 */
-    FD_ZERO(&readfds);
-    FD_SET(ctx->eth_fd, &readfds);
+    OSAL_FD_ZERO(&readfds);
+    OSAL_FD_SET(ctx->eth_fd, &readfds);
     tv.tv_sec = timeout_ms / 1000;
     tv.tv_usec = (timeout_ms % 1000) * 1000;
 
-    ret = select(ctx->eth_fd + 1, &readfds, NULL, NULL, &tv);
+    ret = OSAL_select(ctx->eth_fd + 1, &readfds, NULL, NULL, &tv);
     if (ret == 0)
     {
         return OS_ERROR_TIMEOUT;
@@ -666,8 +666,8 @@ static int32 uart_send(payload_service_context_t *ctx, const void *data, uint32 
 static int32 uart_recv(payload_service_context_t *ctx, void *buf, uint32 buf_size, uint32 timeout_ms)
 {
     osal_ssize_t ret;
-    fd_set readfds;
-    struct timeval tv;
+    osal_fd_set_t readfds;
+    osal_timeval_t tv;
 
     if (ctx->uart_fd < 0)
     {
@@ -675,12 +675,12 @@ static int32 uart_recv(payload_service_context_t *ctx, void *buf, uint32 buf_siz
     }
 
     /* 设置超时 */
-    FD_ZERO(&readfds);
-    FD_SET(ctx->uart_fd, &readfds);
+    OSAL_FD_ZERO(&readfds);
+    OSAL_FD_SET(ctx->uart_fd, &readfds);
     tv.tv_sec = timeout_ms / 1000;
     tv.tv_usec = (timeout_ms % 1000) * 1000;
 
-    ret = select(ctx->uart_fd + 1, &readfds, NULL, NULL, &tv);
+    ret = OSAL_select(ctx->uart_fd + 1, &readfds, NULL, NULL, &tv);
     if (ret == 0)
     {
         return OS_ERROR_TIMEOUT;
