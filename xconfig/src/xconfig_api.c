@@ -480,9 +480,10 @@ void XCONFIG_Print(const xconfig_board_config_t *config)
         printf("  [%d] %s - %s\n", i, mcu->name,
                   mcu->enabled ? "Enabled" : "Disabled");
         printf("      Interface: %s\n",
-                  mcu->interface_type == XCONFIG_INTERFACE_CAN ? "CAN" :
-                  mcu->interface_type == XCONFIG_INTERFACE_UART ? "UART" :
-                  mcu->interface_type == XCONFIG_INTERFACE_I2C ? "I2C" : "Unknown");
+                  mcu->interface_type == XCONFIG_HW_INTERFACE_CAN ? "CAN" :
+                  mcu->interface_type == XCONFIG_HW_INTERFACE_UART ? "UART" :
+                  mcu->interface_type == XCONFIG_HW_INTERFACE_I2C ? "I2C" :
+                  mcu->interface_type == XCONFIG_HW_INTERFACE_SPI ? "SPI" : "Unknown");
     }
     printf("\n");
 

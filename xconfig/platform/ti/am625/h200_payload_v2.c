@@ -12,7 +12,7 @@
  * - BMC升级为2.5G以太网
  ************************************************************************/
 
-#include "xconfig_types.h"
+#include "xconfig.h"
 
 /*===========================================================================
  * V2.0特有GPIO定义
@@ -57,14 +57,15 @@ static xconfig_satellite_cfg_t satellite_1553b = {
     .enabled = true,
 
     /* 通信接口：1553B */
-    .interface_type = XCONFIG_INTERFACE_1553B,
-    .interface_cfg.bus_1553b = {
+    .interface_type = XCONFIG_HW_INTERFACE_1553B,
+    .interface_cfg.mil1553b = {
         .device = "/dev/mil1553b0",
         .rt_address = 5           /* RT地址：5 */
     },
 
-    .heartbeat_interval_ms = 5000,
-    .cmd_timeout_ms = 2000        /* 1553B超时更长 */
+    .cmd_timeout_ms = 2000,
+    .retry_count = 3,
+    .enable_telemetry = true
 };
 
 static xconfig_satellite_cfg_t *satellite_list_v2[] = {
@@ -87,17 +88,19 @@ static xconfig_bmc_cfg_t bmc_payload_v2 = {
 
     /* 主通道：2.5G以太网 */
     .primary_channel = {
-        .type = XCONFIG_INTERFACE_ETHERNET,
-        .cfg = {
+        .protocol = XCONFIG_BMC_PROTOCOL_IPMI,
+        .cfg.ipmi_lan = {
             .interface = "eth0",
             .ip_addr = "192.168.1.100",
-            .port = 623
+            .port = 623,
+            .username = "admin",
+            .password = NULL
         }
     },
 
     /* 备份通道：串口 */
     .backup_channel = {
-        .type = XCONFIG_INTERFACE_UART,
+        .protocol = XCONFIG_BMC_PROTOCOL_IPMI,
         .cfg = {
             .device = "/dev/ttyS2",
             .baudrate = 115200,
@@ -135,7 +138,7 @@ static xconfig_sensor_cfg_t sensor_gps = {
     .enabled = true,
 
     /* 通信接口：UART */
-    .interface_type = XCONFIG_INTERFACE_UART,
+    .interface_type = XCONFIG_HW_INTERFACE_UART,
     .interface_cfg.uart = {
         .device = "/dev/ttyS3",
         .baudrate = 9600,         /* GPS标准波特率 */

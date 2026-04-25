@@ -8,7 +8,7 @@
  * 配置理念：以外设为单位进行配置
  ************************************************************************/
 
-#include "xconfig_types.h"
+#include "xconfig.h"
 
 /*===========================================================================
  * GPIO定义
@@ -73,7 +73,7 @@ static xconfig_mcu_cfg_t mcu_stm32 = {
     .enabled = true,
 
     /* 通信接口：UART */
-    .interface_type = XCONFIG_INTERFACE_UART,
+    .interface_type = XCONFIG_HW_INTERFACE_UART,
     .interface_cfg.uart = {
         .device = "/dev/ttyS1",
         .baudrate = 115200,
@@ -112,19 +112,21 @@ static xconfig_bmc_cfg_t bmc_payload = {
     .description = "Payload BMC for power and thermal management",
     .enabled = true,
 
-    /* 主通道：以太网 */
+    /* 主通道：IPMI over LAN */
     .primary_channel = {
-        .type = XCONFIG_INTERFACE_ETHERNET,
-        .cfg = {
+        .protocol = XCONFIG_BMC_PROTOCOL_IPMI,
+        .cfg.ipmi_lan = {
             .interface = "eth0",
             .ip_addr = "192.168.1.100",
-            .port = 623              /* IPMI端口 */
+            .port = 623,             /* IPMI端口 */
+            .username = "admin",
+            .password = NULL
         }
     },
 
-    /* 备份通道：串口 */
+    /* 备份通道：IPMI over Serial */
     .backup_channel = {
-        .type = XCONFIG_INTERFACE_UART,
+        .protocol = XCONFIG_BMC_PROTOCOL_IPMI,
         .cfg = {
             .device = "/dev/ttyS2",
             .baudrate = 115200,
@@ -164,7 +166,7 @@ static xconfig_satellite_cfg_t satellite_platform = {
     .enabled = true,
 
     /* 通信接口：CAN */
-    .interface_type = XCONFIG_INTERFACE_CAN,
+    .interface_type = XCONFIG_HW_INTERFACE_CAN,
     .interface_cfg.can = {
         .device = "can0",
         .bitrate = 500000,        /* 500Kbps */
@@ -173,8 +175,12 @@ static xconfig_satellite_cfg_t satellite_platform = {
     },
 
     /* 卫星平台特定配置 */
-    .heartbeat_interval_ms = 5000, /* 5秒心跳 */
-    .cmd_timeout_ms = 1000
+    .cmd_timeout_ms = 1000,
+    .retry_count = 3,
+    .enable_telemetry = true,
+
+    .power_gpio = NULL,
+    .reset_gpio = NULL
 };
 
 static xconfig_satellite_cfg_t *satellite_list[] = {
@@ -199,7 +205,7 @@ static xconfig_sensor_cfg_t sensor_board_temp = {
     .enabled = true,
 
     /* 通信接口：I2C */
-    .interface_type = XCONFIG_INTERFACE_I2C,
+    .interface_type = XCONFIG_HW_INTERFACE_I2C,
     .interface_cfg.i2c = {
         .device = "/dev/i2c-1",
         .slave_addr = 0x48,       /* TMP75地址 */

@@ -11,7 +11,7 @@
  * - 卫星接口增加冗余CAN通道
  ************************************************************************/
 
-#include "xconfig_types.h"
+#include "xconfig.h"
 
 /*===========================================================================
  * V1.0特有GPIO定义
@@ -48,7 +48,7 @@ static xconfig_mcu_cfg_t mcu_backup = {
     .enabled = true,
 
     /* 通信接口：CAN */
-    .interface_type = XCONFIG_INTERFACE_CAN,
+    .interface_type = XCONFIG_HW_INTERFACE_CAN,
     .interface_cfg.can = {
         .device = "can1",
         .bitrate = 500000,
@@ -82,7 +82,7 @@ static xconfig_satellite_cfg_t satellite_backup = {
     .description = "Satellite platform backup CAN interface",
     .enabled = true,
 
-    .interface_type = XCONFIG_INTERFACE_CAN,
+    .interface_type = XCONFIG_HW_INTERFACE_CAN,
     .interface_cfg.can = {
         .device = "can2",
         .bitrate = 500000,
@@ -90,8 +90,9 @@ static xconfig_satellite_cfg_t satellite_backup = {
         .rx_id = 0x101
     },
 
-    .heartbeat_interval_ms = 5000,
-    .cmd_timeout_ms = 1000
+    .cmd_timeout_ms = 1000,
+    .retry_count = 3,
+    .enable_telemetry = true
 };
 
 static xconfig_satellite_cfg_t *satellite_list_v1[] = {
@@ -113,7 +114,7 @@ static xconfig_sensor_cfg_t sensor_gyro = {
     .type = SENSOR_TYPE_GYROSCOPE,
     .enabled = true,
 
-    .interface_type = XCONFIG_INTERFACE_I2C,
+    .interface_type = XCONFIG_HW_INTERFACE_I2C,
     .interface_cfg.i2c = {
         .device = "/dev/i2c-1",
         .slave_addr = 0x68,
@@ -138,7 +139,7 @@ static xconfig_sensor_cfg_t sensor_accel = {
     .type = SENSOR_TYPE_ACCELEROMETER,
     .enabled = true,
 
-    .interface_type = XCONFIG_INTERFACE_I2C,
+    .interface_type = XCONFIG_HW_INTERFACE_I2C,
     .interface_cfg.i2c = {
         .device = "/dev/i2c-1",
         .slave_addr = 0x68,       /* 与陀螺仪同地址 */

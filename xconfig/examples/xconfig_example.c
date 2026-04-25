@@ -110,43 +110,44 @@ static void example_mcu_init(void)
     }
 
     OS_printf("Found MCU: %s\n", mcu_cfg->name);
-    OS_printf("  Interface: %s (%s)\n",
-              mcu_cfg->interface->name,
-              mcu_cfg->interface->type == XCONFIG_INTERFACE_UART ? "UART" :
-              mcu_cfg->interface->type == XCONFIG_INTERFACE_CAN ? "CAN" :
-              mcu_cfg->interface->type == XCONFIG_INTERFACE_I2C ? "I2C" : "Unknown");
+    OS_printf("  Interface: %s\n",
+              mcu_cfg->interface_type == XCONFIG_HW_INTERFACE_UART ? "UART" :
+              mcu_cfg->interface_type == XCONFIG_HW_INTERFACE_CAN ? "CAN" :
+              mcu_cfg->interface_type == XCONFIG_HW_INTERFACE_I2C ? "I2C" :
+              mcu_cfg->interface_type == XCONFIG_HW_INTERFACE_SPI ? "SPI" : "Unknown");
 
     /* 将硬件配置转换为PDL层配置 */
     mcu_config_t pdl_mcu_cfg = {0};
     strncpy(pdl_mcu_cfg.name, mcu_cfg->name, sizeof(pdl_mcu_cfg.name) - 1);
 
     /* 根据接口类型设置PDL配置 */
-    switch (mcu_cfg->interface->type) {
-        case XCONFIG_INTERFACE_UART:
+    switch (mcu_cfg->interface_type) {
+        case XCONFIG_HW_INTERFACE_UART:
             pdl_mcu_cfg.interface = MCU_INTERFACE_SERIAL;
-            pdl_mcu_cfg.serial.device = mcu_cfg->interface->config.uart.device;
-            pdl_mcu_cfg.serial.baudrate = mcu_cfg->interface->config.uart.baudrate;
-            pdl_mcu_cfg.serial.data_bits = mcu_cfg->interface->config.uart.data_bits;
-            pdl_mcu_cfg.serial.stop_bits = mcu_cfg->interface->config.uart.stop_bits;
-            pdl_mcu_cfg.serial.parity = (mcu_cfg->interface->config.uart.parity == UART_PARITY_NONE) ? 'N' :
-                                        (mcu_cfg->interface->config.uart.parity == UART_PARITY_ODD) ? 'O' : 'E';
+            pdl_mcu_cfg.serial.device = mcu_cfg->interface_cfg.uart.device;
+            pdl_mcu_cfg.serial.baudrate = mcu_cfg->interface_cfg.uart.baudrate;
+            pdl_mcu_cfg.serial.data_bits = mcu_cfg->interface_cfg.uart.data_bits;
+            pdl_mcu_cfg.serial.stop_bits = mcu_cfg->interface_cfg.uart.stop_bits;
+            pdl_mcu_cfg.serial.parity = mcu_cfg->interface_cfg.uart.parity;
             break;
 
-        case XCONFIG_INTERFACE_CAN:
+        case XCONFIG_HW_INTERFACE_CAN:
             pdl_mcu_cfg.interface = MCU_INTERFACE_CAN;
-            pdl_mcu_cfg.can.device = mcu_cfg->interface->config.can.device;
-            pdl_mcu_cfg.can.bitrate = mcu_cfg->interface->config.can.bitrate;
-            pdl_mcu_cfg.can.tx_id = mcu_cfg->interface->config.can.tx_id;
-            pdl_mcu_cfg.can.rx_id = mcu_cfg->interface->config.can.rx_id;
+            pdl_mcu_cfg.can.device = mcu_cfg->interface_cfg.can.device;
+            pdl_mcu_cfg.can.bitrate = mcu_cfg->interface_cfg.can.bitrate;
+            pdl_mcu_cfg.can.tx_id = mcu_cfg->interface_cfg.can.tx_id;
+            pdl_mcu_cfg.can.rx_id = mcu_cfg->interface_cfg.can.rx_id;
             break;
 
-        case XCONFIG_INTERFACE_I2C:
+        case XCONFIG_HW_INTERFACE_I2C:
             pdl_mcu_cfg.interface = MCU_INTERFACE_I2C;
-            /* I2C配置转换 */
+            pdl_mcu_cfg.i2c.device = mcu_cfg->interface_cfg.i2c.device;
+            pdl_mcu_cfg.i2c.slave_addr = mcu_cfg->interface_cfg.i2c.slave_addr;
+            pdl_mcu_cfg.i2c.speed_hz = mcu_cfg->interface_cfg.i2c.speed_hz;
             break;
 
         default:
-            OS_printf("Unsupported interface type: %d\n", mcu_cfg->interface->type);
+            OS_printf("Unsupported interface type: %d\n", mcu_cfg->interface_type);
             return;
     }
 
