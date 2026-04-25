@@ -85,61 +85,238 @@ module/
 
 ## 3. 命名规范
 
-### 3.1 分层命名前缀
-| 层级 | 前缀 | 示例 |
+### 3.1 文件命名
+
+#### 源代码文件命名
+
+| 层级 | 格式 | 示例 |
 |------|------|------|
-| OSAL | `OS_`, `OSAL_` | `OS_TaskCreate()`, `OSAL_TaskDelay()` |
-| HAL | `HAL_` | `HAL_CAN_Init()`, `HAL_UART_Send()` |
-| XConfig | `XCONFIG_` | `XCONFIG_Init()`, `XCONFIG_HW_FindMCU()` |
-| PDL | `PDL_`, `模块名_` | `SatellitePDL_Init()`, `PayloadBMC_PowerOn()` |
-| Apps | `应用名_` | `CanGateway_ProcessMsg()` |
+| OSAL | `osal_<submodule>.c/h` | `osal_task.c`, `osal_queue.h` |
+| HAL | `hal_<device>.c/h` | `hal_can.c`, `hal_serial.h` |
+| XConfig | `xconfig_<module>.c/h` | `xconfig_api.c`, `xconfig_register.h` |
+| PDL | `pdl_<peripheral>.c/h` | `pdl_satellite.c`, `pdl_bmc.h` |
+| Apps | `apps_<application>.c/h` | `apps_can_gateway.c`, `apps_protocol_converter.h` |
 
-### 3.2 函数命名
-**格式**：`<层级前缀>_<模块>_<动作><对象>()`
+#### 测试文件命名
 
-**示例**：
+| 格式 | 示例 | 说明 |
+|------|------|------|
+| `test_<module>_<submodule>.c` | `test_osal_task.c`, `test_hal_can.c` | 测试文件以 `test_` 开头 |
+
+**测试模块声明**：
 ```c
-/* OSAL层 */
-int32 OS_TaskCreate(osal_id_t *task_id, const char *name, ...);
-int32 OS_QueueCreate(osal_id_t *queue_id, uint32 depth, ...);
-
-/* HAL层 */
-int32 HAL_CAN_Init(const char *interface);
-int32 HAL_CAN_Send(int32 fd, const can_frame_t *frame);
-
-/* XConfig层 */
-int32 XCONFIG_Init(void);
-const xconfig_mcu_cfg_t* XCONFIG_HW_FindMCU(const xconfig_board_config_t *board, const char *name);
-const xconfig_app_config_t* XCONFIG_APP_Find(const xconfig_board_config_t *board, const char *app_name);
-
-/* PDL层 */
-int32 SatellitePDL_Init(const satellite_service_config_t *config);
-int32 PayloadBMC_PowerOn(uint32 slot_id);
+TEST_MODULE_BEGIN(test_<module>_<submodule>)
+    /* 测试用例 */
+TEST_MODULE_END(test_<module>_<submodule>)
 ```
 
-### 3.3 变量命名
-- **全局变量**：`g_` 前缀，如 `g_registry`
-- **静态变量**：`s_` 前缀（可选）或直接 `static`
-- **局部变量**：小写下划线分隔，如 `task_id`, `config_ptr`
-- **常量**：全大写下划线分隔，如 `MAX_BOARD_CONFIGS`
+### 3.2 分层命名规范
+
+#### 对外API命名（Public API）
+
+| 层级 | 格式 | 示例 | 说明 |
+|------|------|------|------|
+| OSAL | `OSAL_<Module><Function>()` | `OSAL_TaskCreate()`, `OSAL_QueuePut()` | 大写前缀+大驼峰 |
+| HAL | `HAL_<Device><Function>()` | `HAL_CANInit()`, `HAL_SerialOpen()` | 大写前缀+大驼峰 |
+| XConfig | `XCONFIG_<Module><Function>()` | `XCONFIG_Init()`, `XCONFIG_Register()` | 大写前缀+大驼峰 |
+| PDL | `PDL_<Peripheral><Function>()` | `PDL_SatelliteInit()`, `PDL_BMCPowerOn()` | 大写前缀+大驼峰 |
+| Apps | `<Application><Function>()` | `CanGatewayInit()`, `ProtocolConverterInit()` | 大驼峰 |
+
+#### 内部函数命名（Internal/Private）
+
+| 层级 | 格式 | 示例 | 说明 |
+|------|------|------|------|
+| OSAL | `osal_<module>_<function>()` | `osal_task_find_by_id()` | 小写前缀+小写+下划线 |
+| HAL | `hal_<device>_<function>()` | `hal_can_set_filter()` | 小写前缀+小写+下划线 |
+| XConfig | `xconfig_<module>_<function>()` | `xconfig_find_config()` | 小写前缀+小写+下划线 |
+| PDL | `pdl_<peripheral>_<function>()` | `pdl_satellite_parse_frame()` | 小写前缀+小写+下划线 |
+| Apps | `<application>_<function>()` | `can_gateway_process_rx()` | 小写+下划线 |
+
+**重要规则：**
+- ✅ 内部函数使用 `static` 限制作用域
+- ✅ 使用小写+下划线格式（符合C标准和Linux内核风格）
+- ❌ **禁止**使用下划线开头（`_xxx` 或 `__xxx`），这些被C标准保留
+
+#### 测试用例命名（重要）
+
+**格式**：`test_<module>_<function>_<scenario>`
+
+**规则**：
+- `test_` 前缀（固定）
+- `<module>` 小写（如 osal, hal, pdl, apps）
+- `<function>` 小写+下划线（如 file_open_close, task_create, can_init）
+- `<scenario>` 小写+下划线（如 success, null_handle, invalid_param）
+- **全部使用小写+下划线，无大写字母**
+
+**示例**：
+
+```c
+/* OSAL层测试 */
+TEST_MODULE_BEGIN(test_osal_task)
+    TEST_CASE(test_osal_task_create_success)
+    TEST_CASE(test_osal_task_create_null_handle)
+    TEST_CASE(test_osal_task_delete_success)
+    TEST_CASE(test_osal_task_delay_success)
+TEST_MODULE_END(test_osal_task)
+
+/* HAL层测试 */
+TEST_MODULE_BEGIN(test_hal_can)
+    TEST_CASE(test_hal_can_init_success)
+    TEST_CASE(test_hal_can_init_null_handle)
+    TEST_CASE(test_hal_can_send_success)
+    TEST_CASE(test_hal_can_recv_timeout)
+TEST_MODULE_END(test_hal_can)
+
+/* PDL层测试 */
+TEST_MODULE_BEGIN(test_pdl_satellite)
+    TEST_CASE(test_pdl_satellite_init_success)
+    TEST_CASE(test_pdl_satellite_init_null_config)
+    TEST_CASE(test_pdl_satellite_send_command_success)
+TEST_MODULE_END(test_pdl_satellite)
+
+/* Apps层测试 */
+TEST_MODULE_BEGIN(test_apps_can_gateway)
+    TEST_CASE(test_apps_can_gateway_init_success)
+    TEST_CASE(test_apps_can_gateway_process_message_success)
+TEST_MODULE_END(test_apps_can_gateway)
+```
+
+**反例（禁止使用）**：
+
+```c
+/* ❌ 错误1：使用大写字母 */
+TEST_CASE(test_HAL_CAN_Init_Success)        // ❌ 有大写字母
+TEST_CASE(test_OSAL_FileOpen_Success)       // ❌ 有大写字母
+TEST_CASE(TEST_HAL_CANInit_Success)         // ❌ 有大写字母
+
+/* ❌ 错误2：使用驼峰命名 */
+TEST_CASE(test_hal_canInit_success)         // ❌ 使用驼峰canInit
+TEST_CASE(test_osal_taskCreate_success)     // ❌ 使用驼峰taskCreate
+
+/* ❌ 错误3：缺少下划线分隔 */
+TEST_CASE(test_halcaninit_success)          // ❌ 缺少下划线
+
+/* ✅ 正确的命名 */
+TEST_CASE(test_hal_can_init_success)         // ✓ 全部小写+下划线
+TEST_CASE(test_osal_file_open_success)       // ✓ 全部小写+下划线
+TEST_CASE(test_pdl_satellite_init_success)   // ✓ 全部小写+下划线
+TEST_CASE(test_apps_can_gateway_init_success) // ✓ 全部小写+下划线
+```
+
+### 3.3 函数命名详解
+
+#### 对外API函数（Public API）
+
+**格式**：`<MODULE>_<Module><Function>()`
 
 **示例**：
 ```c
-/* 全局变量 */
-static xconfig_registry_t g_registry = {0};
-static bool g_initialized = false;
+/* OSAL层 - 对外API */
+int32 OSAL_TaskCreate(osal_id_t *task_id, const char *name, ...);
+int32 OSAL_TaskDelete(osal_id_t task_id);
+int32 OSAL_QueueCreate(osal_id_t *queue_id, uint32 depth, ...);
+int32 OSAL_QueuePut(osal_id_t queue_id, const void *data, uint32 size, int32 timeout);
+int32 OSAL_MutexLock(osal_id_t mutex_id);
 
-/* 局部变量 */
+/* HAL层 - 对外API */
+int32 HAL_CANInit(const char *interface);
+int32 HAL_CANSend(int32 fd, const can_frame_t *frame);
+int32 HAL_SerialOpen(const char *device, const hal_serial_config_t *config);
+
+/* XConfig层 - 对外API */
+int32 XCONFIG_Init(void);
+int32 XCONFIG_Register(const xconfig_board_config_t *config);
+const xconfig_mcu_cfg_t* XCONFIG_HWFindMCU(const char *name);
+
+/* PDL层 - 对外API */
+int32 PDL_SatelliteInit(const satellite_config_t *config);
+int32 PDL_SatelliteSendCommand(uint8 cmd_type, const uint8 *data);
+int32 PDL_BMCPowerOn(uint32 slot_id);
+int32 PDL_BMCGetStatus(uint32 slot_id, uint8 *status);
+```
+
+#### 内部函数（Internal/Private）
+
+**格式**：`<module>_<submodule>_<function>()`
+
+**示例**：
+```c
+/* OSAL层 - 内部函数 */
+static int32 osal_task_table_init(void);
+static osal_id_t osal_task_find_free_slot(void);
+static osal_task_record_t* osal_task_find_by_id(osal_id_t task_id);
+static void osal_task_cleanup(osal_id_t task_id);
+
+static int32 osal_queue_acquire(osal_queue_record_t *queue);
+static void osal_queue_release(osal_queue_record_t *queue);
+
+/* HAL层 - 内部函数 */
+static int32 hal_can_set_filter(int fd, uint32 filter_id);
+static void hal_can_update_stats(hal_can_handle_t *handle);
+static int32 hal_serial_configure_termios(int fd, const hal_serial_config_t *config);
+
+/* PDL层 - 内部函数 */
+static int32 pdl_satellite_parse_frame(const can_frame_t *frame);
+static void pdl_satellite_update_stats(void);
+static int32 pdl_bmc_send_ipmi_command(uint8 cmd, const uint8 *data, uint32 len);
+```
+
+**命名规则：**
+- 对外API：大写前缀 + 大驼峰（`OSAL_TaskCreate`）
+- 内部函数：小写前缀 + 小写+下划线（`osal_task_find_by_id`）
+- 内部函数必须声明为 `static`
+
+### 3.4 变量命名
+
+#### 全局变量
+- **格式**：`g_<module>_<name>`
+- **示例**：
+```c
+/* OSAL层全局变量 */
+static osal_task_record_t g_task_table[OS_MAX_TASKS];
+static pthread_mutex_t g_task_table_mutex;
+static bool g_osal_initialized = false;
+
+/* XConfig层全局变量 */
+static xconfig_registry_t g_registry = {0};
+static bool g_xconfig_initialized = false;
+```
+
+#### 静态变量
+- **格式**：`s_<name>` 或直接使用 `static` + 描述性名称
+- **示例**：
+```c
+/* 文件作用域静态变量 */
+static uint32 s_init_count = 0;
+static bool s_debug_enabled = false;
+
+/* 或者直接使用描述性名称 */
+static uint32 init_count = 0;
+static bool debug_enabled = false;
+```
+
+#### 局部变量
+- **格式**：小写+下划线
+- **示例**：
+```c
 int32 ret;
 uint32 success_count = 0;
+osal_id_t task_id;
 const xconfig_board_config_t *config = NULL;
-
-/* 常量 */
-#define MAX_BOARD_CONFIGS 32
-#define CONFIG_COUNT (sizeof(g_all_configs) / sizeof(g_all_configs[0]))
+osal_task_record_t *record = NULL;
 ```
 
-### 3.4 类型命名
+#### 常量
+- **格式**：全大写+下划线
+- **示例**：
+```c
+#define MAX_BOARD_CONFIGS 32
+#define OS_MAX_TASKS 64
+#define CONFIG_COUNT (sizeof(g_all_configs) / sizeof(g_all_configs[0]))
+#define DEFAULT_TIMEOUT_MS 1000
+```
+
+### 3.5 类型命名
 - **结构体**：`<模块>_<名称>_t`，如 `xconfig_board_config_t`
 - **枚举**：`<模块>_<名称>_e`，如 `xconfig_device_type_e`
 - **枚举值**：全大写，如 `XCONFIG_DEV_MCU`
@@ -167,7 +344,7 @@ typedef enum {
 typedef void (*satellite_cmd_callback_t)(uint8 cmd_type, const uint8 *data, void *user_data);
 ```
 
-### 3.5 宏命名
+### 3.6 宏命名
 - **配置宏**：全大写，如 `TASK_STACK_SIZE_DEFAULT`
 - **功能宏**：全大写，如 `LOG_INFO`, `TEST_ASSERT_EQUAL`
 
@@ -562,7 +739,86 @@ TEST_CASE(test_case_name)
 TEST_MODULE_END()
 ```
 
-### 11.2 测试覆盖
+### 11.2 完整测试文件示例
+
+```c
+// 文件：test_osal_file.c
+
+#include "unittest_framework.h"
+#include "osal_file.h"
+
+TEST_MODULE_BEGIN(test_osal_file)
+
+TEST_CASE(test_osal_file_open_close_success)
+{
+    int32 fd;
+    int32 ret;
+    
+    /* 打开文件 */
+    ret = osal_file_open("/tmp/test.txt", O_RDWR | O_CREAT, &fd);
+    TEST_ASSERT_EQUAL(0, ret);
+    
+    /* 关闭文件 */
+    ret = osal_file_close(fd);
+    TEST_ASSERT_EQUAL(0, ret);
+}
+
+TEST_CASE(test_osal_file_open_invalid_path)
+{
+    int32 fd;
+    int32 ret;
+    
+    /* 打开无效路径 */
+    ret = osal_file_open("/invalid/path/test.txt", O_RDWR, &fd);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
+}
+
+TEST_CASE(test_osal_file_read_write_success)
+{
+    int32 fd;
+    int32 ret;
+    char write_buf[] = "test data";
+    char read_buf[32] = {0};
+    
+    /* 打开文件 */
+    ret = osal_file_open("/tmp/test.txt", O_RDWR | O_CREAT, &fd);
+    TEST_ASSERT_EQUAL(0, ret);
+    
+    /* 写入数据 */
+    ret = osal_file_write(fd, write_buf, sizeof(write_buf));
+    TEST_ASSERT_EQUAL(sizeof(write_buf), ret);
+    
+    /* 读取数据 */
+    osal_file_lseek(fd, 0, SEEK_SET);
+    ret = osal_file_read(fd, read_buf, sizeof(write_buf));
+    TEST_ASSERT_EQUAL(sizeof(write_buf), ret);
+    TEST_ASSERT_STRING_EQUAL(write_buf, read_buf);
+    
+    /* 关闭文件 */
+    osal_file_close(fd);
+}
+
+TEST_MODULE_END(test_osal_file)
+```
+
+### 11.3 测试命名检查清单
+
+#### 文件命名
+- [ ] 文件名使用小写+下划线：`module_submodule.c`
+- [ ] 测试文件以`test_`开头：`test_module_submodule.c`
+
+#### 函数命名
+- [ ] 函数名使用小写+下划线：`module_submodule_function()`
+- [ ] 无大写字母，无驼峰命名
+
+#### 测试用例命名
+- [ ] 以`test_`开头（固定前缀）
+- [ ] 模块名小写：`test_osal_`, `test_hal_`, `test_pdl_`, `test_apps_`
+- [ ] 函数名小写+下划线：`file_open_close`, `task_create`, `can_init`
+- [ ] 场景名小写+下划线：`success`, `null_handle`, `invalid_param`
+- [ ] **全部小写，无大写字母，无驼峰命名**
+
+### 11.4 测试覆盖
 - **新功能必须编写单元测试**
 - **Bug 修复必须添加回归测试**
 - **关键路径必须覆盖边界条件**
@@ -671,13 +927,34 @@ Closes #123
 
 ## 附录：常见错误示例
 
-### A.1 跨层调用
+### A.1 内部函数命名错误
+
+```c
+/* 错误1：使用下划线开头（违反C标准） */
+static int32 _osal_task_find_by_id(osal_id_t id);  // ❌ 保留标识符
+static void __osal_queue_acquire(void);            // ❌ 保留标识符
+
+/* 错误2：内部函数使用对外API格式 */
+static int32 OSAL_TaskFindById(osal_id_t id);     // ❌ 应该用小写
+
+/* 错误3：对外API使用内部函数格式 */
+int32 osal_task_create(osal_id_t *task_id, ...);  // ❌ 应该用大写
+
+/* 正确：内部函数使用小写+下划线 */
+static int32 osal_task_find_by_id(osal_id_t id);  // ✓
+static void osal_queue_acquire(void);              // ✓
+
+/* 正确：对外API使用大写+大驼峰 */
+int32 OSAL_TaskCreate(osal_id_t *task_id, ...);   // ✓
+```
+
+### A.2 跨层调用
 ```c
 /* 错误：Apps层直接调用HAL层 */
-HAL_CAN_Send(fd, &frame);  // ❌
+HAL_CANSend(fd, &frame);  // ❌
 
 /* 正确：通过PDL层 */
-SatellitePDL_SendCommand(cmd);  // ✓
+PDL_SatelliteSendCommand(cmd);  // ✓
 ```
 
 ### A.2 未检查返回值
