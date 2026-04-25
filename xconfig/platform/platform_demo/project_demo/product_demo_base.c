@@ -1,8 +1,8 @@
 /************************************************************************
- * NVIDIA平台 - T5000-2P载荷板基础配置
+ * 演示平台 - 演示项目载荷板基础配置
  *
- * 平台：NVIDIA (测试平台)
- * 产品：T5000-2P算存载荷转接板（2P算力）
+ * 平台：演示平台 (用于模拟测试和示例演示)
+ * 产品：演示项目算存载荷转接板（2P算力）
  * 版本：Base（基础配置，所有版本共享）
  *
  * 配置理念：以外设为单位进行配置
@@ -353,11 +353,11 @@ static xconfig_app_config_t *app_list[] = {
  * 板级配置（导出）
  *===========================================================================*/
 
-const xconfig_board_config_t xconfig_t5000_2p_base = {
-    .platform = "nvidia/mcu_test",
-    .product = "T5000_2P",
+const xconfig_board_config_t xconfig_demo_base = {
+    .platform = "platform_demo/project_demo",
+    .product = "DEMO_PROJECT",
     .version = "base",
-    .description = "T5000-2P Payload Adapter Board (2P Computing Power) - Base Configuration",
+    .description = "Demo Project Payload Adapter Board (2P Computing Power) - Demo/Simulation Platform",
 
     /* 外设配置（以外设为单位） */
     .mcus = mcu_list,

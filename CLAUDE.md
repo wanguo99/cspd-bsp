@@ -54,7 +54,7 @@ candump can0                        # 监控CAN消息
 - **通信冗余**：以太网主通道 + UART备份通道
 - **状态监控**：定期查询载荷状态并上报
 
-## 代码结构（4层架构 + 模块化配置）
+## 代码结构（5层架构 + 模块化配置）
 
 ```
 cspd-bsp/
@@ -81,6 +81,36 @@ cspd-bsp/
 │       ├── hal_can_linux.c  # CAN驱动（SocketCAN）
 │       ├── hal_serial_linux.c # 串口驱动
 │       └── hal_network_linux.c # 网络驱动
+├── xconfig/                 # 硬件配置库 (XConfig)
+│   ├── include/             # 接口定义
+│   │   ├── xconfig.h       # 总头文件
+│   │   ├── xconfig_common.h # 通用类型（GPIO、电源域）
+│   │   ├── xconfig_hardware_interface.h # 硬件接口定义
+│   │   ├── xconfig_mcu.h   # MCU外设配置
+│   │   ├── xconfig_bmc.h   # BMC外设配置
+│   │   ├── xconfig_satellite.h # 卫星平台接口配置
+│   │   ├── xconfig_sensor.h # 传感器外设配置
+│   │   ├── xconfig_storage.h # 存储设备配置
+│   │   ├── xconfig_app.h   # APP配置
+│   │   └── xconfig_board.h # 板级配置
+│   ├── src/                 # 源代码
+│   │   ├── xconfig_api.c   # API实现
+│   │   └── xconfig_register.c # 配置注册
+│   └── platform/            # 平台配置（嵌套目录结构）
+│       ├── ti/am625/        # TI AM625平台
+│       │   ├── H200_100P/  # H200-100P产品（100P算力）
+│       │   │   ├── h200_100p_payload_base.c
+│       │   │   ├── h200_100p_payload_v1.c
+│       │   │   └── h200_100p_payload_v2.c
+│       │   └── H200_32P/   # H200-32P产品（32P算力）
+│       │       ├── h200_32p_payload_base.c
+│       │       ├── h200_32p_payload_v1.c
+│       │       └── h200_32p_payload_v2.c
+│       └── platform_demo/     # 演示平台
+│           └── project_demo/   # 演示项目（2P算力，演示用）
+│               ├── product_demo_base.c
+│               ├── product_demo_v1.c
+│               └── product_demo_v2.c
 ├── pdl/                     # 外设驱动层 (Peripheral Driver Layer)
 │   ├── include/             # 接口定义
 │   │   ├── peripheral_device.h  # 统一外设接口
@@ -246,7 +276,7 @@ output/
 | HAL | 1 | 3 | CAN驱动 |
 | PDL | 1 | 2 | 卫星平台服务 |
 | Apps | 2 | 5 | CAN网关、协议转换器 |
-| **总计** | **10** | **70** | **完整的4层架构** |
+| **总计** | **10** | **70** | **完整的5层架构** |
 
 ### 交互式菜单特点
 - 三级选择：层级 → 模块 → 测试用例

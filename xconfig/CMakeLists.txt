@@ -26,7 +26,7 @@ set(XCONFIG_SOURCES
 # 平台配置源文件（递归查找所有平台配置）
 file(GLOB_RECURSE PLATFORM_CONFIGS
     platform/ti/am625/*/*.c
-    platform/nvidia/mcu_test/*/*.c
+    platform/platform_demo/*/*.c
     # 其他平台配置可以在这里添加
     # platform/xilinx/zynq/*/*.c
 )

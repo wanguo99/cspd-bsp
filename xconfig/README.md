@@ -50,21 +50,63 @@ xconfig_mcu_cfg_t mcu_stm32 = {
 
 ```
 xconfig/
-├── include/                    # 头文件
-│   ├── xconfig_types.h       # 硬件配置类型定义
-│   └── xconfig_api.h         # API接口
-├── src/                        # 源代码
-│   ├── xconfig_api.c         # API实现
-│   └── xconfig_register.c    # 配置注册
-├── platform/                   # 平台配置
-│   └── ti/am625/               # TI AM625平台
-│       ├── h200_payload_base.c # H200基础配置
-│       ├── h200_payload_v1.c   # H200 V1.0配置
-│       └── h200_payload_v2.c   # H200 V2.0配置
-├── examples/                   # 示例代码
-│   └── xconfig_example.c     # 使用示例
-└── CMakeLists.txt              # 构建配置
+├── include/                           # 头文件
+│   ├── xconfig.h                     # 总头文件
+│   ├── xconfig_api.h                 # API接口
+│   ├── xconfig_common.h              # 通用类型（GPIO、电源域）
+│   ├── xconfig_hardware_interface.h  # 硬件接口定义
+│   ├── xconfig_mcu.h                 # MCU外设配置
+│   ├── xconfig_bmc.h                 # BMC外设配置
+│   ├── xconfig_satellite.h           # 卫星平台接口配置
+│   ├── xconfig_sensor.h              # 传感器外设配置
+│   ├── xconfig_storage.h             # 存储设备配置
+│   ├── xconfig_app.h                 # APP配置
+│   └── xconfig_board.h               # 板级配置
+├── src/                               # 源代码
+│   ├── xconfig_api.c                 # API实现
+│   └── xconfig_register.c            # 配置注册
+├── platform/                          # 平台配置（嵌套目录结构）
+│   ├── ti/am625/                     # TI AM625平台
+│   │   ├── H200_100P/                # H200-100P产品（100P算力）
+│   │   │   ├── h200_100p_payload_base.c  # 基础配置
+│   │   │   ├── h200_100p_payload_v1.c    # V1.0配置
+│   │   │   └── h200_100p_payload_v2.c    # V2.0配置
+│   │   └── H200_32P/                 # H200-32P产品（32P算力）
+│   │       ├── h200_32p_payload_base.c   # 基础配置
+│   │       ├── h200_32p_payload_v1.c     # V1.0配置
+│   │       └── h200_32p_payload_v2.c     # V2.0配置
+│   └── platform_demo/                # 演示平台
+│       └── project_demo/             # 演示项目（2P算力，演示用）
+│           ├── product_demo_base.c       # 基础配置
+│           ├── product_demo_v1.c         # V1.0配置
+│           └── product_demo_v2.c         # V2.0配置
+├── examples/                          # 示例代码
+│   └── xconfig_example.c             # 使用示例
+└── CMakeLists.txt                     # 构建配置
 ```
+
+## 支持的平台和产品
+
+### TI AM625平台
+
+**H200-100P系列**（100P算力）：
+- `xconfig_h200_100p_base` - 基础配置
+- `xconfig_h200_100p_v1` - V1.0（增加冗余MCU和IMU传感器）
+- `xconfig_h200_100p_v2` - V2.0（升级1553B、GPS、NVMe）
+
+**H200-32P系列**（32P算力）：
+- `xconfig_h200_32p_base` - 基础配置
+- `xconfig_h200_32p_v1` - V1.0（增加冗余MCU和IMU传感器）
+- `xconfig_h200_32p_v2` - V2.0（升级1553B、GPS、NVMe）
+
+### 演示平台
+
+**演示项目系列**（2P算力，演示/模拟测试用）：
+- `xconfig_demo_base` - 基础配置
+- `xconfig_demo_v1` - V1.0（增加冗余MCU和IMU传感器）
+- `xconfig_demo_v2` - V2.0（升级1553B、GPS、NVMe）
+
+> **注意**：产品名称中的"P"表示算力（Computing Power），如100P表示100 PFLOPS算力，而非PCIe通道数。
 
 ## 支持的外设类型
 
@@ -411,10 +453,10 @@ for (uint32 i = 0; i < board->sensor_count; i++) {
 
 ## 配置文件示例
 
-完整的配置文件示例（`h200_payload_base.c`）：
+完整的配置文件示例（`h200_100p_payload_base.c`）：
 
 ```c
-#include "xconfig_types.h"
+#include "xconfig.h"
 
 /* GPIO定义 */
 static xconfig_gpio_config_t gpio_mcu_reset = {
@@ -427,7 +469,7 @@ static xconfig_gpio_config_t gpio_mcu_reset = {
 static xconfig_mcu_cfg_t mcu_stm32 = {
     .name = "stm32_mcu",
     .enabled = true,
-    .interface_type = HW_INTERFACE_UART,
+    .interface_type = XCONFIG_HW_INTERFACE_UART,
     .interface_cfg.uart = {
         .device = "/dev/ttyS1",
         .baudrate = 115200,
@@ -446,12 +488,24 @@ static xconfig_bmc_cfg_t bmc_payload = {
     .name = "payload_bmc",
     .enabled = true,
     .primary_channel = {
-        .type = HW_INTERFACE_ETHERNET,
-        .cfg = { .interface = "eth0", .ip_addr = "192.168.1.100", .port = 623 }
+        .protocol = XCONFIG_BMC_PROTOCOL_IPMI,
+        .cfg.ipmi_lan = {
+            .interface = "eth0",
+            .ip_addr = "192.168.1.100",
+            .port = 623,
+            .username = "admin",
+            .password = NULL
+        }
     },
     .backup_channel = {
-        .type = HW_INTERFACE_UART,
-        .cfg = { .device = "/dev/ttyS2", .baudrate = 115200 }
+        .protocol = XCONFIG_BMC_PROTOCOL_IPMI,
+        .cfg = {
+            .device = "/dev/ttyS2",
+            .baudrate = 115200,
+            .data_bits = 8,
+            .stop_bits = 1,
+            .parity = 'N'
+        }
     },
     .cmd_timeout_ms = 2000,
     .failover_threshold = 5
@@ -462,11 +516,11 @@ static xconfig_mcu_cfg_t *mcu_list[] = { &mcu_stm32 };
 static xconfig_bmc_cfg_t *bmc_list[] = { &bmc_payload };
 
 /* 板级配置 */
-const xconfig_board_config_t xconfig_h200_base = {
+const xconfig_board_config_t xconfig_h200_100p_base = {
     .platform = "ti/am625",
-    .product = "h200_payload",
+    .product = "H200_100P",
     .version = "base",
-    .description = "H200 Payload Adapter Board - Base Configuration",
+    .description = "H200-100P Payload Adapter Board (100P Computing Power) - Base Configuration",
     
     .mcus = mcu_list,
     .mcu_count = 1,
