@@ -187,7 +187,16 @@ pmc-bsp/
 - **PDL层**：外设驱动层，统一管理卫星/载荷/MCU等外设
 - **Apps层**：应用逻辑，通过PDL层访问底层
 
-### 2. 任务管理（优雅关闭）
+### 3. XConfig层（硬件配置库）
+- **两层配置架构**：硬件配置层（定义外设硬件接口）+ APP配置层（定义APP使用哪些外设）
+- **外设为单位**：以外设为单位（MCU/BMC/传感器等）管理硬件配置，类似Linux设备树
+- **接口内嵌**：每个外设配置内嵌其通信接口配置（CAN/UART/I2C/SPI/Ethernet等）
+- **多平台支持**：嵌套目录结构 `platform/<vendor>/<chip>/<product>/`
+  - TI AM6254: H200-100P（100P算力）、H200-32P（32P算力）
+  - 演示平台: 演示项目（2P算力，用于模拟测试）
+- **配置选择**：支持环境变量/编译选项/默认配置三种方式
+
+### 4. 任务管理（优雅关闭）
 - 文件：`osal/src/linux/os_task.c`
 - 配置：`osal/include/config/task_config.h`
 - 特点：
@@ -196,7 +205,7 @@ pmc-bsp/
   - 使用`pthread_timedjoin_np`等待任务退出（5秒超时）
   - 超时后使用`pthread_detach`而非强制取消
 
-### 4. 日志系统
+### 5. 日志系统
 - 文件：`osal/src/linux/os_log.c`
 - 配置：`osal/include/config/log_config.h`
 - 功能：
@@ -208,7 +217,7 @@ pmc-bsp/
   - `LOG_INFO(module, ...)` - 带模块名的日志宏
   - `LOG_ERROR(module, ...)` - 错误日志
 
-### 5. 通信冗余
+### 6. 通信冗余
 - 主通道：以太网（IPMI over LAN）
 - 备份通道：UART（IPMI over Serial）
 - 配置：`hal/include/config/ethernet_config.h` 和 `hal/include/config/uart_config.h`
@@ -326,21 +335,6 @@ static void my_task_entry(void *arg)
 
 ## 关键配置
 
-### 模块配置文件位置
-- **OSAL配置**：`osal/include/config/`
-  - `task_config.h` - 任务栈大小、优先级定义
-  - `queue_config.h` - 队列大小配置
-  - `log_config.h` - 日志级别、文件路径
-- **HAL配置**：`hal/include/config/`
-  - `can_types.h` - CAN帧类型定义
-  - `can_config.h` - CAN接口、波特率
-  - `ethernet_config.h` - 以太网IP、端口
-  - `uart_config.h` - 串口设备、波特率
-- **Apps配置**：`apps/*/include/config/`
-  - `apps/can_gateway/include/config/app_config.h` - 系统版本号
-  - `apps/can_gateway/include/config/can_protocol.h` - CAN协议定义
-  - `apps/protocol_converter/include/config/app_config.h` - 超时、重试配置
-
 ### CAN配置
 - 文件：`hal/include/config/can_config.h`
 - 接口：`can0`
@@ -442,18 +436,3 @@ telnet 192.168.1.100 623
 - 命令处理时间：< 100ms
 - 内存占用：< 128MB
 - CPU占用（空闲）：< 5%
-
-## 关键配置文件位置
-
-### OSAL配置
-- `osal/include/config/task_config.h` - 任务栈大小、优先级定义
-- `osal/include/config/queue_config.h` - 队列大小配置
-- `osal/include/config/log_config.h` - 日志级别、文件路径
-
-### HAL配置
-- `hal/include/config/can_config.h` - CAN接口、波特率（默认500Kbps）
-- `hal/include/config/uart_config.h` - 串口设备、波特率
-
-### Apps配置
-- `apps/can_gateway/include/config/can_protocol.h` - CAN协议定义
-- `apps/protocol_converter/include/config/app_config.h` - 超时、重试配置
