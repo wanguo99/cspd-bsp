@@ -70,6 +70,11 @@ char* OSAL_Strncat(char *dest, const char *src, osal_size_t n)
     return strncat(dest, src, (size_t)n);
 }
 
+char* OSAL_Strstr(const char *haystack, const char *needle)
+{
+    return strstr(haystack, needle);
+}
+
 /*
  * 字符串格式化
  */

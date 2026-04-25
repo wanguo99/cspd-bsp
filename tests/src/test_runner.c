@@ -5,6 +5,7 @@
 #include "test_runner.h"
 #include "test_framework.h"
 #include "osal_log.h"
+#include "osal_string.h"
 
 /* 全局测试统计 */
 test_stats_t g_test_stats = {0};
@@ -40,10 +41,10 @@ void run_test_case(const char *module_name, const test_case_t *test)
 
         /* 记录失败的测试用例 */
         if (g_test_stats.failed < MAX_FAILED_TESTS) {
-            snprintf(g_test_stats.failed_tests[g_test_stats.failed].module_name,
+            OSAL_Snprintf(g_test_stats.failed_tests[g_test_stats.failed].module_name,
                      sizeof(g_test_stats.failed_tests[g_test_stats.failed].module_name),
                      "%s", module_name);
-            snprintf(g_test_stats.failed_tests[g_test_stats.failed].test_name,
+            OSAL_Snprintf(g_test_stats.failed_tests[g_test_stats.failed].test_name,
                      sizeof(g_test_stats.failed_tests[g_test_stats.failed].test_name),
                      "%s", test->name);
         }

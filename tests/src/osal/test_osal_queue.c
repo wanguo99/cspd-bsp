@@ -89,7 +89,7 @@ void test_osal_queue_putget_Success(void)
     uint8 recv_data[64];
     uint32 size_copied;
 
-    strcpy((char *)send_data, "Hello World");
+    OSAL_Strcpy((char *)send_data, "Hello World");
 
     /* 发送消息 */
     int32 ret = OSAL_QueuePut(queue_id, send_data, 64, 0);
@@ -179,7 +179,7 @@ void test_osal_queue_putget_Multiple(void)
 
     /* 发送5条消息 */
     for (int i = 0; i < 5; i++) {
-        sprintf((char *)send_data[i], "Message %d", i);
+        OSAL_Sprintf((char *)send_data[i], "Message %d", i);
         TEST_ASSERT_EQUAL(OS_SUCCESS,
                          OSAL_QueuePut(queue_id, send_data[i], 64, 0));
     }
@@ -190,7 +190,7 @@ void test_osal_queue_putget_Multiple(void)
                          OSAL_QueueGet(queue_id, recv_data, 64, &size, 1000));
 
         char expected[64];
-        sprintf(expected, "Message %d", i);
+        OSAL_Sprintf(expected, "Message %d", i);
         TEST_ASSERT_EQUAL_STRING(expected, (char *)recv_data);
     }
 

@@ -74,7 +74,7 @@ void test_osal_task_create_name_too_long(void)
     setUp();
     osal_id_t task_id;
     char long_name[OS_MAX_API_NAME + 10];
-    memset(long_name, 'A', sizeof(long_name));
+    OSAL_Memset(long_name, 'A', sizeof(long_name));
     long_name[sizeof(long_name) - 1] = '\0';
 
     int32 ret = OSAL_TaskCreate(&task_id, long_name,

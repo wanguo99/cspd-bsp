@@ -12,7 +12,6 @@
 #include "config/ethernet_config.h"
 #include "config/uart_config.h"
 #include "config/task_config.h"
-#include <stdio.h>
 #include <signal.h>
 #include <stdlib.h>
 
@@ -60,16 +59,16 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     int32 ret;
     osal_id_t task_id;
 
-    printf("========================================\n");
-    printf("  协议转换应用 v%d.%d.%d\n",
+    OSAL_Printf("========================================\n");
+    OSAL_Printf("  协议转换应用 v%d.%d.%d\n",
            SYSTEM_VERSION_MAJOR,
            SYSTEM_VERSION_MINOR,
            SYSTEM_VERSION_PATCH);
-    printf("========================================\n");
-    printf("  载荷IP:   %s\n", SERVER_IP_ADDRESS);
-    printf("  IPMI端口: %d\n", IPMI_PORT);
-    printf("  备份串口: %s @ %d bps\n", UART_DEVICE, UART_BAUDRATE);
-    printf("========================================\n\n");
+    OSAL_Printf("========================================\n");
+    OSAL_Printf("  载荷IP:   %s\n", SERVER_IP_ADDRESS);
+    OSAL_Printf("  IPMI端口: %d\n", IPMI_PORT);
+    OSAL_Printf("  备份串口: %s @ %d bps\n", UART_DEVICE, UART_BAUDRATE);
+    OSAL_Printf("========================================\n\n");
 
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
@@ -78,7 +77,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     ret = OS_API_Init();
     if (ret != OS_SUCCESS)
     {
-        printf("OSAL初始化失败: %s\n", OS_GetErrorName(ret));
+        OSAL_Printf("OSAL初始化失败: %s\n", OS_GetErrorName(ret));
         return EXIT_FAILURE;
     }
 
@@ -86,7 +85,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     ret = Protocol_Converter_Init();
     if (ret != OS_SUCCESS)
     {
-        printf("协议转换初始化失败: %s\n", OS_GetErrorName(ret));
+        OSAL_Printf("协议转换初始化失败: %s\n", OS_GetErrorName(ret));
         return EXIT_FAILURE;
     }
 
@@ -97,7 +96,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
                         PRIORITY_LOW, 0);
     if (ret != OS_SUCCESS)
     {
-        printf("创建统计任务失败: %s\n", OS_GetErrorName(ret));
+        OSAL_Printf("创建统计任务失败: %s\n", OS_GetErrorName(ret));
         return EXIT_FAILURE;
     }
 
@@ -115,6 +114,6 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
 
     OS_API_Teardown();
 
-    printf("\n协议转换器已退出\n");
+    OSAL_Printf("\n协议转换器已退出\n");
     return EXIT_SUCCESS;
 }

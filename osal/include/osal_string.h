@@ -35,6 +35,7 @@ char* OSAL_Strcpy(char *dest, const char *src);
 char* OSAL_Strncpy(char *dest, const char *src, osal_size_t n);
 char* OSAL_Strcat(char *dest, const char *src);
 char* OSAL_Strncat(char *dest, const char *src, osal_size_t n);
+char* OSAL_Strstr(const char *haystack, const char *needle);
 
 /*
  * 字符串格式化

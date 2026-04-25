@@ -10,7 +10,6 @@
 #include "config/app_config.h"
 #include "config/can_config.h"
 #include "config/task_config.h"
-#include <stdio.h>
 #include <signal.h>
 #include <stdlib.h>
 
@@ -57,14 +56,14 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     int32 ret;
     osal_id_t task_id;
 
-    printf("========================================\n");
-    printf("  CAN网关应用 v%d.%d.%d\n",
+    OSAL_Printf("========================================\n");
+    OSAL_Printf("  CAN网关应用 v%d.%d.%d\n",
            SYSTEM_VERSION_MAJOR,
            SYSTEM_VERSION_MINOR,
            SYSTEM_VERSION_PATCH);
-    printf("========================================\n");
-    printf("  CAN接口: %s @ %d bps\n", CAN_INTERFACE, CAN_BAUDRATE);
-    printf("========================================\n\n");
+    OSAL_Printf("========================================\n");
+    OSAL_Printf("  CAN接口: %s @ %d bps\n", CAN_INTERFACE, CAN_BAUDRATE);
+    OSAL_Printf("========================================\n\n");
 
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
@@ -73,7 +72,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     ret = OS_API_Init();
     if (ret != OS_SUCCESS)
     {
-        printf("OSAL初始化失败: %s\n", OS_GetErrorName(ret));
+        OSAL_Printf("OSAL初始化失败: %s\n", OS_GetErrorName(ret));
         return EXIT_FAILURE;
     }
 
@@ -81,7 +80,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     ret = CAN_Gateway_Init();
     if (ret != OS_SUCCESS)
     {
-        printf("CAN网关初始化失败: %s\n", OS_GetErrorName(ret));
+        OSAL_Printf("CAN网关初始化失败: %s\n", OS_GetErrorName(ret));
         return EXIT_FAILURE;
     }
 
@@ -92,7 +91,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
                         PRIORITY_LOW, 0);
     if (ret != OS_SUCCESS)
     {
-        printf("创建统计任务失败: %s\n", OS_GetErrorName(ret));
+        OSAL_Printf("创建统计任务失败: %s\n", OS_GetErrorName(ret));
         return EXIT_FAILURE;
     }
 
@@ -110,6 +109,6 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
 
     OS_API_Teardown();
 
-    printf("\nCAN网关已退出\n");
+    OSAL_Printf("\nCAN网关已退出\n");
     return EXIT_SUCCESS;
 }

@@ -15,8 +15,6 @@
 #include "can_gateway.h"
 #include "payload_pdl.h"
 #include <stdatomic.h>
-#include <string.h>
-#include <stdio.h>
 
 static payload_service_handle_t g_payload_handle;
 
@@ -54,15 +52,15 @@ static can_status_t parse_ipmi_response(can_cmd_type_t cmd_type, const char *res
         case CMD_TYPE_POWER_OFF:
         case CMD_TYPE_RESET:
             /* 电源控制命令：检查是否包含成功标识 */
-            if (strstr(response, "Chassis Power Control: Up/On") ||
-                strstr(response, "Chassis Power Control: Down/Off") ||
-                strstr(response, "Chassis Power Control: Reset"))
+            if (OSAL_Strstr(response, "Chassis Power Control: Up/On") ||
+                OSAL_Strstr(response, "Chassis Power Control: Down/Off") ||
+                OSAL_Strstr(response, "Chassis Power Control: Reset"))
             {
                 *result = 1;  /* 成功 */
                 return STATUS_OK;
             }
             /* 检查错误信息 */
-            if (strstr(response, "Error") || strstr(response, "Unable to"))
+            if (OSAL_Strstr(response, "Error") || OSAL_Strstr(response, "Unable to"))
             {
                 return STATUS_COMM_ERROR;
             }
@@ -72,11 +70,11 @@ static can_status_t parse_ipmi_response(can_cmd_type_t cmd_type, const char *res
 
         case CMD_TYPE_QUERY_STATUS:
             /* 底盘状态查询：解析电源状态 */
-            if (strstr(response, "System Power") && strstr(response, "on"))
+            if (OSAL_Strstr(response, "System Power") && OSAL_Strstr(response, "on"))
             {
                 *result = 1;  /* 电源开启 */
             }
-            else if (strstr(response, "System Power") && strstr(response, "off"))
+            else if (OSAL_Strstr(response, "System Power") && OSAL_Strstr(response, "off"))
             {
                 *result = 0;  /* 电源关闭 */
             }
@@ -89,7 +87,7 @@ static can_status_t parse_ipmi_response(can_cmd_type_t cmd_type, const char *res
         case CMD_TYPE_QUERY_TEMP:
             /* 温度查询：提取第一个温度值 */
             {
-                const char *temp_ptr = strstr(response, "degrees C");
+                const char *temp_ptr = OSAL_Strstr(response, "degrees C");
                 if (temp_ptr)
                 {
                     /* 向前查找数字 */
@@ -102,7 +100,7 @@ static can_status_t parse_ipmi_response(can_cmd_type_t cmd_type, const char *res
                     if (num_start < temp_ptr)
                     {
                         int temp_value = 0;
-                        if (sscanf(num_start + 1, "%d", &temp_value) == 1)
+                        if (OSAL_Sscanf(num_start + 1, "%d", &temp_value) == 1)
                         {
                             *result = (uint32)temp_value;
                             return STATUS_OK;
@@ -116,7 +114,7 @@ static can_status_t parse_ipmi_response(can_cmd_type_t cmd_type, const char *res
         case CMD_TYPE_QUERY_VOLTAGE:
             /* 电压查询：提取第一个电压值（单位：伏特） */
             {
-                const char *volt_ptr = strstr(response, "Volts");
+                const char *volt_ptr = OSAL_Strstr(response, "Volts");
                 if (volt_ptr)
                 {
                     /* 向前查找数字（可能包含小数点） */
@@ -130,7 +128,7 @@ static can_status_t parse_ipmi_response(can_cmd_type_t cmd_type, const char *res
                     if (num_start < volt_ptr)
                     {
                         float volt_value = 0.0f;
-                        if (sscanf(num_start + 1, "%f", &volt_value) == 1)
+                        if (OSAL_Sscanf(num_start + 1, "%f", &volt_value) == 1)
                         {
                             /* 转换为毫伏存储 */
                             *result = (uint32)(volt_value * 1000);
@@ -156,27 +154,27 @@ static can_status_t execute_ipmi_command(can_cmd_type_t cmd_type, uint32 param _
     switch (cmd_type)
     {
         case CMD_TYPE_POWER_ON:
-            snprintf(cmd_buf, sizeof(cmd_buf), "ipmitool chassis power on");
+            OSAL_Snprintf(cmd_buf, sizeof(cmd_buf), "ipmitool chassis power on");
             break;
 
         case CMD_TYPE_POWER_OFF:
-            snprintf(cmd_buf, sizeof(cmd_buf), "ipmitool chassis power off");
+            OSAL_Snprintf(cmd_buf, sizeof(cmd_buf), "ipmitool chassis power off");
             break;
 
         case CMD_TYPE_RESET:
-            snprintf(cmd_buf, sizeof(cmd_buf), "ipmitool chassis power reset");
+            OSAL_Snprintf(cmd_buf, sizeof(cmd_buf), "ipmitool chassis power reset");
             break;
 
         case CMD_TYPE_QUERY_STATUS:
-            snprintf(cmd_buf, sizeof(cmd_buf), "ipmitool chassis status");
+            OSAL_Snprintf(cmd_buf, sizeof(cmd_buf), "ipmitool chassis status");
             break;
 
         case CMD_TYPE_QUERY_TEMP:
-            snprintf(cmd_buf, sizeof(cmd_buf), "ipmitool sdr type temperature");
+            OSAL_Snprintf(cmd_buf, sizeof(cmd_buf), "ipmitool sdr type temperature");
             break;
 
         case CMD_TYPE_QUERY_VOLTAGE:
-            snprintf(cmd_buf, sizeof(cmd_buf), "ipmitool sdr type voltage");
+            OSAL_Snprintf(cmd_buf, sizeof(cmd_buf), "ipmitool sdr type voltage");
             break;
 
         default:
@@ -186,7 +184,7 @@ static can_status_t execute_ipmi_command(can_cmd_type_t cmd_type, uint32 param _
 
     OSAL_Printf("[Protocol Converter] 执行IPMI命令: %s\n", cmd_buf);
 
-    ret = PayloadService_Send(g_payload_handle, cmd_buf, strlen(cmd_buf));
+    ret = PayloadService_Send(g_payload_handle, cmd_buf, OSAL_Strlen(cmd_buf));
     if (ret < 0)
     {
         OSAL_Printf("[Protocol Converter] 发送命令失败\n");
