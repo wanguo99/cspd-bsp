@@ -11,9 +11,10 @@ set(OSAL_SOURCES
     # SYS - 系统调用封装
     src/linux/sys/osal_clock.c
     src/linux/sys/osal_signal.c
-    src/linux/sys/osal_unistd.c
+    src/linux/sys/osal_file.c
     src/linux/sys/osal_select.c
     src/linux/sys/osal_env.c
+    src/linux/sys/osal_time.c
 
     # NET - 网络相关
     src/linux/net/osal_socket.c

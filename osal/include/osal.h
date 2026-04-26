@@ -24,9 +24,10 @@
 /* SYS - 系统调用封装 */
 #include "sys/osal_clock.h"
 #include "sys/osal_signal.h"
-#include "sys/osal_unistd.h"
+#include "sys/osal_file.h"
 #include "sys/osal_select.h"
 #include "sys/osal_env.h"
+#include "sys/osal_time.h"
 
 /* NET - 网络相关 */
 #include "net/osal_socket.h"

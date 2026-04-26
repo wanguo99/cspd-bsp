@@ -64,15 +64,6 @@ int32 OSAL_TaskCreate(osal_id_t *task_id,
 int32 OSAL_TaskDelete(osal_id_t task_id);
 
 /**
- * @brief 任务延时
- *
- * @param[in] millisecond 延时时间(毫秒)
- *
- * @return OS_SUCCESS 成功
- */
-int32 OSAL_TaskDelay(uint32 millisecond);
-
-/**
  * @brief 设置任务优先级
  *
  * @return OS_SUCCESS 成功

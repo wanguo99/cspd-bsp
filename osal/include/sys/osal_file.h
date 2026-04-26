@@ -1,8 +1,8 @@
 /************************************************************************
- * OSAL - unistd系统调用封装
+ * OSAL - 文件I/O操作封装
  *
  * 功能：
- * - 封装POSIX unistd.h中的文件I/O和进程控制函数
+ * - 封装POSIX文件I/O函数（open/close/read/write/lseek/fcntl/ioctl）
  * - 1:1映射系统调用，不引入业务逻辑
  * - 使用固定大小类型，避免平台相关类型
  *
@@ -12,8 +12,8 @@
  * - 便于RTOS移植
  ************************************************************************/
 
-#ifndef OSAL_UNISTD_H
-#define OSAL_UNISTD_H
+#ifndef OSAL_FILE_H
+#define OSAL_FILE_H
 
 #include "osal_types.h"
 
@@ -99,13 +99,6 @@ osal_ssize_t OSAL_write(int32 fd, const void *buf, osal_size_t count);
  */
 osal_ssize_t OSAL_lseek(int32 fd, osal_ssize_t offset, int32 whence);
 
-/**
- * @brief 微秒级延时
- * @param usec 延时时间（微秒）
- * @return 0成功，-1失败
- */
-int32 OSAL_usleep(uint32 usec);
-
 /*===========================================================================
  * 文件控制操作（fcntl）
  *===========================================================================*/
@@ -138,4 +131,4 @@ int32 OSAL_fcntl(int32 fd, int32 cmd, int32 arg);
  */
 int32 OSAL_ioctl(int32 fd, uint32 request, void *argp);
 
-#endif /* OSAL_UNISTD_H */
+#endif /* OSAL_FILE_H */

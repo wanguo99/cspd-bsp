@@ -1,9 +1,8 @@
 /************************************************************************
- * OSAL - unistd系统调用封装实现（Linux）
+ * OSAL - 文件I/O操作封装实现（Linux）
  ************************************************************************/
 
-#define _DEFAULT_SOURCE  /* 启用usleep等函数 */
-#include "sys/osal_unistd.h"
+#include "sys/osal_file.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -35,11 +34,6 @@ osal_ssize_t OSAL_write(int32 fd, const void *buf, osal_size_t count)
 osal_ssize_t OSAL_lseek(int32 fd, osal_ssize_t offset, int32 whence)
 {
     return (osal_ssize_t)lseek(fd, (off_t)offset, whence);
-}
-
-int32 OSAL_usleep(uint32 usec)
-{
-    return usleep(usec);
 }
 
 /*===========================================================================

@@ -260,22 +260,6 @@ int32 OSAL_TaskDelete(osal_id_t task_id)
     return OS_SUCCESS;
 }
 
-int32 OSAL_TaskDelay(uint32 millisecond)
-{
-    struct timespec ts;
-    ts.tv_sec = millisecond / 1000;
-    ts.tv_nsec = (millisecond % 1000) * 1000000;
-
-    /* 使用nanosleep并处理中断 */
-    while (nanosleep(&ts, &ts) == -1)
-    {
-        if (errno != EINTR)
-            return OS_ERROR;
-    }
-
-    return OS_SUCCESS;
-}
-
 osal_id_t OSAL_TaskGetId(void)
 {
     pthread_t self = pthread_self();
