@@ -1,4 +1,19 @@
 # OSAL (操作系统抽象层) 模块
+# 参考cFS OSAL设计：提供接口库和实现库
+
+# ============================================================================
+# 1. 接口库 (osal_public_api) - 仅头文件，供上层模块使用
+# ============================================================================
+add_library(osal_public_api INTERFACE)
+
+target_include_directories(osal_public_api INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+
+# ============================================================================
+# 2. 实现库 (osal) - 包含平台相关实现
+# ============================================================================
 
 # OSAL源文件
 set(OSAL_SOURCES
@@ -33,13 +48,11 @@ set(OSAL_SOURCES
 # 创建OSAL静态库
 add_library(osal STATIC ${OSAL_SOURCES})
 
-# 包含目录（include包含接口和config）
-target_include_directories(osal PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
+# 链接接口库（继承头文件路径）
+target_link_libraries(osal PUBLIC osal_public_api)
 
-# 链接库
-target_link_libraries(osal
+# 链接系统库
+target_link_libraries(osal PUBLIC
     Threads::Threads
     rt
 )
@@ -50,4 +63,43 @@ target_compile_options(osal PRIVATE
     -Wextra
 )
 
+# ============================================================================
+# 3. 安装规则
+# ============================================================================
+install(TARGETS osal osal_public_api
+    EXPORT osal-targets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+
+install(DIRECTORY include/
+    DESTINATION include/osal
+    FILES_MATCHING PATTERN "*.h"
+)
+
+install(EXPORT osal-targets
+    FILE osal-targets.cmake
+    NAMESPACE pmc::
+    DESTINATION lib/cmake/osal
+)
+
+# ============================================================================
+# 4. 配置文件（支持find_package）
+# ============================================================================
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/osal-config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/osal-config.cmake
+    INSTALL_DESTINATION lib/cmake/osal
+)
+
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/osal-config.cmake
+    DESTINATION lib/cmake/osal
+)
+
 message(STATUS "OSAL module configured")
+message(STATUS "  - Interface library: osal_public_api")
+message(STATUS "  - Implementation library: osal")

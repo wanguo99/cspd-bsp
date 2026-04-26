@@ -1,26 +1,21 @@
-cmake_minimum_required(VERSION 3.10)
+# XConfig (硬件配置库) 模块
+# 参考cFS设计：纯数据配置库，类似设备树
 
-# 硬件配置库
-project(xconfig C)
+# ============================================================================
+# 1. 接口库 (xconfig_public_api) - 仅头文件，供上层模块使用
+# ============================================================================
+add_library(xconfig_public_api INTERFACE)
 
-# 编译选项
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Werror")
-
-# 包含目录
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/api
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/internal
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/peripheral
-    ${CMAKE_SOURCE_DIR}/osal/include
-    ${CMAKE_SOURCE_DIR}/osal/include/config
-    ${CMAKE_SOURCE_DIR}/hal/include
-    ${CMAKE_SOURCE_DIR}/hal/include/config
-    ${CMAKE_SOURCE_DIR}/pdl/include
+target_include_directories(xconfig_public_api INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
 )
 
-# 源文件
+# ============================================================================
+# 2. 实现库 (xconfig) - 包含配置数据和API实现
+# ============================================================================
+
+# 核心源文件
 set(XCONFIG_SOURCES
     src/xconfig_api.c
     src/xconfig_register.c
@@ -40,53 +35,70 @@ add_library(xconfig STATIC
     ${PLATFORM_CONFIGS}
 )
 
-# 链接依赖
-target_link_libraries(xconfig
-    osal
+# 链接接口库（继承头文件路径）
+target_link_libraries(xconfig PUBLIC xconfig_public_api)
+
+# 内部需要访问自己的头文件（api/internal/peripheral子目录）
+target_include_directories(xconfig PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/api
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/internal
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/peripheral
 )
 
-# 安装头文件（分层安装）
-# 对外API（供PDL层使用，仅xconfig_api.h）
-install(FILES
-    include/api/xconfig_api.h
-    DESTINATION include/xconfig/api
+# 依赖OSAL接口库（仅头文件依赖）
+target_link_libraries(xconfig PUBLIC pmc::osal_public_api)
+
+# 链接OSAL实现库（运行时依赖）
+target_link_libraries(xconfig PRIVATE pmc::osal)
+
+# 设置编译选项
+set(CMAKE_C_STANDARD 99)
+target_compile_options(xconfig PRIVATE
+    -Wall
+    -Wextra
+    -Werror
 )
 
-# 内部公共头文件（含xconfig.h总头文件）
-install(FILES
-    include/internal/xconfig.h
-    include/internal/xconfig_common.h
-    include/internal/xconfig_board.h
-    DESTINATION include/xconfig/internal
-)
-
-# 外设私有头文件
-install(FILES
-    include/peripheral/xconfig_hardware_interface.h
-    include/peripheral/xconfig_mcu.h
-    include/peripheral/xconfig_bmc.h
-    include/peripheral/xconfig_satellite.h
-    include/peripheral/xconfig_sensor.h
-    include/peripheral/xconfig_storage.h
-    include/peripheral/xconfig_app.h
-    DESTINATION include/xconfig/peripheral
-)
-
-# 为了兼容性，在顶层include目录创建xconfig_api.h的符号链接
-install(CODE "
-    execute_process(
-        COMMAND ${CMAKE_COMMAND} -E create_symlink
-        xconfig/api/xconfig_api.h
-        \${CMAKE_INSTALL_PREFIX}/include/xconfig_api.h
-    )
-")
-
-# 安装库文件
-install(TARGETS xconfig
+# ============================================================================
+# 3. 安装规则
+# ============================================================================
+install(TARGETS xconfig xconfig_public_api
+    EXPORT xconfig-targets
     ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
 )
 
-# 示例程序（可选）
+install(DIRECTORY include/
+    DESTINATION include/xconfig
+    FILES_MATCHING PATTERN "*.h"
+)
+
+install(EXPORT xconfig-targets
+    FILE xconfig-targets.cmake
+    NAMESPACE pmc::
+    DESTINATION lib/cmake/xconfig
+)
+
+# ============================================================================
+# 4. 配置文件（支持find_package）
+# ============================================================================
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/xconfig-config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/xconfig-config.cmake
+    INSTALL_DESTINATION lib/cmake/xconfig
+)
+
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/xconfig-config.cmake
+    DESTINATION lib/cmake/xconfig
+)
+
+# ============================================================================
+# 5. 示例程序（可选）
+# ============================================================================
 option(BUILD_XCONFIG_EXAMPLES "Build xconfig examples" OFF)
 
 if(BUILD_XCONFIG_EXAMPLES)
@@ -95,10 +107,8 @@ if(BUILD_XCONFIG_EXAMPLES)
     )
 
     target_link_libraries(xconfig_example
-        xconfig
-        pdl
-        hal
-        osal
+        pmc::xconfig
+        pmc::osal
         pthread
     )
 
@@ -106,3 +116,8 @@ if(BUILD_XCONFIG_EXAMPLES)
         RUNTIME DESTINATION bin
     )
 endif()
+
+message(STATUS "XConfig module configured")
+message(STATUS "  - Interface library: xconfig_public_api")
+message(STATUS "  - Implementation library: xconfig")
+message(STATUS "  - Platform configs: ${PLATFORM_CONFIGS}")

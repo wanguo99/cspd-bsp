@@ -1,4 +1,5 @@
 # Sample应用
+# 参考cFS应用模块设计
 
 # 源文件
 set(SAMPLE_APP_SOURCES
@@ -8,9 +9,9 @@ set(SAMPLE_APP_SOURCES
 # 创建可执行文件
 add_executable(sample_app ${SAMPLE_APP_SOURCES})
 
-# 链接库
+# 链接依赖（使用命名空间别名）
 target_link_libraries(sample_app
-    osal
+    pmc::osal
     Threads::Threads
 )
 
@@ -18,3 +19,10 @@ target_link_libraries(sample_app
 set_target_properties(sample_app PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_TARGET}/bin
 )
+
+# 安装规则
+install(TARGETS sample_app
+    RUNTIME DESTINATION bin
+)
+
+message(STATUS "Sample application configured")

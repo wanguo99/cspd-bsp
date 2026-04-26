@@ -6,7 +6,9 @@ project(PMC-BSP VERSION 1.0.0 LANGUAGES C)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-# 编译平台选择
+# ============================================================================
+# 平台配置
+# ============================================================================
 if(NOT DEFINED PLATFORM)
     set(PLATFORM "native" CACHE STRING "Target platform: native, generic-linux")
 endif()
@@ -40,15 +42,16 @@ else()
     message(FATAL_ERROR "Unknown platform: ${PLATFORM}. Supported: native, generic-linux")
 endif()
 
+# ============================================================================
 # 编译选项
+# ============================================================================
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Werror -D_POSIX_C_SOURCE=200809L")
 set(CMAKE_C_FLAGS_DEBUG "-g -O0")
 set(CMAKE_C_FLAGS_RELEASE "-O2")
 
-# 设置输出目录 - 参考buildroot设计
-# CMAKE_BINARY_DIR 就是 output/build/
-# 编译中间文件放在当前目录（output/build/）
-# 目标产物放在 ../target/ 目录
+# ============================================================================
+# 输出目录配置（参考buildroot设计）
+# ============================================================================
 set(OUTPUT_BUILD ${CMAKE_BINARY_DIR})
 set(OUTPUT_TARGET ${CMAKE_BINARY_DIR}/../target)
 
@@ -59,23 +62,52 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_BUILD}/lib)
 # 最终目标产物目录
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_TARGET}/bin)
 
-# 包含目录（移除全局config，各模块使用自己的config）
-include_directories(
-    ${CMAKE_SOURCE_DIR}/osal/inc
-    ${CMAKE_SOURCE_DIR}/hal/inc
-)
-
+# ============================================================================
 # 查找依赖库
+# ============================================================================
 find_package(Threads REQUIRED)
 
-# 添加子目录
+# ============================================================================
+# 模块化构建（参考cFS架构）
+# ============================================================================
+# 依赖层次：OSAL → HAL → XConfig → PDL → Apps
+#
+# 每个模块提供两个库：
+# 1. <module>_public_api - 接口库（仅头文件），供上层使用
+# 2. <module> - 实现库（静态库），包含实际代码
+#
+# 上层模块：
+# - PUBLIC依赖下层的接口库（继承头文件路径）
+# - PRIVATE依赖下层的实现库（运行时链接）
+
+# 1. OSAL层（操作系统抽象层）
 add_subdirectory(osal)
+
+# 为后续模块创建命名空间别名
+add_library(pmc::osal_public_api ALIAS osal_public_api)
+add_library(pmc::osal ALIAS osal)
+
+# 2. HAL层（硬件抽象层）
 add_subdirectory(hal)
-add_subdirectory(pdl)
+add_library(pmc::hal_public_api ALIAS hal_public_api)
+add_library(pmc::hal ALIAS hal)
+
+# 3. XConfig层（硬件配置库）
 add_subdirectory(xconfig)
+add_library(pmc::xconfig_public_api ALIAS xconfig_public_api)
+add_library(pmc::xconfig ALIAS xconfig)
+
+# 4. PDL层（外设驱动层）
+add_subdirectory(pdl)
+add_library(pmc::pdl_public_api ALIAS pdl_public_api)
+add_library(pmc::pdl ALIAS pdl)
+
+# 5. Apps层（应用层）
 add_subdirectory(apps)
 
-# 添加测试（可选，通过BUILD_TESTING控制）
+# ============================================================================
+# 测试框架（可选）
+# ============================================================================
 option(BUILD_TESTING "Build unit tests" ON)
 if(BUILD_TESTING)
     message(STATUS "Unit tests enabled")
@@ -84,19 +116,25 @@ else()
     message(STATUS "Unit tests disabled")
 endif()
 
+# ============================================================================
 # 创建输出目录结构
+# ============================================================================
 file(MAKE_DIRECTORY ${OUTPUT_BUILD}/lib)
 file(MAKE_DIRECTORY ${OUTPUT_TARGET}/bin)
 file(MAKE_DIRECTORY ${OUTPUT_TARGET}/lib)
 
+# ============================================================================
 # 复制最终库文件到target/lib（构建后执行）
+# ============================================================================
 add_custom_target(copy_libs ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${OUTPUT_BUILD}/lib ${OUTPUT_TARGET}/lib
     COMMENT "Copying libraries to target directory"
-    DEPENDS osal hal pdl xconfig
+    DEPENDS osal hal xconfig pdl
 )
 
+# ============================================================================
 # 打印配置信息
+# ============================================================================
 message(STATUS "")
 message(STATUS "========================================")
 message(STATUS "  PMC-BSP Configuration")
@@ -114,5 +152,16 @@ message(STATUS "  Unit tests: Enabled")
 else()
 message(STATUS "  Unit tests: Disabled")
 endif()
+message(STATUS "========================================")
+message(STATUS "Module Dependency Chain:")
+message(STATUS "  OSAL (OS Abstraction)")
+message(STATUS "    ↓")
+message(STATUS "  HAL (Hardware Drivers)")
+message(STATUS "    ↓")
+message(STATUS "  XConfig (Hardware Config)")
+message(STATUS "    ↓")
+message(STATUS "  PDL (Peripheral Drivers)")
+message(STATUS "    ↓")
+message(STATUS "  Apps (Applications)")
 message(STATUS "========================================")
 message(STATUS "")
