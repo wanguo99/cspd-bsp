@@ -15,10 +15,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### 编译
 ```bash
+# 使用构建脚本（推荐）
 ./build.sh              # Release模式编译
 ./build.sh -d           # Debug模式编译
 ./build.sh -c           # 清理构建目录
 ./build.sh --target can_gateway  # 仅编译CAN网关
+
+# 直接使用CMake（高级用户）
+mkdir -p output/build && cd output/build
+cmake ../.. -DCMAKE_BUILD_TYPE=Release
+make -j$(nproc)
+cd ../..
 ```
 
 ### 测试
@@ -28,6 +35,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ./output/target/bin/unit-test -L OSAL  # 运行OSAL层测试
 ./output/target/bin/unit-test -m test_osal_task  # 运行指定模块
 ./output/target/bin/unit-test -l    # 列出所有测试
+
+# 编译单个测试文件（快速迭代）
+cd output/build
+make test_osal_task  # 仅编译指定测试模块
+cd ../..
 ```
 
 ### 运行应用
@@ -311,7 +323,8 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
 1. 在 `tests/src/<layer>/` 创建测试文件
 2. 使用 `TEST_MODULE_BEGIN/END` 宏注册测试模块
 3. 在 `tests/src/test_entry.c` 添加模块引用
-4. 重新编译
+4. 重新编译：`./build.sh -d`
+5. 运行测试：`./output/target/bin/unit-test -m <module_name>`
 
 ### 调试
 ```bash
@@ -328,6 +341,9 @@ tail -f /var/log/pmc-bsp.log
 
 # 查看统计信息（程序每30秒自动打印）
 grep "Statistics" /var/log/pmc-bsp.log
+
+# 单步调试特定测试
+sudo gdb --args ./output/target/bin/unit-test -m test_osal_task
 ```
 
 ## 构建输出
@@ -524,6 +540,29 @@ telnet 192.168.1.100 623
 7. **日志规范**：使用`OSAL_INFO/ERROR`宏，不要用`printf`或直接调用`OSAL_LogInfo`
 8. **测试驱动**：新功能必须编写单元测试
 9. **配置管理**：修改配置时只修改对应模块的 `include/config/` 目录
+
+## 快速开发技巧
+
+### 快速编译单个目标
+```bash
+cd output/build && make can_gateway -j$(nproc) && cd ../..
+```
+
+### 快速测试单个模块
+```bash
+./build.sh -d && ./output/target/bin/unit-test -m test_osal_task
+```
+
+### 监控日志并运行应用
+```bash
+tail -f /var/log/pmc-bsp.log &
+sudo ./output/target/bin/can_gateway
+```
+
+### 检查代码风格（使用clang-format）
+```bash
+find . -name "*.c" -o -name "*.h" | xargs clang-format -i --style=file
+```
 
 ## 性能指标
 
