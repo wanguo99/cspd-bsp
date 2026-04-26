@@ -17,7 +17,7 @@ target_include_directories(hal_tests PRIVATE
 
 # Link dependencies
 target_link_libraries(hal_tests
-    PUBLIC pmc::libtest
+    PUBLIC pmc::libutest
     PRIVATE pmc::hal pmc::osal
 )
 

@@ -6,7 +6,7 @@
  * as well as test listing functionality.
  */
 
-#include "libtest.h"
+#include "libutest.h"
 #include "osal.h"
 
 #define MAX_LAYERS 16
@@ -14,11 +14,11 @@
 #define MAX_SUITES 128
 
 /* External registry functions */
-extern const test_suite_t** libtest_get_all_suites(uint32_t *count);
-extern uint32_t libtest_get_layers(const str_t **layers, uint32_t max_layers);
-extern uint32_t libtest_get_modules(const str_t **modules, uint32_t max_modules);
-extern uint32_t libtest_get_suites_by_layer(const str_t *layer_name, const test_suite_t **suites, uint32_t max_suites);
-extern uint32_t libtest_get_suites_by_module(const str_t *module_name, const test_suite_t **suites, uint32_t max_suites);
+extern const test_suite_t** test_get_all_suites(uint32_t *count);
+extern uint32_t test_get_layers(const str_t **layers, uint32_t max_layers);
+extern uint32_t test_get_modules(const str_t **modules, uint32_t max_modules);
+extern uint32_t test_get_suites_by_layer(const str_t *layer_name, const test_suite_t **suites, uint32_t max_suites);
+extern uint32_t test_get_suites_by_module(const str_t *module_name, const test_suite_t **suites, uint32_t max_suites);
 
 /**
  * Read user input
@@ -41,10 +41,10 @@ static int32_t read_choice(void)
 /**
  * List all tests
  */
-void libtest_list_all(void)
+void libutest_list_all(void)
 {
     uint32_t suite_count = 0;
-    const test_suite_t **suites = libtest_get_all_suites(&suite_count);
+    const test_suite_t **suites = test_get_all_suites(&suite_count);
 
     OSAL_Printf("\nRegistered Test Suites (%u total):\n", suite_count);
     OSAL_Printf("=====================================\n");
@@ -65,10 +65,10 @@ void libtest_list_all(void)
 /**
  * List tests from a specific layer
  */
-void libtest_list_layer(const str_t *layer_name)
+void libutest_list_layer(const str_t *layer_name)
 {
     const test_suite_t *suites[MAX_SUITES];
-    uint32_t count = libtest_get_suites_by_layer(layer_name, suites, MAX_SUITES);
+    uint32_t count = test_get_suites_by_layer(layer_name, suites, MAX_SUITES);
 
     OSAL_Printf("\nTest Suites in layer %s (%u total):\n", layer_name, count);
     OSAL_Printf("=====================================\n");
@@ -89,10 +89,10 @@ void libtest_list_layer(const str_t *layer_name)
 /**
  * List tests from a specific module
  */
-void libtest_list_module(const str_t *module_name)
+void libutest_list_module(const str_t *module_name)
 {
     const test_suite_t *suites[MAX_SUITES];
-    uint32_t count = libtest_get_suites_by_module(module_name, suites, MAX_SUITES);
+    uint32_t count = test_get_suites_by_module(module_name, suites, MAX_SUITES);
 
     OSAL_Printf("\nTest Suites in module %s (%u total):\n", module_name, count);
     OSAL_Printf("=====================================\n");
@@ -128,9 +128,9 @@ static int32_t menu_select_test(const test_suite_t *suite)
         int32_t choice = read_choice();
 
         if (choice == 0) {
-            return libtest_run_suite(suite->suite_name);
+            return libutest_run_suite(suite->suite_name);
         } else if (choice > 0 && choice <= (int32_t)suite->case_count) {
-            return libtest_run_test(suite->suite_name, suite->cases[choice - 1].name);
+            return libutest_run_test(suite->suite_name, suite->cases[choice - 1].name);
         } else if (choice == (int32_t)(suite->case_count + 1)) {
             return OS_SUCCESS;
         } else {
@@ -159,9 +159,9 @@ static int32_t menu_select_suite(const test_suite_t **suites, uint32_t count, co
 
         if (choice == 0) {
             /* Run all suites */
-            libtest_reset_stats();
+            libutest_reset_stats();
             for (uint32_t i = 0; i < count; i++) {
-                libtest_run_suite(suites[i]->suite_name);
+                libutest_run_suite(suites[i]->suite_name);
             }
             return OS_SUCCESS;
         } else if (choice > 0 && choice <= (int32_t)count) {
@@ -180,7 +180,7 @@ static int32_t menu_select_suite(const test_suite_t **suites, uint32_t count, co
 static int32_t menu_select_module(void)
 {
     const str_t *modules[MAX_MODULES];
-    uint32_t module_count = libtest_get_modules(modules, MAX_MODULES);
+    uint32_t module_count = test_get_modules(modules, MAX_MODULES);
 
     while (1) {
         OSAL_Printf("\n=== Select Module ===\n");
@@ -196,7 +196,7 @@ static int32_t menu_select_module(void)
 
         if (choice > 0 && choice <= (int32_t)module_count) {
             const test_suite_t *suites[MAX_SUITES];
-            uint32_t count = libtest_get_suites_by_module(modules[choice - 1], suites, MAX_SUITES);
+            uint32_t count = test_get_suites_by_module(modules[choice - 1], suites, MAX_SUITES);
 
             str_t context[128];
             OSAL_Snprintf(context, sizeof(context), "in module %s", modules[choice - 1]);
@@ -215,7 +215,7 @@ static int32_t menu_select_module(void)
 static int32_t menu_select_layer(void)
 {
     const str_t *layers[MAX_LAYERS];
-    uint32_t layer_count = libtest_get_layers(layers, MAX_LAYERS);
+    uint32_t layer_count = test_get_layers(layers, MAX_LAYERS);
 
     while (1) {
         OSAL_Printf("\n=== Select Layer ===\n");
@@ -231,7 +231,7 @@ static int32_t menu_select_layer(void)
 
         if (choice > 0 && choice <= (int32_t)layer_count) {
             const test_suite_t *suites[MAX_SUITES];
-            uint32_t count = libtest_get_suites_by_layer(layers[choice - 1], suites, MAX_SUITES);
+            uint32_t count = test_get_suites_by_layer(layers[choice - 1], suites, MAX_SUITES);
 
             str_t context[128];
             OSAL_Snprintf(context, sizeof(context), "in layer %s", layers[choice - 1]);
@@ -247,10 +247,10 @@ static int32_t menu_select_layer(void)
 /**
  * Interactive menu - main
  */
-int32_t libtest_interactive_menu(void)
+int32_t libutest_interactive_menu(void)
 {
     uint32_t suite_count = 0;
-    libtest_get_all_suites(&suite_count);
+    test_get_all_suites(&suite_count);
 
     OSAL_Printf("\n========================================\n");
     OSAL_Printf("  PMC-BSP Unit Test Framework\n");
@@ -270,7 +270,7 @@ int32_t libtest_interactive_menu(void)
 
         switch (choice) {
             case 1:
-                libtest_run_all();
+                libutest_run_all();
                 break;
 
             case 2:
@@ -282,7 +282,7 @@ int32_t libtest_interactive_menu(void)
                 break;
 
             case 4:
-                libtest_list_all();
+                libutest_list_all();
                 break;
 
             case 5:

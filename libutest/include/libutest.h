@@ -1,16 +1,17 @@
 /**
- * @file libtest.h
- * @brief Reusable unit testing framework - Core API
+ * @file libutest.h
+ * @brief libutest - 通用单元测试框架
  *
- * This library provides a generic, platform-independent testing framework
- * for C projects. It supports automatic test registration, hierarchical
- * organization, and interactive/CLI execution modes.
+ * 提供通用的、平台无关的测试框架，支持：
+ * - 自动测试注册
+ * - 层级化组织
+ * - 交互式菜单和命令行模式
  *
- * Dependencies: Only OSAL (for portability)
+ * 依赖：仅依赖OSAL（保证可移植性）
  */
 
-#ifndef LIBTEST_H
-#define LIBTEST_H
+#ifndef LIBUTEST_H
+#define LIBUTEST_H
 
 #include "osal_types.h"
 
@@ -53,25 +54,25 @@ typedef enum {
 } test_result_t;
 
 /* Core API - Test Registration */
-void libtest_register_suite(const test_suite_t *suite);
+void libutest_register_suite(const test_suite_t *suite);
 
 /* Core API - Test Execution */
-int32_t libtest_run_all(void);
-int32_t libtest_run_layer(const str_t *layer_name);
-int32_t libtest_run_module(const str_t *module_name);
-int32_t libtest_run_suite(const str_t *suite_name);
-int32_t libtest_run_test(const str_t *suite_name, const str_t *test_name);
+int32_t libutest_run_all(void);
+int32_t libutest_run_layer(const str_t *layer_name);
+int32_t libutest_run_module(const str_t *module_name);
+int32_t libutest_run_suite(const str_t *suite_name);
+int32_t libutest_run_test(const str_t *suite_name, const str_t *test_name);
 
 /* Core API - Test Discovery */
-void libtest_list_all(void);
-void libtest_list_layer(const str_t *layer_name);
-void libtest_list_module(const str_t *module_name);
+void libutest_list_all(void);
+void libutest_list_layer(const str_t *layer_name);
+void libutest_list_module(const str_t *module_name);
 
 /* Core API - Interactive Mode */
-int32_t libtest_interactive_menu(void);
+int32_t libutest_interactive_menu(void);
 
 /* Core API - Statistics */
-const test_stats_t* libtest_get_stats(void);
-void libtest_reset_stats(void);
+const test_stats_t* libutest_get_stats(void);
+void libutest_reset_stats(void);
 
-#endif /* LIBTEST_H */
+#endif /* LIBUTEST_H */

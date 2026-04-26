@@ -5,7 +5,7 @@
  * 使用新的libtest框架，测试自动注册
  */
 
-#include "libtest.h"
+#include "libutest.h"
 #include "test_assert.h"
 #include "test_registry.h"
 #include "hal_can.h"

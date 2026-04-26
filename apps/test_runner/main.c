@@ -5,7 +5,7 @@
  * Aggregates all module tests and provides CLI interface
  */
 
-#include "libtest.h"
+#include "libutest.h"
 #include "osal.h"
 
 int main(int argc, char *argv[])
@@ -13,38 +13,38 @@ int main(int argc, char *argv[])
     /* Parse command line arguments */
     if (argc == 1) {
         /* No arguments - interactive menu */
-        return libtest_interactive_menu();
+        return libutest_interactive_menu();
     }
 
     /* Run all tests */
     if (OSAL_Strcmp(argv[1], "-a") == 0 || OSAL_Strcmp(argv[1], "--all") == 0) {
-        return libtest_run_all();
+        return libutest_run_all();
     }
 
     /* Run tests by layer */
     if (OSAL_Strcmp(argv[1], "-L") == 0 && argc >= 3) {
-        return libtest_run_layer(argv[2]);
+        return libutest_run_layer(argv[2]);
     }
 
     /* Run tests by module */
     if (OSAL_Strcmp(argv[1], "-m") == 0 && argc >= 3) {
-        return libtest_run_module(argv[2]);
+        return libutest_run_module(argv[2]);
     }
 
     /* Run specific test suite */
     if (OSAL_Strcmp(argv[1], "-s") == 0 && argc >= 3) {
-        return libtest_run_suite(argv[2]);
+        return libutest_run_suite(argv[2]);
     }
 
     /* List all tests */
     if (OSAL_Strcmp(argv[1], "-l") == 0 || OSAL_Strcmp(argv[1], "--list") == 0) {
-        libtest_list_all();
+        libutest_list_all();
         return 0;
     }
 
     /* Interactive menu (default) */
     if (OSAL_Strcmp(argv[1], "-i") == 0 || OSAL_Strcmp(argv[1], "--interactive") == 0) {
-        return libtest_interactive_menu();
+        return libutest_interactive_menu();
     }
 
     /* Help */

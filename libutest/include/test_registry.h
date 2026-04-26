@@ -1,16 +1,15 @@
 /**
  * @file test_registry.h
- * @brief Test registration macros
+ * @brief 测试注册宏
  *
- * Provides macros for automatic test registration using GCC constructor
- * attributes. Tests self-register at program startup without manual
- * registration in a central file.
+ * 提供自动测试注册宏，使用GCC constructor属性实现。
+ * 测试用例在程序启动时自动注册，无需手动维护注册列表。
  */
 
 #ifndef TEST_REGISTRY_H
 #define TEST_REGISTRY_H
 
-#include "libtest.h"
+#include "libutest.h"
 
 /* Define a test case */
 #define TEST_CASE(name) \
@@ -47,7 +46,7 @@
     }; \
     __attribute__((constructor)) \
     static void register_##suite_id(void) { \
-        libtest_register_suite(&suite_id##_suite); \
+        libutest_register_suite(&suite_id##_suite); \
     }
 
 /* Suite with setup/teardown */
@@ -64,7 +63,7 @@
     }; \
     __attribute__((constructor)) \
     static void register_##suite_id(void) { \
-        libtest_register_suite(&suite_id##_suite); \
+        libutest_register_suite(&suite_id##_suite); \
     }
 
 #endif /* TEST_REGISTRY_H */

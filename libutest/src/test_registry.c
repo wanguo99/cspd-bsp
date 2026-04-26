@@ -6,7 +6,7 @@
  * constructor attributes. Provides lookup and enumeration functions.
  */
 
-#include "libtest.h"
+#include "libutest.h"
 #include "osal.h"
 
 #define MAX_SUITES 128
@@ -19,7 +19,7 @@ static uint32_t g_suite_count = 0;
  * Register a test suite
  * Called automatically by constructor attributes
  */
-void libtest_register_suite(const test_suite_t *suite)
+void libutest_register_suite(const test_suite_t *suite)
 {
     if (suite == NULL) {
         return;
@@ -35,7 +35,7 @@ void libtest_register_suite(const test_suite_t *suite)
 /**
  * Get all registered suites
  */
-const test_suite_t** libtest_get_all_suites(uint32_t *count)
+const test_suite_t** test_get_all_suites(uint32_t *count)
 {
     if (count != NULL) {
         *count = g_suite_count;
@@ -46,7 +46,7 @@ const test_suite_t** libtest_get_all_suites(uint32_t *count)
 /**
  * Find suite by name
  */
-const test_suite_t* libtest_find_suite(const str_t *name)
+const test_suite_t* test_find_suite(const str_t *name)
 {
     if (name == NULL) {
         return NULL;
@@ -63,7 +63,7 @@ const test_suite_t* libtest_find_suite(const str_t *name)
 /**
  * Get suites by layer
  */
-uint32_t libtest_get_suites_by_layer(const str_t *layer_name, const test_suite_t **suites, uint32_t max_suites)
+uint32_t test_get_suites_by_layer(const str_t *layer_name, const test_suite_t **suites, uint32_t max_suites)
 {
     if (layer_name == NULL || suites == NULL) {
         return 0;
@@ -81,7 +81,7 @@ uint32_t libtest_get_suites_by_layer(const str_t *layer_name, const test_suite_t
 /**
  * Get suites by module
  */
-uint32_t libtest_get_suites_by_module(const str_t *module_name, const test_suite_t **suites, uint32_t max_suites)
+uint32_t test_get_suites_by_module(const str_t *module_name, const test_suite_t **suites, uint32_t max_suites)
 {
     if (module_name == NULL || suites == NULL) {
         return 0;
@@ -99,7 +99,7 @@ uint32_t libtest_get_suites_by_module(const str_t *module_name, const test_suite
 /**
  * Get unique layer names
  */
-uint32_t libtest_get_layers(const str_t **layers, uint32_t max_layers)
+uint32_t test_get_layers(const str_t **layers, uint32_t max_layers)
 {
     if (layers == NULL) {
         return 0;
@@ -128,7 +128,7 @@ uint32_t libtest_get_layers(const str_t **layers, uint32_t max_layers)
 /**
  * Get unique module names
  */
-uint32_t libtest_get_modules(const str_t **modules, uint32_t max_modules)
+uint32_t test_get_modules(const str_t **modules, uint32_t max_modules)
 {
     if (modules == NULL) {
         return 0;

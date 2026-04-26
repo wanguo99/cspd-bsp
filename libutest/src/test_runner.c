@@ -5,7 +5,7 @@
  * Executes test cases and suites, tracks statistics, and reports results.
  */
 
-#include "libtest.h"
+#include "libutest.h"
 #include "test_assert.h"
 #include "osal.h"
 
@@ -19,10 +19,10 @@ const str_t *g_current_test = NULL;
 static test_stats_t g_stats = {0};
 
 /* External registry functions */
-extern const test_suite_t** libtest_get_all_suites(uint32_t *count);
-extern const test_suite_t* libtest_find_suite(const str_t *name);
-extern uint32_t libtest_get_suites_by_layer(const str_t *layer_name, const test_suite_t **suites, uint32_t max_suites);
-extern uint32_t libtest_get_suites_by_module(const str_t *module_name, const test_suite_t **suites, uint32_t max_suites);
+extern const test_suite_t** test_get_all_suites(uint32_t *count);
+extern const test_suite_t* test_find_suite(const str_t *name);
+extern uint32_t test_get_suites_by_layer(const str_t *layer_name, const test_suite_t **suites, uint32_t max_suites);
+extern uint32_t test_get_suites_by_module(const str_t *module_name, const test_suite_t **suites, uint32_t max_suites);
 
 /**
  * Run a single test case
@@ -104,14 +104,14 @@ static int32_t run_suite(const test_suite_t *suite)
 /**
  * Run all registered tests
  */
-int32_t libtest_run_all(void)
+int32_t libutest_run_all(void)
 {
     uint32_t suite_count = 0;
-    const test_suite_t **suites = libtest_get_all_suites(&suite_count);
+    const test_suite_t **suites = test_get_all_suites(&suite_count);
 
     OSAL_Printf("\n[==========] Running %u test suites\n", suite_count);
 
-    libtest_reset_stats();
+    libutest_reset_stats();
 
     for (uint32_t i = 0; i < suite_count; i++) {
         run_suite(suites[i]);
@@ -134,14 +134,14 @@ int32_t libtest_run_all(void)
 /**
  * Run tests from a specific layer
  */
-int32_t libtest_run_layer(const str_t *layer_name)
+int32_t libutest_run_layer(const str_t *layer_name)
 {
     if (layer_name == NULL) {
         return OS_INVALID_POINTER;
     }
 
     const test_suite_t *suites[MAX_SUITES];
-    uint32_t count = libtest_get_suites_by_layer(layer_name, suites, MAX_SUITES);
+    uint32_t count = test_get_suites_by_layer(layer_name, suites, MAX_SUITES);
 
     if (count == 0) {
         OSAL_Printf("No tests found for layer: %s\n", layer_name);
@@ -150,7 +150,7 @@ int32_t libtest_run_layer(const str_t *layer_name)
 
     OSAL_Printf("\n[==========] Running %u test suites from layer %s\n", count, layer_name);
 
-    libtest_reset_stats();
+    libutest_reset_stats();
 
     for (uint32_t i = 0; i < count; i++) {
         run_suite(suites[i]);
@@ -169,14 +169,14 @@ int32_t libtest_run_layer(const str_t *layer_name)
 /**
  * Run tests from a specific module
  */
-int32_t libtest_run_module(const str_t *module_name)
+int32_t libutest_run_module(const str_t *module_name)
 {
     if (module_name == NULL) {
         return OS_INVALID_POINTER;
     }
 
     const test_suite_t *suites[MAX_SUITES];
-    uint32_t count = libtest_get_suites_by_module(module_name, suites, MAX_SUITES);
+    uint32_t count = test_get_suites_by_module(module_name, suites, MAX_SUITES);
 
     if (count == 0) {
         OSAL_Printf("No tests found for module: %s\n", module_name);
@@ -185,7 +185,7 @@ int32_t libtest_run_module(const str_t *module_name)
 
     OSAL_Printf("\n[==========] Running %u test suites from module %s\n", count, module_name);
 
-    libtest_reset_stats();
+    libutest_reset_stats();
 
     for (uint32_t i = 0; i < count; i++) {
         run_suite(suites[i]);
@@ -204,19 +204,19 @@ int32_t libtest_run_module(const str_t *module_name)
 /**
  * Run a specific test suite
  */
-int32_t libtest_run_suite(const str_t *suite_name)
+int32_t libutest_run_suite(const str_t *suite_name)
 {
     if (suite_name == NULL) {
         return OS_INVALID_POINTER;
     }
 
-    const test_suite_t *suite = libtest_find_suite(suite_name);
+    const test_suite_t *suite = test_find_suite(suite_name);
     if (suite == NULL) {
         OSAL_Printf("Test suite not found: %s\n", suite_name);
         return OS_ERROR;
     }
 
-    libtest_reset_stats();
+    libutest_reset_stats();
     run_suite(suite);
 
     OSAL_Printf("\n[  PASSED  ] %u tests\n", g_stats.passed);
@@ -231,13 +231,13 @@ int32_t libtest_run_suite(const str_t *suite_name)
 /**
  * Run a specific test case
  */
-int32_t libtest_run_test(const str_t *suite_name, const str_t *test_name)
+int32_t libutest_run_test(const str_t *suite_name, const str_t *test_name)
 {
     if (suite_name == NULL || test_name == NULL) {
         return OS_INVALID_POINTER;
     }
 
-    const test_suite_t *suite = libtest_find_suite(suite_name);
+    const test_suite_t *suite = test_find_suite(suite_name);
     if (suite == NULL) {
         OSAL_Printf("Test suite not found: %s\n", suite_name);
         return OS_ERROR;
@@ -257,7 +257,7 @@ int32_t libtest_run_test(const str_t *suite_name, const str_t *test_name)
         return OS_ERROR;
     }
 
-    libtest_reset_stats();
+    libutest_reset_stats();
 
     test_result_t result = run_test_case(test);
 
@@ -274,7 +274,7 @@ int32_t libtest_run_test(const str_t *suite_name, const str_t *test_name)
 /**
  * Get test statistics
  */
-const test_stats_t* libtest_get_stats(void)
+const test_stats_t* libutest_get_stats(void)
 {
     return &g_stats;
 }
@@ -282,7 +282,7 @@ const test_stats_t* libtest_get_stats(void)
 /**
  * Reset test statistics
  */
-void libtest_reset_stats(void)
+void libutest_reset_stats(void)
 {
     OSAL_Memset(&g_stats, 0, sizeof(test_stats_t));
 }

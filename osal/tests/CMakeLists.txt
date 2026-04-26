@@ -20,7 +20,7 @@ target_include_directories(osal_tests PRIVATE
 
 # Link dependencies
 target_link_libraries(osal_tests
-    PUBLIC pmc::libtest
+    PUBLIC pmc::libutest
     PRIVATE pmc::osal
 )
 

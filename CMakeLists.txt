@@ -7,6 +7,11 @@ set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # ============================================================================
+# 构建选项
+# ============================================================================
+option(BUILD_TESTING "Build unit tests" ON)
+
+# ============================================================================
 # 平台配置
 # ============================================================================
 if(NOT DEFINED PLATFORM)
@@ -89,7 +94,7 @@ add_library(pmc::osal ALIAS osal)
 
 # 1.5 Test Library（测试库 - 仅在启用测试时构建）
 if(BUILD_TESTING)
-    add_subdirectory(lib/libtest)
+    add_subdirectory(libutest)
 endif()
 
 # OSAL模块测试
@@ -128,7 +133,6 @@ add_subdirectory(apps)
 # ============================================================================
 # 测试框架（可选）
 # ============================================================================
-option(BUILD_TESTING "Build unit tests" ON)
 if(BUILD_TESTING)
     message(STATUS "Unit tests enabled")
     # 统一测试运行器
