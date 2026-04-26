@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-**PMC-BSP** (Payload Management Controller Board Support Package) 是为卫星算存载荷设计的板级支持包，作为卫星平台与算存载荷之间的通信桥接和管理中间层。
+**PMC-BSP** (Payload Management Controller Board Support Package) 是为算存载荷管理控制器设计的板级支持包，PMC是作为卫星平台与算存载荷之间的通信桥接和管理中间层。
 
 **系统架构**：
 ```
-卫星平台 <--CAN--> 转接板(PMC-BSP) <--Ethernet/UART--> 算存载荷
+卫星平台 <--CAN--> 算存载荷管理控制器(PMC) <--Ethernet/UART/CAN--> 算存载荷
 ```
 
 ## 数据类型使用规范
@@ -97,13 +97,19 @@ cd ../..
 ./output/target/bin/unit-test -i    # 交互式菜单（推荐）
 ./output/target/bin/unit-test -a    # 运行所有测试
 ./output/target/bin/unit-test -L OSAL  # 运行OSAL层测试
+./output/target/bin/unit-test -L HAL   # 运行HAL层测试
+./output/target/bin/unit-test -L PDL   # 运行PDL层测试
 ./output/target/bin/unit-test -m test_osal_task  # 运行指定模块
 ./output/target/bin/unit-test -l    # 列出所有测试
 
-# 编译单个测试文件（快速迭代）
+# 编译单个测试模块（快速迭代）
 cd output/build
 make test_osal_task  # 仅编译指定测试模块
 cd ../..
+
+# 完整的测试工作流
+./build.sh -d                        # Debug模式编译
+./output/target/bin/unit-test -i    # 交互式运行测试
 ```
 
 ### 运行应用
@@ -639,11 +645,52 @@ sudo ./output/target/bin/sample_app
 6. **测试驱动**：新功能必须编写单元测试
 7. **配置管理**：配置文件集中在各模块的配置目录中
 
+## 常见开发场景
+
+### 添加新的OSAL接口
+1. 在`osal/include/`添加接口声明
+2. 在`osal/src/posix/`实现POSIX版本
+3. 在`osal/tests/`添加单元测试
+4. 更新`osal/README.md`文档
+
+### 添加新的HAL驱动
+1. 在`hal/include/`添加驱动接口
+2. 在`hal/include/config/`添加驱动配置
+3. 在`hal/src/linux/`实现Linux版本（使用OSAL接口）
+4. 在`hal/tests/`添加单元测试
+5. 更新`hal/README.md`文档
+
+### 添加新的外设支持
+1. 在`xconfig/include/peripheral/`添加外设配置结构
+2. 在`xconfig/platform/`添加具体平台配置
+3. 在`pdl/include/`添加外设服务接口
+4. 在`pdl/src/`实现外设服务
+5. 在`pdl/tests/`添加单元测试
+
+### 调试硬件相关问题
+```bash
+# 检查CAN设备
+ip link show can0
+sudo ip link set can0 type can bitrate 500000
+sudo ip link set can0 up
+
+# 检查串口设备
+ls -l /dev/ttyS*
+sudo chmod 666 /dev/ttyS0
+
+# 使用strace跟踪系统调用
+strace -e trace=open,read,write,ioctl ./output/target/bin/sample_app
+
+# 使用ltrace跟踪库调用
+ltrace ./output/target/bin/sample_app
+```
+
 ## 快速开发技巧
 
 ### 快速编译单个目标
 ```bash
 cd output/build && make sample_app -j$(nproc) && cd ../..
+cd output/build && make test_osal_task -j$(nproc) && cd ../..  # 编译单个测试模块
 ```
 
 ### 快速测试单个模块
@@ -656,9 +703,51 @@ cd output/build && make sample_app -j$(nproc) && cd ../..
 ./output/target/bin/sample_app
 ```
 
+### 调试技巧
+```bash
+# 使用GDB调试应用
+gdb ./output/target/bin/sample_app
+(gdb) break main
+(gdb) run
+(gdb) bt
+
+# 使用GDB调试特定测试
+gdb --args ./output/target/bin/unit-test -m test_osal_task
+
+# 使用Valgrind检查内存泄漏
+valgrind --leak-check=full ./output/target/bin/sample_app
+```
+
 ## 性能指标
 
 - 任务切换延迟：< 1ms
 - 队列操作延迟：< 100μs
 - 内存占用：< 64MB
 - CPU占用（空闲）：< 2%
+
+## 项目统计
+
+- **代码规模**：约18,000行（生产代码14,000行，测试代码4,000行）
+- **文件数量**：97个C/H文件
+- **测试覆盖**：70+测试用例
+- **模块数量**：5层架构（OSAL/HAL/XConfig/PDL/Apps）
+- **支持平台**：TI AM6254, 演示平台（可扩展到其他平台）
+
+## 重要文件索引
+
+### 核心配置文件
+- [CMakeLists.txt](CMakeLists.txt) - 主构建配置
+- [build.sh](build.sh) - 构建脚本
+- [CLAUDE.md](CLAUDE.md) - 本文件（开发指南）
+- [docs/CODING_STANDARDS.md](docs/CODING_STANDARDS.md) - 编码规范
+
+### 模块入口文件
+- [osal/include/osal.h](osal/include/osal.h) - OSAL层总头文件
+- [hal/include/hal_can.h](hal/include/hal_can.h) - HAL CAN驱动接口
+- [xconfig/include/api/xconfig_api.h](xconfig/include/api/xconfig_api.h) - XConfig API
+- [pdl/include/pdl_satellite.h](pdl/include/pdl_satellite.h) - PDL卫星服务接口
+- [apps/sample_app/src/main.c](apps/sample_app/src/main.c) - 示例应用
+
+### 测试入口
+- [apps/test_runner/main.c](apps/test_runner/main.c) - 统一测试运行器
+- [libutest/include/libutest.h](libutest/include/libutest.h) - 测试框架
