@@ -8,7 +8,7 @@
 
 #include "xconfig_api.h"
 #include "util/osal_log.h"
-#include <stdlib.h>
+#include "sys/osal_env.h"
 
 /*===========================================================================
  * 外部配置声明
@@ -89,9 +89,9 @@ const xconfig_board_config_t* XCONFIG_SelectDefault(void)
     const xconfig_board_config_t *config = NULL;
 
     /* 1. 尝试从环境变量读取 */
-    platform = getenv("XCONFIG_PLATFORM");
-    product = getenv("XCONFIG_PRODUCT");
-    version = getenv("XCONFIG_VERSION");
+    platform = OSAL_getenv("XCONFIG_PLATFORM");
+    product = OSAL_getenv("XCONFIG_PRODUCT");
+    version = OSAL_getenv("XCONFIG_VERSION");
 
     if (platform != NULL && product != NULL) {
         config = XCONFIG_Find(platform, product, version);

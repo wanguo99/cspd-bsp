@@ -12,6 +12,7 @@ set(OSAL_SOURCES
     src/linux/sys/osal_signal.c
     src/linux/sys/osal_unistd.c
     src/linux/sys/osal_select.c
+    src/linux/sys/osal_env.c
 
     # NET - 网络相关
     src/linux/net/osal_socket.c
