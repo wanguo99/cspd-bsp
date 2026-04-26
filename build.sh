@@ -137,8 +137,7 @@ print_info "  目标产物: output/target/"
 print_info ""
 if [ "$BUILD_TARGET" = "all" ]; then
     print_info "可执行文件:"
-    print_info "  ./output/target/bin/can_gateway"
-    print_info "  ./output/target/bin/protocol_converter"
+    print_info "  ./output/target/bin/sample_app"
     print_info "  ./output/target/bin/unit-test"
 fi
 print_info ""

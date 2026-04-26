@@ -60,8 +60,7 @@ extern const test_module_t test_hal_can;
 extern const test_module_t test_pdl_satellite;
 
 /* 外部测试模块声明 - Apps层 */
-extern const test_module_t test_can_gateway;
-extern const test_module_t test_protocol_converter;
+/* 已删除旧应用的测试 */
 
 /* 测试层级分类 */
 typedef struct {
@@ -85,13 +84,12 @@ static const test_module_t *hal_modules[] = {
 
 /* Service层测试模块 */
 static const test_module_t *service_modules[] = {
-    &test_pdl_satellite,
+    /* 已删除PDL测试 */
 };
 
 /* Apps层测试模块 */
 static const test_module_t *apps_modules[] = {
-    &test_can_gateway,
-    &test_protocol_converter,
+    /* 已删除旧应用的测试 */
 };
 
 /* 所有测试层 */

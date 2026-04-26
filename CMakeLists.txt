@@ -93,7 +93,7 @@ file(MAKE_DIRECTORY ${OUTPUT_TARGET}/lib)
 add_custom_target(copy_libs ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${OUTPUT_BUILD}/lib ${OUTPUT_TARGET}/lib
     COMMENT "Copying libraries to target directory"
-    DEPENDS osal hal pdl xconfig can_gateway_lib protocol_converter_lib
+    DEPENDS osal hal pdl xconfig
 )
 
 # 打印配置信息

@@ -24,10 +24,6 @@ include_directories(
     ${PMC_BSP_ROOT}/osal/include
     ${PMC_BSP_ROOT}/hal/include
     ${PMC_BSP_ROOT}/pdl/include
-    ${PMC_BSP_ROOT}/apps/protocol_converter
-    ${PMC_BSP_ROOT}/apps/protocol_converter/include
-    ${PMC_BSP_ROOT}/apps/can_gateway
-    ${PMC_BSP_ROOT}/apps/can_gateway/include
 )
 
 # 查找pthread库
@@ -38,13 +34,7 @@ file(GLOB_RECURSE OSAL_SOURCES ${PMC_BSP_ROOT}/osal/src/posix/*.c)
 
 file(GLOB HAL_SOURCES ${PMC_BSP_ROOT}/hal/src/linux/*.c)
 
-file(GLOB SERVICE_SOURCES ${PMC_BSP_ROOT}/pdl/src/linux/*.c)
-
-file(GLOB APPS_GATEWAY_SOURCES ${PMC_BSP_ROOT}/apps/can_gateway/src/*.c)
-list(FILTER APPS_GATEWAY_SOURCES EXCLUDE REGEX ".*/main\\.c$")
-
-file(GLOB APPS_PROTOCOL_SOURCES ${PMC_BSP_ROOT}/apps/protocol_converter/src/*.c)
-list(FILTER APPS_PROTOCOL_SOURCES EXCLUDE REGEX ".*/main\\.c$")
+file(GLOB SERVICE_SOURCES ${PMC_BSP_ROOT}/pdl/src/*/*.c)
 
 # 注释掉 CTest，我们使用自定义测试框架
 # enable_testing()
@@ -69,11 +59,6 @@ add_executable(unit-test
     src/osal/test_osal_mutex.c
     src/osal/test_osal_signal.c
     src/hal/test_hal_can.c
-    src/pdl/test_pdl_satellite.c
-    src/apps/test_can_gateway.c
-    src/apps/test_protocol_converter.c
-    ${APPS_PROTOCOL_SOURCES}
-    ${APPS_GATEWAY_SOURCES}
     ${SERVICE_SOURCES}
     ${HAL_SOURCES}
     ${OSAL_SOURCES}

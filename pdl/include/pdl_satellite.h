@@ -12,7 +12,15 @@
 #define PDL_SATELLITE_H
 
 #include "osal_types.h"
-#include "config/can_protocol.h"
+
+/* CAN状态码 */
+typedef enum
+{
+    STATUS_OK = 0x00,
+    STATUS_ERROR = 0x01,
+    STATUS_BUSY = 0x02,
+    STATUS_TIMEOUT = 0x03
+} can_status_t;
 
 /*
  * 卫星平台服务句柄
@@ -24,7 +32,7 @@ typedef void* satellite_service_handle_t;
  */
 typedef struct
 {
-    const char *can_device;        /* CAN设备名 */
+    const str_t *can_device;        /* CAN设备名 */
     uint32_t can_bitrate;            /* CAN波特率 */
     uint32_t heartbeat_interval_ms;  /* 心跳间隔(ms) */
     uint32_t cmd_timeout_ms;         /* 命令超时(ms) */
@@ -33,7 +41,7 @@ typedef struct
 /*
  * 命令回调函数类型
  */
-typedef void (*satellite_cmd_callback_t)(can_cmd_type_t cmd_type, uint32_t param, void *user_data);
+typedef void (*satellite_cmd_callback_t)(uint8_t cmd_type, uint32_t param, void *user_data);
 
 /**
  * @brief 初始化卫星平台服务

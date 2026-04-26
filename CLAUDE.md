@@ -136,15 +136,18 @@ candump can0                        # 监控CAN消息
 pmc-bsp/
 ├── osal/                    # 操作系统抽象层 (OSAL)
 │   ├── include/             # 接口定义
-│   │   └── config/          # OSAL配置（模块独立）
-│   │       ├── task_config.h    # 任务配置（栈大小、优先级）
-│   │       ├── queue_config.h   # 队列配置
-│   │       └── log_config.h     # 日志配置
+│   │   ├── osal.h           # 总头文件
+│   │   ├── osal_types.h     # 类型定义
+│   │   ├── sys/             # 系统调用封装（任务、互斥锁、信号等）
+│   │   ├── ipc/             # 进程间通信（队列、共享内存等）
+│   │   ├── net/             # 网络抽象（socket封装）
+│   │   ├── lib/             # 标准库封装（字符串、内存等）
+│   │   └── util/            # 工具函数（日志、时间等）
 │   └── src/linux/           # Linux实现
-│       ├── os_task.c        # 任务管理（pthread）
-│       ├── os_queue.c       # 消息队列
-│       ├── os_mutex.c       # 互斥锁（带死锁检测）
-│       ├── os_log.c         # 日志系统（带轮转）
+│       ├── osal_task.c      # 任务管理（pthread）
+│       ├── osal_queue.c     # 消息队列
+│       ├── osal_mutex.c     # 互斥锁（带死锁检测）
+│       ├── osal_log.c       # 日志系统（带轮转）
 │       └── ...
 ├── hal/                     # 硬件抽象层 (HAL)
 │   ├── include/             # 接口定义
@@ -231,31 +234,31 @@ pmc-bsp/
 │       ├── bin/             # 可执行文件
 │       └── lib/             # 静态库
 └── tests/                   # 测试框架
-    ├── core/                # 测试核心文件
-    │   ├── unittest_entry.c     # 统一测试入口
-    │   ├── unittest_runner.c    # 测试运行器
-    │   ├── unittest_runner.h    # 测试运行器头文件
-    │   └── unittest_framework.h # 测试框架
-    ├── osal/                # OSAL层测试
-    ├── hal/                 # HAL层测试
-    ├── service/             # Service层测试
-    └── apps/                # Apps层测试
+    ├── include/             # 测试框架头文件
+    │   ├── test_framework.h     # 测试框架宏定义
+    │   └── test_runner.h        # 测试运行器接口
+    ├── src/                 # 测试源代码
+    │   ├── test_entry.c         # 统一测试入口
+    │   ├── test_runner.c        # 测试运行器实现
+    │   ├── osal/                # OSAL层测试
+    │   ├── hal/                 # HAL层测试
+    │   ├── pdl/                 # PDL层测试
+    │   └── apps/                # Apps层测试
+    └── docs/                # 测试文档
 ```
 
 ## 关键设计特点
 
 ### 1. 模块化配置（重要）
-- **配置下沉**：每个模块的配置文件放在模块内部的 `include/config/` 目录
-- **模块独立**：各模块只依赖自己的配置，便于多人协作和多仓库拆分
+- **配置分布**：配置文件分布在各模块的 `include/config/` 目录
+- **HAL配置**：`hal/include/config/` - CAN、串口等硬件配置
+- **XConfig配置**：`xconfig/platform/` - 以外设为单位的硬件配置
+- **Apps配置**：`apps/*/include/config/` - 应用层协议和参数配置
 - **依赖隔离**：
-  - OSAL层：只依赖自己的 `osal/include/config/`
-  - HAL层：依赖 `hal/include/config/` 和 OSAL接口
-  - PDL层：依赖 `pdl/include/config/`、HAL接口、OSAL接口
-  - Apps层：依赖 `apps/*/include/config/`、PDL接口、HAL接口、OSAL接口
-- **配置文件示例**：
-  - `osal/include/config/task_config.h` - 任务栈大小、优先级定义
-  - `hal/include/config/can_config.h` - CAN接口、波特率配置
-  - `apps/can_gateway/include/config/can_protocol.h` - CAN协议定义
+  - OSAL层：提供基础抽象接口
+  - HAL层：依赖OSAL接口
+  - PDL层：依赖HAL接口和OSAL接口
+  - Apps层：依赖PDL接口、HAL接口、OSAL接口
 
 ### 2. 分层隔离与平台无关性（关键）
 - **平台相关代码隔离原则**：
@@ -363,30 +366,30 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
 - **配置选择**：支持环境变量/编译选项/默认配置三种方式
 
 ### 4. 任务管理（优雅关闭）
-- 文件：`osal/src/linux/os_task.c`
-- 配置：`osal/include/config/task_config.h`
+- 文件：`osal/src/linux/osal_task.c`
+- 头文件：`osal/include/sys/osal_task.h`
 - 特点：
   - 使用shutdown标志而非pthread_cancel（避免死锁）
-  - 任务通过`OS_TaskShouldShutdown()`检查是否需要退出
+  - 任务通过`OSAL_TaskShouldShutdown()`检查是否需要退出
   - 使用`pthread_timedjoin_np`等待任务退出（5秒超时）
   - 超时后使用`pthread_detach`而非强制取消
 
 ### 5. 日志系统
-- 文件：`osal/src/linux/os_log.c`
-- 配置：`osal/include/config/log_config.h`
+- 文件：`osal/src/linux/osal_log.c`
+- 头文件：`osal/include/util/osal_log.h`
 - 功能：
   - 支持多级别日志（DEBUG/INFO/WARN/ERROR/FATAL）
   - 日志轮转（按大小，保留N个文件）
   - 线程安全
 - 接口：
-  - `OS_printf()` - 简单打印
-  - `LOG_INFO(module, ...)` - 带模块名的日志宏
-  - `LOG_ERROR(module, ...)` - 错误日志
+  - `OSAL_Printf()` - 简单打印
+  - `OSAL_INFO(module, ...)` - 带模块名的日志宏
+  - `OSAL_ERROR(module, ...)` - 错误日志
 
 ### 6. 通信冗余
 - 主通道：以太网（IPMI over LAN）
 - 备份通道：UART（IPMI over Serial）
-- 配置：`hal/include/config/ethernet_config.h` 和 `hal/include/config/uart_config.h`
+- 配置：`hal/include/config/` 目录下的配置文件
 - 自动切换：连续5次失败后切换到备份通道
 - 定期恢复：尝试恢复主通道
 
@@ -400,16 +403,16 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
 5. 运行 `./output/target/bin/unit-test -a` 验证测试
 
 ### 修改配置
-1. 找到对应模块的 `include/config/` 目录
-2. 修改配置文件（如 `can_config.h`）
+1. 找到对应模块的配置文件（通常在 `include/config/` 目录）
+2. 修改配置参数
 3. 重新编译：`./build.sh`
 
 ### 添加新测试
-1. 在 `tests/src/<layer>/` 创建测试文件
+1. 在 `tests/src/<layer>/` 创建测试文件（如`test_new_module.c`）
 2. 使用 `TEST_MODULE_BEGIN/END` 宏注册测试模块
-3. 在 `tests/src/test_entry.c` 添加模块引用
+3. 在 `tests/src/test_entry.c` 的对应层级数组中添加模块引用
 4. 重新编译：`./build.sh -d`
-5. 运行测试：`./output/target/bin/unit-test -m <module_name>`
+5. 运行测试：`./output/target/bin/unit-test -m test_new_module`
 
 ### 调试
 ```bash
@@ -511,15 +514,15 @@ output/
 ```c
 static void my_task_entry(void *arg)
 {
-    osal_id_t task_id = OS_TaskGetId();
+    osal_id_t task_id = OSAL_TaskGetId();
     
-    while (!OS_TaskShouldShutdown())  // 检查退出标志
+    while (!OSAL_TaskShouldShutdown())  // 检查退出标志
     {
         // 执行任务逻辑
         do_work();
         
         // 延时
-        OS_TaskDelay(100);
+        OSAL_TaskDelay(100);
     }
     
     // 清理资源
@@ -530,23 +533,16 @@ static void my_task_entry(void *arg)
 ## 关键配置
 
 ### CAN配置
-- 文件：`hal/include/config/can_config.h`
+- 配置目录：`hal/include/config/`
 - 接口：`can0`
 - 波特率：500Kbps
-- 协议：自定义8字节协议（见`apps/can_gateway/include/config/can_protocol.h`）
+- 协议：自定义8字节协议（定义在应用层配置中）
 
 ### 载荷通信
 - 主通道：以太网（192.168.1.100:623）
 - 备份通道：UART（/dev/ttyS0, 115200）
-- 配置文件：`hal/include/config/ethernet_config.h` 和 `hal/include/config/uart_config.h`
+- 配置目录：`hal/include/config/`
 - 协议：IPMI/Redfish
-
-### 看门狗配置
-- 文件：`pdl/include/config/watchdog_config.h`
-- 检查间隔：100ms
-- 任务超时：500ms
-- 最大重启次数：3次
-- 超时后进入安全模式
 
 ## 常见问题
 
@@ -560,7 +556,7 @@ static void my_task_entry(void *arg)
 - 这些失败是正常的，不影响代码逻辑
 
 ### 任务优雅退出
-- 任务循环必须检查`OS_TaskShouldShutdown()`
+- 任务循环必须检查`OSAL_TaskShouldShutdown()`
 - 不要使用无限循环`while(1)`
 - 退出前清理资源
 
@@ -615,28 +611,25 @@ telnet 192.168.1.100 623
 - 标准化结构：`module/include/` + `module/src/linux/` + `module/include/config/`
 
 ### 模块化配置重构
-- 配置下沉：将全局 `config/` 目录拆分，配置文件下沉到各模块内部
-- 依赖隔离：各模块只依赖自己的配置，便于多人协作和多仓库拆分
+- 配置分布：配置文件分布在各模块的 `include/config/` 目录
+- 依赖隔离：各模块通过接口依赖，便于多人协作和多仓库拆分
 - 构建日志：`build.log` 生成到 `output/` 目录，所有构建产物统一管理
 
 ### 测试框架重构
-- 重命名：`test_framework.h` → `unittest_framework.h`
-- 重命名：`test_runner.c/h` → `unittest_runner.c/h`
-- 重命名：`test_main_unified.c` → `unittest_entry.c`
-- 统一日志：所有`printf`替换为`OS_printf`
-- 目录重组：测试核心文件移至`tests/core/`目录
+- 统一命名：使用`test_`前缀（`test_framework.h`, `test_runner.c/h`, `test_entry.c`）
+- 统一日志：所有`printf`替换为`OSAL_Printf`
+- 目录重组：测试框架头文件在`tests/include/`，实现在`tests/src/`
 
 ## 开发建议
 
 1. **系统调用封装（最重要）**：HAL/PDL/Apps/Tests层严禁直接调用系统调用，必须使用OSAL封装
 2. **遵循分层架构**：不要跨层直接调用
-3. **模块独立性**：各模块只依赖自己的 `include/config/` 目录，不要引用其他模块的配置
-4. **使用OSAL接口**：不要直接使用pthread/socket/open/close等系统API
-5. **优雅退出**：任务循环检查`OS_TaskShouldShutdown()`
-6. **错误处理**：所有返回值必须检查
-7. **日志规范**：使用`OSAL_INFO/ERROR`宏，不要用`printf`或直接调用`OSAL_LogInfo`
-8. **测试驱动**：新功能必须编写单元测试
-9. **配置管理**：修改配置时只修改对应模块的 `include/config/` 目录
+3. **使用OSAL接口**：不要直接使用pthread/socket/open/close等系统API
+4. **优雅退出**：任务循环检查`OSAL_TaskShouldShutdown()`
+5. **错误处理**：所有返回值必须检查
+6. **日志规范**：使用`OSAL_INFO/ERROR`宏，不要用`printf`
+7. **测试驱动**：新功能必须编写单元测试
+8. **配置管理**：配置文件集中在各模块的配置目录中
 
 ## 快速开发技巧
 
@@ -654,11 +647,6 @@ cd output/build && make can_gateway -j$(nproc) && cd ../..
 ```bash
 tail -f /var/log/pmc-bsp.log &
 sudo ./output/target/bin/can_gateway
-```
-
-### 检查代码风格（使用clang-format）
-```bash
-find . -name "*.c" -o -name "*.h" | xargs clang-format -i --style=file
 ```
 
 ## 性能指标
