@@ -2,67 +2,116 @@
  * 通用类型定义
  *
  * 与NASA cFS兼容的基础类型定义
+ * 支持多平台：Linux/RTOS/VxWorks/FreeRTOS等
  ************************************************************************/
 
 #ifndef COMMON_TYPES_H
 #define COMMON_TYPES_H
 
-#include <stdint.h>
-#include <stdbool.h>
-#include <stddef.h>
+/*===========================================================================
+ * 平台兼容性处理：C99标准类型
+ *===========================================================================*/
+
+/* 优先使用C99标准头文件 */
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+    /* C99或更高版本 */
+    #include <stdint.h>
+    #include <stdbool.h>
+    #include <stddef.h>
+#elif defined(__GNUC__) || defined(__clang__)
+    /* GCC/Clang通常提供stdint.h */
+    #include <stdint.h>
+    #include <stdbool.h>
+    #include <stddef.h>
+#else
+    /* 平台不支持stdint.h，手动定义固定宽度类型 */
+
+    /* 有符号整数类型 */
+    typedef signed char        int8_t;
+    typedef signed short       int16_t;
+    typedef signed int         int32_t;
+    typedef signed long long   int64_t;
+
+    /* 无符号整数类型 */
+    typedef unsigned char      uint8_t;
+    typedef unsigned short     uint16_t;
+    typedef unsigned int       uint32_t;
+    typedef unsigned long long uint64_t;
+
+    /* 布尔类型 */
+    #ifndef __cplusplus
+        #ifndef bool
+            typedef unsigned char bool;
+            #define true  1
+            #define false 0
+        #endif
+    #endif
+
+    /* size_t和NULL */
+    #ifndef NULL
+        #define NULL ((void *)0)
+    #endif
+
+    #ifndef _SIZE_T_DEFINED
+        #define _SIZE_T_DEFINED
+        typedef unsigned long size_t;
+    #endif
+#endif
+
+/*===========================================================================
+ * 字符串类型（语义化别名）
+ *===========================================================================*/
 
 /*
- * 基础整数类型 (与cFS兼容)
- */
-typedef int8_t   int8;
-typedef int16_t  int16;
-typedef int32_t  int32;
-typedef int64_t  int64;
-
-typedef uint8_t  uint8;
-typedef uint16_t uint16;
-typedef uint32_t uint32;
-typedef uint64_t uint64;
-
-/*
- * 字符和字符串类型
+ * str_t: 字符串类型（底层是char，与标准C库兼容）
  *
  * 设计原则：
- * - str_t: 字符串类型（底层是char，与标准C库兼容）
- * - int8/uint8: 用于明确的字节数据（非文本）
+ * - 用于文本数据（设备名、日志消息、版本字符串等）
+ * - 与标准C库（strcpy, strlen, fopen等）完全兼容
+ * - 区别于uint8_t（用于二进制字节数据）
  *
  * 使用示例：
  *   str_t device_name[64];           // 设备名称
  *   str_t log_message[256];          // 日志消息
  *   const str_t *interface;          // 字符串指针
+ *   str_t parity;                    // 校验位字符 ('N', 'E', 'O')
  */
-typedef char     str_t;              /* 字符串类型（与标准C库兼容） */
+typedef char str_t;
 
-/*
+/*===========================================================================
  * OSAL对象ID类型
- */
-typedef uint32 osal_id_t;
+ *===========================================================================*/
+
+typedef uint32_t osal_id_t;
 
 #define OS_OBJECT_ID_UNDEFINED  ((osal_id_t)0)
 
-/*
+/*===========================================================================
  * 平台相关的大小类型
+ *===========================================================================*/
+
+/*
+ * osal_size_t / osal_ssize_t: 平台相关的大小类型
  * - 32位平台：使用32位类型
  * - 64位平台：使用64位类型
  * - 保证应用层代码在不同平台间兼容
  */
 #if defined(__LP64__) || defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__)
     /* 64位平台 */
-    typedef uint64 osal_size_t;
-    typedef int64  osal_ssize_t;
+    typedef uint64_t osal_size_t;
+    typedef int64_t  osal_ssize_t;
 #else
     /* 32位平台 */
-    typedef uint32 osal_size_t;
-    typedef int32  osal_ssize_t;
+    typedef uint32_t osal_size_t;
+    typedef int32_t  osal_ssize_t;
 #endif
 
+/*===========================================================================
+ * 返回值类型（参考Linux errno风格）
+ *===========================================================================*/
+
 /*
- * 返回值类型 (参考Linux errno风格)
+ * OSAL状态码定义
  * 成功返回0，错误返回正数错误码
  */
 #define OS_SUCCESS                  0    /* 成功 */
