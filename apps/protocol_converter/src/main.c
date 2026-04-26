@@ -72,7 +72,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     ret = OS_API_Init();
     if (ret != OS_SUCCESS)
     {
-        OSAL_Printf("OSAL初始化失败: %s\n", OS_GetErrorName(ret));
+        OSAL_Printf("OSAL初始化失败: %s\n", OSAL_GetStatusName(ret));
         return 1;
     }
 
@@ -80,7 +80,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     ret = Protocol_Converter_Init();
     if (ret != OS_SUCCESS)
     {
-        OSAL_Printf("协议转换初始化失败: %s\n", OS_GetErrorName(ret));
+        OSAL_Printf("协议转换初始化失败: %s\n", OSAL_GetStatusName(ret));
         return 1;
     }
 
@@ -91,7 +91,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
                         OSAL_TASK_PRIORITY_LOW, 0);
     if (ret != OS_SUCCESS)
     {
-        OSAL_Printf("创建统计任务失败: %s\n", OS_GetErrorName(ret));
+        OSAL_Printf("创建统计任务失败: %s\n", OSAL_GetStatusName(ret));
         return 1;
     }
 

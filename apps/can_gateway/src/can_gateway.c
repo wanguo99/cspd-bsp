@@ -77,7 +77,7 @@ static void can_rx_task(void *arg)
         }
         else if (ret != OS_ERROR_TIMEOUT)
         {
-            OSAL_Printf("[CAN Gateway] 接收错误: %s\n", OS_GetErrorName(ret));
+            OSAL_Printf("[CAN Gateway] 接收错误: %s\n", OSAL_GetStatusName(ret));
             OSAL_AtomicFetchAdd(&g_stats.err_count, 1);
             OSAL_TaskDelay(100);  /* 错误后延时 */
         }
@@ -118,7 +118,7 @@ static void can_tx_task(void *arg)
             }
             else
             {
-                OSAL_Printf("[CAN Gateway] 发送失败: %s\n", OS_GetErrorName(ret));
+                OSAL_Printf("[CAN Gateway] 发送失败: %s\n", OSAL_GetStatusName(ret));
                 OSAL_AtomicFetchAdd(&g_stats.err_count, 1);
 
                 /* 发送失败，重试一次 */

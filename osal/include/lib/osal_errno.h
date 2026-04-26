@@ -178,4 +178,15 @@ void OSAL_SetErrno(int32 err);
  */
 const str_t *OSAL_StrError(int32 errnum);
 
+/*===========================================================================
+ * OSAL状态码转字符串
+ *===========================================================================*/
+
+/**
+ * @brief 获取OSAL状态码对应的名称字符串
+ * @param status_code OSAL状态码（OS_SUCCESS、OS_ERROR等）
+ * @return 状态码名称字符串
+ */
+const str_t *OSAL_GetStatusName(int32 status_code);
+
 #endif /* OSAL_ERRNO_H */

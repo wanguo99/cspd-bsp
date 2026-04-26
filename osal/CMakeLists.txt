@@ -26,7 +26,6 @@ set(OSAL_SOURCES
     src/posix/lib/osal_errno.c
 
     # UTIL - 工具类
-    src/posix/util/osal_error.c
     src/posix/util/osal_init.c
     src/posix/util/osal_log.c
 )
