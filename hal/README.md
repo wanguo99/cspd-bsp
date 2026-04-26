@@ -1,0 +1,368 @@
+# HAL (硬件抽象层)
+
+## 模块概述
+
+HAL (Hardware Abstraction Layer) 封装硬件驱动，隔离硬件平台差异，为上层提供统一的硬件访问接口。
+
+**设计理念**：
+- 唯一允许包含硬件平台相关代码的层
+- 必须使用OSAL封装的系统调用
+- 支持多平台驱动（Linux/RTOS）
+- 参考NASA cFS PSP架构
+
+**支持的硬件**：
+- CAN总线（SocketCAN）
+- 串口（UART）
+- 网络（Ethernet）
+
+## 编译说明
+
+### 快速开始
+
+```bash
+# 在项目根目录编译整个项目（包含HAL）
+./build.sh              # Release模式
+./build.sh -d           # Debug模式
+```
+
+### 单独编译HAL模块
+
+```bash
+# 方法1: 使用CMake直接编译
+mkdir -p output/build && cd output/build
+cmake ../.. -DCMAKE_BUILD_TYPE=Release
+make hal -j$(nproc)
+cd ../..
+
+# 方法2: 在已配置的构建目录中编译
+cd output/build
+make hal -j$(nproc)
+cd ../..
+```
+
+### 支持的编译参数
+
+#### CMake配置参数
+
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `CMAKE_BUILD_TYPE` | STRING | Release | 编译类型：Release/Debug |
+| `PLATFORM` | STRING | native | 目标平台：native/generic-linux/rtems |
+| `CMAKE_C_COMPILER` | STRING | gcc | C编译器路径 |
+
+#### 平台配置（重要）
+
+HAL模块根据 `PLATFORM` 参数选择不同的驱动实现：
+
+**本地编译（Linux）**：
+```bash
+cmake ../.. -DPLATFORM=native
+```
+- 使用 `src/linux/` 下的驱动
+- SocketCAN实现（CAN）
+- termios实现（串口）
+
+**交叉编译（通用Linux）**：
+```bash
+cmake ../.. \
+    -DPLATFORM=generic-linux \
+    -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc
+```
+- 使用 `src/linux/` 下的驱动
+- 适用于嵌入式Linux
+
+**RTOS平台（预留）**：
+```bash
+cmake ../.. -DPLATFORM=rtems
+```
+- 使用 `src/rtems/` 下的驱动（待实现）
+
+### 配置编译参数
+
+#### 示例1: Debug模式编译
+
+```bash
+cd output/build
+cmake ../.. \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DPLATFORM=native
+make hal -j$(nproc)
+```
+
+#### 示例2: 交叉编译ARM平台
+
+```bash
+cd output/build
+cmake ../.. \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DPLATFORM=generic-linux \
+    -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc
+make hal -j$(nproc)
+```
+
+#### 示例3: 修改编译选项
+
+编辑 `hal/CMakeLists.txt`：
+```cmake
+target_compile_options(hal PRIVATE
+    -Wall
+    -Wextra
+    -Wpedantic          # 添加更严格的警告
+    -DHAL_DEBUG_MODE    # 启用调试模式
+)
+```
+
+### 编译输出
+
+```
+output/
+├── build/
+│   └── lib/
+│       └── libhal.a           # HAL静态库
+└── target/
+    └── bin/
+        └── unit-test          # 测试程序（包含HAL测试）
+```
+
+### 常用编译命令
+
+```bash
+# 完整编译流程
+./build.sh -d                   # Debug模式编译所有
+
+# 仅编译HAL库
+cd output/build && make hal -j$(nproc) && cd ../..
+
+# 查看HAL编译配置
+cd output/build && cmake -L ../.. | grep -E "PLATFORM|HAL" && cd ../..
+
+# 清理并重新编译
+./build.sh -c && ./build.sh
+
+# 查看编译日志
+cat output/build.log | grep -A 5 "HAL module"
+```
+
+## 模块结构
+
+```
+hal/
+├── include/                    # 公共接口头文件
+│   ├── hal_can.h               # CAN接口
+│   ├── hal_serial.h            # 串口接口
+│   ├── hal_network.h           # 网络接口
+│   └── config/                 # HAL配置
+│       ├── can_types.h         # CAN类型定义
+│       ├── can_config.h        # CAN配置
+│       ├── ethernet_config.h   # 以太网配置
+│       └── uart_config.h       # 串口配置
+└── src/
+    ├── linux/                  # Linux驱动实现
+    │   ├── hal_can.c           # SocketCAN驱动
+    │   ├── hal_serial.c        # termios串口驱动
+    │   └── hal_network.c       # Socket网络驱动
+    └── rtems/                  # RTEMS驱动（预留）
+```
+
+## 依赖关系
+
+**HAL依赖**：
+- OSAL层：操作系统抽象（必须使用OSAL封装的系统调用）
+- 系统库：根据平台不同（Linux: pthread, rt）
+
+**被依赖**：
+- PDL层：外设驱动层
+- Apps层：应用层
+- Tests层：测试框架
+
+## 使用示例
+
+### 在其他模块中使用HAL
+
+**CMakeLists.txt配置**：
+```cmake
+# 链接HAL接口库（获取头文件路径）
+target_link_libraries(your_module PUBLIC pmc::hal_public_api)
+
+# 链接HAL实现库（运行时链接）
+target_link_libraries(your_module PRIVATE pmc::hal)
+```
+
+**代码中使用**：
+```c
+#include <hal_can.h>
+#include <hal_serial.h>
+
+int main(void)
+{
+    /* CAN初始化 */
+    hal_can_config_t can_cfg = {
+        .interface = "can0",
+        .baudrate = 500000,
+        .mode = HAL_CAN_MODE_NORMAL
+    };
+    hal_can_handle_t can_handle;
+    HAL_CAN_Init(&can_cfg, &can_handle);
+    
+    /* 发送CAN消息 */
+    hal_can_message_t msg = {
+        .id = 0x123,
+        .dlc = 8,
+        .data = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}
+    };
+    HAL_CAN_Send(&can_handle, &msg, 1000);
+    
+    /* 串口初始化 */
+    hal_serial_config_t uart_cfg = {
+        .device = "/dev/ttyS0",
+        .baudrate = 115200,
+        .data_bits = 8,
+        .parity = 'N',
+        .stop_bits = 1
+    };
+    hal_serial_handle_t uart_handle;
+    HAL_Serial_Init(&uart_cfg, &uart_handle);
+    
+    return 0;
+}
+```
+
+## 测试
+
+```bash
+# 编译测试
+./build.sh -d
+
+# 运行HAL测试
+./output/target/bin/unit-test -L HAL           # 运行所有HAL测试
+./output/target/bin/unit-test -m test_hal_can # 运行CAN测试
+./output/target/bin/unit-test -i              # 交互式菜单
+```
+
+**注意**：HAL测试需要实际硬件设备：
+- CAN测试：需要 `can0` 设备
+- 串口测试：需要 `/dev/ttyS0` 设备
+
+### 设置虚拟CAN设备（用于测试）
+
+```bash
+# 加载vcan模块
+sudo modprobe vcan
+
+# 创建虚拟CAN设备
+sudo ip link add dev vcan0 type vcan
+sudo ip link set up vcan0
+
+# 验证
+ip link show vcan0
+```
+
+## 开发指南
+
+### 添加新的硬件驱动
+
+1. 在 `include/` 添加接口头文件（如 `hal_spi.h`）
+2. 在 `src/linux/` 添加Linux实现（如 `hal_spi.c`）
+3. 在 `CMakeLists.txt` 的 `HAL_SOURCES` 中添加源文件
+4. 在 `tests/src/hal/` 添加单元测试
+
+### 移植到新平台
+
+1. 创建新的平台目录：`src/<platform>/`（如 `src/rtems/`）
+2. 实现HAL接口（参考 `src/linux/` 实现）
+3. 修改 `CMakeLists.txt` 添加平台判断：
+   ```cmake
+   elseif(PLATFORM STREQUAL "rtems")
+       set(HAL_SOURCES
+           src/rtems/hal_can.c
+           src/rtems/hal_serial.c
+       )
+   ```
+4. 运行测试验证移植
+
+### 编码规范（重要）
+
+**必须遵守**：
+- ✅ 使用OSAL封装的系统调用：`OSAL_socket()`, `OSAL_open()`, `OSAL_close()`
+- ❌ 禁止直接调用：`socket()`, `open()`, `close()`, `memcpy()`, `strlen()`
+- ✅ 使用OSAL日志：`LOG_INFO()`, `LOG_ERROR()`
+- ❌ 禁止使用：`printf()`, `fprintf()`
+
+**示例**：
+```c
+/* ✅ 正确 */
+int32 sockfd = OSAL_socket(PF_CAN, SOCK_RAW, CAN_RAW);
+OSAL_bind(sockfd, (struct sockaddr *)&addr, sizeof(addr));
+LOG_INFO("HAL_CAN", "CAN initialized");
+
+/* ❌ 错误 */
+int sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW);  // 禁止
+bind(sockfd, ...);                                // 禁止
+printf("CAN initialized\n");                      // 禁止
+```
+
+## 配置说明
+
+### CAN配置
+
+编辑 `include/config/can_config.h`：
+```c
+#define HAL_CAN_DEFAULT_INTERFACE "can0"
+#define HAL_CAN_DEFAULT_BAUDRATE  500000
+#define HAL_CAN_RX_BUFFER_SIZE    64
+#define HAL_CAN_TX_BUFFER_SIZE    64
+```
+
+### 串口配置
+
+编辑 `include/config/uart_config.h`：
+```c
+#define HAL_UART_DEFAULT_DEVICE   "/dev/ttyS0"
+#define HAL_UART_DEFAULT_BAUDRATE 115200
+#define HAL_UART_RX_BUFFER_SIZE   256
+#define HAL_UART_TX_BUFFER_SIZE   256
+```
+
+## 常见问题
+
+**Q: 编译时提示找不到 `<linux/can.h>`？**
+```bash
+# 安装CAN开发库
+sudo apt-get install can-utils libsocketcan-dev
+```
+
+**Q: CAN设备无法打开？**
+```bash
+# 检查CAN驱动
+lsmod | grep can
+sudo modprobe can
+sudo modprobe can_raw
+
+# 检查设备
+ip link show can0
+```
+
+**Q: 如何添加自定义平台？**
+```bash
+# 1. 创建平台目录
+mkdir -p hal/src/myplatform
+
+# 2. 实现驱动
+cp hal/src/linux/hal_can.c hal/src/myplatform/
+
+# 3. 修改CMakeLists.txt
+# 添加平台判断和源文件
+```
+
+**Q: 如何启用HAL调试日志？**
+```c
+// 在代码中设置日志级别
+OSAL_LogSetLevel(OSAL_LOG_DEBUG);
+```
+
+## 参考文档
+
+- [HAL详细文档](docs/README.md)
+- [CAN配置说明](include/config/can_config.h)
+- [串口配置说明](include/config/uart_config.h)
+- [编码规范](../docs/CODING_STANDARDS.md)
