@@ -108,27 +108,15 @@ cd ../..
 
 ### 运行应用
 ```bash
-sudo ./output/target/bin/can_gateway      # CAN网关
-sudo ./output/target/bin/protocol_converter  # 协议转换器
-```
-
-### CAN调试
-```bash
-# 配置CAN接口
-sudo ip link set can0 type can bitrate 500000
-sudo ip link set can0 up
-
-# 发送测试消息
-cansend can0 100#0110000100000000  # 上电命令
-candump can0                        # 监控CAN消息
+./output/target/bin/sample_app      # 示例应用（展示OSAL基本用法）
 ```
 
 ## 核心功能
 
-- **CAN通信**：与卫星平台进行CAN总线通信
-- **协议转换**：卫星命令 ↔ IPMI/Redfish命令
-- **通信冗余**：以太网主通道 + UART备份通道
-- **状态监控**：定期查询载荷状态并上报
+- **OSAL抽象层**：提供跨平台的操作系统抽象接口（任务、队列、互斥锁、网络、文件等）
+- **HAL硬件层**：封装硬件驱动（CAN、串口、网络等）
+- **PDL外设层**：统一管理卫星/载荷/MCU等外设
+- **XConfig配置**：硬件配置库，支持多平台多产品配置
 
 ## 代码结构（5层架构 + 模块化配置）
 
@@ -142,13 +130,30 @@ pmc-bsp/
 │   │   ├── ipc/             # 进程间通信（队列、共享内存等）
 │   │   ├── net/             # 网络抽象（socket封装）
 │   │   ├── lib/             # 标准库封装（字符串、内存等）
-│   │   └── util/            # 工具函数（日志、时间等）
-│   └── src/linux/           # Linux实现
-│       ├── osal_task.c      # 任务管理（pthread）
-│       ├── osal_queue.c     # 消息队列
-│       ├── osal_mutex.c     # 互斥锁（带死锁检测）
-│       ├── osal_log.c       # 日志系统（带轮转）
-│       └── ...
+│   │   └── util/            # 工具函数（日志、版本等）
+│   └── src/posix/           # POSIX实现
+│       ├── ipc/             # 进程间通信实现
+│       │   ├── osal_task.c      # 任务管理（pthread）
+│       │   ├── osal_queue.c     # 消息队列
+│       │   ├── osal_mutex.c     # 互斥锁（带死锁检测）
+│       │   └── osal_atomic.c    # 原子操作
+│       ├── sys/             # 系统调用实现
+│       │   ├── osal_clock.c     # 时钟
+│       │   ├── osal_signal.c    # 信号处理
+│       │   ├── osal_file.c      # 文件操作
+│       │   ├── osal_select.c    # I/O多路复用
+│       │   ├── osal_env.c       # 环境变量
+│       │   └── osal_time.c      # 时间操作
+│       ├── net/             # 网络实现
+│       │   ├── osal_socket.c    # Socket封装
+│       │   └── osal_termios.c   # 串口控制
+│       ├── lib/             # 标准库封装
+│       │   ├── osal_heap.c      # 内存管理
+│       │   ├── osal_string.c    # 字符串操作
+│       │   └── osal_errno.c     # 错误处理
+│       └── util/            # 工具实现
+│           ├── osal_version.c   # 版本信息
+│           └── osal_log.c       # 日志系统（带轮转）
 ├── hal/                     # 硬件抽象层 (HAL)
 │   ├── include/             # 接口定义
 │   │   └── config/          # HAL配置（模块独立）
@@ -177,14 +182,10 @@ pmc-bsp/
 │   │   └── xconfig_register.c # 配置注册
 │   └── platform/            # 平台配置（嵌套目录结构）
 │       ├── ti/am6254/        # TI AM6254平台
-│       │   ├── H200_100P/  # H200-100P产品（100P算力）
-│       │   │   ├── h200_100p_base.c
-│       │   │   ├── h200_100p_v1.c
-│       │   │   └── h200_100p_v2.c
-│       │   └── H200_32P/   # H200-32P产品（32P算力）
-│       │       ├── h200_32p_base.c
-│       │       ├── h200_32p_v1.c
-│       │       └── h200_32p_v2.c
+│       │   └── H200_100P/  # H200-100P产品（100P算力）
+│       │       ├── h200_100p_base.c
+│       │       ├── h200_100p_v1.c
+│       │       └── h200_100p_v2.c
 │       └── vendor_demo/     # 演示厂商
 │           └── platform_demo/   # 演示平台
 │               └── project_demo/   # 演示项目（2P算力，演示用）
@@ -213,20 +214,10 @@ pmc-bsp/
 │       ├── pdl_payload_os/      # Linux载荷服务
 │       └── pdl_power/           # 电源管理服务
 ├── apps/                    # 应用层
-│   ├── can_gateway/         # CAN网关应用
-│   │   ├── include/config/  # CAN网关配置（模块独立）
-│   │   │   ├── app_config.h     # 应用配置（版本号等）
-│   │   │   └── can_protocol.h   # CAN协议定义
-│   │   └── src/             # 源代码
-│   │       ├── can_gateway.c    # CAN消息处理
-│   │       └── main.c           # 主程序入口
-│   └── protocol_converter/  # 协议转换应用
-│       ├── include/config/  # 协议转换配置（模块独立）
-│       │   └── app_config.h     # 应用配置（超时、重试等）
+│   └── sample_app/          # 示例应用
+│       ├── README.md        # 应用说明文档
 │       └── src/             # 源代码
-│           ├── protocol_converter.c # 协议转换逻辑
-│           ├── payload_service.c    # 载荷服务封装
-│           └── main.c           # 主程序入口
+│           └── main.c       # 主程序（展示OSAL基本用法）
 ├── output/                  # 构建输出目录
 │   ├── build.log            # 构建日志
 │   ├── build/               # 编译中间文件
@@ -241,9 +232,7 @@ pmc-bsp/
     │   ├── test_entry.c         # 统一测试入口
     │   ├── test_runner.c        # 测试运行器实现
     │   ├── osal/                # OSAL层测试
-    │   ├── hal/                 # HAL层测试
-    │   ├── pdl/                 # PDL层测试
-    │   └── apps/                # Apps层测试
+    │   └── hal/                 # HAL层测试
     └── docs/                # 测试文档
 ```
 
@@ -361,21 +350,30 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
 - **外设为单位**：以外设为单位（MCU/BMC/传感器等）管理硬件配置，类似Linux设备树
 - **接口内嵌**：每个外设配置内嵌其通信接口配置（CAN/UART/I2C/SPI/Ethernet等）
 - **多平台支持**：嵌套目录结构 `platform/<vendor>/<chip>/<product>/`
-  - TI AM6254: H200-100P（100P算力）、H200-32P（32P算力）
+  - TI AM6254: H200-100P（100P算力）
   - 演示平台: 演示项目（2P算力，用于模拟测试）
 - **配置选择**：支持环境变量/编译选项/默认配置三种方式
 
-### 4. 任务管理（优雅关闭）
-- 文件：`osal/src/linux/osal_task.c`
-- 头文件：`osal/include/sys/osal_task.h`
+### 4. OSAL接口设计（用户态库）
+- 文件：`osal/src/posix/util/osal_version.c`
+- 头文件：`osal/include/osal.h`
+- 特点：
+  - **无需显式初始化**：OSAL作为用户态库，使用静态初始化，无需调用Init/Teardown
+  - **无空闲循环**：用户态应用由操作系统调度，不需要OS_IdleLoop
+  - **简洁接口**：仅保留必要的业务接口，删除了OS_API_Init/OS_API_Teardown/OS_IdleLoop
+  - **版本信息**：通过`OS_GetVersionString()`获取OSAL版本
+
+### 5. 任务管理（优雅关闭）
+- 文件：`osal/src/posix/ipc/osal_task.c`
+- 头文件：`osal/include/ipc/osal_task.h`
 - 特点：
   - 使用shutdown标志而非pthread_cancel（避免死锁）
   - 任务通过`OSAL_TaskShouldShutdown()`检查是否需要退出
   - 使用`pthread_timedjoin_np`等待任务退出（5秒超时）
   - 超时后使用`pthread_detach`而非强制取消
 
-### 5. 日志系统
-- 文件：`osal/src/linux/osal_log.c`
+### 6. 日志系统
+- 文件：`osal/src/posix/util/osal_log.c`
 - 头文件：`osal/include/util/osal_log.h`
 - 功能：
   - 支持多级别日志（DEBUG/INFO/WARN/ERROR/FATAL）
@@ -383,15 +381,16 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
   - 线程安全
 - 接口：
   - `OSAL_Printf()` - 简单打印
-  - `OSAL_INFO(module, ...)` - 带模块名的日志宏
-  - `OSAL_ERROR(module, ...)` - 错误日志
+  - `LOG_INFO(module, ...)` - 带模块名的日志宏
+  - `LOG_ERROR(module, ...)` - 错误日志
 
-### 6. 通信冗余
-- 主通道：以太网（IPMI over LAN）
-- 备份通道：UART（IPMI over Serial）
-- 配置：`hal/include/config/` 目录下的配置文件
-- 自动切换：连续5次失败后切换到备份通道
-- 定期恢复：尝试恢复主通道
+### 7. 错误处理统一
+- 文件：`osal/src/posix/lib/osal_errno.c`
+- 头文件：`osal/include/lib/osal_errno.h`
+- 特点：
+  - 合并了原有的osal_error模块到osal_errno
+  - 统一的错误码定义和错误信息获取
+  - 线程安全的错误处理机制
 
 ## 开发工作流
 
@@ -420,18 +419,12 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
 ./build.sh -d
 
 # 使用GDB
-sudo gdb ./output/target/bin/can_gateway
+gdb ./output/target/bin/sample_app
 (gdb) run
 (gdb) bt  # 查看调用栈
 
-# 查看日志
-tail -f /var/log/pmc-bsp.log
-
-# 查看统计信息（程序每30秒自动打印）
-grep "Statistics" /var/log/pmc-bsp.log
-
 # 单步调试特定测试
-sudo gdb --args ./output/target/bin/unit-test -m test_osal_task
+gdb --args ./output/target/bin/unit-test -m test_osal_task
 ```
 
 ## 构建输出
@@ -442,24 +435,22 @@ output/
 ├── build/           # 编译中间文件
 └── target/
     ├── bin/         # 可执行文件
-    │   ├── can_gateway
-    │   ├── protocol_converter
+    │   ├── sample_app
     │   └── unit-test
     └── lib/         # 静态库
         ├── libosal.a
         ├── libhal.a
-        └── libpdl.a
+        ├── libpdl.a
+        └── libxconfig.a
 ```
 
 ## 测试覆盖
 
 | 层级 | 模块数 | 测试用例数 | 覆盖范围 |
 |------|--------|-----------|---------|
-| OSAL | 6 | 60 | 任务、队列、互斥锁、网络、文件、信号 |
+| OSAL | 5 | 50+ | 任务、队列、互斥锁、信号 |
 | HAL | 1 | 3 | CAN驱动 |
-| PDL | 1 | 2 | 卫星平台服务 |
-| Apps | 2 | 5 | CAN网关、协议转换器 |
-| **总计** | **10** | **70** | **完整的5层架构** |
+| **总计** | **6** | **53+** | **核心功能完整覆盖** |
 
 ### 交互式菜单特点
 - 三级选择：层级 → 模块 → 测试用例
@@ -495,8 +486,8 @@ output/
 - **禁止**直接使用`printf`/`fprintf`
 - **使用**OSAL日志接口：
   - `OSAL_Printf()` - 简单输出（无格式）
-  - `OSAL_INFO("MODULE", "message")` - 信息日志
-  - `OSAL_ERROR("MODULE", "message")` - 错误日志
+  - `LOG_INFO("MODULE", "message")` - 信息日志
+  - `LOG_ERROR("MODULE", "message")` - 错误日志
 - **禁止**直接调用底层函数：`OSAL_LogInfo()`, `OSAL_LogError()` 等（仅供宏内部使用）
 
 ### 错误处理
@@ -536,13 +527,13 @@ static void my_task_entry(void *arg)
 - 配置目录：`hal/include/config/`
 - 接口：`can0`
 - 波特率：500Kbps
-- 协议：自定义8字节协议（定义在应用层配置中）
+- 协议：CAN 2.0B标准帧
 
-### 载荷通信
-- 主通道：以太网（192.168.1.100:623）
-- 备份通道：UART（/dev/ttyS0, 115200）
+### 串口配置
 - 配置目录：`hal/include/config/`
-- 协议：IPMI/Redfish
+- 设备：`/dev/ttyS0`
+- 波特率：115200
+- 数据位：8位，无校验，1停止位
 
 ## 常见问题
 
@@ -570,19 +561,34 @@ sudo modprobe vcan
 ```
 
 ### 权限不足
-需要root权限访问CAN设备：
+某些硬件操作可能需要root权限：
 ```bash
-sudo ./output/target/bin/can_gateway
-```
-
-### 载荷连接失败
-检查网络连接和IP配置：
-```bash
-ping 192.168.1.100
-telnet 192.168.1.100 623
+sudo ./output/target/bin/sample_app
 ```
 
 ## 最近重构
+
+### OSAL接口精简（2026-04-26）
+- **目标**：简化OSAL接口，适配用户态库设计
+- **删除接口**：
+  - `OS_API_Init()` / `OS_API_Teardown()` - 用户态库无需显式初始化
+  - `OS_IdleLoop()` - 用户态应用由操作系统调度，不需要空闲循环
+- **保留接口**：
+  - `OS_GetVersionString()` - 获取OSAL版本信息
+- **文件变更**：
+  - 删除 `osal/src/posix/util/osal_init.c`
+  - 新增 `osal/src/posix/util/osal_version.c`
+- **设计理念**：OSAL作为用户态库，使用静态初始化，无需显式Init/Teardown
+
+### 应用层重构（2026-04-26）
+- **删除应用**：can_gateway、protocol_converter（业务应用，不属于BSP核心）
+- **新增应用**：sample_app（示例应用，展示OSAL基本用法）
+- **设计理念**：BSP专注于提供抽象层和驱动，业务应用由用户实现
+
+### XConfig平台简化（2026-04-26）
+- **删除配置**：H200_32P平台配置（暂时无用）
+- **保留配置**：H200_100P（实际产品）、vendor_demo（演示用）
+- **设计理念**：按需配置，避免维护无用代码
 
 ### 系统调用封装重构（2026-04-25）
 - **目标**：实现完整的系统调用封装，支持RTOS移植
@@ -604,11 +610,11 @@ telnet 192.168.1.100 623
 - 外设框架：新增统一外设接口（`peripheral_device.h`），支持MCU/卫星/BMC/Linux载荷
 - 适配器模式：保留传统接口100%兼容，通过适配器包装到外设框架
 
-### 目录结构标准化
+### 目录结构标准化（2026-04-24）
 - `inc` → `include`：统一使用 `include/` 目录存放头文件
-- `linux` → `src/linux`：统一使用 `src/linux/` 目录存放Linux平台实现
+- `linux` → `src/posix`：统一使用 `src/posix/` 目录存放POSIX实现
 - `config` 移入 `include`：配置文件统一放在 `include/config/` 目录
-- 标准化结构：`module/include/` + `module/src/linux/` + `module/include/config/`
+- 标准化结构：`module/include/` + `module/src/posix/` + `module/include/config/`
 
 ### 模块化配置重构
 - 配置分布：配置文件分布在各模块的 `include/config/` 目录
@@ -622,20 +628,22 @@ telnet 192.168.1.100 623
 
 ## 开发建议
 
-1. **系统调用封装（最重要）**：HAL/PDL/Apps/Tests层严禁直接调用系统调用，必须使用OSAL封装
-2. **遵循分层架构**：不要跨层直接调用
-3. **使用OSAL接口**：不要直接使用pthread/socket/open/close等系统API
-4. **优雅退出**：任务循环检查`OSAL_TaskShouldShutdown()`
+1. **OSAL接口使用**：
+   - 用户态库无需显式初始化，直接调用OSAL接口即可
+   - 任务循环检查`OSAL_TaskShouldShutdown()`实现优雅退出
+   - 使用LOG_INFO/LOG_ERROR宏记录日志，不要用printf
+2. **系统调用封装（最重要）**：HAL/PDL/Apps/Tests层严禁直接调用系统调用，必须使用OSAL封装
+3. **遵循分层架构**：不要跨层直接调用
+4. **使用OSAL接口**：不要直接使用pthread/socket/open/close等系统API
 5. **错误处理**：所有返回值必须检查
-6. **日志规范**：使用`OSAL_INFO/ERROR`宏，不要用`printf`
-7. **测试驱动**：新功能必须编写单元测试
-8. **配置管理**：配置文件集中在各模块的配置目录中
+6. **测试驱动**：新功能必须编写单元测试
+7. **配置管理**：配置文件集中在各模块的配置目录中
 
 ## 快速开发技巧
 
 ### 快速编译单个目标
 ```bash
-cd output/build && make can_gateway -j$(nproc) && cd ../..
+cd output/build && make sample_app -j$(nproc) && cd ../..
 ```
 
 ### 快速测试单个模块
@@ -643,15 +651,14 @@ cd output/build && make can_gateway -j$(nproc) && cd ../..
 ./build.sh -d && ./output/target/bin/unit-test -m test_osal_task
 ```
 
-### 监控日志并运行应用
+### 运行示例应用
 ```bash
-tail -f /var/log/pmc-bsp.log &
-sudo ./output/target/bin/can_gateway
+./output/target/bin/sample_app
 ```
 
 ## 性能指标
 
-- CAN消息延迟：< 10ms
-- 命令处理时间：< 100ms
-- 内存占用：< 128MB
-- CPU占用（空闲）：< 5%
+- 任务切换延迟：< 1ms
+- 队列操作延迟：< 100μs
+- 内存占用：< 64MB
+- CPU占用（空闲）：< 2%
