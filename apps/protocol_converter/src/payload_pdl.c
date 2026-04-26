@@ -11,11 +11,6 @@
 
 #include "payload_pdl.h"
 #include "osal.h"
-#include <sys/select.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <arpa/inet.h>
-#include <termios.h>
 
 /*
  * 连接状态
@@ -397,9 +392,9 @@ payload_channel_t PayloadService_GetChannel(payload_service_handle_t handle)
  */
 static int32 ethernet_connect(payload_service_context_t *ctx)
 {
-    struct sockaddr_in server_addr;
+    osal_sockaddr_in_t server_addr;
     int32 flags;
-    int enable = 1;
+    int32 enable = 1;
 
     /* 创建socket */
     ctx->eth_fd = OSAL_socket(OSAL_AF_INET, OSAL_SOCK_STREAM, 0);
@@ -411,7 +406,7 @@ static int32 ethernet_connect(payload_service_context_t *ctx)
 
     /* 设置socket选项 */
     OSAL_setsockopt(ctx->eth_fd, OSAL_SOL_SOCKET, OSAL_SO_KEEPALIVE, &enable, sizeof(enable));
-    OSAL_setsockopt(ctx->eth_fd, IPPROTO_TCP, TCP_NODELAY, &enable, sizeof(enable));
+    OSAL_setsockopt(ctx->eth_fd, OSAL_IPPROTO_TCP, OSAL_TCP_NODELAY, &enable, sizeof(enable));
 
     /* 设置非阻塞 */
     flags = OSAL_fcntl(ctx->eth_fd, OSAL_F_GETFL, 0);
@@ -419,10 +414,10 @@ static int32 ethernet_connect(payload_service_context_t *ctx)
 
     /* 配置服务器地址 */
     OSAL_Memset(&server_addr, 0, sizeof(server_addr));
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(ctx->config.ethernet.port);
+    server_addr.sin_family = OSAL_AF_INET;
+    server_addr.sin_port = OSAL_htons(ctx->config.ethernet.port);
 
-    if (inet_pton(AF_INET, ctx->config.ethernet.ip_addr, &server_addr.sin_addr) <= 0)
+    if (OSAL_inet_pton(OSAL_AF_INET, ctx->config.ethernet.ip_addr, &server_addr.sin_addr) <= 0)
     {
         OSAL_Printf("[PayloadService] 无效的IP地址: %s\n", ctx->config.ethernet.ip_addr);
         OSAL_close(ctx->eth_fd);
@@ -498,7 +493,7 @@ static int32 ethernet_send(payload_service_context_t *ctx, const void *data, uin
         return OS_ERROR;
     }
 
-    ret = OSAL_send(ctx->eth_fd, data, len, MSG_NOSIGNAL);
+    ret = OSAL_send(ctx->eth_fd, data, len, OSAL_MSG_NOSIGNAL);
     if (ret < 0)
     {
         OSAL_Printf("[PayloadService] 以太网发送失败: %s\n", OSAL_StrError(OSAL_GetErrno()));
@@ -556,7 +551,7 @@ static int32 ethernet_recv(payload_service_context_t *ctx, void *buf, uint32 buf
  */
 static int32 uart_open(payload_service_context_t *ctx)
 {
-    struct termios tty;
+    osal_termios_t tty;
 
     /* 打开串口 */
     ctx->uart_fd = OSAL_open(ctx->config.uart.device, OSAL_O_RDWR | OSAL_O_NOCTTY, 0);
@@ -569,7 +564,7 @@ static int32 uart_open(payload_service_context_t *ctx)
 
     /* 配置串口 */
     OSAL_Memset(&tty, 0, sizeof(tty));
-    if (tcgetattr(ctx->uart_fd, &tty) != 0)
+    if (OSAL_tcgetattr(ctx->uart_fd, &tty) != 0)
     {
         OSAL_Printf("[PayloadService] 获取UART属性失败: %s\n", OSAL_StrError(OSAL_GetErrno()));
         OSAL_close(ctx->uart_fd);
@@ -578,46 +573,44 @@ static int32 uart_open(payload_service_context_t *ctx)
     }
 
     /* 设置波特率 */
-    speed_t speed = B115200;
+    uint32 speed = OSAL_B115200;
     switch (ctx->config.uart.baudrate)
     {
-        case 9600:   speed = B9600; break;
-        case 19200:  speed = B19200; break;
-        case 38400:  speed = B38400; break;
-        case 57600:  speed = B57600; break;
-        case 115200: speed = B115200; break;
+        case 9600:   speed = OSAL_B9600; break;
+        case 19200:  speed = OSAL_B19200; break;
+        case 38400:  speed = OSAL_B38400; break;
+        case 57600:  speed = OSAL_B57600; break;
+        case 115200: speed = OSAL_B115200; break;
         default:
             OSAL_Printf("[PayloadService] 不支持的波特率: %u\n", ctx->config.uart.baudrate);
-            speed = B115200;
+            speed = OSAL_B115200;
     }
 
-    cfsetospeed(&tty, speed);
-    cfsetispeed(&tty, speed);
+    OSAL_cfsetospeed(&tty, speed);
+    OSAL_cfsetispeed(&tty, speed);
 
     /* 8N1 */
-    tty.c_cflag &= ~PARENB;
-    tty.c_cflag &= ~CSTOPB;
-    tty.c_cflag &= ~CSIZE;
-    tty.c_cflag |= CS8;
-#ifdef CRTSCTS
-    tty.c_cflag &= ~CRTSCTS;
-#endif
-    tty.c_cflag |= CREAD | CLOCAL;
+    tty.c_cflag &= ~OSAL_PARENB;
+    tty.c_cflag &= ~OSAL_CSTOPB;
+    tty.c_cflag &= ~OSAL_CSIZE;
+    tty.c_cflag |= OSAL_CS8;
+    tty.c_cflag &= ~OSAL_CRTSCTS;
+    tty.c_cflag |= OSAL_CREAD | OSAL_CLOCAL;
 
-    tty.c_lflag &= ~ICANON;
-    tty.c_lflag &= ~ECHO;
-    tty.c_lflag &= ~ISIG;
+    tty.c_lflag &= ~OSAL_ICANON;
+    tty.c_lflag &= ~OSAL_ECHO;
+    tty.c_lflag &= ~OSAL_ISIG;
 
-    tty.c_iflag &= ~(IXON | IXOFF | IXANY);
-    tty.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL);
+    tty.c_iflag &= ~(OSAL_IXON | OSAL_IXOFF | OSAL_IXANY);
+    tty.c_iflag &= ~(OSAL_IGNBRK | OSAL_BRKINT | OSAL_PARMRK | OSAL_ISTRIP | OSAL_INLCR | OSAL_IGNCR | OSAL_ICRNL);
 
-    tty.c_oflag &= ~OPOST;
-    tty.c_oflag &= ~ONLCR;
+    tty.c_oflag &= ~OSAL_OPOST;
+    tty.c_oflag &= ~OSAL_ONLCR;
 
-    tty.c_cc[VTIME] = 10;
-    tty.c_cc[VMIN] = 0;
+    tty.c_cc[OSAL_VTIME] = 10;
+    tty.c_cc[OSAL_VMIN] = 0;
 
-    if (tcsetattr(ctx->uart_fd, TCSANOW, &tty) != 0)
+    if (OSAL_tcsetattr(ctx->uart_fd, OSAL_TCSANOW, &tty) != 0)
     {
         OSAL_Printf("[PayloadService] 设置UART属性失败: %s\n", OSAL_StrError(OSAL_GetErrno()));
         OSAL_close(ctx->uart_fd);
@@ -626,7 +619,7 @@ static int32 uart_open(payload_service_context_t *ctx)
     }
 
     /* 清空缓冲区 */
-    tcflush(ctx->uart_fd, TCIOFLUSH);
+    OSAL_tcflush(ctx->uart_fd, OSAL_TCIOFLUSH);
 
     return OS_SUCCESS;
 }
@@ -658,7 +651,7 @@ static int32 uart_send(payload_service_context_t *ctx, const void *data, uint32 
     }
 
     /* 等待数据发送完成 */
-    tcdrain(ctx->uart_fd);
+    OSAL_tcdrain(ctx->uart_fd);
 
     return (int32)ret;
 }

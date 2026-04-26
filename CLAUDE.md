@@ -257,20 +257,41 @@ pmc-bsp/
   - `hal/include/config/can_config.h` - CAN接口、波特率配置
   - `apps/can_gateway/include/config/can_protocol.h` - CAN协议定义
 
-### 2. 分层隔离与系统调用封装（关键）
+### 2. 分层隔离与平台无关性（关键）
+- **平台相关代码隔离原则**：
+  - **OSAL层**：唯一允许包含操作系统相关代码的层（Linux/RTOS/Windows等）
+  - **HAL层**：唯一允许包含硬件平台相关代码的层（ARM/x86/RISC-V等，SocketCAN/硬件CAN等）
+  - **XConfig/PDL/Apps/Tests层**：必须保持完全平台无关，可无修改移植到任何平台
+  
 - **OSAL层**：封装操作系统API，支持跨平台移植
   - **唯一允许直接调用系统调用的层**
   - 提供两类接口：
     1. **高层业务接口**：如 `OSAL_TaskCreate()`, `OSAL_SocketOpen()` - 带资源管理和业务逻辑
     2. **原始系统调用封装**：如 `OSAL_socket()`, `OSAL_bind()`, `OSAL_open()`, `OSAL_close()` - 1:1映射系统调用，仅做跨平台适配
   - 参考Linux uapi形式，按模块划分（socket/unistd/fcntl等）
+  - 平台相关实现放在 `src/linux/`, `src/freertos/`, `src/vxworks/` 等目录
+  
 - **HAL层**：封装硬件驱动，隔离硬件差异
   - **必须使用OSAL封装的系统调用**，禁止直接调用 `socket()`, `bind()`, `open()`, `close()` 等
-  - 允许使用硬件特定的ioctl操作（如CAN的SIOCGIFINDEX）
+  - **唯一允许包含硬件平台相关代码的层**（如SocketCAN、硬件寄存器操作等）
+  - 平台相关实现放在 `src/linux/`, `src/ti_am62/`, `src/nxp_imx8/` 等目录
+  
+- **XConfig层**：硬件配置库，纯数据配置
+  - **必须保持完全平台无关**，只包含配置数据结构
+  - 禁止包含任何系统头文件（`<unistd.h>`, `<sys/socket.h>` 等）
+  - 禁止调用任何系统API，只能使用OSAL接口
+  
 - **PDL层**：外设驱动层，统一管理卫星/载荷/MCU等外设
-  - **必须通过HAL层或OSAL接口访问底层**
+  - **必须保持完全平台无关**，通过HAL层或OSAL接口访问底层
+  - 禁止包含任何系统头文件或硬件相关头文件
+  
 - **Apps层**：应用逻辑，通过PDL层访问底层
-  - **严格禁止任何系统调用**
+  - **必须保持完全平台无关**，严格禁止任何系统调用
+  - 禁止包含任何系统头文件
+  
+- **Tests层**：测试代码
+  - **必须保持完全平台无关**，只能使用OSAL接口
+  - 禁止包含任何系统头文件
 
 ### 2.1 OSAL系统调用封装架构（重要）
 
@@ -446,14 +467,26 @@ output/
 
 **详细规范请参考**：[docs/CODING_STANDARDS.md](docs/CODING_STANDARDS.md)
 
-### 系统调用封装（最重要）
-- **禁止**HAL/PDL/Apps/Tests层直接使用系统调用
-- **必须**使用OSAL封装的接口：
-  - 文件操作：`OSAL_open()`, `OSAL_close()`, `OSAL_read()`, `OSAL_write()`
-  - Socket操作：`OSAL_socket()`, `OSAL_bind()`, `OSAL_connect()`, `OSAL_setsockopt()`
-  - 内存操作：`OSAL_Memset()`, `OSAL_Memcpy()`, `OSAL_Malloc()`, `OSAL_Free()`
-  - 字符串操作：`OSAL_Strlen()`, `OSAL_Strcmp()`, `OSAL_Strcpy()`, `OSAL_Snprintf()`
-- **违规示例**：直接使用 `socket()`, `bind()`, `open()`, `close()`, `memcpy()`, `strlen()` 等
+### 平台无关性（最重要）
+- **平台相关代码隔离**：
+  - ✅ **OSAL层**：唯一允许包含操作系统相关代码（`#include <unistd.h>`, `pthread_*` 等）
+  - ✅ **HAL层**：唯一允许包含硬件平台相关代码（SocketCAN、硬件寄存器等）
+  - ❌ **XConfig/PDL/Apps/Tests层**：严禁包含任何平台相关代码，必须可无修改移植
+  
+- **系统调用封装**：
+  - **禁止**XConfig/PDL/Apps/Tests层直接使用系统调用
+  - **必须**使用OSAL封装的接口：
+    - 文件操作：`OSAL_open()`, `OSAL_close()`, `OSAL_read()`, `OSAL_write()`
+    - Socket操作：`OSAL_socket()`, `OSAL_bind()`, `OSAL_connect()`, `OSAL_setsockopt()`
+    - 内存操作：`OSAL_Memset()`, `OSAL_Memcpy()`, `OSAL_Malloc()`, `OSAL_Free()`
+    - 字符串操作：`OSAL_Strlen()`, `OSAL_Strcmp()`, `OSAL_Strcpy()`, `OSAL_Snprintf()`
+    - 环境变量：`OSAL_getenv()`, `OSAL_setenv()`, `OSAL_unsetenv()`
+  - **违规示例**：直接使用 `socket()`, `bind()`, `open()`, `close()`, `memcpy()`, `strlen()`, `getenv()` 等
+  
+- **头文件包含规则**：
+  - ✅ OSAL层：可以包含 `<unistd.h>`, `<sys/socket.h>`, `<pthread.h>`, `<stdlib.h>` 等
+  - ✅ HAL层：可以包含硬件相关头文件（`<linux/can.h>`, `<net/if.h>` 等），但必须使用OSAL封装的系统调用
+  - ❌ XConfig/PDL/Apps/Tests层：严禁包含任何系统头文件，只能包含OSAL接口头文件
 
 ### 日志接口
 - **禁止**直接使用`printf`/`fprintf`

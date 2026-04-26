@@ -6,6 +6,7 @@ set(OSAL_SOURCES
     src/linux/ipc/osal_task.c
     src/linux/ipc/osal_queue.c
     src/linux/ipc/osal_mutex.c
+    src/linux/ipc/osal_atomic.c
 
     # SYS - 系统调用封装
     src/linux/sys/osal_clock.c

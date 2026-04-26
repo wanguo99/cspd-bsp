@@ -12,16 +12,15 @@
 #include "config/can_protocol.h"
 #include "can_gateway.h"
 #include "payload_pdl.h"
-#include <stdatomic.h>
 
 static payload_service_handle_t g_payload_handle;
 
 typedef struct
 {
-    atomic_uint cmd_count;
-    atomic_uint success_count;
-    atomic_uint fail_count;
-    atomic_uint timeout_count;
+    osal_atomic_uint32_t cmd_count;
+    osal_atomic_uint32_t success_count;
+    osal_atomic_uint32_t fail_count;
+    osal_atomic_uint32_t timeout_count;
 } converter_stats_t;
 
 static converter_stats_t g_stats = {0};
@@ -249,7 +248,7 @@ static void protocol_converter_task(void *arg __attribute__((unused)))
             continue;
         }
 
-        atomic_fetch_add(&g_stats.cmd_count, 1);
+        OSAL_AtomicFetchAdd(&g_stats.cmd_count, 1);
 
         OSAL_Printf("[Protocol Converter] 处理命令: %s (seq=%u)\n",
                  can_get_cmd_type_name(msg->cmd_type),
@@ -261,7 +260,7 @@ static void protocol_converter_task(void *arg __attribute__((unused)))
             OSAL_Printf("[Protocol Converter] 载荷未连接\n");
             status = STATUS_PAYLOAD_OFFLINE;
             result = 0;
-            atomic_fetch_add(&g_stats.fail_count, 1);
+            OSAL_AtomicFetchAdd(&g_stats.fail_count, 1);
         }
         else
         {
@@ -270,15 +269,15 @@ static void protocol_converter_task(void *arg __attribute__((unused)))
 
             if (status == STATUS_OK)
             {
-                atomic_fetch_add(&g_stats.success_count, 1);
+                OSAL_AtomicFetchAdd(&g_stats.success_count, 1);
             }
             else if (status == STATUS_TIMEOUT)
             {
-                atomic_fetch_add(&g_stats.timeout_count, 1);
+                OSAL_AtomicFetchAdd(&g_stats.timeout_count, 1);
             }
             else
             {
-                atomic_fetch_add(&g_stats.fail_count, 1);
+                OSAL_AtomicFetchAdd(&g_stats.fail_count, 1);
             }
         }
 
@@ -341,10 +340,10 @@ int32 Protocol_Converter_Init(void)
 void Protocol_Converter_GetStats(uint32 *cmd_count, uint32 *success_count,
                                   uint32 *fail_count, uint32 *timeout_count)
 {
-    if (cmd_count)     *cmd_count = atomic_load(&g_stats.cmd_count);
-    if (success_count) *success_count = atomic_load(&g_stats.success_count);
-    if (fail_count)    *fail_count = atomic_load(&g_stats.fail_count);
-    if (timeout_count) *timeout_count = atomic_load(&g_stats.timeout_count);
+    if (cmd_count)     *cmd_count = OSAL_AtomicLoad(&g_stats.cmd_count);
+    if (success_count) *success_count = OSAL_AtomicLoad(&g_stats.success_count);
+    if (fail_count)    *fail_count = OSAL_AtomicLoad(&g_stats.fail_count);
+    if (timeout_count) *timeout_count = OSAL_AtomicLoad(&g_stats.timeout_count);
 }
 
 /**

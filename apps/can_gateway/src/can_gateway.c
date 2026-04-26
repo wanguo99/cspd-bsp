@@ -11,7 +11,6 @@
 #include "config/can_protocol.h"
 #include "config/can_gateway_config.h"
 #include "hal_can.h"
-#include <string.h>
 
 /*
  * 全局变量
@@ -24,13 +23,11 @@ static uint16 g_seq_num = 0;        /* 序列号 */
 /*
  * 统计信息（使用原子操作保证线程安全）
  */
-#include <stdatomic.h>
-
 typedef struct
 {
-    atomic_uint rx_count;
-    atomic_uint tx_count;
-    atomic_uint err_count;
+    osal_atomic_uint32_t rx_count;
+    osal_atomic_uint32_t tx_count;
+    osal_atomic_uint32_t err_count;
 } can_gateway_stats_t;
 
 static can_gateway_stats_t g_stats = {0};
@@ -69,19 +66,19 @@ static void can_rx_task(void *arg)
                 ret = OSAL_QueuePut(g_can_rx_queue, &frame, sizeof(frame), 0);
                 if (ret == OS_SUCCESS)
                 {
-                    atomic_fetch_add(&g_stats.rx_count, 1);
+                    OSAL_AtomicFetchAdd(&g_stats.rx_count, 1);
                 }
                 else
                 {
                     OSAL_Printf("[CAN Gateway] 队列满，丢弃消息\n");
-                    atomic_fetch_add(&g_stats.err_count, 1);
+                    OSAL_AtomicFetchAdd(&g_stats.err_count, 1);
                 }
             }
         }
         else if (ret != OS_ERROR_TIMEOUT)
         {
             OSAL_Printf("[CAN Gateway] 接收错误: %s\n", OS_GetErrorName(ret));
-            atomic_fetch_add(&g_stats.err_count, 1);
+            OSAL_AtomicFetchAdd(&g_stats.err_count, 1);
             OSAL_TaskDelay(100);  /* 错误后延时 */
         }
     }
@@ -117,19 +114,19 @@ static void can_tx_task(void *arg)
                 OSAL_Printf("[CAN Gateway] 发送CAN消息: type=%s, seq=%u\n",
                          can_get_msg_type_name(msg->msg_type),
                          msg->seq_num);
-                atomic_fetch_add(&g_stats.tx_count, 1);
+                OSAL_AtomicFetchAdd(&g_stats.tx_count, 1);
             }
             else
             {
                 OSAL_Printf("[CAN Gateway] 发送失败: %s\n", OS_GetErrorName(ret));
-                atomic_fetch_add(&g_stats.err_count, 1);
+                OSAL_AtomicFetchAdd(&g_stats.err_count, 1);
 
                 /* 发送失败，重试一次 */
                 OSAL_TaskDelay(10);
                 ret = HAL_CAN_Send(g_can_handle, &frame);
                 if (ret == OS_SUCCESS)
                 {
-                    atomic_fetch_add(&g_stats.tx_count, 1);
+                    OSAL_AtomicFetchAdd(&g_stats.tx_count, 1);
                 }
             }
         }
@@ -178,9 +175,9 @@ int32 CAN_Gateway_Init(void)
     OSAL_Printf("[CAN Gateway] 初始化...\n");
 
     /* 初始化原子变量 */
-    atomic_init(&g_stats.rx_count, 0);
-    atomic_init(&g_stats.tx_count, 0);
-    atomic_init(&g_stats.err_count, 0);
+    OSAL_AtomicInit(&g_stats.rx_count, 0);
+    OSAL_AtomicInit(&g_stats.tx_count, 0);
+    OSAL_AtomicInit(&g_stats.err_count, 0);
 
     /* 创建互斥锁保护序列号 */
     ret = OSAL_MutexCreate(&g_stats_mutex, "CAN_SEQ_MUTEX", 0);
@@ -320,7 +317,7 @@ int32 CAN_Gateway_SendStatus(uint32 status_data)
 void CAN_Gateway_GetStats(uint32 *rx_count, uint32 *tx_count, uint32 *err_count)
 {
     /* 原子读取统计信息 */
-    if (rx_count)  *rx_count = atomic_load(&g_stats.rx_count);
-    if (tx_count)  *tx_count = atomic_load(&g_stats.tx_count);
-    if (err_count) *err_count = atomic_load(&g_stats.err_count);
+    if (rx_count)  *rx_count = OSAL_AtomicLoad(&g_stats.rx_count);
+    if (tx_count)  *tx_count = OSAL_AtomicLoad(&g_stats.tx_count);
+    if (err_count) *err_count = OSAL_AtomicLoad(&g_stats.err_count);
 }

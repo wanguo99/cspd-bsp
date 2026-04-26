@@ -7,7 +7,6 @@
 #include "test_runner.h"
 #endif
 #include "osal.h"
-#include <unistd.h>
 
 /* 测试任务函数 */
 static void test_task_func(void *arg)

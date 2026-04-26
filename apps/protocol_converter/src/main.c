@@ -9,17 +9,15 @@
 #include "protocol_converter.h"
 #include "config/protocol_converter_config.h"
 #include "config/ethernet_config.h"
-#include <signal.h>
-#include <stdlib.h>
 
 static volatile bool g_running = true;
 
 /**
  * @brief 信号处理函数
  */
-static void signal_handler(int sig)
+static void signal_handler(int32 sig)
 {
-    if (sig == SIGINT || sig == SIGTERM)
+    if (sig == OS_SIGNAL_INT || sig == OS_SIGNAL_TERM)
     {
         OSAL_Printf("\n收到退出信号，正在关闭协议转换器...\n");
         g_running = false;
@@ -67,15 +65,15 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     OSAL_Printf("  备份串口: %s @ %d bps\n", UART_DEVICE, UART_BAUDRATE);
     OSAL_Printf("========================================\n\n");
 
-    signal(SIGINT, signal_handler);
-    signal(SIGTERM, signal_handler);
+    OSAL_SignalRegister(OS_SIGNAL_INT, signal_handler);
+    OSAL_SignalRegister(OS_SIGNAL_TERM, signal_handler);
 
     /* 初始化OSAL */
     ret = OS_API_Init();
     if (ret != OS_SUCCESS)
     {
         OSAL_Printf("OSAL初始化失败: %s\n", OS_GetErrorName(ret));
-        return EXIT_FAILURE;
+        return 1;
     }
 
     /* 初始化协议转换 */
@@ -83,7 +81,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     if (ret != OS_SUCCESS)
     {
         OSAL_Printf("协议转换初始化失败: %s\n", OS_GetErrorName(ret));
-        return EXIT_FAILURE;
+        return 1;
     }
 
     /* 创建统计任务 */
@@ -94,7 +92,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     if (ret != OS_SUCCESS)
     {
         OSAL_Printf("创建统计任务失败: %s\n", OS_GetErrorName(ret));
-        return EXIT_FAILURE;
+        return 1;
     }
 
     OSAL_Printf("\n协议转换器启动完成，按 Ctrl+C 退出\n\n");
@@ -112,5 +110,5 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     OS_API_Teardown();
 
     OSAL_Printf("\n协议转换器已退出\n");
-    return EXIT_SUCCESS;
+    return 0;
 }

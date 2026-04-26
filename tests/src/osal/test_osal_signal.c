@@ -7,6 +7,8 @@
 #include "test_runner.h"
 #endif
 #include "osal.h"
+
+/* 测试代码需要使用平台API来测试OSAL信号功能 */
 #include <unistd.h>
 #include <signal.h>
 
@@ -51,7 +53,7 @@ void test_osal_signal_register_success(void)
     kill(getpid(), SIGINT);
 
     /* 等待信号处理 */
-    usleep(100000);  /* 100ms */
+    OSAL_TaskDelay(100);  /* 100ms */
 
     TEST_ASSERT_EQUAL(1, g_signal_received);
     TEST_ASSERT_EQUAL(SIGINT, g_signal_number);

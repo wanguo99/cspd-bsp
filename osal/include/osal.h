@@ -19,12 +19,14 @@
 #include "ipc/osal_task.h"
 #include "ipc/osal_queue.h"
 #include "ipc/osal_mutex.h"
+#include "ipc/osal_atomic.h"
 
 /* SYS - 系统调用封装 */
 #include "sys/osal_clock.h"
 #include "sys/osal_signal.h"
 #include "sys/osal_unistd.h"
 #include "sys/osal_select.h"
+#include "sys/osal_env.h"
 
 /* NET - 网络相关 */
 #include "net/osal_socket.h"
