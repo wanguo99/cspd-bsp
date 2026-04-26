@@ -59,14 +59,4 @@
  */
 const str_t *OS_GetVersionString(void);
 
-/**
- * @brief 空闲循环（保留用于RTOS兼容性）
- *
- * 此函数不会返回(除非发生错误)
- * 在Linux用户态程序中通常不需要使用
- *
- * @return OS_ERROR 启动失败
- */
-int32_t OS_IdleLoop(void);
-
 #endif /* OSAL_H */
