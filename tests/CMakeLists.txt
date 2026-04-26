@@ -34,7 +34,7 @@ include_directories(
 find_package(Threads REQUIRED)
 
 # 收集源文件（排除_fixed文件和main.c）
-file(GLOB_RECURSE OSAL_SOURCES ${PMC_BSP_ROOT}/osal/src/linux/*.c)
+file(GLOB_RECURSE OSAL_SOURCES ${PMC_BSP_ROOT}/osal/src/posix/*.c)
 list(FILTER OSAL_SOURCES EXCLUDE REGEX ".*_fixed\\.c$")
 
 file(GLOB HAL_SOURCES ${PMC_BSP_ROOT}/hal/src/linux/*.c)

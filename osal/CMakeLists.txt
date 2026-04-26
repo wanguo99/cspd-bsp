@@ -3,32 +3,32 @@
 # OSAL源文件
 set(OSAL_SOURCES
     # IPC - 进程间通信
-    src/linux/ipc/osal_task.c
-    src/linux/ipc/osal_queue.c
-    src/linux/ipc/osal_mutex.c
-    src/linux/ipc/osal_atomic.c
+    src/posix/ipc/osal_task.c
+    src/posix/ipc/osal_queue.c
+    src/posix/ipc/osal_mutex.c
+    src/posix/ipc/osal_atomic.c
 
     # SYS - 系统调用封装
-    src/linux/sys/osal_clock.c
-    src/linux/sys/osal_signal.c
-    src/linux/sys/osal_file.c
-    src/linux/sys/osal_select.c
-    src/linux/sys/osal_env.c
-    src/linux/sys/osal_time.c
+    src/posix/sys/osal_clock.c
+    src/posix/sys/osal_signal.c
+    src/posix/sys/osal_file.c
+    src/posix/sys/osal_select.c
+    src/posix/sys/osal_env.c
+    src/posix/sys/osal_time.c
 
     # NET - 网络相关
-    src/linux/net/osal_socket.c
-    src/linux/net/osal_termios.c
+    src/posix/net/osal_socket.c
+    src/posix/net/osal_termios.c
 
     # LIB - 标准库封装
-    src/linux/lib/osal_heap.c
-    src/linux/lib/osal_string.c
-    src/linux/lib/osal_errno.c
+    src/posix/lib/osal_heap.c
+    src/posix/lib/osal_string.c
+    src/posix/lib/osal_errno.c
 
     # UTIL - 工具类
-    src/linux/util/osal_error.c
-    src/linux/util/osal_init.c
-    src/linux/util/osal_log.c
+    src/posix/util/osal_error.c
+    src/posix/util/osal_init.c
+    src/posix/util/osal_log.c
 )
 
 # 创建OSAL静态库
