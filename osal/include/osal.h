@@ -28,13 +28,16 @@
 #include "sys/osal_select.h"
 #include "sys/osal_env.h"
 #include "sys/osal_time.h"
+#include "sys/osal_termios.h"
+#include "sys/osal_process.h"
+#include "sys/osal_thread.h"
 
 /* NET - 网络相关 */
 #include "net/osal_socket.h"
-#include "net/osal_termios.h"
 
 /* LIB - 标准库封装 */
 #include "lib/osal_string.h"
+#include "lib/osal_stdio.h"
 #include "lib/osal_heap.h"
 #include "lib/osal_errno.h"
 

@@ -7,7 +7,6 @@
 #include "test_framework.h"
 #include "hal_can.h"
 #include "osal.h"
-#include <string.h>
 
 static hal_can_handle_t test_handle;
 

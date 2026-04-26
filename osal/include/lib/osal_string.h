@@ -31,11 +31,13 @@ int32_t OSAL_Memcmp(const void *ptr1, const void *ptr2, osal_size_t size);
 osal_size_t OSAL_Strlen(const str_t *str);
 int32_t OSAL_Strcmp(const str_t *str1, const str_t *str2);
 int32_t OSAL_Strncmp(const str_t *str1, const str_t *str2, osal_size_t n);
+int32_t OSAL_Strcasecmp(const str_t *str1, const str_t *str2);
 str_t* OSAL_Strcpy(str_t *dest, const str_t *src);
 str_t* OSAL_Strncpy(str_t *dest, const str_t *src, osal_size_t n);
 str_t* OSAL_Strcat(str_t *dest, const str_t *src);
 str_t* OSAL_Strncat(str_t *dest, const str_t *src, osal_size_t n);
 str_t* OSAL_Strstr(const str_t *haystack, const str_t *needle);
+osal_size_t OSAL_Strcspn(const str_t *str, const str_t *reject);
 
 /*
  * 字符串格式化
@@ -43,5 +45,12 @@ str_t* OSAL_Strstr(const str_t *haystack, const str_t *needle);
 int32_t OSAL_Sprintf(str_t *str, const str_t *format, ...);
 int32_t OSAL_Snprintf(str_t *str, osal_size_t size, const str_t *format, ...);
 int32_t OSAL_Sscanf(const str_t *str, const str_t *format, ...);
+
+/*
+ * 字符串转换
+ */
+int32_t OSAL_Atoi(const str_t *str);
+int64_t OSAL_Atol(const str_t *str);
+int64_t OSAL_Strtol(const str_t *str, str_t **endptr, int32_t base);
 
 #endif /* OSAL_STRING_H */

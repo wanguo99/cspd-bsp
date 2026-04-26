@@ -17,6 +17,14 @@
 #define OS_SIGNAL_USR1      10  /* SIGUSR1 - 用户自定义信号1 */
 #define OS_SIGNAL_USR2      12  /* SIGUSR2 - 用户自定义信号2 */
 
+/* POSIX标准信号常量（用于兼容性） */
+#define SIGINT      OS_SIGNAL_INT
+#define SIGTERM     OS_SIGNAL_TERM
+#define SIGHUP      OS_SIGNAL_HUP
+#define SIGQUIT     OS_SIGNAL_QUIT
+#define SIGUSR1     OS_SIGNAL_USR1
+#define SIGUSR2     OS_SIGNAL_USR2
+
 /*
  * 信号处理函数类型
  */

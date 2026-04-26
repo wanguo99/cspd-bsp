@@ -70,7 +70,7 @@ void run_module_tests(const test_module_t *module)
 void run_single_test(const test_module_t *module, const char *test_name)
 {
     for (uint32_t i = 0; i < module->test_count; i++) {
-        if (strcmp(module->test_cases[i].name, test_name) == 0) {
+        if (OSAL_Strcmp(module->test_cases[i].name, test_name) == 0) {
             run_test_case(module->module_name, &module->test_cases[i]);
             return;
         }

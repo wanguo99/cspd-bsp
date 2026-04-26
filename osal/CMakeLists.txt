@@ -30,14 +30,17 @@ set(OSAL_SOURCES
     src/posix/sys/osal_select.c
     src/posix/sys/osal_env.c
     src/posix/sys/osal_time.c
+    src/posix/sys/osal_termios.c
+    src/posix/sys/osal_process.c
+    src/posix/sys/osal_thread.c
 
     # NET - 网络相关
     src/posix/net/osal_socket.c
-    src/posix/net/osal_termios.c
 
     # LIB - 标准库封装
     src/posix/lib/osal_heap.c
     src/posix/lib/osal_string.c
+    src/posix/lib/osal_stdio.c
     src/posix/lib/osal_errno.c
 
     # UTIL - 工具类

@@ -7,7 +7,6 @@
 #include "test_runner.h"
 #endif
 #include "osal.h"
-#include <pthread.h>
 
 static int shared_counter = 0;
 
@@ -169,15 +168,15 @@ void test_osal_mutex_protectSharedResource(void)
     osal_id_t mutex_id;
     OSAL_MutexCreate(&mutex_id, "PROTECT_MTX", 0);
 
-    pthread_t thread1, thread2;
+    osal_thread_t thread1, thread2;
 
     /* 创建两个线程同时增加计数器 */
-    pthread_create(&thread1, NULL, increment_thread, &mutex_id);
-    pthread_create(&thread2, NULL, increment_thread, &mutex_id);
+    OSAL_pthread_create(&thread1, NULL, increment_thread, &mutex_id);
+    OSAL_pthread_create(&thread2, NULL, increment_thread, &mutex_id);
 
     /* 等待线程完成 */
-    pthread_join(thread1, NULL);
-    pthread_join(thread2, NULL);
+    OSAL_pthread_join(thread1, NULL);
+    OSAL_pthread_join(thread2, NULL);
 
     /* 验证计数器正确 */
     TEST_ASSERT_EQUAL(2000, shared_counter);

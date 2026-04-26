@@ -7,7 +7,6 @@
 #include "test_runner.h"
 #endif
 #include "osal.h"
-#include <string.h>
 
 /* 测试前初始化 */
 __attribute__((unused)) static void setUp(void)

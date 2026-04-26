@@ -5,9 +5,7 @@
 #ifndef TEST_FRAMEWORK_H
 #define TEST_FRAMEWORK_H
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include "osal.h"
 #include "util/osal_log.h"
 
 /* 测试统计 - 声明为extern，在unittest_runner.c中定义 */
@@ -136,7 +134,7 @@ extern const char *current_test_name;
 
 #define TEST_ASSERT_STRING_EQUAL(expected, actual) \
     do { \
-        if (strcmp((expected), (actual)) != 0) { \
+        if (OSAL_Strcmp((expected), (actual)) != 0) { \
             OSAL_Printf(COLOR_RED "[  FAILED  ] %s:%d: Expected \"%s\", got \"%s\"\n" COLOR_RESET, \
                    __FILE__, __LINE__, (expected), (actual)); \
             test_failed++; \

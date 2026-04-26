@@ -4,8 +4,10 @@
 
 #include "lib/osal_string.h"
 #include <string.h>
+#include <strings.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
 
 /*
  * 内存操作
@@ -50,6 +52,11 @@ int32_t OSAL_Strncmp(const char *str1, const char *str2, osal_size_t n)
     return strncmp(str1, str2, (size_t)n);
 }
 
+int32_t OSAL_Strcasecmp(const char *str1, const char *str2)
+{
+    return strcasecmp(str1, str2);
+}
+
 char* OSAL_Strcpy(char *dest, const char *src)
 {
     return strcpy(dest, src);
@@ -73,6 +80,11 @@ char* OSAL_Strncat(char *dest, const char *src, osal_size_t n)
 char* OSAL_Strstr(const char *haystack, const char *needle)
 {
     return strstr(haystack, needle);
+}
+
+osal_size_t OSAL_Strcspn(const char *str, const char *reject)
+{
+    return (osal_size_t)strcspn(str, reject);
 }
 
 /*
@@ -113,4 +125,23 @@ int32_t OSAL_Sscanf(const char *str, const char *format, ...)
     va_end(args);
 
     return ret;
+}
+
+/*
+ * 字符串转换
+ */
+
+int32_t OSAL_Atoi(const char *str)
+{
+    return atoi(str);
+}
+
+int64_t OSAL_Atol(const char *str)
+{
+    return (int64_t)atol(str);
+}
+
+int64_t OSAL_Strtol(const char *str, char **endptr, int32_t base)
+{
+    return (int64_t)strtol(str, endptr, base);
 }

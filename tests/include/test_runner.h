@@ -5,14 +5,12 @@
 #ifndef TEST_RUNNER_H
 #define TEST_RUNNER_H
 
-#include <stdio.h>
-#include <string.h>
 #include <stdint.h>
 #include "osal_types.h"
+#include "osal.h"
 
 /* 使用标准C类型 */
 typedef uint32_t uint32_t;
-#include <stdlib.h>
 
 /* 测试用例函数指针类型 */
 typedef void (*test_func_t)(void);

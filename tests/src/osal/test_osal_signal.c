@@ -7,10 +7,8 @@
 #include "test_runner.h"
 #endif
 #include "osal.h"
-
-/* 测试代码需要使用平台API来测试OSAL信号功能 */
-#include <unistd.h>
-#include <signal.h>
+#include "sys/osal_process.h"
+#include "sys/osal_time.h"
 
 static volatile int32_t g_signal_received = 0;
 static volatile int32_t g_signal_number = 0;
@@ -50,7 +48,7 @@ void test_osal_signal_register_success(void)
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     /* 发送信号给自己 */
-    kill(getpid(), SIGINT);
+    OSAL_Kill(OSAL_Getpid(), SIGINT);
 
     /* 等待信号处理 */
     OSAL_TaskDelay(100);  /* 100ms */
@@ -76,8 +74,8 @@ void test_osal_signal_ignore_success(void)
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     /* 发送信号 */
-    kill(getpid(), SIGTERM);
-    usleep(100000);
+    OSAL_Kill(OSAL_Getpid(), SIGTERM);
+    OSAL_usleep(100000);
 
     /* 信号应该被忽略，处理函数不应该被调用 */
     TEST_ASSERT_EQUAL(0, g_signal_received);
@@ -100,8 +98,8 @@ void test_osal_signal_block_success(void)
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     /* 发送信号 */
-    kill(getpid(), SIGINT);
-    usleep(100000);
+    OSAL_Kill(OSAL_Getpid(), SIGINT);
+    OSAL_usleep(100000);
 
     /* 信号被阻塞，处理函数不应该被调用 */
     TEST_ASSERT_EQUAL(0, g_signal_received);
@@ -111,7 +109,7 @@ void test_osal_signal_block_success(void)
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     /* 等待信号处理 */
-    usleep(100000);
+    OSAL_usleep(100000);
 
     /* 现在信号应该被处理 */
     TEST_ASSERT_EQUAL(1, g_signal_received);
@@ -156,8 +154,8 @@ void test_osal_signal_register_multiple(void)
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     /* 发送SIGUSR1 */
-    kill(getpid(), SIGUSR1);
-    usleep(100000);
+    OSAL_Kill(OSAL_Getpid(), SIGUSR1);
+    OSAL_usleep(100000);
 
     TEST_ASSERT_EQUAL(1, g_signal_received);
     TEST_ASSERT_EQUAL(SIGUSR1, g_signal_number);
