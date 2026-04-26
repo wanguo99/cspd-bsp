@@ -21,7 +21,7 @@
  * @return OS_ERR_NAME_TAKEN 名称已被使用
  * @return OS_ERROR 其他错误
  */
-int32 OSAL_MutexCreate(osal_id_t *mutex_id, const char *mutex_name, uint32 flags);
+int32 OSAL_MutexCreate(osal_id_t *mutex_id, const str_t *mutex_name, uint32 flags);
 
 /**
  * @brief 删除互斥锁
@@ -66,7 +66,7 @@ int32 OSAL_MutexUnlock(osal_id_t mutex_id);
  * @return OS_INVALID_POINTER mutex_id为NULL
  * @return OS_ERR_NAME_NOT_FOUND 未找到互斥锁
  */
-int32 OSAL_MutexGetIdByName(osal_id_t *mutex_id, const char *mutex_name);
+int32 OSAL_MutexGetIdByName(osal_id_t *mutex_id, const str_t *mutex_name);
 
 /**
  * @brief 带超时的互斥锁获取
@@ -87,7 +87,7 @@ int32 OSAL_MutexLockTimeout(osal_id_t mutex_id, uint32 timeout_msec);
  * @param[in] mutex_name 互斥锁名称
  * @param[in] wait_time  等待时间(毫秒)
  */
-typedef void (*deadlock_callback_t)(const char *mutex_name, uint32 wait_time);
+typedef void (*deadlock_callback_t)(const str_t *mutex_name, uint32 wait_time);
 
 /**
  * @brief 设置死锁检测阈值和回调

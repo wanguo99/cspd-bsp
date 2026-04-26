@@ -31,7 +31,7 @@
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 OSAL_LogInit(const char *log_file_path, int32 level);
+int32 OSAL_LogInit(const str_t *log_file_path, int32 level);
 
 /**
  * @brief 关闭日志系统
@@ -67,50 +67,32 @@ void OSAL_LogSetMaxFiles(uint32 max_files);
  * @param[in] format 格式化字符串
  * @param[in] ... 可变参数
  */
-void OSAL_Log(int32 level, const char *module, const char *format, ...);
+void OSAL_Log(int32 level, const str_t *module, const str_t *format, ...);
 
 /**
- * @brief DEBUG级别日志
+ * @brief 简单打印（不带日志级别和模块名）
  */
-void OSAL_LogDebug(const char *module, const char *format, ...);
-
-/**
- * @brief INFO级别日志
- */
-void OSAL_LogInfo(const char *module, const char *format, ...);
-
-/**
- * @brief WARN级别日志
- */
-void OSAL_LogWarn(const char *module, const char *format, ...);
-
-/**
- * @brief ERROR级别日志
- */
-void OSAL_LogError(const char *module, const char *format, ...);
-
-/**
- * @brief FATAL级别日志
- */
-void OSAL_LogFatal(const char *module, const char *format, ...);
-
-/**
- * @brief 简单打印（兼容旧接口）
- */
-void OSAL_Printf(const char *format, ...);
-
-/**
- * @brief 简单打印（推荐接口）
- */
-void OS_printf(const char *format, ...);
+void OSAL_Printf(const str_t *format, ...);
 
 /*
- * 便捷宏定义
+ * 日志宏定义（推荐使用）
+ *
+ * 注意：请使用这些宏而不是直接调用 OSAL_Log* 函数
+ * 宏会自动添加文件名、函数名、行号信息
  */
-#define LOG_DEBUG(module, ...) OSAL_LogDebug(module, __VA_ARGS__)
-#define LOG_INFO(module, ...)  OSAL_LogInfo(module, __VA_ARGS__)
-#define LOG_WARN(module, ...)  OSAL_LogWarn(module, __VA_ARGS__)
-#define LOG_ERROR(module, ...) OSAL_LogError(module, __VA_ARGS__)
-#define LOG_FATAL(module, ...) OSAL_LogFatal(module, __VA_ARGS__)
+#define LOG_DEBUG(module, ...) OSAL_LogDebug(module, __FILE__, __func__, __LINE__, __VA_ARGS__)
+#define LOG_INFO(module, ...)  OSAL_LogInfo(module, __FILE__, __func__, __LINE__, __VA_ARGS__)
+#define LOG_WARN(module, ...)  OSAL_LogWarn(module, __FILE__, __func__, __LINE__, __VA_ARGS__)
+#define LOG_ERROR(module, ...) OSAL_LogError(module, __FILE__, __func__, __LINE__, __VA_ARGS__)
+#define LOG_FATAL(module, ...) OSAL_LogFatal(module, __FILE__, __func__, __LINE__, __VA_ARGS__)
+
+/*
+ * 内部实现函数（仅供宏使用，请勿直接调用）
+ */
+void OSAL_LogDebug(const str_t *module, const str_t *file, const str_t *func, int32 line, const str_t *format, ...);
+void OSAL_LogInfo(const str_t *module, const str_t *file, const str_t *func, int32 line, const str_t *format, ...);
+void OSAL_LogWarn(const str_t *module, const str_t *file, const str_t *func, int32 line, const str_t *format, ...);
+void OSAL_LogError(const str_t *module, const str_t *file, const str_t *func, int32 line, const str_t *format, ...);
+void OSAL_LogFatal(const str_t *module, const str_t *file, const str_t *func, int32 line, const str_t *format, ...);
 
 #endif /* OSAPI_LOG_H */

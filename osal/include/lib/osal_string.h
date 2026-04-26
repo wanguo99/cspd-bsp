@@ -28,20 +28,20 @@ int32 OSAL_Memcmp(const void *ptr1, const void *ptr2, osal_size_t size);
 /*
  * 字符串操作
  */
-osal_size_t OSAL_Strlen(const char *str);
-int32 OSAL_Strcmp(const char *str1, const char *str2);
-int32 OSAL_Strncmp(const char *str1, const char *str2, osal_size_t n);
-char* OSAL_Strcpy(char *dest, const char *src);
-char* OSAL_Strncpy(char *dest, const char *src, osal_size_t n);
-char* OSAL_Strcat(char *dest, const char *src);
-char* OSAL_Strncat(char *dest, const char *src, osal_size_t n);
-char* OSAL_Strstr(const char *haystack, const char *needle);
+osal_size_t OSAL_Strlen(const str_t *str);
+int32 OSAL_Strcmp(const str_t *str1, const str_t *str2);
+int32 OSAL_Strncmp(const str_t *str1, const str_t *str2, osal_size_t n);
+str_t* OSAL_Strcpy(str_t *dest, const str_t *src);
+str_t* OSAL_Strncpy(str_t *dest, const str_t *src, osal_size_t n);
+str_t* OSAL_Strcat(str_t *dest, const str_t *src);
+str_t* OSAL_Strncat(str_t *dest, const str_t *src, osal_size_t n);
+str_t* OSAL_Strstr(const str_t *haystack, const str_t *needle);
 
 /*
  * 字符串格式化
  */
-int32 OSAL_Sprintf(char *str, const char *format, ...);
-int32 OSAL_Snprintf(char *str, osal_size_t size, const char *format, ...);
-int32 OSAL_Sscanf(const char *str, const char *format, ...);
+int32 OSAL_Sprintf(str_t *str, const str_t *format, ...);
+int32 OSAL_Snprintf(str_t *str, osal_size_t size, const str_t *format, ...);
+int32 OSAL_Sscanf(const str_t *str, const str_t *format, ...);
 
 #endif /* OSAL_STRING_H */

@@ -14,7 +14,7 @@
  *
  * @return 错误描述字符串
  */
-const char *OS_GetErrorName(int32 error_num);
+const str_t *OS_GetErrorName(int32 error_num);
 
 /**
  * @brief 打印调试信息
@@ -22,6 +22,6 @@ const char *OS_GetErrorName(int32 error_num);
  * @param[in] format 格式化字符串
  * @param[in] ...    可变参数
  */
-void OSAL_Printf(const char *format, ...);
+void OSAL_Printf(const str_t *format, ...);
 
 #endif /* OSAPI_ERROR_H */

@@ -30,7 +30,7 @@
  * @return OS_ERROR 其他错误
  */
 int32 OSAL_QueueCreate(osal_id_t *queue_id,
-                     const char *queue_name,
+                     const str_t *queue_name,
                      uint32 queue_depth,
                      uint32 data_size,
                      uint32 flags);
@@ -91,6 +91,6 @@ int32 OSAL_QueueGet(osal_id_t queue_id, void *data, uint32 size,
  * @return OS_INVALID_POINTER queue_id为NULL
  * @return OS_ERR_NAME_NOT_FOUND 未找到队列
  */
-int32 OSAL_QueueGetIdByName(osal_id_t *queue_id, const char *queue_name);
+int32 OSAL_QueueGetIdByName(osal_id_t *queue_id, const str_t *queue_name);
 
 #endif /* OSAPI_QUEUE_H */

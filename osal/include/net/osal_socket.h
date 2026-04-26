@@ -262,7 +262,7 @@ int32 OSAL_getsockopt(int32 sockfd, int32 level, int32 optname,
  * @param ifname 接口名称（如"eth0", "can0"）
  * @return 接口索引(>0)，失败返回0
  */
-uint32 OSAL_if_nametoindex(const char *ifname);
+uint32 OSAL_if_nametoindex(const str_t *ifname);
 
 /**
  * @brief 根据接口索引获取接口名
@@ -307,7 +307,7 @@ uint32 OSAL_ntohl(uint32 netlong);
  * @param dst 输出缓冲区
  * @return 1成功，0格式错误，-1地址族不支持
  */
-int32 OSAL_inet_pton(int32 af, const char *src, void *dst);
+int32 OSAL_inet_pton(int32 af, const str_t *src, void *dst);
 
 /**
  * @brief 将网络字节序IP地址转换为点分十进制
@@ -317,6 +317,6 @@ int32 OSAL_inet_pton(int32 af, const char *src, void *dst);
  * @param size 缓冲区大小
  * @return 字符串指针，失败返回NULL
  */
-const char *OSAL_inet_ntop(int32 af, const void *src, char *dst, osal_size_t size);
+const str_t *OSAL_inet_ntop(int32 af, const void *src, str_t *dst, osal_size_t size);
 
 #endif /* OSAL_SOCKET_H */

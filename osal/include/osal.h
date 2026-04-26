@@ -86,6 +86,6 @@ int32 OS_IdleLoop(void);
  *
  * @return 版本字符串，例如 "1.0.0"
  */
-const char *OS_GetVersionString(void);
+const str_t *OS_GetVersionString(void);
 
 #endif /* OSAL_H */

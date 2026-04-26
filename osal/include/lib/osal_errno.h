@@ -176,6 +176,6 @@ void OSAL_SetErrno(int32 err);
  * @param errnum 错误码
  * @return 错误描述字符串
  */
-const char *OSAL_StrError(int32 errnum);
+const str_t *OSAL_StrError(int32 errnum);
 
 #endif /* OSAL_ERRNO_H */

@@ -63,7 +63,7 @@
  * @param mode 文件权限（OSAL_S_*），仅在创建文件时使用
  * @return 文件描述符(>=0)，失败返回-1
  */
-int32 OSAL_open(const char *pathname, int32 flags, uint32 mode);
+int32 OSAL_open(const str_t *pathname, int32 flags, uint32 mode);
 
 /**
  * @brief 关闭文件描述符

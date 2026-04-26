@@ -37,7 +37,7 @@ static uint32 g_max_log_files = 5;
 /*
  * 日志级别名称
  */
-static const char *log_level_names[] = {
+static const str_t *log_level_names[] = {
     "DEBUG",
     "INFO",
     "WARN",
@@ -48,7 +48,7 @@ static const char *log_level_names[] = {
 /*
  * 日志级别颜色（终端）
  */
-static const char *log_level_colors[] = {
+static const str_t *log_level_colors[] = {
     "\033[36m",  // DEBUG - 青色
     "\033[32m",  // INFO  - 绿色
     "\033[33m",  // WARN  - 黄色
@@ -56,7 +56,7 @@ static const char *log_level_colors[] = {
     "\033[35m"   // FATAL - 紫色
 };
 
-static const char *color_reset = "\033[0m";
+static const str_t *color_reset = "\033[0m";
 
 /**
  * @brief 初始化日志系统
@@ -66,7 +66,7 @@ static const char *color_reset = "\033[0m";
  *
  * @return OS_SUCCESS 成功
  */
-int32 OSAL_LogInit(const char *log_file_path, int32 level)
+int32 OSAL_LogInit(const str_t *log_file_path, int32 level)
 {
     if (level >= LOG_LEVEL_DEBUG && level <= LOG_LEVEL_FATAL)
     {
@@ -213,10 +213,76 @@ static void check_and_rotate_log(void)
 }
 
 /**
- * @brief 内部日志函数
+ * @brief 提取文件名（去掉路径）
  */
-static void log_internal(log_level_t level, const char *module,
-                         const char *format, va_list args)
+static const str_t *extract_filename(const str_t *path)
+{
+    const str_t *filename = strrchr(path, '/');
+    return filename ? filename + 1 : path;
+}
+
+/**
+ * @brief 内部日志函数（带位置信息）
+ */
+static void log_internal_ex(log_level_t level, const str_t *module,
+                            const str_t *file, const str_t *func, int32 line,
+                            const str_t *format, va_list args)
+{
+    str_t timestamp[64];
+    str_t message[1024];
+    const str_t *filename = extract_filename(file);
+
+    /* 检查日志级别 */
+    if (level < g_log_level)
+        return;
+
+    /* 获取时间戳 */
+    get_timestamp(timestamp, sizeof(timestamp));
+
+    /* 格式化消息 */
+    vsnprintf(message, sizeof(message), format, args);
+
+    /* 加锁 */
+    pthread_mutex_lock(&g_log_mutex);
+
+    /* 检查并轮转日志文件 */
+    check_and_rotate_log();
+
+    /* 输出到终端（带颜色） */
+    printf("%s[%s] [%s] [%s] [%s:%s:%d]%s %s",
+           log_level_colors[level],
+           timestamp,
+           log_level_names[level],
+           module,
+           filename,
+           func,
+           line,
+           color_reset,
+           message);
+
+    /* 输出到文件（无颜色） */
+    if (g_log_file != NULL)
+    {
+        fprintf(g_log_file, "[%s] [%s] [%s] [%s:%s:%d] %s",
+               timestamp,
+               log_level_names[level],
+               module,
+               filename,
+               func,
+               line,
+               message);
+        fflush(g_log_file);
+    }
+
+    /* 解锁 */
+    pthread_mutex_unlock(&g_log_mutex);
+}
+
+/**
+ * @brief 内部日志函数（不带位置信息，兼容旧接口）
+ */
+static void log_internal(log_level_t level, const str_t *module,
+                         const str_t *format, va_list args)
 {
     str_t timestamp[64];
     str_t message[1024];
@@ -286,7 +352,7 @@ static void log_internal(log_level_t level, const char *module,
 /**
  * @brief 通用日志函数
  */
-void OSAL_Log(int32 level, const char *module, const char *format, ...)
+void OSAL_Log(int32 level, const str_t *module, const str_t *format, ...)
 {
     va_list args;
 
@@ -299,76 +365,64 @@ void OSAL_Log(int32 level, const char *module, const char *format, ...)
 }
 
 /**
- * @brief DEBUG级别日志
+ * @brief DEBUG级别日志（带位置信息）
  */
-void OSAL_LogDebug(const char *module, const char *format, ...)
+void OSAL_LogDebug(const str_t *module, const str_t *file, const str_t *func, int32 line, const str_t *format, ...)
 {
     va_list args;
     va_start(args, format);
-    log_internal(LOG_LEVEL_DEBUG, module, format, args);
+    log_internal_ex(LOG_LEVEL_DEBUG, module, file, func, line, format, args);
     va_end(args);
 }
 
 /**
- * @brief INFO级别日志
+ * @brief INFO级别日志（带位置信息）
  */
-void OSAL_LogInfo(const char *module, const char *format, ...)
+void OSAL_LogInfo(const str_t *module, const str_t *file, const str_t *func, int32 line, const str_t *format, ...)
 {
     va_list args;
     va_start(args, format);
-    log_internal(LOG_LEVEL_INFO, module, format, args);
+    log_internal_ex(LOG_LEVEL_INFO, module, file, func, line, format, args);
     va_end(args);
 }
 
 /**
- * @brief WARN级别日志
+ * @brief WARN级别日志（带位置信息）
  */
-void OSAL_LogWarn(const char *module, const char *format, ...)
+void OSAL_LogWarn(const str_t *module, const str_t *file, const str_t *func, int32 line, const str_t *format, ...)
 {
     va_list args;
     va_start(args, format);
-    log_internal(LOG_LEVEL_WARN, module, format, args);
+    log_internal_ex(LOG_LEVEL_WARN, module, file, func, line, format, args);
     va_end(args);
 }
 
 /**
- * @brief ERROR级别日志
+ * @brief ERROR级别日志（带位置信息）
  */
-void OSAL_LogError(const char *module, const char *format, ...)
+void OSAL_LogError(const str_t *module, const str_t *file, const str_t *func, int32 line, const str_t *format, ...)
 {
     va_list args;
     va_start(args, format);
-    log_internal(LOG_LEVEL_ERROR, module, format, args);
+    log_internal_ex(LOG_LEVEL_ERROR, module, file, func, line, format, args);
     va_end(args);
 }
 
 /**
- * @brief FATAL级别日志
+ * @brief FATAL级别日志（带位置信息）
  */
-void OSAL_LogFatal(const char *module, const char *format, ...)
+void OSAL_LogFatal(const str_t *module, const str_t *file, const str_t *func, int32 line, const str_t *format, ...)
 {
     va_list args;
     va_start(args, format);
-    log_internal(LOG_LEVEL_FATAL, module, format, args);
+    log_internal_ex(LOG_LEVEL_FATAL, module, file, func, line, format, args);
     va_end(args);
 }
 
 /**
- * @brief 简单打印（推荐接口）
+ * @brief 简单打印（不带日志级别和模块名）
  */
-void OS_printf(const char *format, ...)
-{
-    va_list args;
-    va_start(args, format);
-    vprintf(format, args);
-    va_end(args);
-    fflush(stdout);
-}
-
-/**
- * @brief 简单打印（兼容旧接口）
- */
-void OSAL_Printf(const char *format, ...)
+void OSAL_Printf(const str_t *format, ...)
 {
     va_list args;
     va_start(args, format);
