@@ -235,7 +235,7 @@ int32 OSAL_TaskDelete(osal_id_t task_id)
     if (ret == ETIMEDOUT)
     {
         /* 超时后分离线程，不强制取消 */
-        OS_printf("[OS_Task] 任务 %u 优雅关闭超时，分离线程\n", task_id);
+        OSAL_Printf("[OS_Task] 任务 %u 优雅关闭超时，分离线程\n", task_id);
         pthread_detach(thread_to_delete);
     }
     else if (ret == EINVAL)
@@ -245,7 +245,7 @@ int32 OSAL_TaskDelete(osal_id_t task_id)
     }
     else if (ret != 0)
     {
-        OS_printf("[OS_Task] 等待任务 %u 退出失败: %d\n", task_id, ret);
+        OSAL_Printf("[OS_Task] 等待任务 %u 退出失败: %d\n", task_id, ret);
         pthread_detach(thread_to_delete);
     }
 

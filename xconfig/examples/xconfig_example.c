@@ -22,26 +22,26 @@ static void example_basic_usage(void)
     int32 ret;
     const xconfig_board_config_t *board;
 
-    OS_printf("\n=== Example 1: Basic Usage ===\n");
+    OSAL_Printf("\n=== Example 1: Basic Usage ===\n");
 
     /* 初始化配置库 */
     ret = XCONFIG_Init();
     if (ret != OS_SUCCESS) {
-        OS_printf("Failed to initialize config library\n");
+        OSAL_Printf("Failed to initialize config library\n");
         return;
     }
 
     /* 注册所有配置 */
     ret = XCONFIG_RegisterAll();
     if (ret != OS_SUCCESS) {
-        OS_printf("Failed to register configurations\n");
+        OSAL_Printf("Failed to register configurations\n");
         return;
     }
 
     /* 选择默认配置 */
     board = XCONFIG_SelectDefault();
     if (board == NULL) {
-        OS_printf("Failed to select default configuration\n");
+        OSAL_Printf("Failed to select default configuration\n");
         return;
     }
 
@@ -57,22 +57,22 @@ static void example_find_config(void)
 {
     const xconfig_board_config_t *board;
 
-    OS_printf("\n=== Example 2: Find Specific Config ===\n");
+    OSAL_Printf("\n=== Example 2: Find Specific Config ===\n");
 
     /* 查找TI AM625平台的H200 V1.0配置 */
     board = XCONFIG_Find("ti/am625", "h200_payload", "v1.0");
     if (board != NULL) {
-        OS_printf("Found config: %s/%s/%s\n",
+        OSAL_Printf("Found config: %s/%s/%s\n",
                   board->platform, board->product, board->version);
-        OS_printf("Description: %s\n", board->description);
+        OSAL_Printf("Description: %s\n", board->description);
     } else {
-        OS_printf("Config not found\n");
+        OSAL_Printf("Config not found\n");
     }
 
     /* 查找任意版本的H200配置 */
     board = XCONFIG_Find("ti/am625", "h200_payload", NULL);
     if (board != NULL) {
-        OS_printf("Found config (any version): %s/%s/%s\n",
+        OSAL_Printf("Found config (any version): %s/%s/%s\n",
                   board->platform, board->product, board->version);
     }
 }
@@ -89,14 +89,14 @@ static void example_mcu_init(void)
     mcu_version_t version;
     int32 ret;
 
-    OS_printf("\n=== Example 3: MCU Initialization ===\n");
+    OSAL_Printf("\n=== Example 3: MCU Initialization ===\n");
 
     /* 获取当前板级配置 */
     board = XCONFIG_GetBoard();
     if (board == NULL) {
         board = XCONFIG_SelectDefault();
         if (board == NULL) {
-            OS_printf("No board configuration available\n");
+            OSAL_Printf("No board configuration available\n");
             return;
         }
     }
@@ -104,12 +104,12 @@ static void example_mcu_init(void)
     /* 查找MCU配置 */
     mcu_cfg = XCONFIG_HW_FindMCU(board, "stm32_mcu");
     if (mcu_cfg == NULL) {
-        OS_printf("MCU 'stm32_mcu' not found in configuration\n");
+        OSAL_Printf("MCU 'stm32_mcu' not found in configuration\n");
         return;
     }
 
-    OS_printf("Found MCU: %s\n", mcu_cfg->name);
-    OS_printf("  Interface: %s\n",
+    OSAL_Printf("Found MCU: %s\n", mcu_cfg->name);
+    OSAL_Printf("  Interface: %s\n",
               mcu_cfg->interface_type == XCONFIG_HW_INTERFACE_UART ? "UART" :
               mcu_cfg->interface_type == XCONFIG_HW_INTERFACE_CAN ? "CAN" :
               mcu_cfg->interface_type == XCONFIG_HW_INTERFACE_I2C ? "I2C" :
@@ -146,7 +146,7 @@ static void example_mcu_init(void)
             break;
 
         default:
-            OS_printf("Unsupported interface type: %d\n", mcu_cfg->interface_type);
+            OSAL_Printf("Unsupported interface type: %d\n", mcu_cfg->interface_type);
             return;
     }
 
@@ -157,14 +157,14 @@ static void example_mcu_init(void)
     /* 初始化MCU */
     ret = PDL_MCU_Init(&pdl_mcu_cfg, &mcu_handle);
     if (ret != OS_SUCCESS) {
-        OS_printf("Failed to initialize MCU\n");
+        OSAL_Printf("Failed to initialize MCU\n");
         return;
     }
 
     /* 读取MCU版本 */
     ret = PDL_MCU_GetVersion(mcu_handle, &version);
     if (ret == OS_SUCCESS) {
-        OS_printf("MCU Version: %d.%d.%d.%d (%s)\n",
+        OSAL_Printf("MCU Version: %d.%d.%d.%d (%s)\n",
                   version.major, version.minor, version.patch, version.build,
                   version.version_string);
     }
@@ -183,28 +183,28 @@ static void example_list_configs(void)
     uint32 count = 32;
     int32 ret;
 
-    OS_printf("\n=== Example 4: List All Configs ===\n");
+    OSAL_Printf("\n=== Example 4: List All Configs ===\n");
 
     ret = XCONFIG_List(configs, &count);
     if (ret != OS_SUCCESS) {
-        OS_printf("Failed to list configurations\n");
+        OSAL_Printf("Failed to list configurations\n");
         return;
     }
 
-    OS_printf("Total configurations: %d\n\n", count);
+    OSAL_Printf("Total configurations: %d\n\n", count);
 
     for (uint32 i = 0; i < count; i++) {
-        OS_printf("[%d] %s/%s/%s\n", i,
+        OSAL_Printf("[%d] %s/%s/%s\n", i,
                   configs[i]->platform,
                   configs[i]->product,
                   configs[i]->version);
-        OS_printf("    %s\n", configs[i]->description);
-        OS_printf("    MCUs: %d, Sensors: %d, Interfaces: %d, Power Domains: %d\n",
+        OSAL_Printf("    %s\n", configs[i]->description);
+        OSAL_Printf("    MCUs: %d, Sensors: %d, Interfaces: %d, Power Domains: %d\n",
                   configs[i]->mcu_count,
                   configs[i]->sensor_count,
                   configs[i]->interface_count,
                   configs[i]->power_domain_count);
-        OS_printf("\n");
+        OSAL_Printf("\n");
     }
 }
 
@@ -217,10 +217,10 @@ int main(int argc, char *argv[])
     /* 初始化日志系统 */
     OS_LogInit();
 
-    OS_printf("\n");
-    OS_printf("========================================\n");
-    OS_printf("Hardware Configuration Library Examples\n");
-    OS_printf("========================================\n");
+    OSAL_Printf("\n");
+    OSAL_Printf("========================================\n");
+    OSAL_Printf("Hardware Configuration Library Examples\n");
+    OSAL_Printf("========================================\n");
 
     /* 运行示例 */
     example_basic_usage();

@@ -21,7 +21,7 @@ int32 OSAL_SignalRegister(int32 signum, os_signal_handler_t handler)
 
     if (sigaction(signum, &sa, NULL) < 0)
     {
-        OS_printf("[OSAL] sigaction失败, signum=%d, errno=%d\n", signum, errno);
+        OSAL_Printf("[OSAL] sigaction失败, signum=%d, errno=%d\n", signum, errno);
         return OS_ERROR;
     }
 
@@ -39,7 +39,7 @@ int32 OSAL_SignalIgnore(int32 signum)
 
     if (sigaction(signum, &sa, NULL) < 0)
     {
-        OS_printf("[OSAL] sigaction(SIG_IGN)失败, signum=%d, errno=%d\n", signum, errno);
+        OSAL_Printf("[OSAL] sigaction(SIG_IGN)失败, signum=%d, errno=%d\n", signum, errno);
         return OS_ERROR;
     }
 
@@ -57,7 +57,7 @@ int32 OSAL_SignalDefault(int32 signum)
 
     if (sigaction(signum, &sa, NULL) < 0)
     {
-        OS_printf("[OSAL] sigaction(SIG_DFL)失败, signum=%d, errno=%d\n", signum, errno);
+        OSAL_Printf("[OSAL] sigaction(SIG_DFL)失败, signum=%d, errno=%d\n", signum, errno);
         return OS_ERROR;
     }
 
@@ -73,7 +73,7 @@ int32 OSAL_SignalBlock(int32 signum)
 
     if (sigprocmask(SIG_BLOCK, &set, NULL) < 0)
     {
-        OS_printf("[OSAL] sigprocmask(SIG_BLOCK)失败, signum=%d, errno=%d\n", signum, errno);
+        OSAL_Printf("[OSAL] sigprocmask(SIG_BLOCK)失败, signum=%d, errno=%d\n", signum, errno);
         return OS_ERROR;
     }
 
@@ -89,7 +89,7 @@ int32 OSAL_SignalUnblock(int32 signum)
 
     if (sigprocmask(SIG_UNBLOCK, &set, NULL) < 0)
     {
-        OS_printf("[OSAL] sigprocmask(SIG_UNBLOCK)失败, signum=%d, errno=%d\n", signum, errno);
+        OSAL_Printf("[OSAL] sigprocmask(SIG_UNBLOCK)失败, signum=%d, errno=%d\n", signum, errno);
         return OS_ERROR;
     }
 
