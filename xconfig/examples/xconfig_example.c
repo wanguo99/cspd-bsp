@@ -5,8 +5,6 @@
  ************************************************************************/
 
 #include "xconfig_api.h"
-#include "os_log.h"
-#include "pdl_mcu.h"
 #include "osal.h"
 
 /* 外部函数声明 */
@@ -78,18 +76,15 @@ static void example_find_config(void)
 }
 
 /*===========================================================================
- * 示例3：查询MCU配置并初始化
+ * 示例3：查询MCU配置
  *===========================================================================*/
 
-static void example_mcu_init(void)
+static void example_query_mcu_config(void)
 {
     const xconfig_board_config_t *board;
     const xconfig_mcu_cfg_t *mcu_cfg;
-    mcu_handle_t mcu_handle;
-    mcu_version_t version;
-    int32_t ret;
 
-    OSAL_Printf("\n=== Example 3: MCU Initialization ===\n");
+    OSAL_Printf("\n=== Example 3: Query MCU Configuration ===\n");
 
     /* 获取当前板级配置 */
     board = XCONFIG_GetBoard();
@@ -108,69 +103,51 @@ static void example_mcu_init(void)
         return;
     }
 
+    /* 打印MCU配置信息 */
     OSAL_Printf("Found MCU: %s\n", mcu_cfg->name);
+    OSAL_Printf("  Enabled: %s\n", mcu_cfg->enabled ? "Yes" : "No");
     OSAL_Printf("  Interface: %s\n",
               mcu_cfg->interface_type == XCONFIG_HW_INTERFACE_UART ? "UART" :
               mcu_cfg->interface_type == XCONFIG_HW_INTERFACE_CAN ? "CAN" :
               mcu_cfg->interface_type == XCONFIG_HW_INTERFACE_I2C ? "I2C" :
               mcu_cfg->interface_type == XCONFIG_HW_INTERFACE_SPI ? "SPI" : "Unknown");
 
-    /* 将硬件配置转换为PDL层配置 */
-    mcu_config_t pdl_mcu_cfg = {0};
-    OSAL_Strncpy(pdl_mcu_cfg.name, mcu_cfg->name, sizeof(pdl_mcu_cfg.name) - 1);
-
-    /* 根据接口类型设置PDL配置 */
+    /* 根据接口类型打印详细配置 */
     switch (mcu_cfg->interface_type) {
         case XCONFIG_HW_INTERFACE_UART:
-            pdl_mcu_cfg.interface = MCU_INTERFACE_SERIAL;
-            pdl_mcu_cfg.serial.device = mcu_cfg->interface_cfg.uart.device;
-            pdl_mcu_cfg.serial.baudrate = mcu_cfg->interface_cfg.uart.baudrate;
-            pdl_mcu_cfg.serial.data_bits = mcu_cfg->interface_cfg.uart.data_bits;
-            pdl_mcu_cfg.serial.stop_bits = mcu_cfg->interface_cfg.uart.stop_bits;
-            pdl_mcu_cfg.serial.parity = mcu_cfg->interface_cfg.uart.parity;
+            OSAL_Printf("  UART Config:\n");
+            OSAL_Printf("    Device: %s\n", mcu_cfg->interface_cfg.uart.device);
+            OSAL_Printf("    Baudrate: %u\n", mcu_cfg->interface_cfg.uart.baudrate);
+            OSAL_Printf("    Data bits: %u\n", mcu_cfg->interface_cfg.uart.data_bits);
+            OSAL_Printf("    Stop bits: %u\n", mcu_cfg->interface_cfg.uart.stop_bits);
+            OSAL_Printf("    Parity: %c\n", mcu_cfg->interface_cfg.uart.parity);
             break;
 
         case XCONFIG_HW_INTERFACE_CAN:
-            pdl_mcu_cfg.interface = MCU_INTERFACE_CAN;
-            pdl_mcu_cfg.can.device = mcu_cfg->interface_cfg.can.device;
-            pdl_mcu_cfg.can.bitrate = mcu_cfg->interface_cfg.can.bitrate;
-            pdl_mcu_cfg.can.tx_id = mcu_cfg->interface_cfg.can.tx_id;
-            pdl_mcu_cfg.can.rx_id = mcu_cfg->interface_cfg.can.rx_id;
+            OSAL_Printf("  CAN Config:\n");
+            OSAL_Printf("    Device: %s\n", mcu_cfg->interface_cfg.can.device);
+            OSAL_Printf("    Bitrate: %u\n", mcu_cfg->interface_cfg.can.bitrate);
+            OSAL_Printf("    TX ID: 0x%X\n", mcu_cfg->interface_cfg.can.tx_id);
+            OSAL_Printf("    RX ID: 0x%X\n", mcu_cfg->interface_cfg.can.rx_id);
             break;
 
         case XCONFIG_HW_INTERFACE_I2C:
-            pdl_mcu_cfg.interface = MCU_INTERFACE_I2C;
-            pdl_mcu_cfg.i2c.device = mcu_cfg->interface_cfg.i2c.device;
-            pdl_mcu_cfg.i2c.slave_addr = mcu_cfg->interface_cfg.i2c.slave_addr;
-            pdl_mcu_cfg.i2c.speed_hz = mcu_cfg->interface_cfg.i2c.speed_hz;
+            OSAL_Printf("  I2C Config:\n");
+            OSAL_Printf("    Device: %s\n", mcu_cfg->interface_cfg.i2c.device);
+            OSAL_Printf("    Slave addr: 0x%X\n", mcu_cfg->interface_cfg.i2c.slave_addr);
+            OSAL_Printf("    Speed: %u Hz\n", mcu_cfg->interface_cfg.i2c.speed_hz);
             break;
 
         default:
-            OSAL_Printf("Unsupported interface type: %d\n", mcu_cfg->interface_type);
+            OSAL_Printf("  Unsupported interface type: %d\n", mcu_cfg->interface_type);
             return;
     }
 
-    pdl_mcu_cfg.cmd_timeout_ms = mcu_cfg->cmd_timeout_ms;
-    pdl_mcu_cfg.retry_count = mcu_cfg->retry_count;
-    pdl_mcu_cfg.enable_crc = mcu_cfg->enable_crc;
-
-    /* 初始化MCU */
-    ret = PDL_MCU_Init(&pdl_mcu_cfg, &mcu_handle);
-    if (ret != OS_SUCCESS) {
-        OSAL_Printf("Failed to initialize MCU\n");
-        return;
-    }
-
-    /* 读取MCU版本 */
-    ret = PDL_MCU_GetVersion(mcu_handle, &version);
-    if (ret == OS_SUCCESS) {
-        OSAL_Printf("MCU Version: %d.%d.%d.%d (%s)\n",
-                  version.major, version.minor, version.patch, version.build,
-                  version.version_string);
-    }
-
-    /* 清理 */
-    PDL_MCU_Deinit(mcu_handle);
+    /* 打印MCU特定配置 */
+    OSAL_Printf("  MCU Settings:\n");
+    OSAL_Printf("    Command timeout: %u ms\n", mcu_cfg->cmd_timeout_ms);
+    OSAL_Printf("    Retry count: %u\n", mcu_cfg->retry_count);
+    OSAL_Printf("    CRC enabled: %s\n", mcu_cfg->enable_crc ? "Yes" : "No");
 }
 
 /*===========================================================================
@@ -214,8 +191,8 @@ static void example_list_configs(void)
 
 int main(int argc, char *argv[])
 {
-    /* 初始化日志系统 */
-    OS_LogInit();
+    (void)argc;
+    (void)argv;
 
     OSAL_Printf("\n");
     OSAL_Printf("========================================\n");
@@ -226,11 +203,10 @@ int main(int argc, char *argv[])
     example_basic_usage();
     example_find_config();
     example_list_configs();
-    example_mcu_init();
+    example_query_mcu_config();
 
     /* 清理 */
     XCONFIG_Cleanup();
-    OS_LogCleanup();
 
     return 0;
 }
