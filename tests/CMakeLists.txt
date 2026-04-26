@@ -33,21 +33,17 @@ include_directories(
 # 查找pthread库
 find_package(Threads REQUIRED)
 
-# 收集源文件（排除_fixed文件和main.c）
+# 收集源文件（排除main.c）
 file(GLOB_RECURSE OSAL_SOURCES ${PMC_BSP_ROOT}/osal/src/posix/*.c)
-list(FILTER OSAL_SOURCES EXCLUDE REGEX ".*_fixed\\.c$")
 
 file(GLOB HAL_SOURCES ${PMC_BSP_ROOT}/hal/src/linux/*.c)
-list(FILTER HAL_SOURCES EXCLUDE REGEX ".*_fixed\\.c$")
 
 file(GLOB SERVICE_SOURCES ${PMC_BSP_ROOT}/pdl/src/linux/*.c)
 
 file(GLOB APPS_GATEWAY_SOURCES ${PMC_BSP_ROOT}/apps/can_gateway/src/*.c)
-list(FILTER APPS_GATEWAY_SOURCES EXCLUDE REGEX ".*_fixed\\.c$")
 list(FILTER APPS_GATEWAY_SOURCES EXCLUDE REGEX ".*/main\\.c$")
 
 file(GLOB APPS_PROTOCOL_SOURCES ${PMC_BSP_ROOT}/apps/protocol_converter/src/*.c)
-list(FILTER APPS_PROTOCOL_SOURCES EXCLUDE REGEX ".*_fixed\\.c$")
 list(FILTER APPS_PROTOCOL_SOURCES EXCLUDE REGEX ".*/main\\.c$")
 
 # 注释掉 CTest，我们使用自定义测试框架
