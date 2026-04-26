@@ -1,5 +1,9 @@
 /************************************************************************
- * OSAL POSIX实现 - 初始化和版本
+ * OSAL POSIX实现 - 版本信息
+ *
+ * 注意：OSAL作为用户态库，不需要显式初始化
+ * - 静态变量在程序启动时自动初始化为0
+ * - 参考pthread、libc等标准库的做法
  ************************************************************************/
 
 #include "osal.h"
@@ -7,34 +11,20 @@
 
 #define OS_VERSION_STRING "PMC-BSP OSAL v1.0.0"
 
-/* 外部初始化函数声明 */
-extern void osal_task_table_init(void);
-extern void osal_queue_table_init(void);
-extern void osal_mutex_table_init(void);
-
-/* 初始化API */
-int32_t OS_API_Init(void)
-{
-    osal_task_table_init();
-    osal_queue_table_init();
-    osal_mutex_table_init();
-    return OS_SUCCESS;
-}
-
-/* 清理API */
-int32_t OS_API_Teardown(void)
-{
-    /* 清理资源 */
-    return OS_SUCCESS;
-}
-
-/* 版本API */
-const char *OS_GetVersionString(void)
+/**
+ * @brief 获取OSAL版本字符串
+ */
+const str_t *OS_GetVersionString(void)
 {
     return OS_VERSION_STRING;
 }
 
-/* 空闲循环 */
+/**
+ * @brief 空闲循环（保留用于兼容性）
+ *
+ * 此函数不会返回，用于某些RTOS场景
+ * 在Linux用户态程序中通常不需要使用
+ */
 int32_t OS_IdleLoop(void)
 {
     while (1)

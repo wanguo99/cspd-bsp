@@ -14,7 +14,7 @@ static hal_can_handle_t test_handle;
 /* 测试用例 */
 void test_hal_can_init_success(void)
 {
-    OS_API_Init();
+    
 
     hal_can_config_t config = {
         .interface = "vcan0",
@@ -33,22 +33,22 @@ void test_hal_can_init_success(void)
     TEST_ASSERT_NOT_NULL(test_handle);
     HAL_CAN_Deinit(test_handle);
 
-    OS_API_Teardown();
+    
 }
 
 void test_hal_can_init_null_config(void)
 {
-    OS_API_Init();
+    
 
     int32_t ret = HAL_CAN_Init(NULL, &test_handle);
     TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
 
-    OS_API_Teardown();
+    
 }
 
 void test_hal_can_init_null_handle(void)
 {
-    OS_API_Init();
+    
 
     hal_can_config_t config = {
         .interface = "vcan0",
@@ -60,7 +60,7 @@ void test_hal_can_init_null_handle(void)
     int32_t ret = HAL_CAN_Init(&config, NULL);
     TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
 
-    OS_API_Teardown();
+    
 }
 
 /* 注册测试模块 */

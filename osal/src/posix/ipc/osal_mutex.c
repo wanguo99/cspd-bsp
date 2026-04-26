@@ -19,20 +19,14 @@ typedef struct
     bool          valid;
 } osal_mutex_record_t;
 
-static osal_mutex_record_t g_osal_mutex_table[OS_MAX_MUTEXES];
+static osal_mutex_record_t g_osal_mutex_table[OS_MAX_MUTEXES] = {0};  /* 静态变量自动初始化为0 */
 static pthread_mutex_t g_mutex_table_mutex = PTHREAD_MUTEX_INITIALIZER;
 static uint32_t g_next_mutex_id = 1;
 
 static uint32_t g_deadlock_threshold_msec = 5000;
 static deadlock_callback_t g_deadlock_callback = NULL;
 
-void osal_mutex_table_init(void)
-{
-    pthread_mutex_lock(&g_mutex_table_mutex);
-    memset(g_osal_mutex_table, 0, sizeof(g_osal_mutex_table));
-    g_next_mutex_id = 1;
-    pthread_mutex_unlock(&g_mutex_table_mutex);
-}
+/* 移除 osal_mutex_table_init() - 静态变量已自动初始化 */
 
 int32_t OSAL_MutexCreate(osal_id_t *mutex_id, const char *mutex_name,
                      uint32_t flags __attribute__((unused)))

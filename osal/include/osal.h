@@ -49,42 +49,24 @@
 #define OSAL_LITE_VERSION_PATCH  0
 
 /*
- * 初始化和关闭
+ * 版本和工具函数
  */
-
-/**
- * @brief 初始化OSAL
- *
- * 必须在使用任何OSAL功能前调用
- *
- * @return OS_SUCCESS 成功
- * @return OS_ERROR   失败
- */
-int32_t OS_API_Init(void);
-
-/**
- * @brief 关闭OSAL
- *
- * 清理所有OSAL资源
- *
- * @return OS_SUCCESS 成功
- */
-int32_t OS_API_Teardown(void);
-
-/**
- * @brief 启动多任务调度
- *
- * 此函数不会返回(除非发生错误)
- *
- * @return OS_ERROR 启动失败
- */
-int32_t OS_IdleLoop(void);
 
 /**
  * @brief 获取OSAL版本字符串
  *
- * @return 版本字符串，例如 "1.0.0"
+ * @return 版本字符串，例如 "PMC-BSP OSAL v1.0.0"
  */
 const str_t *OS_GetVersionString(void);
+
+/**
+ * @brief 空闲循环（保留用于RTOS兼容性）
+ *
+ * 此函数不会返回(除非发生错误)
+ * 在Linux用户态程序中通常不需要使用
+ *
+ * @return OS_ERROR 启动失败
+ */
+int32_t OS_IdleLoop(void);
 
 #endif /* OSAL_H */

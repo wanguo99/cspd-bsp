@@ -35,17 +35,11 @@ typedef struct
     volatile bool shutdown_requested;
 } osal_task_record_t;
 
-static osal_task_record_t g_osal_task_table[OS_MAX_TASKS];
+static osal_task_record_t g_osal_task_table[OS_MAX_TASKS] = {0};  /* 静态变量自动初始化为0 */
 static pthread_mutex_t g_task_table_mutex = PTHREAD_MUTEX_INITIALIZER;
 static uint32_t g_next_task_id = 1;
 
-void osal_task_table_init(void)
-{
-    pthread_mutex_lock(&g_task_table_mutex);
-    memset(g_osal_task_table, 0, sizeof(g_osal_task_table));
-    g_next_task_id = 1;
-    pthread_mutex_unlock(&g_task_table_mutex);
-}
+/* 移除 osal_task_table_init() - 静态变量已自动初始化 */
 
 typedef struct
 {

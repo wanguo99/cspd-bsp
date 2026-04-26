@@ -162,16 +162,9 @@ int main(int argc, char *argv[])
     OSAL_Printf("  OSAL版本: %s\n", OS_GetVersionString());
     OSAL_Printf("========================================\n\n");
 
-    /* 1. 初始化OSAL */
-    ret = OS_API_Init();
-    if (ret != OS_SUCCESS)
-    {
-        OSAL_Printf("[Main] OSAL初始化失败: %d\n", ret);
-        return -1;
-    }
-    LOG_INFO("Main", "OSAL初始化成功");
+    /* 注意：OSAL作为用户态库，不需要显式初始化 */
 
-    /* 2. 注册信号处理 */
+    /* 1. 注册信号处理 */
     ret = OSAL_SignalRegister(OS_SIGNAL_INT, signal_handler);
     if (ret != OS_SUCCESS)
     {
@@ -187,7 +180,7 @@ int main(int argc, char *argv[])
     }
     LOG_INFO("Main", "信号处理注册成功");
 
-    /* 3. 创建消息队列 */
+    /* 2. 创建消息队列 */
     ret = OSAL_QueueCreate(&g_msg_queue_id, "MsgQueue",
                            QUEUE_DEPTH, QUEUE_MSG_SIZE, 0);
     if (ret != OS_SUCCESS)
@@ -198,7 +191,7 @@ int main(int argc, char *argv[])
     LOG_INFO("Main", "消息队列创建成功 (深度: %d, 消息大小: %d字节)",
               QUEUE_DEPTH, QUEUE_MSG_SIZE);
 
-    /* 4. 创建工作任务 */
+    /* 3. 创建工作任务 */
     ret = OSAL_TaskCreate(&g_worker_task_id, "WorkerTask",
                           worker_task, NULL,
                           TASK_STACK_SIZE, TASK_PRIORITY, 0);
@@ -209,7 +202,7 @@ int main(int argc, char *argv[])
     }
     LOG_INFO("Main", "工作任务创建成功");
 
-    /* 5. 创建统计任务 */
+    /* 4. 创建统计任务 */
     ret = OSAL_TaskCreate(&g_stats_task_id, "StatsTask",
                           stats_task, NULL,
                           TASK_STACK_SIZE, TASK_PRIORITY, 0);
@@ -222,7 +215,7 @@ int main(int argc, char *argv[])
 
     OSAL_Printf("\n应用启动成功！按Ctrl+C退出。\n\n");
 
-    /* 6. 主循环 - 等待退出信号 */
+    /* 5. 主循环 - 等待退出信号 */
     while (g_running)
     {
         OSAL_TaskDelay(1000);  /* 1秒检查一次 */
@@ -231,7 +224,7 @@ int main(int argc, char *argv[])
     OSAL_Printf("\n[Main] 开始清理资源...\n");
 
 cleanup:
-    /* 7. 删除任务 */
+    /* 6. 删除任务 */
     if (g_worker_task_id != 0)
     {
         ret = OSAL_TaskDelete(g_worker_task_id);
@@ -258,7 +251,7 @@ cleanup:
         }
     }
 
-    /* 8. 删除队列 */
+    /* 7. 删除队列 */
     if (g_msg_queue_id != 0)
     {
         ret = OSAL_QueueDelete(g_msg_queue_id);
@@ -271,10 +264,6 @@ cleanup:
             LOG_ERROR("Main", "删除消息队列失败: %d", ret);
         }
     }
-
-    /* 9. 关闭OSAL */
-    OS_API_Teardown();
-    LOG_INFO("Main", "OSAL已关闭");
 
     OSAL_Printf("\n应用已退出。\n");
 

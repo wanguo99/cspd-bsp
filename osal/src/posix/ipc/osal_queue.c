@@ -41,20 +41,11 @@ typedef struct
     queue_impl_t *impl;
 } osal_queue_record_t;
 
-static osal_queue_record_t g_osal_queue_table[OS_MAX_QUEUES];
+static osal_queue_record_t g_osal_queue_table[OS_MAX_QUEUES] = {0};  /* 静态变量自动初始化为0 */
 static pthread_mutex_t   g_queue_table_mutex = PTHREAD_MUTEX_INITIALIZER;
 static uint32_t            g_next_queue_id = 1;
 
-/*
- * 初始化队列表
- */
-void osal_queue_table_init(void)
-{
-    pthread_mutex_lock(&g_queue_table_mutex);
-    memset(g_osal_queue_table, 0, sizeof(g_osal_queue_table));
-    g_next_queue_id = 1;
-    pthread_mutex_unlock(&g_queue_table_mutex);
-}
+/* 移除 osal_queue_table_init() - 静态变量已自动初始化 */
 
 /*
  * 增加引用计数（必须在持有table锁时调用）

@@ -12,13 +12,13 @@
 /* 测试前初始化 */
 __attribute__((unused)) static void setUp(void)
 {
-    OS_API_Init();
+    
 }
 
 /* 测试后清理 */
 __attribute__((unused)) static void tearDown(void)
 {
-    OS_API_Teardown();
+    
 }
 
 /* 测试用例1: 队列创建成功 */

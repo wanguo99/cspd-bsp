@@ -25,7 +25,7 @@ static void test_signal_handler(int32_t signum)
 /* 测试前初始化 */
 __attribute__((unused)) static void setUp(void)
 {
-    OS_API_Init();
+    
     g_signal_received = 0;
     g_signal_number = 0;
 }
@@ -36,7 +36,7 @@ __attribute__((unused)) static void tearDown(void)
     /* 恢复默认信号处理 */
     OSAL_SignalIgnore(OS_SIGNAL_INT);
     OSAL_SignalIgnore(OS_SIGNAL_TERM);
-    OS_API_Teardown();
+    
 }
 
 /* 测试用例1: 注册信号处理函数 */
