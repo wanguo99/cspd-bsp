@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include "osal_types.h"
 
 /* 使用标准C类型 */
 typedef uint32_t uint32;
@@ -32,8 +33,8 @@ typedef struct {
 /* 失败测试用例记录 */
 #define MAX_FAILED_TESTS 256
 typedef struct {
-    char module_name[64];
-    char test_name[128];
+    str_t module_name[64];
+    str_t test_name[128];
 } failed_test_t;
 
 /* 测试统计 */

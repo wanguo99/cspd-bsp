@@ -14,7 +14,7 @@ typedef struct
 {
     bool          is_used;
     osal_id_t     id;
-    char          name[OS_MAX_API_NAME];
+    str_t         name[OS_MAX_API_NAME];
     pthread_mutex_t mutex;
     bool          valid;
 } osal_mutex_record_t;
@@ -219,7 +219,7 @@ int32 OSAL_MutexLockTimeout(osal_id_t mutex_id, uint32 timeout_msec)
 {
     pthread_mutex_t *target_mutex = NULL;
     bool is_valid = false;
-    char mutex_name[OS_MAX_API_NAME] = {0};
+    str_t mutex_name[OS_MAX_API_NAME] = {0};
     struct timespec start_time, current_time, abs_timeout;
     int ret;
 

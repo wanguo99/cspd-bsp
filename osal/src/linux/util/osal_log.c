@@ -30,7 +30,7 @@ typedef enum
 static log_level_t g_log_level = LOG_LEVEL_INFO;
 static FILE *g_log_file = NULL;
 static pthread_mutex_t g_log_mutex = PTHREAD_MUTEX_INITIALIZER;
-static char g_log_file_path[256] = {0};
+static str_t g_log_file_path[256] = {0};
 static uint32 g_max_log_size = 10 * 1024 * 1024;  /* 10MB */
 static uint32 g_max_log_files = 5;
 
@@ -132,7 +132,7 @@ void OSAL_LogSetMaxFiles(uint32 max_files)
 /**
  * @brief 获取当前时间字符串
  */
-static void get_timestamp(char *buffer, size_t size)
+static void get_timestamp(str_t *buffer, size_t size)
 {
     struct timeval tv;
     struct tm tm_info;
@@ -166,21 +166,21 @@ static void rotate_log_file(void)
     }
 
     /* 删除最旧的日志文件 */
-    char old_file[512];
+    str_t old_file[512];
     snprintf(old_file, sizeof(old_file), "%s.%u", g_log_file_path, g_max_log_files);
     remove(old_file);
 
     /* 重命名日志文件 */
     for (uint32 i = g_max_log_files - 1; i > 0; i--)
     {
-        char from[512], to[512];
+        str_t from[512], to[512];
         snprintf(from, sizeof(from), "%s.%u", g_log_file_path, i - 1);
         snprintf(to, sizeof(to), "%s.%u", g_log_file_path, i);
         rename(from, to);
     }
 
     /* 重命名当前日志文件 */
-    char current_backup[512];
+    str_t current_backup[512];
     snprintf(current_backup, sizeof(current_backup), "%s.1", g_log_file_path);
     rename(g_log_file_path, current_backup);
 
@@ -218,8 +218,8 @@ static void check_and_rotate_log(void)
 static void log_internal(log_level_t level, const char *module,
                          const char *format, va_list args)
 {
-    char timestamp[64];
-    char message[1024];
+    str_t timestamp[64];
+    str_t message[1024];
 
     /* 检查日志级别 */
     if (level < g_log_level)

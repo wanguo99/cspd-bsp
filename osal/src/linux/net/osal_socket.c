@@ -105,9 +105,9 @@ uint32 OSAL_if_nametoindex(const char *ifname)
     return (uint32)if_nametoindex(ifname);
 }
 
-char *OSAL_if_indextoname(uint32 ifindex, char *ifname)
+str_t *OSAL_if_indextoname(uint32 ifindex, str_t *ifname)
 {
-    return if_indextoname((unsigned int)ifindex, ifname);
+    return (str_t *)if_indextoname((unsigned int)ifindex, ifname);
 }
 
 /*===========================================================================

@@ -54,11 +54,11 @@ typedef struct {
  * @brief UART接口配置
  */
 typedef struct {
-    const char *device;           /* 设备名（如"/dev/ttyS0"） */
-    uint32      baudrate;         /* 波特率 */
-    uint8       data_bits;        /* 数据位（5-8） */
-    uint8       stop_bits;        /* 停止位（1-2） */
-    char        parity;           /* 校验位（'N'/'E'/'O'） */
+    const str_t *device;          /* 设备名（如"/dev/ttyS0"） */
+    uint32       baudrate;        /* 波特率 */
+    uint8        data_bits;       /* 数据位（5-8） */
+    uint8        stop_bits;       /* 停止位（1-2） */
+    int8         parity;          /* 校验位（'N'/'E'/'O'） */
 } xconfig_uart_cfg_t;
 
 /**

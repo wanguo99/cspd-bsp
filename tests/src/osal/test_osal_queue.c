@@ -189,7 +189,7 @@ void test_osal_queue_putget_Multiple(void)
         TEST_ASSERT_EQUAL(OS_SUCCESS,
                          OSAL_QueueGet(queue_id, recv_data, 64, &size, 1000));
 
-        char expected[64];
+        str_t expected[64];
         OSAL_Sprintf(expected, "Message %d", i);
         TEST_ASSERT_EQUAL_STRING(expected, (char *)recv_data);
     }

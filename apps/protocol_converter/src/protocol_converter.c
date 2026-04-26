@@ -145,8 +145,8 @@ static can_status_t parse_ipmi_response(can_cmd_type_t cmd_type, const char *res
 
 static can_status_t execute_ipmi_command(can_cmd_type_t cmd_type, uint32 param __attribute__((unused)), uint32 *result)
 {
-    char cmd_buf[256];
-    char resp_buf[512];
+    str_t cmd_buf[256];
+    str_t resp_buf[512];
     int32 ret;
 
     switch (cmd_type)

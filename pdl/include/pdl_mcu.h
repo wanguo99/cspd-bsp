@@ -38,7 +38,7 @@ typedef enum
  */
 typedef struct
 {
-    char name[64];                    /* MCU名称 */
+    str_t name[64];                   /* MCU名称 */
     mcu_interface_t interface;        /* 通信接口 */
 
     /* CAN配置 */
@@ -55,7 +55,7 @@ typedef struct
         uint32 baudrate;              /* 波特率 */
         uint8 data_bits;              /* 数据位（5-8） */
         uint8 stop_bits;              /* 停止位（1-2） */
-        char parity;                  /* 校验位（'N'/'E'/'O'） */
+        str_t parity;                 /* 校验位（'N'/'E'/'O'） */
     } serial;
 
     /* 通用配置 */
@@ -73,7 +73,7 @@ typedef struct
     uint8 minor;
     uint8 patch;
     uint8 build;
-    char version_string[32];
+    str_t version_string[32];
 } mcu_version_t;
 
 /*

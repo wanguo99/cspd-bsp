@@ -25,7 +25,7 @@ typedef struct
     uint32 tx_count;
     uint32 rx_count;
     uint32 err_count;
-    char interface[IFNAMSIZ];
+    str_t interface[IFNAMSIZ];
     uint32 baudrate;
     bool initialized;
 } hal_can_context_t;

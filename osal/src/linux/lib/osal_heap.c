@@ -34,7 +34,7 @@ static uint32 read_memory_from_proc(const char *field)
     if (fp == NULL)
         return 0;
 
-    char line[256];
+    str_t line[256];
     uint32 value = 0;
     while (fgets(line, sizeof(line), fp) != NULL) {
         if (strncmp(line, field, strlen(field)) == 0) {

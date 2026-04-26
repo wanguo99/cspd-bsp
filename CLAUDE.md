@@ -11,6 +11,70 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 卫星平台 <--CAN--> 转接板(PMC-BSP) <--Ethernet/UART--> 算存载荷
 ```
 
+## 数据类型使用规范
+
+### 类型定义（定义在 `osal/include/osal_types.h`）
+
+```c
+/* 字符串类型 */
+str_t                           // 字符串类型（底层是char，与标准C库兼容）
+
+/* 数值类型 - 明确大小 */
+int8, int16, int32, int64       // 有符号整数
+uint8, uint16, uint32, uint64   // 无符号整数
+
+/* 布尔类型 */
+bool                            // true/false
+
+/* OSAL特定类型 */
+osal_id_t                       // 对象ID（uint32）
+osal_size_t                     // 大小类型（平台相关）
+osal_ssize_t                    // 有符号大小类型
+```
+
+### 使用规则
+
+**1. 字符串和文本数据 - 使用 `str_t`**
+```c
+str_t device_name[64];          // ✅ 设备名称
+str_t log_message[256];         // ✅ 日志消息
+str_t version_string[32];       // ✅ 版本字符串
+const str_t *interface;         // ✅ 字符串指针
+str_t parity;                   // ✅ 校验位字符 ('N', 'E', 'O')
+```
+
+**2. 字节数据和二进制数据 - 使用 `uint8` / `int8`**
+```c
+uint8 can_data[8];              // ✅ CAN数据字节
+uint8 mac_address[6];           // ✅ MAC地址
+int8 temperature_offset;        // ✅ 温度偏移（有符号字节）
+uint8 register_value;           // ✅ 寄存器值
+```
+
+**3. 数值数据 - 使用固定大小类型**
+```c
+uint32 baudrate;                // ✅ 波特率
+int32 temperature;              // ✅ 温度值
+uint16 port;                    // ✅ 端口号
+int16 voltage_mv;               // ✅ 电压（毫伏）
+```
+
+**4. 禁止使用的类型**
+```c
+char device_name[64];           // ❌ 应使用 str_t
+char can_data[8];               // ❌ 应使用 uint8（如果是二进制数据）
+int size;                       // ❌ 应使用 int32（明确大小）
+unsigned int count;             // ❌ 应使用 uint32
+```
+
+### 设计原则
+
+- **str_t 用于字符串**：与标准C库（strcpy, strlen, fopen等）完全兼容
+- **int8/uint8 用于字节**：明确表示二进制数据，避免与字符串混淆
+- **固定大小类型**：确保跨平台一致性（32位/64位系统）
+- **参考标准**：NASA cFS OSAL、MISRA C、Linux Kernel风格
+
+
 ## 快速命令参考
 
 ### 编译

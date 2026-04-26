@@ -49,11 +49,11 @@ typedef struct {
  * @brief IPMI over Serial配置（串口通道）
  */
 typedef struct {
-    const char *device;           /* 串口设备（如"/dev/ttyS0"） */
-    uint32      baudrate;         /* 波特率 */
-    uint8       data_bits;        /* 数据位 */
-    uint8       stop_bits;        /* 停止位 */
-    char        parity;           /* 校验位 */
+    const str_t *device;          /* 串口设备（如"/dev/ttyS0"） */
+    uint32       baudrate;        /* 波特率 */
+    uint8        data_bits;       /* 数据位 */
+    uint8        stop_bits;       /* 停止位 */
+    int8         parity;          /* 校验位 */
 } xconfig_bmc_ipmi_serial_cfg_t;
 
 /**

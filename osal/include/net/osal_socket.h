@@ -261,7 +261,7 @@ uint32 OSAL_if_nametoindex(const char *ifname);
  * @param ifname 接口名称缓冲区（至少16字节）
  * @return 接口名称指针，失败返回NULL
  */
-char *OSAL_if_indextoname(uint32 ifindex, char *ifname);
+str_t *OSAL_if_indextoname(uint32 ifindex, str_t *ifname);
 
 /*===========================================================================
  * 字节序转换

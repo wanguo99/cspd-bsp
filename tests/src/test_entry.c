@@ -232,7 +232,7 @@ void run_single_test_by_name(const char *module_name, const char *test_name)
 /* 交互式运行单个测试（三级选择：层级->模块->测试） */
 void interactive_run_single_test(void)
 {
-    char input[256];
+    str_t input[256];
 
     /* 第一步：显示所有层级 */
     OSAL_Printf("\nAvailable layers:\n");
@@ -298,7 +298,7 @@ void interactive_run_single_test(void)
 /* 交互式运行指定模块的所有测试 */
 void interactive_run_module_tests(void)
 {
-    char input[256];
+    str_t input[256];
 
     OSAL_Printf("\nAvailable modules:\n");
     for (uint32_t i = 0; i < LAYER_COUNT; i++) {
@@ -320,7 +320,7 @@ void interactive_run_module_tests(void)
 /* 交互式菜单 */
 void interactive_menu(void)
 {
-    char input[256];
+    str_t input[256];
     int choice;
 
     while (1) {

@@ -37,7 +37,7 @@ typedef struct
 {
     bool        is_used;
     osal_id_t   id;
-    char        name[OS_MAX_API_NAME];
+    str_t       name[OS_MAX_API_NAME];
     queue_impl_t *impl;
 } osal_queue_record_t;
 

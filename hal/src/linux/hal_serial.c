@@ -12,7 +12,7 @@ typedef struct
 {
     int fd;
     hal_serial_config_t config;
-    char device[64];
+    str_t device[64];
 } hal_serial_context_t;
 
 static uint32 hal_serial_get_baudrate(uint32 baudrate)

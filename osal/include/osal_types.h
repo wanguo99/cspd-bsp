@@ -25,6 +25,20 @@ typedef uint32_t uint32;
 typedef uint64_t uint64;
 
 /*
+ * 字符和字符串类型
+ *
+ * 设计原则：
+ * - str_t: 字符串类型（底层是char，与标准C库兼容）
+ * - int8/uint8: 用于明确的字节数据（非文本）
+ *
+ * 使用示例：
+ *   str_t device_name[64];           // 设备名称
+ *   str_t log_message[256];          // 日志消息
+ *   const str_t *interface;          // 字符串指针
+ */
+typedef char     str_t;              /* 字符串类型（与标准C库兼容） */
+
+/*
  * OSAL对象ID类型
  */
 typedef uint32 osal_id_t;
