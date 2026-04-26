@@ -31,8 +31,8 @@ static log_level_t g_log_level = LOG_LEVEL_INFO;
 static FILE *g_log_file = NULL;
 static pthread_mutex_t g_log_mutex = PTHREAD_MUTEX_INITIALIZER;
 static str_t g_log_file_path[256] = {0};
-static uint32 g_max_log_size = 10 * 1024 * 1024;  /* 10MB */
-static uint32 g_max_log_files = 5;
+static uint32_t g_max_log_size = 10 * 1024 * 1024;  /* 10MB */
+static uint32_t g_max_log_files = 5;
 
 /*
  * 日志级别名称
@@ -66,7 +66,7 @@ static const str_t *color_reset = "\033[0m";
  *
  * @return OS_SUCCESS 成功
  */
-int32 OSAL_LogInit(const str_t *log_file_path, int32 level)
+int32_t OSAL_LogInit(const str_t *log_file_path, int32_t level)
 {
     if (level >= LOG_LEVEL_DEBUG && level <= LOG_LEVEL_FATAL)
     {
@@ -103,7 +103,7 @@ void OSAL_LogShutdown(void)
 /**
  * @brief 设置日志级别
  */
-void OSAL_LogSetLevel(int32 level)
+void OSAL_LogSetLevel(int32_t level)
 {
     if (level >= LOG_LEVEL_DEBUG && level <= LOG_LEVEL_FATAL)
     {
@@ -114,7 +114,7 @@ void OSAL_LogSetLevel(int32 level)
 /**
  * @brief 设置日志文件最大大小
  */
-void OSAL_LogSetMaxFileSize(uint32 size_bytes)
+void OSAL_LogSetMaxFileSize(uint32_t size_bytes)
 {
     if (size_bytes > 0)
         g_max_log_size = size_bytes;
@@ -123,7 +123,7 @@ void OSAL_LogSetMaxFileSize(uint32 size_bytes)
 /**
  * @brief 设置最大日志文件数
  */
-void OSAL_LogSetMaxFiles(uint32 max_files)
+void OSAL_LogSetMaxFiles(uint32_t max_files)
 {
     if (max_files > 0)
         g_max_log_files = max_files;
@@ -171,7 +171,7 @@ static void rotate_log_file(void)
     remove(old_file);
 
     /* 重命名日志文件 */
-    for (uint32 i = g_max_log_files - 1; i > 0; i--)
+    for (uint32_t i = g_max_log_files - 1; i > 0; i--)
     {
         str_t from[512], to[512];
         snprintf(from, sizeof(from), "%s.%u", g_log_file_path, i - 1);
@@ -225,7 +225,7 @@ static const str_t *extract_filename(const str_t *path)
  * @brief 内部日志函数（带位置信息）
  */
 static void log_internal_ex(log_level_t level, const str_t *module,
-                            const str_t *file, const str_t *func, int32 line,
+                            const str_t *file, const str_t *func, int32_t line,
                             const str_t *format, va_list args)
 {
     str_t timestamp[64];
@@ -352,7 +352,7 @@ static void log_internal(log_level_t level, const str_t *module,
 /**
  * @brief 通用日志函数
  */
-void OSAL_Log(int32 level, const str_t *module, const str_t *format, ...)
+void OSAL_Log(int32_t level, const str_t *module, const str_t *format, ...)
 {
     va_list args;
 
@@ -367,7 +367,7 @@ void OSAL_Log(int32 level, const str_t *module, const str_t *format, ...)
 /**
  * @brief DEBUG级别日志（带位置信息）
  */
-void OSAL_LogDebug(const str_t *module, const str_t *file, const str_t *func, int32 line, const str_t *format, ...)
+void OSAL_LogDebug(const str_t *module, const str_t *file, const str_t *func, int32_t line, const str_t *format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -378,7 +378,7 @@ void OSAL_LogDebug(const str_t *module, const str_t *file, const str_t *func, in
 /**
  * @brief INFO级别日志（带位置信息）
  */
-void OSAL_LogInfo(const str_t *module, const str_t *file, const str_t *func, int32 line, const str_t *format, ...)
+void OSAL_LogInfo(const str_t *module, const str_t *file, const str_t *func, int32_t line, const str_t *format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -389,7 +389,7 @@ void OSAL_LogInfo(const str_t *module, const str_t *file, const str_t *func, int
 /**
  * @brief WARN级别日志（带位置信息）
  */
-void OSAL_LogWarn(const str_t *module, const str_t *file, const str_t *func, int32 line, const str_t *format, ...)
+void OSAL_LogWarn(const str_t *module, const str_t *file, const str_t *func, int32_t line, const str_t *format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -400,7 +400,7 @@ void OSAL_LogWarn(const str_t *module, const str_t *file, const str_t *func, int
 /**
  * @brief ERROR级别日志（带位置信息）
  */
-void OSAL_LogError(const str_t *module, const str_t *file, const str_t *func, int32 line, const str_t *format, ...)
+void OSAL_LogError(const str_t *module, const str_t *file, const str_t *func, int32_t line, const str_t *format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -411,7 +411,7 @@ void OSAL_LogError(const str_t *module, const str_t *file, const str_t *func, in
 /**
  * @brief FATAL级别日志（带位置信息）
  */
-void OSAL_LogFatal(const str_t *module, const str_t *file, const str_t *func, int32 line, const str_t *format, ...)
+void OSAL_LogFatal(const str_t *module, const str_t *file, const str_t *func, int32_t line, const str_t *format, ...)
 {
     va_list args;
     va_start(args, format);

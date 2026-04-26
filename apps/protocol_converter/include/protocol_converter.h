@@ -14,7 +14,7 @@
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 Protocol_Converter_Init(void);
+int32_t Protocol_Converter_Init(void);
 
 /**
  * @brief 获取统计信息
@@ -24,8 +24,8 @@ int32 Protocol_Converter_Init(void);
  * @param[out] fail_count 失败数
  * @param[out] timeout_count 超时数
  */
-void Protocol_Converter_GetStats(uint32 *cmd_count, uint32 *success_count,
-                                  uint32 *fail_count, uint32 *timeout_count);
+void Protocol_Converter_GetStats(uint32_t *cmd_count, uint32_t *success_count,
+                                  uint32_t *fail_count, uint32_t *timeout_count);
 
 /**
  * @brief 切换载荷通信通道
@@ -34,7 +34,7 @@ void Protocol_Converter_GetStats(uint32 *cmd_count, uint32 *success_count,
  *
  * @return OS_SUCCESS 成功
  */
-int32 Protocol_Converter_SwitchChannel(payload_channel_t channel);
+int32_t Protocol_Converter_SwitchChannel(payload_channel_t channel);
 
 /**
  * @brief 获取当前通道

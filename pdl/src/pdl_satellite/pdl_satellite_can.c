@@ -14,7 +14,7 @@
 /**
  * @brief 初始化卫星CAN通信
  */
-int32 satellite_can_init(const char *device, uint32 bitrate, void **handle)
+int32_t satellite_can_init(const char *device, uint32_t bitrate, void **handle)
 {
     if (device == NULL || handle == NULL)
     {
@@ -42,7 +42,7 @@ int32 satellite_can_init(const char *device, uint32 bitrate, void **handle)
 /**
  * @brief 反初始化卫星CAN通信
  */
-int32 satellite_can_deinit(void *handle)
+int32_t satellite_can_deinit(void *handle)
 {
     if (handle == NULL)
     {
@@ -56,7 +56,7 @@ int32 satellite_can_deinit(void *handle)
 /**
  * @brief 接收卫星CAN消息
  */
-int32 satellite_can_recv(void *handle, satellite_can_msg_t *msg, uint32 timeout_ms)
+int32_t satellite_can_recv(void *handle, satellite_can_msg_t *msg, uint32_t timeout_ms)
 {
     if (handle == NULL || msg == NULL)
     {
@@ -66,7 +66,7 @@ int32 satellite_can_recv(void *handle, satellite_can_msg_t *msg, uint32 timeout_
     hal_can_handle_t can_handle = (hal_can_handle_t)handle;
     can_frame_t frame;
 
-    int32 ret = HAL_CAN_Recv(can_handle, &frame, timeout_ms);
+    int32_t ret = HAL_CAN_Recv(can_handle, &frame, timeout_ms);
     if (ret != OS_SUCCESS)
     {
         return ret;
@@ -92,7 +92,7 @@ int32 satellite_can_recv(void *handle, satellite_can_msg_t *msg, uint32 timeout_
 /**
  * @brief 发送卫星CAN消息
  */
-int32 satellite_can_send(void *handle, const satellite_can_msg_t *msg)
+int32_t satellite_can_send(void *handle, const satellite_can_msg_t *msg)
 {
     if (handle == NULL || msg == NULL)
     {
@@ -110,10 +110,10 @@ int32 satellite_can_send(void *handle, const satellite_can_msg_t *msg)
     frame.data[1] = msg->seq_num;
     frame.data[2] = msg->cmd_type;
     frame.data[3] = 0;  /* 预留 */
-    frame.data[4] = (uint8)(msg->data >> 24);
-    frame.data[5] = (uint8)(msg->data >> 16);
-    frame.data[6] = (uint8)(msg->data >> 8);
-    frame.data[7] = (uint8)(msg->data & 0xFF);
+    frame.data[4] = (uint8_t)(msg->data >> 24);
+    frame.data[5] = (uint8_t)(msg->data >> 16);
+    frame.data[6] = (uint8_t)(msg->data >> 8);
+    frame.data[7] = (uint8_t)(msg->data & 0xFF);
 
     return HAL_CAN_Send(can_handle, &frame);
 }
@@ -121,7 +121,7 @@ int32 satellite_can_send(void *handle, const satellite_can_msg_t *msg)
 /**
  * @brief 发送心跳消息
  */
-int32 satellite_can_send_heartbeat(void *handle, uint8 status)
+int32_t satellite_can_send_heartbeat(void *handle, uint8_t status)
 {
     satellite_can_msg_t msg = {
         .msg_type = CAN_MSG_TYPE_HEARTBEAT,
@@ -136,7 +136,7 @@ int32 satellite_can_send_heartbeat(void *handle, uint8 status)
 /**
  * @brief 发送响应消息
  */
-int32 satellite_can_send_response(void *handle, uint8 seq_num, uint8 status, uint32 result)
+int32_t satellite_can_send_response(void *handle, uint8_t seq_num, uint8_t status, uint32_t result)
 {
     satellite_can_msg_t msg = {
         .msg_type = CAN_MSG_TYPE_CMD_RESP,

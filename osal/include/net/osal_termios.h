@@ -28,14 +28,14 @@
  * @brief termios结构体
  */
 typedef struct {
-    uint32 c_iflag;         /* 输入模式标志 */
-    uint32 c_oflag;         /* 输出模式标志 */
-    uint32 c_cflag;         /* 控制模式标志 */
-    uint32 c_lflag;         /* 本地模式标志 */
-    uint8  c_line;          /* 线路规程 */
-    uint8  c_cc[OSAL_NCCS]; /* 控制字符 */
-    uint32 c_ispeed;        /* 输入波特率 */
-    uint32 c_ospeed;        /* 输出波特率 */
+    uint32_t c_iflag;         /* 输入模式标志 */
+    uint32_t c_oflag;         /* 输出模式标志 */
+    uint32_t c_cflag;         /* 控制模式标志 */
+    uint32_t c_lflag;         /* 本地模式标志 */
+    uint8_t  c_line;          /* 线路规程 */
+    uint8_t  c_cc[OSAL_NCCS]; /* 控制字符 */
+    uint32_t c_ispeed;        /* 输入波特率 */
+    uint32_t c_ospeed;        /* 输出波特率 */
 } osal_termios_t;
 
 /*===========================================================================
@@ -170,7 +170,7 @@ typedef struct {
  * @param termios_p termios结构指针
  * @return 0成功，-1失败
  */
-int32 OSAL_tcgetattr(int32 fd, osal_termios_t *termios_p);
+int32_t OSAL_tcgetattr(int32_t fd, osal_termios_t *termios_p);
 
 /**
  * @brief 设置终端属性
@@ -179,7 +179,7 @@ int32 OSAL_tcgetattr(int32 fd, osal_termios_t *termios_p);
  * @param termios_p termios结构指针
  * @return 0成功，-1失败
  */
-int32 OSAL_tcsetattr(int32 fd, int32 optional_actions, const osal_termios_t *termios_p);
+int32_t OSAL_tcsetattr(int32_t fd, int32_t optional_actions, const osal_termios_t *termios_p);
 
 /**
  * @brief 刷新输入/输出队列
@@ -187,7 +187,7 @@ int32 OSAL_tcsetattr(int32 fd, int32 optional_actions, const osal_termios_t *ter
  * @param queue_selector 队列选择器（OSAL_TCIFLUSH/TCOFLUSH/TCIOFLUSH）
  * @return 0成功，-1失败
  */
-int32 OSAL_tcflush(int32 fd, int32 queue_selector);
+int32_t OSAL_tcflush(int32_t fd, int32_t queue_selector);
 
 /**
  * @brief 挂起/恢复传输
@@ -195,7 +195,7 @@ int32 OSAL_tcflush(int32 fd, int32 queue_selector);
  * @param action 操作（OSAL_TCOOFF/TCOON/TCIOFF/TCION）
  * @return 0成功，-1失败
  */
-int32 OSAL_tcflow(int32 fd, int32 action);
+int32_t OSAL_tcflow(int32_t fd, int32_t action);
 
 /**
  * @brief 发送BREAK
@@ -203,14 +203,14 @@ int32 OSAL_tcflow(int32 fd, int32 action);
  * @param duration 持续时间（0表示0.25-0.5秒）
  * @return 0成功，-1失败
  */
-int32 OSAL_tcsendbreak(int32 fd, int32 duration);
+int32_t OSAL_tcsendbreak(int32_t fd, int32_t duration);
 
 /**
  * @brief 等待输出完成
  * @param fd 文件描述符
  * @return 0成功，-1失败
  */
-int32 OSAL_tcdrain(int32 fd);
+int32_t OSAL_tcdrain(int32_t fd);
 
 /**
  * @brief 设置输入波特率
@@ -218,7 +218,7 @@ int32 OSAL_tcdrain(int32 fd);
  * @param speed 波特率（OSAL_B*）
  * @return 0成功，-1失败
  */
-int32 OSAL_cfsetispeed(osal_termios_t *termios_p, uint32 speed);
+int32_t OSAL_cfsetispeed(osal_termios_t *termios_p, uint32_t speed);
 
 /**
  * @brief 设置输出波特率
@@ -226,20 +226,20 @@ int32 OSAL_cfsetispeed(osal_termios_t *termios_p, uint32 speed);
  * @param speed 波特率（OSAL_B*）
  * @return 0成功，-1失败
  */
-int32 OSAL_cfsetospeed(osal_termios_t *termios_p, uint32 speed);
+int32_t OSAL_cfsetospeed(osal_termios_t *termios_p, uint32_t speed);
 
 /**
  * @brief 获取输入波特率
  * @param termios_p termios结构指针
  * @return 波特率（OSAL_B*）
  */
-uint32 OSAL_cfgetispeed(const osal_termios_t *termios_p);
+uint32_t OSAL_cfgetispeed(const osal_termios_t *termios_p);
 
 /**
  * @brief 获取输出波特率
  * @param termios_p termios结构指针
  * @return 波特率（OSAL_B*）
  */
-uint32 OSAL_cfgetospeed(const osal_termios_t *termios_p);
+uint32_t OSAL_cfgetospeed(const osal_termios_t *termios_p);
 
 #endif /* OSAL_TERMIOS_H */

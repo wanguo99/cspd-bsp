@@ -30,7 +30,7 @@ void test_osal_mutex_create_success(void)
     setUp();
     osal_id_t mutex_id;
 
-    int32 ret = OSAL_MutexCreate(&mutex_id, "TEST_MUTEX", 0);
+    int32_t ret = OSAL_MutexCreate(&mutex_id, "TEST_MUTEX", 0);
 
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
     TEST_ASSERT_NOT_EQUAL(OS_OBJECT_ID_UNDEFINED, mutex_id);
@@ -43,7 +43,7 @@ void test_osal_mutex_create_success(void)
 void test_osal_mutex_create_nullpointer(void)
 {
     setUp();
-    int32 ret = OSAL_MutexCreate(NULL, "TEST", 0);
+    int32_t ret = OSAL_MutexCreate(NULL, "TEST", 0);
     TEST_ASSERT_EQUAL(OS_INVALID_POINTER, ret);
     tearDown();
 }
@@ -54,7 +54,7 @@ void test_osal_mutex_create_nametaken(void)
     setUp();
     osal_id_t mutex_id1, mutex_id2;
 
-    int32 ret = OSAL_MutexCreate(&mutex_id1, "DUP_MUTEX", 0);
+    int32_t ret = OSAL_MutexCreate(&mutex_id1, "DUP_MUTEX", 0);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     ret = OSAL_MutexCreate(&mutex_id2, "DUP_MUTEX", 0);
@@ -71,7 +71,7 @@ void test_osal_mutex_lockunlock_Success(void)
     osal_id_t mutex_id;
     OSAL_MutexCreate(&mutex_id, "TEST_MTX", 0);
 
-    int32 ret = OSAL_MutexLock(mutex_id);
+    int32_t ret = OSAL_MutexLock(mutex_id);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     ret = OSAL_MutexUnlock(mutex_id);
@@ -85,7 +85,7 @@ void test_osal_mutex_lockunlock_Success(void)
 void test_osal_mutex_lock_invalidid(void)
 {
     setUp();
-    int32 ret = OSAL_MutexLock(9999);
+    int32_t ret = OSAL_MutexLock(9999);
     TEST_ASSERT_EQUAL(OS_ERR_INVALID_ID, ret);
     tearDown();
 }
@@ -94,7 +94,7 @@ void test_osal_mutex_lock_invalidid(void)
 void test_osal_mutex_unlock_invalidid(void)
 {
     setUp();
-    int32 ret = OSAL_MutexUnlock(9999);
+    int32_t ret = OSAL_MutexUnlock(9999);
     TEST_ASSERT_EQUAL(OS_ERR_INVALID_ID, ret);
     tearDown();
 }
@@ -107,7 +107,7 @@ void test_osal_mutex_getidByName_Success(void)
 
     OSAL_MutexCreate(&mutex_id1, "NAMED_MTX", 0);
 
-    int32 ret = OSAL_MutexGetIdByName(&mutex_id2, "NAMED_MTX");
+    int32_t ret = OSAL_MutexGetIdByName(&mutex_id2, "NAMED_MTX");
 
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
     TEST_ASSERT_EQUAL(mutex_id1, mutex_id2);
@@ -122,7 +122,7 @@ void test_osal_mutex_getidByName_NotFound(void)
     setUp();
     osal_id_t mutex_id;
 
-    int32 ret = OSAL_MutexGetIdByName(&mutex_id, "NONEXISTENT");
+    int32_t ret = OSAL_MutexGetIdByName(&mutex_id, "NONEXISTENT");
     TEST_ASSERT_EQUAL(OS_ERR_NAME_NOT_FOUND, ret);
     tearDown();
 }
@@ -134,7 +134,7 @@ void test_osal_mutex_delete_success(void)
     osal_id_t mutex_id;
     OSAL_MutexCreate(&mutex_id, "TEST_MTX", 0);
 
-    int32 ret = OSAL_MutexDelete(mutex_id);
+    int32_t ret = OSAL_MutexDelete(mutex_id);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
     tearDown();
 }
@@ -143,7 +143,7 @@ void test_osal_mutex_delete_success(void)
 void test_osal_mutex_delete_invalidid(void)
 {
     setUp();
-    int32 ret = OSAL_MutexDelete(9999);
+    int32_t ret = OSAL_MutexDelete(9999);
     TEST_ASSERT_EQUAL(OS_ERR_INVALID_ID, ret);
     tearDown();
 }

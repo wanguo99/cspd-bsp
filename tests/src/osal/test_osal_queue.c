@@ -27,7 +27,7 @@ void test_osal_queue_create_success(void)
     setUp();
     osal_id_t queue_id;
 
-    int32 ret = OSAL_QueueCreate(&queue_id, "TEST_QUEUE",
+    int32_t ret = OSAL_QueueCreate(&queue_id, "TEST_QUEUE",
                                10, 64, 0);
 
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
@@ -41,7 +41,7 @@ void test_osal_queue_create_success(void)
 void test_osal_queue_create_nullpointer(void)
 {
     setUp();
-    int32 ret = OSAL_QueueCreate(NULL, "TEST", 10, 64, 0);
+    int32_t ret = OSAL_QueueCreate(NULL, "TEST", 10, 64, 0);
     TEST_ASSERT_EQUAL(OS_INVALID_POINTER, ret);
     tearDown();
 }
@@ -53,7 +53,7 @@ void test_osal_queue_create_invalidsize(void)
     osal_id_t queue_id;
 
     /* 深度为0 */
-    int32 ret = OSAL_QueueCreate(&queue_id, "TEST", 0, 64, 0);
+    int32_t ret = OSAL_QueueCreate(&queue_id, "TEST", 0, 64, 0);
     TEST_ASSERT_EQUAL(OS_QUEUE_INVALID_SIZE, ret);
 
     /* 消息大小为0 */
@@ -68,7 +68,7 @@ void test_osal_queue_create_nametaken(void)
     setUp();
     osal_id_t queue_id1, queue_id2;
 
-    int32 ret = OSAL_QueueCreate(&queue_id1, "DUP_QUEUE", 10, 64, 0);
+    int32_t ret = OSAL_QueueCreate(&queue_id1, "DUP_QUEUE", 10, 64, 0);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     ret = OSAL_QueueCreate(&queue_id2, "DUP_QUEUE", 10, 64, 0);
@@ -85,14 +85,14 @@ void test_osal_queue_putget_Success(void)
     osal_id_t queue_id;
     OSAL_QueueCreate(&queue_id, "TEST_Q", 10, 64, 0);
 
-    uint8 send_data[64];
-    uint8 recv_data[64];
-    uint32 size_copied;
+    uint8_t send_data[64];
+    uint8_t recv_data[64];
+    uint32_t size_copied;
 
     OSAL_Strcpy((char *)send_data, "Hello World");
 
     /* 发送消息 */
-    int32 ret = OSAL_QueuePut(queue_id, send_data, 64, 0);
+    int32_t ret = OSAL_QueuePut(queue_id, send_data, 64, 0);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     /* 接收消息 */
@@ -112,10 +112,10 @@ void test_osal_queue_get_empty(void)
     osal_id_t queue_id;
     OSAL_QueueCreate(&queue_id, "TEST_Q", 10, 64, 0);
 
-    uint8 data[64];
-    uint32 size;
+    uint8_t data[64];
+    uint32_t size;
 
-    int32 ret = OSAL_QueueGet(queue_id, data, 64, &size, OS_CHECK);
+    int32_t ret = OSAL_QueueGet(queue_id, data, 64, &size, OS_CHECK);
     TEST_ASSERT_EQUAL(OS_QUEUE_EMPTY, ret);
 
     OSAL_QueueDelete(queue_id);
@@ -129,13 +129,13 @@ void test_osal_queue_get_timeout(void)
     osal_id_t queue_id;
     OSAL_QueueCreate(&queue_id, "TEST_Q", 10, 64, 0);
 
-    uint8 data[64];
-    uint32 size;
-    uint32 start = OS_GetTickCount();
+    uint8_t data[64];
+    uint32_t size;
+    uint32_t start = OS_GetTickCount();
 
-    int32 ret = OSAL_QueueGet(queue_id, data, 64, &size, 500);
+    int32_t ret = OSAL_QueueGet(queue_id, data, 64, &size, 500);
 
-    uint32 elapsed = OS_GetTickCount() - start;
+    uint32_t elapsed = OS_GetTickCount() - start;
 
     TEST_ASSERT_EQUAL(OS_QUEUE_TIMEOUT, ret);
     TEST_ASSERT_GREATER_OR_EQUAL(450, elapsed);
@@ -154,7 +154,7 @@ void test_osal_queue_put_full(void)
     osal_id_t queue_id;
     OSAL_QueueCreate(&queue_id, "TEST_Q", 2, 64, 0);
 
-    uint8 data[64] = "Test";
+    uint8_t data[64] = "Test";
 
     /* 填满队列 */
     TEST_ASSERT_EQUAL(OS_SUCCESS, OSAL_QueuePut(queue_id, data, 64, 0));
@@ -173,9 +173,9 @@ void test_osal_queue_putget_Multiple(void)
     osal_id_t queue_id;
     OSAL_QueueCreate(&queue_id, "TEST_Q", 5, 64, 0);
 
-    uint8 send_data[5][64];
-    uint8 recv_data[64];
-    uint32 size;
+    uint8_t send_data[5][64];
+    uint8_t recv_data[64];
+    uint32_t size;
 
     /* 发送5条消息 */
     for (int i = 0; i < 5; i++) {
@@ -206,7 +206,7 @@ void test_osal_queue_getidByName_Success(void)
 
     OSAL_QueueCreate(&queue_id1, "NAMED_Q", 10, 64, 0);
 
-    int32 ret = OSAL_QueueGetIdByName(&queue_id2, "NAMED_Q");
+    int32_t ret = OSAL_QueueGetIdByName(&queue_id2, "NAMED_Q");
 
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
     TEST_ASSERT_EQUAL(queue_id1, queue_id2);
@@ -221,7 +221,7 @@ void test_osal_queue_getidByName_NotFound(void)
     setUp();
     osal_id_t queue_id;
 
-    int32 ret = OSAL_QueueGetIdByName(&queue_id, "NONEXISTENT");
+    int32_t ret = OSAL_QueueGetIdByName(&queue_id, "NONEXISTENT");
     TEST_ASSERT_EQUAL(OS_ERR_NAME_NOT_FOUND, ret);
     tearDown();
 }
@@ -233,7 +233,7 @@ void test_osal_queue_delete_success(void)
     osal_id_t queue_id;
     OSAL_QueueCreate(&queue_id, "TEST_Q", 10, 64, 0);
 
-    int32 ret = OSAL_QueueDelete(queue_id);
+    int32_t ret = OSAL_QueueDelete(queue_id);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
     tearDown();
 }
@@ -242,7 +242,7 @@ void test_osal_queue_delete_success(void)
 void test_osal_queue_delete_invalidid(void)
 {
     setUp();
-    int32 ret = OSAL_QueueDelete(9999);
+    int32_t ret = OSAL_QueueDelete(9999);
     TEST_ASSERT_EQUAL(OS_ERR_INVALID_ID, ret);
     tearDown();
 }

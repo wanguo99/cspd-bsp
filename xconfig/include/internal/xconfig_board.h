@@ -38,26 +38,26 @@ typedef struct {
 
     /* 外设配置列表（以外设为单位） */
     xconfig_mcu_cfg_t       **mcus;         /* MCU外设列表 */
-    uint32                    mcu_count;
+    uint32_t                    mcu_count;
 
     xconfig_bmc_cfg_t       **bmcs;         /* BMC外设列表 */
-    uint32                    bmc_count;
+    uint32_t                    bmc_count;
 
     xconfig_satellite_cfg_t **satellites;   /* 卫星平台接口列表 */
-    uint32                    satellite_count;
+    uint32_t                    satellite_count;
 
     xconfig_sensor_cfg_t    **sensors;      /* 传感器列表 */
-    uint32                    sensor_count;
+    uint32_t                    sensor_count;
 
     xconfig_storage_cfg_t   **storages;     /* 存储设备列表 */
-    uint32                    storage_count;
+    uint32_t                    storage_count;
 
     xconfig_power_domain_t  **power_domains; /* 电源域列表 */
-    uint32                    power_domain_count;
+    uint32_t                    power_domain_count;
 
     /* APP配置列表 */
     xconfig_app_config_t    **apps;         /* APP配置列表 */
-    uint32                    app_count;
+    uint32_t                    app_count;
 
     /* 扩展配置（预留） */
     void *private_data;           /* 私有数据指针 */

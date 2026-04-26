@@ -24,48 +24,48 @@
 /*
  * CAN通信接口（pdl_mcu_can.c实现）
  */
-int32 mcu_can_init(const void *config, void **handle);
-int32 mcu_can_deinit(void *handle);
-int32 mcu_can_send_command(void *handle,
-                          uint8 cmd_code,
-                          const uint8 *data,
-                          uint32 data_len,
-                          uint8 *response,
-                          uint32 resp_size,
-                          uint32 *actual_size,
-                          uint32 timeout_ms);
+int32_t mcu_can_init(const void *config, void **handle);
+int32_t mcu_can_deinit(void *handle);
+int32_t mcu_can_send_command(void *handle,
+                          uint8_t cmd_code,
+                          const uint8_t *data,
+                          uint32_t data_len,
+                          uint8_t *response,
+                          uint32_t resp_size,
+                          uint32_t *actual_size,
+                          uint32_t timeout_ms);
 
 /*
  * 串口通信接口（pdl_mcu_serial.c实现）
  */
-int32 mcu_serial_init(const void *config, void **handle);
-int32 mcu_serial_deinit(void *handle);
-int32 mcu_serial_send_command(void *handle,
-                             uint8 cmd_code,
-                             const uint8 *data,
-                             uint32 data_len,
-                             uint8 *response,
-                             uint32 resp_size,
-                             uint32 *actual_size,
-                             uint32 timeout_ms);
+int32_t mcu_serial_init(const void *config, void **handle);
+int32_t mcu_serial_deinit(void *handle);
+int32_t mcu_serial_send_command(void *handle,
+                             uint8_t cmd_code,
+                             const uint8_t *data,
+                             uint32_t data_len,
+                             uint8_t *response,
+                             uint32_t resp_size,
+                             uint32_t *actual_size,
+                             uint32_t timeout_ms);
 
 /*
  * 协议封装/解析接口（pdl_mcu_protocol.c实现）
  */
-uint16 mcu_protocol_calc_crc16(const uint8 *data, uint32 len);
-int32 mcu_protocol_pack_frame(uint8 cmd_code,
-                             const uint8 *data,
-                             uint32 data_len,
+uint16_t mcu_protocol_calc_crc16(const uint8_t *data, uint32_t len);
+int32_t mcu_protocol_pack_frame(uint8_t cmd_code,
+                             const uint8_t *data,
+                             uint32_t data_len,
                              bool enable_crc,
-                             uint8 *frame,
-                             uint32 frame_size,
-                             uint32 *actual_size);
-int32 mcu_protocol_unpack_frame(const uint8 *frame,
-                               uint32 frame_len,
+                             uint8_t *frame,
+                             uint32_t frame_size,
+                             uint32_t *actual_size);
+int32_t mcu_protocol_unpack_frame(const uint8_t *frame,
+                               uint32_t frame_len,
                                bool enable_crc,
-                               uint8 *cmd_code,
-                               uint8 *data,
-                               uint32 data_size,
-                               uint32 *actual_size);
+                               uint8_t *cmd_code,
+                               uint8_t *data,
+                               uint32_t data_size,
+                               uint32_t *actual_size);
 
 #endif /* PDL_MCU_INTERNAL_H */

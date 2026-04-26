@@ -15,7 +15,7 @@ static volatile bool g_running = true;
 /**
  * @brief 信号处理函数
  */
-static void signal_handler(int32 sig)
+static void signal_handler(int32_t sig)
 {
     if (sig == OS_SIGNAL_INT || sig == OS_SIGNAL_TERM)
     {
@@ -29,7 +29,7 @@ static void signal_handler(int32 sig)
  */
 static void stats_task(void *arg __attribute__((unused)))
 {
-    uint32 cmd_count, success, fail, timeout;
+    uint32_t cmd_count, success, fail, timeout;
 
     OSAL_Printf("[Stats] 任务启动\n");
 
@@ -51,7 +51,7 @@ static void stats_task(void *arg __attribute__((unused)))
  */
 int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
 {
-    int32 ret;
+    int32_t ret;
     osal_id_t task_id;
 
     OSAL_Printf("========================================\n");

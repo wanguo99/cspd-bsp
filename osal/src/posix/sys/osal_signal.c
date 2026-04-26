@@ -7,7 +7,7 @@
 #include <string.h>
 #include <errno.h>
 
-int32 OSAL_SignalRegister(int32 signum, os_signal_handler_t handler)
+int32_t OSAL_SignalRegister(int32_t signum, os_signal_handler_t handler)
 {
     struct sigaction sa;
 
@@ -28,7 +28,7 @@ int32 OSAL_SignalRegister(int32 signum, os_signal_handler_t handler)
     return OS_SUCCESS;
 }
 
-int32 OSAL_SignalIgnore(int32 signum)
+int32_t OSAL_SignalIgnore(int32_t signum)
 {
     struct sigaction sa;
 
@@ -46,7 +46,7 @@ int32 OSAL_SignalIgnore(int32 signum)
     return OS_SUCCESS;
 }
 
-int32 OSAL_SignalDefault(int32 signum)
+int32_t OSAL_SignalDefault(int32_t signum)
 {
     struct sigaction sa;
 
@@ -64,7 +64,7 @@ int32 OSAL_SignalDefault(int32 signum)
     return OS_SUCCESS;
 }
 
-int32 OSAL_SignalBlock(int32 signum)
+int32_t OSAL_SignalBlock(int32_t signum)
 {
     sigset_t set;
 
@@ -80,7 +80,7 @@ int32 OSAL_SignalBlock(int32 signum)
     return OS_SUCCESS;
 }
 
-int32 OSAL_SignalUnblock(int32 signum)
+int32_t OSAL_SignalUnblock(int32_t signum)
 {
     sigset_t set;
 

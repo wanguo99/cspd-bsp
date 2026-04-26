@@ -9,9 +9,9 @@
 #include <pthread.h>
 
 typedef struct {
-    uint32 threshold_percent;
-    uint32 peak_usage;
-    uint32 current_usage;
+    uint32_t threshold_percent;
+    uint32_t peak_usage;
+    uint32_t current_usage;
     bool alert_triggered;
     pthread_mutex_t lock;
 } heap_monitor_t;
@@ -28,14 +28,14 @@ void OS_HeapInit(void)
     pthread_mutex_init(&g_heap_monitor.lock, NULL);
 }
 
-static uint32 read_memory_from_proc(const char *field)
+static uint32_t read_memory_from_proc(const char *field)
 {
     FILE *fp = fopen("/proc/self/status", "r");
     if (fp == NULL)
         return 0;
 
     str_t line[256];
-    uint32 value = 0;
+    uint32_t value = 0;
     while (fgets(line, sizeof(line), fp) != NULL) {
         if (strncmp(line, field, strlen(field)) == 0) {
             sscanf(line, "%*s %u", &value);
@@ -46,10 +46,10 @@ static uint32 read_memory_from_proc(const char *field)
     return value * 1024;
 }
 
-int32 OSAL_HeapGetInfo(uint32 *free_bytes, uint32 *total_bytes)
+int32_t OSAL_HeapGetInfo(uint32_t *free_bytes, uint32_t *total_bytes)
 {
-    uint32 vm_rss = read_memory_from_proc("VmRSS:");
-    uint32 vm_peak = read_memory_from_proc("VmPeak:");
+    uint32_t vm_rss = read_memory_from_proc("VmRSS:");
+    uint32_t vm_peak = read_memory_from_proc("VmPeak:");
 
     pthread_mutex_lock(&g_heap_monitor.lock);
     g_heap_monitor.current_usage = vm_rss;
@@ -65,7 +65,7 @@ int32 OSAL_HeapGetInfo(uint32 *free_bytes, uint32 *total_bytes)
     return OS_SUCCESS;
 }
 
-int32 OSAL_HeapSetThreshold(uint32 percent)
+int32_t OSAL_HeapSetThreshold(uint32_t percent)
 {
     if (percent > 100)
         return OS_ERR_INVALID_SIZE;
@@ -77,12 +77,12 @@ int32 OSAL_HeapSetThreshold(uint32 percent)
     return OS_SUCCESS;
 }
 
-int32 OSAL_HeapCheckThreshold(bool *exceeded)
+int32_t OSAL_HeapCheckThreshold(bool *exceeded)
 {
     if (exceeded == NULL)
         return OS_INVALID_POINTER;
 
-    uint32 free_bytes, total_bytes;
+    uint32_t free_bytes, total_bytes;
     OSAL_HeapGetInfo(&free_bytes, &total_bytes);
 
     if (total_bytes == 0) {
@@ -90,7 +90,7 @@ int32 OSAL_HeapCheckThreshold(bool *exceeded)
         return OS_SUCCESS;
     }
 
-    uint32 usage_percent = ((total_bytes - free_bytes) * 100) / total_bytes;
+    uint32_t usage_percent = ((total_bytes - free_bytes) * 100) / total_bytes;
 
     pthread_mutex_lock(&g_heap_monitor.lock);
     *exceeded = (usage_percent >= g_heap_monitor.threshold_percent);
@@ -106,7 +106,7 @@ int32 OSAL_HeapCheckThreshold(bool *exceeded)
     return OS_SUCCESS;
 }
 
-int32 OSAL_HeapGetStats(uint32 *current, uint32 *peak)
+int32_t OSAL_HeapGetStats(uint32_t *current, uint32_t *peak)
 {
     if (current == NULL || peak == NULL)
         return OS_INVALID_POINTER;

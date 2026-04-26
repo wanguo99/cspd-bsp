@@ -10,12 +10,12 @@ str_t *OSAL_getenv(const str_t *name)
     return (str_t *)getenv((const char *)name);
 }
 
-int32 OSAL_setenv(const str_t *name, const str_t *value, int32 overwrite)
+int32_t OSAL_setenv(const str_t *name, const str_t *value, int32_t overwrite)
 {
-    return (int32)setenv((const char *)name, (const char *)value, overwrite);
+    return (int32_t)setenv((const char *)name, (const char *)value, overwrite);
 }
 
-int32 OSAL_unsetenv(const str_t *name)
+int32_t OSAL_unsetenv(const str_t *name)
 {
-    return (int32)unsetenv((const char *)name);
+    return (int32_t)unsetenv((const char *)name);
 }

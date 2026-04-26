@@ -45,14 +45,14 @@ static const xconfig_board_config_t* g_all_configs[] = {
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 XCONFIG_RegisterAll(void)
+int32_t XCONFIG_RegisterAll(void)
 {
-    int32 ret;
-    uint32 success_count = 0;
+    int32_t ret;
+    uint32_t success_count = 0;
 
     LOG_INFO("XCONFIG", "Registering %d hardware configurations...", CONFIG_COUNT);
 
-    for (uint32 i = 0; i < CONFIG_COUNT; i++) {
+    for (uint32_t i = 0; i < CONFIG_COUNT; i++) {
         ret = XCONFIG_Register(g_all_configs[i]);
         if (ret == OS_SUCCESS) {
             success_count++;

@@ -18,7 +18,7 @@
 static hal_can_handle_t g_can_handle;
 static osal_id_t g_can_rx_queue;    /* CAN接收队列 */
 static osal_id_t g_can_tx_queue;    /* CAN发送队列 */
-static uint16 g_seq_num = 0;        /* 序列号 */
+static uint16_t g_seq_num = 0;        /* 序列号 */
 
 /*
  * 统计信息（使用原子操作保证线程安全）
@@ -42,7 +42,7 @@ static void can_rx_task(void *arg)
 {
     (void)arg;
     can_frame_t frame;
-    int32 ret;
+    int32_t ret;
 
     OSAL_Printf("[CAN Gateway] RX任务启动\n");
 
@@ -93,8 +93,8 @@ static void can_tx_task(void *arg)
 {
     (void)arg;
     can_frame_t frame;
-    int32 ret;
-    uint32 size;
+    int32_t ret;
+    uint32_t size;
 
     OSAL_Printf("[CAN Gateway] TX任务启动\n");
 
@@ -141,7 +141,7 @@ static void can_tx_task(void *arg)
 static void can_heartbeat_task(void *arg __attribute__((unused)))
 {
     can_frame_t frame;
-    uint32 uptime = 0;
+    uint32_t uptime = 0;
 
     OSAL_Printf("[CAN Gateway] 心跳任务启动\n");
 
@@ -166,9 +166,9 @@ static void can_heartbeat_task(void *arg __attribute__((unused)))
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 CAN_Gateway_Init(void)
+int32_t CAN_Gateway_Init(void)
 {
-    int32 ret;
+    int32_t ret;
     osal_id_t task_id;
     hal_can_config_t can_config;
 
@@ -280,7 +280,7 @@ osal_id_t CAN_Gateway_GetTxQueue(void)
  *
  * @return OS_SUCCESS 成功
  */
-int32 CAN_Gateway_SendResponse(uint16 seq_num, can_status_t status, uint32 result)
+int32_t CAN_Gateway_SendResponse(uint16_t seq_num, can_status_t status, uint32_t result)
 {
     can_frame_t frame;
 
@@ -296,10 +296,10 @@ int32 CAN_Gateway_SendResponse(uint16 seq_num, can_status_t status, uint32 resul
  *
  * @return OS_SUCCESS 成功
  */
-int32 CAN_Gateway_SendStatus(uint32 status_data)
+int32_t CAN_Gateway_SendStatus(uint32_t status_data)
 {
     can_frame_t frame;
-    uint16 seq;
+    uint16_t seq;
 
     /* 使用互斥锁保护序列号递增 */
     OSAL_MutexLock(g_stats_mutex);
@@ -314,7 +314,7 @@ int32 CAN_Gateway_SendStatus(uint32 status_data)
 /**
  * @brief 获取统计信息
  */
-void CAN_Gateway_GetStats(uint32 *rx_count, uint32 *tx_count, uint32 *err_count)
+void CAN_Gateway_GetStats(uint32_t *rx_count, uint32_t *tx_count, uint32_t *err_count)
 {
     /* 原子读取统计信息 */
     if (rx_count)  *rx_count = OSAL_AtomicLoad(&g_stats.rx_count);

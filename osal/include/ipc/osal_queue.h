@@ -29,11 +29,11 @@
  * @return OS_QUEUE_INVALID_SIZE 队列大小无效
  * @return OS_ERROR 其他错误
  */
-int32 OSAL_QueueCreate(osal_id_t *queue_id,
+int32_t OSAL_QueueCreate(osal_id_t *queue_id,
                      const str_t *queue_name,
-                     uint32 queue_depth,
-                     uint32 data_size,
-                     uint32 flags);
+                     uint32_t queue_depth,
+                     uint32_t data_size,
+                     uint32_t flags);
 
 /**
  * @brief 删除消息队列
@@ -44,7 +44,7 @@ int32 OSAL_QueueCreate(osal_id_t *queue_id,
  * @return OS_ERR_INVALID_ID 无效的队列ID
  * @return OS_ERROR 删除失败
  */
-int32 OSAL_QueueDelete(osal_id_t queue_id);
+int32_t OSAL_QueueDelete(osal_id_t queue_id);
 
 /**
  * @brief 发送消息到队列
@@ -60,7 +60,7 @@ int32 OSAL_QueueDelete(osal_id_t queue_id);
  * @return OS_QUEUE_FULL 队列已满
  * @return OS_ERROR 其他错误
  */
-int32 OSAL_QueuePut(osal_id_t queue_id, const void *data, uint32 size, uint32 flags);
+int32_t OSAL_QueuePut(osal_id_t queue_id, const void *data, uint32_t size, uint32_t flags);
 
 /**
  * @brief 从队列接收消息
@@ -78,8 +78,8 @@ int32 OSAL_QueuePut(osal_id_t queue_id, const void *data, uint32 size, uint32 fl
  * @return OS_QUEUE_TIMEOUT 超时
  * @return OS_ERROR 其他错误
  */
-int32 OSAL_QueueGet(osal_id_t queue_id, void *data, uint32 size,
-                  uint32 *size_copied, int32 timeout);
+int32_t OSAL_QueueGet(osal_id_t queue_id, void *data, uint32_t size,
+                  uint32_t *size_copied, int32_t timeout);
 
 /**
  * @brief 根据名称获取队列ID
@@ -91,6 +91,6 @@ int32 OSAL_QueueGet(osal_id_t queue_id, void *data, uint32 size,
  * @return OS_INVALID_POINTER queue_id为NULL
  * @return OS_ERR_NAME_NOT_FOUND 未找到队列
  */
-int32 OSAL_QueueGetIdByName(osal_id_t *queue_id, const str_t *queue_name);
+int32_t OSAL_QueueGetIdByName(osal_id_t *queue_id, const str_t *queue_name);
 
 #endif /* OSAPI_QUEUE_H */

@@ -19,7 +19,7 @@
 
 typedef struct {
     const xconfig_board_config_t *configs[MAX_BOARD_CONFIGS];
-    uint32 count;
+    uint32_t count;
     const xconfig_board_config_t *current;
 } xconfig_registry_t;
 
@@ -30,7 +30,7 @@ static bool g_initialized = false;
  * 配置库初始化
  *===========================================================================*/
 
-int32 XCONFIG_Init(void)
+int32_t XCONFIG_Init(void)
 {
     if (g_initialized) {
         return OS_SUCCESS;
@@ -59,7 +59,7 @@ void XCONFIG_Cleanup(void)
  * 板级配置注册和查询
  *===========================================================================*/
 
-int32 XCONFIG_Register(const xconfig_board_config_t *config)
+int32_t XCONFIG_Register(const xconfig_board_config_t *config)
 {
     if (!g_initialized) {
         LOG_ERROR("XCONFIG", "Library not initialized");
@@ -84,7 +84,7 @@ int32 XCONFIG_Register(const xconfig_board_config_t *config)
     }
 
     /* 检查重复 */
-    for (uint32 i = 0; i < g_registry.count; i++) {
+    for (uint32_t i = 0; i < g_registry.count; i++) {
         const xconfig_board_config_t *existing = g_registry.configs[i];
         if (OSAL_Strcmp(existing->platform, config->platform) == 0 &&
             OSAL_Strcmp(existing->product, config->product) == 0 &&
@@ -121,7 +121,7 @@ const xconfig_board_config_t* XCONFIG_Find(const char *platform,
         return NULL;
     }
 
-    for (uint32 i = 0; i < g_registry.count; i++) {
+    for (uint32_t i = 0; i < g_registry.count; i++) {
         const xconfig_board_config_t *config = g_registry.configs[i];
 
         if (OSAL_Strcmp(config->platform, platform) != 0) {
@@ -141,16 +141,16 @@ const xconfig_board_config_t* XCONFIG_Find(const char *platform,
     return NULL;
 }
 
-int32 XCONFIG_List(const xconfig_board_config_t **configs, uint32 *count)
+int32_t XCONFIG_List(const xconfig_board_config_t **configs, uint32_t *count)
 {
     if (!g_initialized || configs == NULL || count == NULL) {
         return OS_ERROR;
     }
 
-    uint32 max_count = *count;
-    uint32 actual_count = (g_registry.count < max_count) ? g_registry.count : max_count;
+    uint32_t max_count = *count;
+    uint32_t actual_count = (g_registry.count < max_count) ? g_registry.count : max_count;
 
-    for (uint32 i = 0; i < actual_count; i++) {
+    for (uint32_t i = 0; i < actual_count; i++) {
         configs[i] = g_registry.configs[i];
     }
 
@@ -169,7 +169,7 @@ const xconfig_mcu_cfg_t* XCONFIG_HW_FindMCU(const xconfig_board_config_t *board,
         return NULL;
     }
 
-    for (uint32 i = 0; i < board->mcu_count; i++) {
+    for (uint32_t i = 0; i < board->mcu_count; i++) {
         if (OSAL_Strcmp(board->mcus[i]->name, name) == 0) {
             return board->mcus[i];
         }
@@ -179,7 +179,7 @@ const xconfig_mcu_cfg_t* XCONFIG_HW_FindMCU(const xconfig_board_config_t *board,
 }
 
 const xconfig_mcu_cfg_t* XCONFIG_HW_GetMCU(const xconfig_board_config_t *board,
-                                       uint32 id)
+                                       uint32_t id)
 {
     if (board == NULL || id >= board->mcu_count) {
         return NULL;
@@ -195,7 +195,7 @@ const xconfig_bmc_cfg_t* XCONFIG_HW_FindBMC(const xconfig_board_config_t *board,
         return NULL;
     }
 
-    for (uint32 i = 0; i < board->bmc_count; i++) {
+    for (uint32_t i = 0; i < board->bmc_count; i++) {
         if (OSAL_Strcmp(board->bmcs[i]->name, name) == 0) {
             return board->bmcs[i];
         }
@@ -205,7 +205,7 @@ const xconfig_bmc_cfg_t* XCONFIG_HW_FindBMC(const xconfig_board_config_t *board,
 }
 
 const xconfig_bmc_cfg_t* XCONFIG_HW_GetBMC(const xconfig_board_config_t *board,
-                                       uint32 id)
+                                       uint32_t id)
 {
     if (board == NULL || id >= board->bmc_count) {
         return NULL;
@@ -221,7 +221,7 @@ const xconfig_satellite_cfg_t* XCONFIG_HW_FindSatellite(const xconfig_board_conf
         return NULL;
     }
 
-    for (uint32 i = 0; i < board->satellite_count; i++) {
+    for (uint32_t i = 0; i < board->satellite_count; i++) {
         if (OSAL_Strcmp(board->satellites[i]->name, name) == 0) {
             return board->satellites[i];
         }
@@ -231,7 +231,7 @@ const xconfig_satellite_cfg_t* XCONFIG_HW_FindSatellite(const xconfig_board_conf
 }
 
 const xconfig_satellite_cfg_t* XCONFIG_HW_GetSatellite(const xconfig_board_config_t *board,
-                                                    uint32 id)
+                                                    uint32_t id)
 {
     if (board == NULL || id >= board->satellite_count) {
         return NULL;
@@ -247,7 +247,7 @@ const xconfig_sensor_cfg_t* XCONFIG_HW_FindSensor(const xconfig_board_config_t *
         return NULL;
     }
 
-    for (uint32 i = 0; i < board->sensor_count; i++) {
+    for (uint32_t i = 0; i < board->sensor_count; i++) {
         if (OSAL_Strcmp(board->sensors[i]->name, name) == 0) {
             return board->sensors[i];
         }
@@ -257,7 +257,7 @@ const xconfig_sensor_cfg_t* XCONFIG_HW_FindSensor(const xconfig_board_config_t *
 }
 
 const xconfig_sensor_cfg_t* XCONFIG_HW_GetSensor(const xconfig_board_config_t *board,
-                                             uint32 id)
+                                             uint32_t id)
 {
     if (board == NULL || id >= board->sensor_count) {
         return NULL;
@@ -273,7 +273,7 @@ const xconfig_storage_cfg_t* XCONFIG_HW_FindStorage(const xconfig_board_config_t
         return NULL;
     }
 
-    for (uint32 i = 0; i < board->storage_count; i++) {
+    for (uint32_t i = 0; i < board->storage_count; i++) {
         if (OSAL_Strcmp(board->storages[i]->name, name) == 0) {
             return board->storages[i];
         }
@@ -283,7 +283,7 @@ const xconfig_storage_cfg_t* XCONFIG_HW_FindStorage(const xconfig_board_config_t
 }
 
 const xconfig_storage_cfg_t* XCONFIG_HW_GetStorage(const xconfig_board_config_t *board,
-                                                uint32 id)
+                                                uint32_t id)
 {
     if (board == NULL || id >= board->storage_count) {
         return NULL;
@@ -299,7 +299,7 @@ const xconfig_power_domain_t* XCONFIG_HW_FindPowerDomain(const xconfig_board_con
         return NULL;
     }
 
-    for (uint32 i = 0; i < board->power_domain_count; i++) {
+    for (uint32_t i = 0; i < board->power_domain_count; i++) {
         if (OSAL_Strcmp(board->power_domains[i]->name, name) == 0) {
             return board->power_domains[i];
         }
@@ -319,7 +319,7 @@ const xconfig_app_config_t* XCONFIG_APP_Find(const xconfig_board_config_t *board
         return NULL;
     }
 
-    for (uint32 i = 0; i < board->app_count; i++) {
+    for (uint32_t i = 0; i < board->app_count; i++) {
         if (OSAL_Strcmp(board->apps[i]->app_name, app_name) == 0) {
             return board->apps[i];
         }
@@ -335,7 +335,7 @@ const xconfig_app_device_mapping_t* XCONFIG_APP_FindDevice(const xconfig_app_con
         return NULL;
     }
 
-    for (uint32 i = 0; i < app->mapping_count; i++) {
+    for (uint32_t i = 0; i < app->mapping_count; i++) {
         if (OSAL_Strcmp(app->device_mappings[i].function, function) == 0) {
             return &app->device_mappings[i];
         }
@@ -376,7 +376,7 @@ const void* XCONFIG_APP_GetDeviceByMapping(const xconfig_board_config_t *board,
  * 配置验证
  *===========================================================================*/
 
-int32 XCONFIG_Validate(const xconfig_board_config_t *config)
+int32_t XCONFIG_Validate(const xconfig_board_config_t *config)
 {
     if (config == NULL) {
         LOG_ERROR("XCONFIG", "Config is NULL");
@@ -405,7 +405,7 @@ int32 XCONFIG_Validate(const xconfig_board_config_t *config)
         return OS_ERROR;
     }
 
-    for (uint32 i = 0; i < config->mcu_count; i++) {
+    for (uint32_t i = 0; i < config->mcu_count; i++) {
         if (config->mcus[i] == NULL) {
             LOG_ERROR("XCONFIG", "MCU[%d] is NULL", i);
             return OS_ERROR;
@@ -473,7 +473,7 @@ void XCONFIG_Print(const xconfig_board_config_t *config)
 
     /* 打印MCU外设配置 */
     OSAL_Printf("MCU Peripherals: %d\n", config->mcu_count);
-    for (uint32 i = 0; i < config->mcu_count; i++) {
+    for (uint32_t i = 0; i < config->mcu_count; i++) {
         const xconfig_mcu_cfg_t *mcu = config->mcus[i];
         OSAL_Printf("  [%d] %s - %s\n", i, mcu->name,
                   mcu->enabled ? "Enabled" : "Disabled");
@@ -487,7 +487,7 @@ void XCONFIG_Print(const xconfig_board_config_t *config)
 
     /* 打印BMC外设配置 */
     OSAL_Printf("BMC Peripherals: %d\n", config->bmc_count);
-    for (uint32 i = 0; i < config->bmc_count; i++) {
+    for (uint32_t i = 0; i < config->bmc_count; i++) {
         const xconfig_bmc_cfg_t *bmc = config->bmcs[i];
         OSAL_Printf("  [%d] %s - %s\n", i, bmc->name,
                   bmc->enabled ? "Enabled" : "Disabled");
@@ -496,7 +496,7 @@ void XCONFIG_Print(const xconfig_board_config_t *config)
 
     /* 打印卫星平台接口配置 */
     OSAL_Printf("Satellite Interfaces: %d\n", config->satellite_count);
-    for (uint32 i = 0; i < config->satellite_count; i++) {
+    for (uint32_t i = 0; i < config->satellite_count; i++) {
         const xconfig_satellite_cfg_t *sat = config->satellites[i];
         OSAL_Printf("  [%d] %s - %s\n", i, sat->name,
                   sat->enabled ? "Enabled" : "Disabled");
@@ -505,7 +505,7 @@ void XCONFIG_Print(const xconfig_board_config_t *config)
 
     /* 打印传感器外设配置 */
     OSAL_Printf("Sensor Peripherals: %d\n", config->sensor_count);
-    for (uint32 i = 0; i < config->sensor_count; i++) {
+    for (uint32_t i = 0; i < config->sensor_count; i++) {
         const xconfig_sensor_cfg_t *sensor = config->sensors[i];
         OSAL_Printf("  [%d] %s - %s\n", i, sensor->name,
                   sensor->enabled ? "Enabled" : "Disabled");
@@ -514,7 +514,7 @@ void XCONFIG_Print(const xconfig_board_config_t *config)
 
     /* 打印存储设备配置 */
     OSAL_Printf("Storage Devices: %d\n", config->storage_count);
-    for (uint32 i = 0; i < config->storage_count; i++) {
+    for (uint32_t i = 0; i < config->storage_count; i++) {
         const xconfig_storage_cfg_t *storage = config->storages[i];
         OSAL_Printf("  [%d] %s - %s\n", i, storage->name,
                   storage->enabled ? "Enabled" : "Disabled");
@@ -523,11 +523,11 @@ void XCONFIG_Print(const xconfig_board_config_t *config)
 
     /* 打印APP配置 */
     OSAL_Printf("APP Configurations: %d\n", config->app_count);
-    for (uint32 i = 0; i < config->app_count; i++) {
+    for (uint32_t i = 0; i < config->app_count; i++) {
         const xconfig_app_config_t *app = config->apps[i];
         OSAL_Printf("  [%d] %s - %s\n", i, app->app_name, app->description);
         OSAL_Printf("      Device Mappings: %d\n", app->mapping_count);
-        for (uint32 j = 0; j < app->mapping_count; j++) {
+        for (uint32_t j = 0; j < app->mapping_count; j++) {
             const xconfig_app_device_mapping_t *mapping = &app->device_mappings[j];
             OSAL_Printf("        - %s: %s[%d] %s\n",
                       mapping->function,

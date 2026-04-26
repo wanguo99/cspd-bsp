@@ -12,8 +12,8 @@
  */
 typedef struct
 {
-    uint32 seconds;      /* 秒 */
-    uint32 microsecs;    /* 微秒 */
+    uint32_t seconds;      /* 秒 */
+    uint32_t microsecs;    /* 微秒 */
 } OS_time_t;
 
 /**
@@ -24,7 +24,7 @@ typedef struct
  * @return OS_SUCCESS 成功
  * @return OS_INVALID_POINTER time_struct为NULL
  */
-int32 OSAL_GetLocalTime(OS_time_t *time_struct);
+int32_t OSAL_GetLocalTime(OS_time_t *time_struct);
 
 /**
  * @brief 设置本地时间
@@ -34,14 +34,14 @@ int32 OSAL_GetLocalTime(OS_time_t *time_struct);
  * @return OS_SUCCESS 成功
  * @return OS_INVALID_POINTER time_struct为NULL
  */
-int32 OSAL_SetLocalTime(const OS_time_t *time_struct);
+int32_t OSAL_SetLocalTime(const OS_time_t *time_struct);
 
 /**
  * @brief 获取系统滴答计数
  *
  * @return 系统滴答数(毫秒)
  */
-uint32 OS_GetTickCount(void);
+uint32_t OS_GetTickCount(void);
 
 /**
  * @brief 毫秒延时
@@ -50,6 +50,6 @@ uint32 OS_GetTickCount(void);
  *
  * @return OS_SUCCESS 成功
  */
-int32 OSAL_Milli2Ticks(uint32 milliseconds, uint32 *ticks);
+int32_t OSAL_Milli2Ticks(uint32_t milliseconds, uint32_t *ticks);
 
 #endif /* OSAPI_CLOCK_H */

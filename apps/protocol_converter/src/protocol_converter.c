@@ -34,7 +34,7 @@ static converter_stats_t g_stats = {0};
  *
  * @return can_status_t 状态码
  */
-static can_status_t parse_ipmi_response(can_cmd_type_t cmd_type, const char *response, uint32 *result)
+static can_status_t parse_ipmi_response(can_cmd_type_t cmd_type, const char *response, uint32_t *result)
 {
     if (!response || !result)
     {
@@ -99,7 +99,7 @@ static can_status_t parse_ipmi_response(can_cmd_type_t cmd_type, const char *res
                         int temp_value = 0;
                         if (OSAL_Sscanf(num_start + 1, "%d", &temp_value) == 1)
                         {
-                            *result = (uint32)temp_value;
+                            *result = (uint32_t)temp_value;
                             return STATUS_OK;
                         }
                     }
@@ -128,7 +128,7 @@ static can_status_t parse_ipmi_response(can_cmd_type_t cmd_type, const char *res
                         if (OSAL_Sscanf(num_start + 1, "%f", &volt_value) == 1)
                         {
                             /* 转换为毫伏存储 */
-                            *result = (uint32)(volt_value * 1000);
+                            *result = (uint32_t)(volt_value * 1000);
                             return STATUS_OK;
                         }
                     }
@@ -142,11 +142,11 @@ static can_status_t parse_ipmi_response(can_cmd_type_t cmd_type, const char *res
     }
 }
 
-static can_status_t execute_ipmi_command(can_cmd_type_t cmd_type, uint32 param __attribute__((unused)), uint32 *result)
+static can_status_t execute_ipmi_command(can_cmd_type_t cmd_type, uint32_t param __attribute__((unused)), uint32_t *result)
 {
     str_t cmd_buf[256];
     str_t resp_buf[512];
-    int32 ret;
+    int32_t ret;
 
     switch (cmd_type)
     {
@@ -201,7 +201,7 @@ static can_status_t execute_ipmi_command(can_cmd_type_t cmd_type, uint32 param _
     }
 
     /* 安全地添加字符串终止符 */
-    if (ret >= (int32)sizeof(resp_buf))
+    if (ret >= (int32_t)sizeof(resp_buf))
         ret = sizeof(resp_buf) - 1;
     resp_buf[ret] = '\0';
     OSAL_Printf("[Protocol Converter] 收到响应: %s\n", resp_buf);
@@ -218,10 +218,10 @@ static can_status_t execute_ipmi_command(can_cmd_type_t cmd_type, uint32 param _
 static void protocol_converter_task(void *arg __attribute__((unused)))
 {
     can_frame_t frame;
-    int32 ret;
-    uint32 size;
+    int32_t ret;
+    uint32_t size;
     can_status_t status;
-    uint32 result;
+    uint32_t result;
 
     OSAL_Printf("[Protocol Converter] 任务启动\n");
 
@@ -292,9 +292,9 @@ static void protocol_converter_task(void *arg __attribute__((unused)))
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 Protocol_Converter_Init(void)
+int32_t Protocol_Converter_Init(void)
 {
-    int32 ret;
+    int32_t ret;
     osal_id_t task_id;
     payload_service_config_t service_config;
 
@@ -337,8 +337,8 @@ int32 Protocol_Converter_Init(void)
 /**
  * @brief 获取统计信息
  */
-void Protocol_Converter_GetStats(uint32 *cmd_count, uint32 *success_count,
-                                  uint32 *fail_count, uint32 *timeout_count)
+void Protocol_Converter_GetStats(uint32_t *cmd_count, uint32_t *success_count,
+                                  uint32_t *fail_count, uint32_t *timeout_count)
 {
     if (cmd_count)     *cmd_count = OSAL_AtomicLoad(&g_stats.cmd_count);
     if (success_count) *success_count = OSAL_AtomicLoad(&g_stats.success_count);
@@ -353,7 +353,7 @@ void Protocol_Converter_GetStats(uint32 *cmd_count, uint32 *success_count,
  *
  * @return OS_SUCCESS 成功
  */
-int32 Protocol_Converter_SwitchChannel(payload_channel_t channel)
+int32_t Protocol_Converter_SwitchChannel(payload_channel_t channel)
 {
     return PayloadService_SwitchChannel(g_payload_handle, channel);
 }

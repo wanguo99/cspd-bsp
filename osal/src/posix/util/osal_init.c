@@ -13,7 +13,7 @@ extern void osal_queue_table_init(void);
 extern void osal_mutex_table_init(void);
 
 /* 初始化API */
-int32 OS_API_Init(void)
+int32_t OS_API_Init(void)
 {
     osal_task_table_init();
     osal_queue_table_init();
@@ -22,7 +22,7 @@ int32 OS_API_Init(void)
 }
 
 /* 清理API */
-int32 OS_API_Teardown(void)
+int32_t OS_API_Teardown(void)
 {
     /* 清理资源 */
     return OS_SUCCESS;
@@ -35,7 +35,7 @@ const char *OS_GetVersionString(void)
 }
 
 /* 空闲循环 */
-int32 OS_IdleLoop(void)
+int32_t OS_IdleLoop(void)
 {
     while (1)
     {

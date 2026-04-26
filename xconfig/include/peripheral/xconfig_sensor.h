@@ -48,8 +48,8 @@ typedef struct {
     } interface_cfg;
 
     /* 传感器特定配置 */
-    uint32 sample_rate;           /* 采样率（Hz） */
-    uint32 resolution;            /* 分辨率（位） */
+    uint32_t sample_rate;           /* 采样率（Hz） */
+    uint32_t resolution;            /* 分辨率（位） */
 
     /* GPIO控制（可选） */
     xconfig_gpio_config_t *power_gpio; /* 电源控制GPIO */

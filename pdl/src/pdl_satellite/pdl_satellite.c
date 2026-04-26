@@ -22,9 +22,9 @@ typedef struct
     void *user_data;
 
     /* 统计信息 */
-    uint32 rx_count;
-    uint32 tx_count;
-    uint32 error_count;
+    uint32_t rx_count;
+    uint32_t tx_count;
+    uint32_t error_count;
 
     /* 任务控制 */
     osal_id_t rx_task_id;
@@ -67,7 +67,7 @@ static void can_rx_task(void *arg)
 {
     satellite_service_context_t *ctx = (satellite_service_context_t *)arg;
     satellite_can_msg_t msg;
-    int32 ret;
+    int32_t ret;
 
     LOG_INFO("SAT", "CAN RX task started");
 
@@ -102,7 +102,7 @@ static void can_rx_task(void *arg)
 /**
  * @brief 初始化卫星平台服务
  */
-int32 PDL_Satellite_Init(const satellite_service_config_t *config,
+int32_t PDL_Satellite_Init(const satellite_service_config_t *config,
                         satellite_service_handle_t *handle)
 {
     if (config == NULL || handle == NULL)
@@ -123,7 +123,7 @@ int32 PDL_Satellite_Init(const satellite_service_config_t *config,
     ctx->running = true;
 
     /* 初始化CAN通信 */
-    int32 ret = satellite_can_init(config->can_device, config->can_bitrate, &ctx->can_handle);
+    int32_t ret = satellite_can_init(config->can_device, config->can_bitrate, &ctx->can_handle);
     if (ret != OS_SUCCESS)
     {
         LOG_ERROR("SAT", "Failed to initialize CAN");
@@ -133,7 +133,7 @@ int32 PDL_Satellite_Init(const satellite_service_config_t *config,
 
     /* 创建CAN接收任务 */
     ret = OSAL_TaskCreate(&ctx->rx_task_id, "SAT_RX",
-                        can_rx_task, (uint32 *)ctx,
+                        can_rx_task, (uint32_t *)ctx,
                         OSAL_TASK_STACK_SIZE_MEDIUM,
                         OSAL_TASK_PRIORITY_HIGH, 0);
     if (ret != OS_SUCCESS)
@@ -146,7 +146,7 @@ int32 PDL_Satellite_Init(const satellite_service_config_t *config,
 
     /* 创建心跳任务 */
     ret = OSAL_TaskCreate(&ctx->heartbeat_task_id, "SAT_HB",
-                        heartbeat_task, (uint32 *)ctx,
+                        heartbeat_task, (uint32_t *)ctx,
                         OSAL_TASK_STACK_SIZE_SMALL,
                         OSAL_TASK_PRIORITY_LOW, 0);
     if (ret != OS_SUCCESS)
@@ -167,7 +167,7 @@ int32 PDL_Satellite_Init(const satellite_service_config_t *config,
 /**
  * @brief 反初始化卫星平台服务
  */
-int32 PDL_Satellite_Deinit(satellite_service_handle_t handle)
+int32_t PDL_Satellite_Deinit(satellite_service_handle_t handle)
 {
     if (handle == NULL)
     {
@@ -193,7 +193,7 @@ int32 PDL_Satellite_Deinit(satellite_service_handle_t handle)
 /**
  * @brief 注册命令回调函数
  */
-int32 PDL_Satellite_RegisterCallback(satellite_service_handle_t handle,
+int32_t PDL_Satellite_RegisterCallback(satellite_service_handle_t handle,
                                     satellite_cmd_callback_t callback,
                                     void *user_data)
 {
@@ -212,10 +212,10 @@ int32 PDL_Satellite_RegisterCallback(satellite_service_handle_t handle,
 /**
  * @brief 发送响应到卫星平台
  */
-int32 PDL_Satellite_SendResponse(satellite_service_handle_t handle,
-                                uint32 seq_num,
+int32_t PDL_Satellite_SendResponse(satellite_service_handle_t handle,
+                                uint32_t seq_num,
                                 can_status_t status,
-                                uint32 result)
+                                uint32_t result)
 {
     if (handle == NULL)
     {
@@ -224,7 +224,7 @@ int32 PDL_Satellite_SendResponse(satellite_service_handle_t handle,
 
     satellite_service_context_t *ctx = (satellite_service_context_t *)handle;
 
-    int32 ret = satellite_can_send_response(ctx->can_handle, seq_num, status, result);
+    int32_t ret = satellite_can_send_response(ctx->can_handle, seq_num, status, result);
     if (ret == OS_SUCCESS)
     {
         ctx->tx_count++;
@@ -241,7 +241,7 @@ int32 PDL_Satellite_SendResponse(satellite_service_handle_t handle,
 /**
  * @brief 发送心跳到卫星平台
  */
-int32 PDL_Satellite_SendHeartbeat(satellite_service_handle_t handle,
+int32_t PDL_Satellite_SendHeartbeat(satellite_service_handle_t handle,
                                  can_status_t status)
 {
     if (handle == NULL)
@@ -251,7 +251,7 @@ int32 PDL_Satellite_SendHeartbeat(satellite_service_handle_t handle,
 
     satellite_service_context_t *ctx = (satellite_service_context_t *)handle;
 
-    int32 ret = satellite_can_send_heartbeat(ctx->can_handle, status);
+    int32_t ret = satellite_can_send_heartbeat(ctx->can_handle, status);
     if (ret == OS_SUCCESS)
     {
         ctx->tx_count++;
@@ -267,10 +267,10 @@ int32 PDL_Satellite_SendHeartbeat(satellite_service_handle_t handle,
 /**
  * @brief 获取服务统计信息
  */
-int32 PDL_Satellite_GetStats(satellite_service_handle_t handle,
-                            uint32 *rx_count,
-                            uint32 *tx_count,
-                            uint32 *error_count)
+int32_t PDL_Satellite_GetStats(satellite_service_handle_t handle,
+                            uint32_t *rx_count,
+                            uint32_t *tx_count,
+                            uint32_t *error_count)
 {
     if (handle == NULL)
     {

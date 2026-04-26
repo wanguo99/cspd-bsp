@@ -60,7 +60,7 @@
  * @return OS_SUCCESS 成功
  * @return OS_ERROR   失败
  */
-int32 OS_API_Init(void);
+int32_t OS_API_Init(void);
 
 /**
  * @brief 关闭OSAL
@@ -69,7 +69,7 @@ int32 OS_API_Init(void);
  *
  * @return OS_SUCCESS 成功
  */
-int32 OS_API_Teardown(void);
+int32_t OS_API_Teardown(void);
 
 /**
  * @brief 启动多任务调度
@@ -78,7 +78,7 @@ int32 OS_API_Teardown(void);
  *
  * @return OS_ERROR 启动失败
  */
-int32 OS_IdleLoop(void);
+int32_t OS_IdleLoop(void);
 
 /**
  * @brief 获取OSAL版本字符串

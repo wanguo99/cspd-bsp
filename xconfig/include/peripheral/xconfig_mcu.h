@@ -41,8 +41,8 @@ typedef struct {
     } interface_cfg;
 
     /* MCU特定配置 */
-    uint32 cmd_timeout_ms;        /* 命令超时（ms） */
-    uint32 retry_count;           /* 重试次数 */
+    uint32_t cmd_timeout_ms;        /* 命令超时（ms） */
+    uint32_t retry_count;           /* 重试次数 */
     bool   enable_crc;            /* 启用CRC校验 */
 
     /* GPIO控制（可选） */

@@ -7,7 +7,7 @@
  * - 便于RTOS移植
  *
  * 设计原则：
- * - 使用固定大小类型（uint32）
+ * - 使用固定大小类型（uint32_t）
  * - 提供常用原子操作接口
  * - 跨平台兼容
  ************************************************************************/
@@ -25,7 +25,7 @@
  * @brief 原子无符号32位整数类型
  */
 typedef struct {
-    volatile uint32 value;
+    volatile uint32_t value;
 } osal_atomic_uint32_t;
 
 /*===========================================================================
@@ -37,21 +37,21 @@ typedef struct {
  * @param atomic 原子变量指针
  * @param value 初始值
  */
-void OSAL_AtomicInit(osal_atomic_uint32_t *atomic, uint32 value);
+void OSAL_AtomicInit(osal_atomic_uint32_t *atomic, uint32_t value);
 
 /**
  * @brief 原子加载（读取）
  * @param atomic 原子变量指针
  * @return 当前值
  */
-uint32 OSAL_AtomicLoad(const osal_atomic_uint32_t *atomic);
+uint32_t OSAL_AtomicLoad(const osal_atomic_uint32_t *atomic);
 
 /**
  * @brief 原子存储（写入）
  * @param atomic 原子变量指针
  * @param value 要写入的值
  */
-void OSAL_AtomicStore(osal_atomic_uint32_t *atomic, uint32 value);
+void OSAL_AtomicStore(osal_atomic_uint32_t *atomic, uint32_t value);
 
 /**
  * @brief 原子加法（fetch_add）
@@ -59,7 +59,7 @@ void OSAL_AtomicStore(osal_atomic_uint32_t *atomic, uint32 value);
  * @param value 要增加的值
  * @return 增加前的值
  */
-uint32 OSAL_AtomicFetchAdd(osal_atomic_uint32_t *atomic, uint32 value);
+uint32_t OSAL_AtomicFetchAdd(osal_atomic_uint32_t *atomic, uint32_t value);
 
 /**
  * @brief 原子减法（fetch_sub）
@@ -67,21 +67,21 @@ uint32 OSAL_AtomicFetchAdd(osal_atomic_uint32_t *atomic, uint32 value);
  * @param value 要减少的值
  * @return 减少前的值
  */
-uint32 OSAL_AtomicFetchSub(osal_atomic_uint32_t *atomic, uint32 value);
+uint32_t OSAL_AtomicFetchSub(osal_atomic_uint32_t *atomic, uint32_t value);
 
 /**
  * @brief 原子自增（++）
  * @param atomic 原子变量指针
  * @return 自增后的值
  */
-uint32 OSAL_AtomicIncrement(osal_atomic_uint32_t *atomic);
+uint32_t OSAL_AtomicIncrement(osal_atomic_uint32_t *atomic);
 
 /**
  * @brief 原子自减（--）
  * @param atomic 原子变量指针
  * @return 自减后的值
  */
-uint32 OSAL_AtomicDecrement(osal_atomic_uint32_t *atomic);
+uint32_t OSAL_AtomicDecrement(osal_atomic_uint32_t *atomic);
 
 /**
  * @brief 原子比较并交换（CAS）
@@ -90,6 +90,6 @@ uint32 OSAL_AtomicDecrement(osal_atomic_uint32_t *atomic);
  * @param desired 目标值
  * @return true 交换成功，false 交换失败
  */
-bool OSAL_AtomicCompareExchange(osal_atomic_uint32_t *atomic, uint32 expected, uint32 desired);
+bool OSAL_AtomicCompareExchange(osal_atomic_uint32_t *atomic, uint32_t expected, uint32_t desired);
 
 #endif /* OSAL_ATOMIC_H */

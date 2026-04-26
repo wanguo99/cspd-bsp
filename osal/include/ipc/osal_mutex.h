@@ -21,7 +21,7 @@
  * @return OS_ERR_NAME_TAKEN 名称已被使用
  * @return OS_ERROR 其他错误
  */
-int32 OSAL_MutexCreate(osal_id_t *mutex_id, const str_t *mutex_name, uint32 flags);
+int32_t OSAL_MutexCreate(osal_id_t *mutex_id, const str_t *mutex_name, uint32_t flags);
 
 /**
  * @brief 删除互斥锁
@@ -32,7 +32,7 @@ int32 OSAL_MutexCreate(osal_id_t *mutex_id, const str_t *mutex_name, uint32 flag
  * @return OS_ERR_INVALID_ID 无效的互斥锁ID
  * @return OS_ERROR 删除失败
  */
-int32 OSAL_MutexDelete(osal_id_t mutex_id);
+int32_t OSAL_MutexDelete(osal_id_t mutex_id);
 
 /**
  * @brief 获取互斥锁
@@ -43,7 +43,7 @@ int32 OSAL_MutexDelete(osal_id_t mutex_id);
  * @return OS_ERR_INVALID_ID 无效的互斥锁ID
  * @return OS_ERROR 获取失败
  */
-int32 OSAL_MutexLock(osal_id_t mutex_id);
+int32_t OSAL_MutexLock(osal_id_t mutex_id);
 
 /**
  * @brief 释放互斥锁
@@ -54,7 +54,7 @@ int32 OSAL_MutexLock(osal_id_t mutex_id);
  * @return OS_ERR_INVALID_ID 无效的互斥锁ID
  * @return OS_ERROR 释放失败
  */
-int32 OSAL_MutexUnlock(osal_id_t mutex_id);
+int32_t OSAL_MutexUnlock(osal_id_t mutex_id);
 
 /**
  * @brief 根据名称获取互斥锁ID
@@ -66,7 +66,7 @@ int32 OSAL_MutexUnlock(osal_id_t mutex_id);
  * @return OS_INVALID_POINTER mutex_id为NULL
  * @return OS_ERR_NAME_NOT_FOUND 未找到互斥锁
  */
-int32 OSAL_MutexGetIdByName(osal_id_t *mutex_id, const str_t *mutex_name);
+int32_t OSAL_MutexGetIdByName(osal_id_t *mutex_id, const str_t *mutex_name);
 
 /**
  * @brief 带超时的互斥锁获取
@@ -79,7 +79,7 @@ int32 OSAL_MutexGetIdByName(osal_id_t *mutex_id, const str_t *mutex_name);
  * @return OS_ERROR_TIMEOUT 超时
  * @return OS_ERROR 其他错误
  */
-int32 OSAL_MutexLockTimeout(osal_id_t mutex_id, uint32 timeout_msec);
+int32_t OSAL_MutexLockTimeout(osal_id_t mutex_id, uint32_t timeout_msec);
 
 /**
  * @brief 死锁检测回调函数类型
@@ -87,7 +87,7 @@ int32 OSAL_MutexLockTimeout(osal_id_t mutex_id, uint32 timeout_msec);
  * @param[in] mutex_name 互斥锁名称
  * @param[in] wait_time  等待时间(毫秒)
  */
-typedef void (*deadlock_callback_t)(const str_t *mutex_name, uint32 wait_time);
+typedef void (*deadlock_callback_t)(const str_t *mutex_name, uint32_t wait_time);
 
 /**
  * @brief 设置死锁检测阈值和回调
@@ -97,6 +97,6 @@ typedef void (*deadlock_callback_t)(const str_t *mutex_name, uint32 wait_time);
  *
  * @return OS_SUCCESS 成功
  */
-int32 OSAL_MutexSetDeadlockDetection(uint32 threshold_msec, deadlock_callback_t callback);
+int32_t OSAL_MutexSetDeadlockDetection(uint32_t threshold_msec, deadlock_callback_t callback);
 
 #endif /* OSAPI_MUTEX_H */

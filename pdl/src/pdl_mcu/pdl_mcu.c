@@ -28,7 +28,7 @@ typedef struct
 /**
  * @brief 初始化MCU驱动
  */
-int32 PDL_MCU_Init(const mcu_config_t *config, mcu_handle_t *handle)
+int32_t PDL_MCU_Init(const mcu_config_t *config, mcu_handle_t *handle)
 {
     if (config == NULL || handle == NULL)
     {
@@ -53,7 +53,7 @@ int32 PDL_MCU_Init(const mcu_config_t *config, mcu_handle_t *handle)
     }
 
     /* 初始化通信接口 */
-    int32 ret = OS_ERROR;
+    int32_t ret = OS_ERROR;
     switch (config->interface)
     {
         case MCU_INTERFACE_CAN:
@@ -88,7 +88,7 @@ int32 PDL_MCU_Init(const mcu_config_t *config, mcu_handle_t *handle)
 /**
  * @brief 反初始化MCU驱动
  */
-int32 PDL_MCU_Deinit(mcu_handle_t handle)
+int32_t PDL_MCU_Deinit(mcu_handle_t handle)
 {
     if (handle == NULL)
     {
@@ -119,15 +119,15 @@ int32 PDL_MCU_Deinit(mcu_handle_t handle)
 /**
  * @brief 发送命令到MCU（内部统一接口）
  */
-static int32 mcu_send_command_internal(mcu_context_t *ctx,
-                                      uint8 cmd_code,
-                                      const uint8 *data,
-                                      uint32 data_len,
-                                      uint8 *response,
-                                      uint32 resp_size,
-                                      uint32 *actual_size)
+static int32_t mcu_send_command_internal(mcu_context_t *ctx,
+                                      uint8_t cmd_code,
+                                      const uint8_t *data,
+                                      uint32_t data_len,
+                                      uint8_t *response,
+                                      uint32_t resp_size,
+                                      uint32_t *actual_size)
 {
-    int32 ret = OS_ERROR;
+    int32_t ret = OS_ERROR;
 
     OSAL_MutexLock(ctx->mutex);
 
@@ -156,7 +156,7 @@ static int32 mcu_send_command_internal(mcu_context_t *ctx,
 /**
  * @brief 获取MCU版本
  */
-int32 PDL_MCU_GetVersion(mcu_handle_t handle, mcu_version_t *version)
+int32_t PDL_MCU_GetVersion(mcu_handle_t handle, mcu_version_t *version)
 {
     if (handle == NULL || version == NULL)
     {
@@ -164,10 +164,10 @@ int32 PDL_MCU_GetVersion(mcu_handle_t handle, mcu_version_t *version)
     }
 
     mcu_context_t *ctx = (mcu_context_t *)handle;
-    uint8 resp[4];
-    uint32 actual_size;
+    uint8_t resp[4];
+    uint32_t actual_size;
 
-    int32 ret = mcu_send_command_internal(ctx, MCU_CMD_GET_VERSION,
+    int32_t ret = mcu_send_command_internal(ctx, MCU_CMD_GET_VERSION,
                                          NULL, 0, resp, sizeof(resp), &actual_size);
 
     if (ret == OS_SUCCESS && actual_size >= 4)
@@ -187,7 +187,7 @@ int32 PDL_MCU_GetVersion(mcu_handle_t handle, mcu_version_t *version)
 /**
  * @brief 获取MCU状态
  */
-int32 PDL_MCU_GetStatus(mcu_handle_t handle, mcu_status_t *status)
+int32_t PDL_MCU_GetStatus(mcu_handle_t handle, mcu_status_t *status)
 {
     if (handle == NULL || status == NULL)
     {
@@ -195,10 +195,10 @@ int32 PDL_MCU_GetStatus(mcu_handle_t handle, mcu_status_t *status)
     }
 
     mcu_context_t *ctx = (mcu_context_t *)handle;
-    uint8 resp[16];
-    uint32 actual_size;
+    uint8_t resp[16];
+    uint32_t actual_size;
 
-    int32 ret = mcu_send_command_internal(ctx, MCU_CMD_GET_STATUS,
+    int32_t ret = mcu_send_command_internal(ctx, MCU_CMD_GET_STATUS,
                                          NULL, 0, resp, sizeof(resp), &actual_size);
 
     if (ret == OS_SUCCESS && actual_size >= 8)
@@ -221,7 +221,7 @@ int32 PDL_MCU_GetStatus(mcu_handle_t handle, mcu_status_t *status)
 /**
  * @brief MCU复位
  */
-int32 PDL_MCU_Reset(mcu_handle_t handle)
+int32_t PDL_MCU_Reset(mcu_handle_t handle)
 {
     if (handle == NULL)
     {
@@ -229,8 +229,8 @@ int32 PDL_MCU_Reset(mcu_handle_t handle)
     }
 
     mcu_context_t *ctx = (mcu_context_t *)handle;
-    uint8 resp[4];
-    uint32 actual_size;
+    uint8_t resp[4];
+    uint32_t actual_size;
 
     return mcu_send_command_internal(ctx, MCU_CMD_RESET,
                                     NULL, 0, resp, sizeof(resp), &actual_size);
@@ -239,7 +239,7 @@ int32 PDL_MCU_Reset(mcu_handle_t handle)
 /**
  * @brief 读取MCU寄存器
  */
-int32 PDL_MCU_ReadRegister(mcu_handle_t handle, uint8 reg_addr, uint8 *value)
+int32_t PDL_MCU_ReadRegister(mcu_handle_t handle, uint8_t reg_addr, uint8_t *value)
 {
     if (handle == NULL || value == NULL)
     {
@@ -247,10 +247,10 @@ int32 PDL_MCU_ReadRegister(mcu_handle_t handle, uint8 reg_addr, uint8 *value)
     }
 
     mcu_context_t *ctx = (mcu_context_t *)handle;
-    uint8 resp[4];
-    uint32 actual_size;
+    uint8_t resp[4];
+    uint32_t actual_size;
 
-    int32 ret = mcu_send_command_internal(ctx, MCU_CMD_READ_REG,
+    int32_t ret = mcu_send_command_internal(ctx, MCU_CMD_READ_REG,
                                          &reg_addr, 1, resp, sizeof(resp), &actual_size);
 
     if (ret == OS_SUCCESS && actual_size >= 1)
@@ -264,7 +264,7 @@ int32 PDL_MCU_ReadRegister(mcu_handle_t handle, uint8 reg_addr, uint8 *value)
 /**
  * @brief 写入MCU寄存器
  */
-int32 PDL_MCU_WriteRegister(mcu_handle_t handle, uint8 reg_addr, uint8 value)
+int32_t PDL_MCU_WriteRegister(mcu_handle_t handle, uint8_t reg_addr, uint8_t value)
 {
     if (handle == NULL)
     {
@@ -272,9 +272,9 @@ int32 PDL_MCU_WriteRegister(mcu_handle_t handle, uint8 reg_addr, uint8 value)
     }
 
     mcu_context_t *ctx = (mcu_context_t *)handle;
-    uint8 data[2] = {reg_addr, value};
-    uint8 resp[4];
-    uint32 actual_size;
+    uint8_t data[2] = {reg_addr, value};
+    uint8_t resp[4];
+    uint32_t actual_size;
 
     return mcu_send_command_internal(ctx, MCU_CMD_WRITE_REG,
                                     data, 2, resp, sizeof(resp), &actual_size);
@@ -283,13 +283,13 @@ int32 PDL_MCU_WriteRegister(mcu_handle_t handle, uint8 reg_addr, uint8 value)
 /**
  * @brief 发送自定义命令到MCU
  */
-int32 PDL_MCU_SendCommand(mcu_handle_t handle,
-                          uint8 cmd_code,
-                          const uint8 *data,
-                          uint32 data_len,
-                          uint8 *response,
-                          uint32 resp_size,
-                          uint32 *actual_size)
+int32_t PDL_MCU_SendCommand(mcu_handle_t handle,
+                          uint8_t cmd_code,
+                          const uint8_t *data,
+                          uint32_t data_len,
+                          uint8_t *response,
+                          uint32_t resp_size,
+                          uint32_t *actual_size)
 {
     if (handle == NULL)
     {
@@ -305,9 +305,9 @@ int32 PDL_MCU_SendCommand(mcu_handle_t handle,
 /**
  * @brief MCU固件升级
  */
-int32 PDL_MCU_FirmwareUpdate(mcu_handle_t handle,
+int32_t PDL_MCU_FirmwareUpdate(mcu_handle_t handle,
                              const char *firmware_path,
-                             void (*progress_callback)(uint32 percent))
+                             void (*progress_callback)(uint32_t percent))
 {
     (void)handle;
     (void)firmware_path;

@@ -163,20 +163,20 @@
  * @brief 获取当前errno值
  * @return errno值
  */
-int32 OSAL_GetErrno(void);
+int32_t OSAL_GetErrno(void);
 
 /**
  * @brief 设置errno值
  * @param err 错误码
  */
-void OSAL_SetErrno(int32 err);
+void OSAL_SetErrno(int32_t err);
 
 /**
  * @brief 获取错误码对应的错误描述字符串
  * @param errnum 错误码
  * @return 错误描述字符串
  */
-const str_t *OSAL_StrError(int32 errnum);
+const str_t *OSAL_StrError(int32_t errnum);
 
 /*===========================================================================
  * OSAL状态码转字符串
@@ -187,6 +187,6 @@ const str_t *OSAL_StrError(int32 errnum);
  * @param status_code OSAL状态码（OS_SUCCESS、OS_ERROR等）
  * @return 状态码名称字符串
  */
-const str_t *OSAL_GetStatusName(int32 status_code);
+const str_t *OSAL_GetStatusName(int32_t status_code);
 
 #endif /* OSAL_ERRNO_H */

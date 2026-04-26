@@ -42,8 +42,8 @@ void test_osal_task_create_success(void)
     osal_id_t task_id;
     int counter = 0;
 
-    int32 ret = OSAL_TaskCreate(&task_id, "TEST_TASK",
-                              test_task_func, (uint32 *)&counter,
+    int32_t ret = OSAL_TaskCreate(&task_id, "TEST_TASK",
+                              test_task_func, (uint32_t *)&counter,
                               32 * 1024, 100, 0);
 
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
@@ -61,7 +61,7 @@ void test_osal_task_create_success(void)
 void test_osal_task_create_null_pointer(void)
 {
     setUp();
-    int32 ret = OSAL_TaskCreate(NULL, "TEST", test_task_func,
+    int32_t ret = OSAL_TaskCreate(NULL, "TEST", test_task_func,
                               NULL, 4096, 100, 0);
     TEST_ASSERT_EQUAL(OS_INVALID_POINTER, ret);
     tearDown();
@@ -76,7 +76,7 @@ void test_osal_task_create_name_too_long(void)
     OSAL_Memset(long_name, 'A', sizeof(long_name));
     long_name[sizeof(long_name) - 1] = '\0';
 
-    int32 ret = OSAL_TaskCreate(&task_id, long_name,
+    int32_t ret = OSAL_TaskCreate(&task_id, long_name,
                               test_task_func, NULL,
                               4096, 100, 0);
     TEST_ASSERT_EQUAL(OS_ERR_NAME_TOO_LONG, ret);
@@ -89,7 +89,7 @@ void test_osal_task_create_invalid_priority(void)
     setUp();
     osal_id_t task_id;
 
-    int32 ret = OSAL_TaskCreate(&task_id, "TEST", test_task_func,
+    int32_t ret = OSAL_TaskCreate(&task_id, "TEST", test_task_func,
                               NULL, 4096, 0, 0);  /* 优先级0无效 */
     TEST_ASSERT_EQUAL(OS_ERR_INVALID_PRIORITY, ret);
 
@@ -105,7 +105,7 @@ void test_osal_task_create_name_taken(void)
     setUp();
     osal_id_t task_id1, task_id2;
 
-    int32 ret = OSAL_TaskCreate(&task_id1, "DUPLICATE", test_task_func,
+    int32_t ret = OSAL_TaskCreate(&task_id1, "DUPLICATE", test_task_func,
                               NULL, 4096, 100, 0);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
@@ -125,9 +125,9 @@ void test_osal_task_delete_success(void)
     int counter = 0;
 
     OSAL_TaskCreate(&task_id, "TEST", test_task_func,
-                  (uint32 *)&counter, 4096, 100, 0);
+                  (uint32_t *)&counter, 4096, 100, 0);
 
-    int32 ret = OSAL_TaskDelete(task_id);
+    int32_t ret = OSAL_TaskDelete(task_id);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
     tearDown();
 }
@@ -136,7 +136,7 @@ void test_osal_task_delete_success(void)
 void test_osal_task_delete_invalid_id(void)
 {
     setUp();
-    int32 ret = OSAL_TaskDelete(9999);
+    int32_t ret = OSAL_TaskDelete(9999);
     TEST_ASSERT_EQUAL(OS_ERR_INVALID_ID, ret);
     tearDown();
 }
@@ -145,11 +145,11 @@ void test_osal_task_delete_invalid_id(void)
 void test_osal_task_delay_success(void)
 {
     setUp();
-    uint32 start = OS_GetTickCount();
+    uint32_t start = OS_GetTickCount();
 
-    int32 ret = OSAL_TaskDelay(500);
+    int32_t ret = OSAL_TaskDelay(500);
 
-    uint32 elapsed = OS_GetTickCount() - start;
+    uint32_t elapsed = OS_GetTickCount() - start;
 
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
     TEST_ASSERT_GREATER_OR_EQUAL(450, elapsed);  /* 允许50ms误差 */
@@ -175,7 +175,7 @@ void test_osal_task_get_id_by_name_success(void)
     OSAL_TaskCreate(&task_id1, "NAMED_TASK", test_task_func,
                   NULL, 4096, 100, 0);
 
-    int32 ret = OSAL_TaskGetIdByName(&task_id2, "NAMED_TASK");
+    int32_t ret = OSAL_TaskGetIdByName(&task_id2, "NAMED_TASK");
 
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
     TEST_ASSERT_EQUAL(task_id1, task_id2);
@@ -190,7 +190,7 @@ void test_osal_task_get_id_by_name_not_found(void)
     setUp();
     osal_id_t task_id;
 
-    int32 ret = OSAL_TaskGetIdByName(&task_id, "NONEXISTENT");
+    int32_t ret = OSAL_TaskGetIdByName(&task_id, "NONEXISTENT");
     TEST_ASSERT_EQUAL(OS_ERR_NAME_NOT_FOUND, ret);
     tearDown();
 }
@@ -204,7 +204,7 @@ void test_osal_task_set_priority_success(void)
     OSAL_TaskCreate(&task_id, "TEST", test_task_func,
                   NULL, 4096, 100, 0);
 
-    int32 ret = OSAL_TaskSetPriority(task_id, 150);
+    int32_t ret = OSAL_TaskSetPriority(task_id, 150);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
     OSAL_TaskDelete(task_id);
@@ -221,7 +221,7 @@ void test_osal_task_get_info_success(void)
     OSAL_TaskCreate(&task_id, "TEST", test_task_func,
                   NULL, 65536, 120, 0);
 
-    int32 ret = OSAL_TaskGetInfo(task_id, &task_prop);
+    int32_t ret = OSAL_TaskGetInfo(task_id, &task_prop);
 
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
     TEST_ASSERT_EQUAL(120, task_prop.priority);

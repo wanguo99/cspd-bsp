@@ -11,17 +11,17 @@
  * errno访问函数实现
  *===========================================================================*/
 
-int32 OSAL_GetErrno(void)
+int32_t OSAL_GetErrno(void)
 {
     return errno;
 }
 
-void OSAL_SetErrno(int32 err)
+void OSAL_SetErrno(int32_t err)
 {
     errno = err;
 }
 
-const char *OSAL_StrError(int32 errnum)
+const char *OSAL_StrError(int32_t errnum)
 {
     return strerror(errnum);
 }
@@ -30,7 +30,7 @@ const char *OSAL_StrError(int32 errnum)
  * OSAL状态码转字符串实现
  *===========================================================================*/
 
-const str_t *OSAL_GetStatusName(int32 status_code)
+const str_t *OSAL_GetStatusName(int32_t status_code)
 {
     switch (status_code)
     {

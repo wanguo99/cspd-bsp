@@ -27,20 +27,20 @@
  */
 typedef struct
 {
-    uint8 msg_type;      /* 消息类型 */
-    uint8 seq_num;       /* 序列号 */
-    uint8 cmd_type;      /* 命令类型/状态码 */
-    uint32 data;         /* 数据 */
+    uint8_t msg_type;      /* 消息类型 */
+    uint8_t seq_num;       /* 序列号 */
+    uint8_t cmd_type;      /* 命令类型/状态码 */
+    uint32_t data;         /* 数据 */
 } satellite_can_msg_t;
 
 /*
  * CAN通信接口（pdl_satellite_can.c实现）
  */
-int32 satellite_can_init(const char *device, uint32 bitrate, void **handle);
-int32 satellite_can_deinit(void *handle);
-int32 satellite_can_recv(void *handle, satellite_can_msg_t *msg, uint32 timeout_ms);
-int32 satellite_can_send(void *handle, const satellite_can_msg_t *msg);
-int32 satellite_can_send_heartbeat(void *handle, uint8 status);
-int32 satellite_can_send_response(void *handle, uint8 seq_num, uint8 status, uint32 result);
+int32_t satellite_can_init(const char *device, uint32_t bitrate, void **handle);
+int32_t satellite_can_deinit(void *handle);
+int32_t satellite_can_recv(void *handle, satellite_can_msg_t *msg, uint32_t timeout_ms);
+int32_t satellite_can_send(void *handle, const satellite_can_msg_t *msg);
+int32_t satellite_can_send_heartbeat(void *handle, uint8_t status);
+int32_t satellite_can_send_response(void *handle, uint8_t seq_num, uint8_t status, uint32_t result);
 
 #endif /* PDL_SATELLITE_INTERNAL_H */

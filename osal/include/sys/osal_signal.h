@@ -20,7 +20,7 @@
 /*
  * 信号处理函数类型
  */
-typedef void (*os_signal_handler_t)(int32 signum);
+typedef void (*os_signal_handler_t)(int32_t signum);
 
 /**
  * @brief 注册信号处理函数
@@ -32,7 +32,7 @@ typedef void (*os_signal_handler_t)(int32 signum);
  * @return OS_INVALID_POINTER handler为NULL
  * @return OS_ERROR 注册失败
  */
-int32 OSAL_SignalRegister(int32 signum, os_signal_handler_t handler);
+int32_t OSAL_SignalRegister(int32_t signum, os_signal_handler_t handler);
 
 /**
  * @brief 忽略信号
@@ -42,7 +42,7 @@ int32 OSAL_SignalRegister(int32 signum, os_signal_handler_t handler);
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 设置失败
  */
-int32 OSAL_SignalIgnore(int32 signum);
+int32_t OSAL_SignalIgnore(int32_t signum);
 
 /**
  * @brief 恢复信号的默认处理
@@ -52,7 +52,7 @@ int32 OSAL_SignalIgnore(int32 signum);
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 恢复失败
  */
-int32 OSAL_SignalDefault(int32 signum);
+int32_t OSAL_SignalDefault(int32_t signum);
 
 /**
  * @brief 阻塞信号
@@ -62,7 +62,7 @@ int32 OSAL_SignalDefault(int32 signum);
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 阻塞失败
  */
-int32 OSAL_SignalBlock(int32 signum);
+int32_t OSAL_SignalBlock(int32_t signum);
 
 /**
  * @brief 解除信号阻塞
@@ -72,6 +72,6 @@ int32 OSAL_SignalBlock(int32 signum);
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 解除失败
  */
-int32 OSAL_SignalUnblock(int32 signum);
+int32_t OSAL_SignalUnblock(int32_t signum);
 
 #endif /* OSAPI_SIGNAL_H */

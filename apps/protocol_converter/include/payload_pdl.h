@@ -26,16 +26,16 @@ typedef enum
 typedef struct
 {
     const char *ip_addr;      /* IP地址 */
-    uint16      port;         /* 端口号 */
-    uint32      timeout_ms;   /* 超时时间(ms) */
+    uint16_t      port;         /* 端口号 */
+    uint32_t      timeout_ms;   /* 超时时间(ms) */
 } payload_ethernet_config_t;
 
 /* UART配置 */
 typedef struct
 {
     const char *device;       /* 设备路径 */
-    uint32      baudrate;     /* 波特率 */
-    uint32      timeout_ms;   /* 超时时间(ms) */
+    uint32_t      baudrate;     /* 波特率 */
+    uint32_t      timeout_ms;   /* 超时时间(ms) */
 } payload_uart_config_t;
 
 /* 载荷服务配置 */
@@ -44,7 +44,7 @@ typedef struct
     payload_ethernet_config_t ethernet;    /* 以太网配置 */
     payload_uart_config_t     uart;        /* UART配置 */
     bool                      auto_switch; /* 自动切换使能 */
-    uint32                    retry_count; /* 重试次数 */
+    uint32_t                    retry_count; /* 重试次数 */
 } payload_service_config_t;
 
 /* 载荷服务句柄 */
@@ -65,7 +65,7 @@ typedef void* payload_service_handle_t;
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 PayloadService_Init(const payload_service_config_t *config,
+int32_t PayloadService_Init(const payload_service_config_t *config,
                           payload_service_handle_t *handle);
 
 /**
@@ -75,7 +75,7 @@ int32 PayloadService_Init(const payload_service_config_t *config,
  *
  * @return OS_SUCCESS 成功
  */
-int32 PayloadService_Deinit(payload_service_handle_t handle);
+int32_t PayloadService_Deinit(payload_service_handle_t handle);
 
 /**
  * @brief 发送数据到载荷
@@ -87,9 +87,9 @@ int32 PayloadService_Deinit(payload_service_handle_t handle);
  * @return 发送的字节数 (>= 0)
  * @return OS_ERROR 失败
  */
-int32 PayloadService_Send(payload_service_handle_t handle,
+int32_t PayloadService_Send(payload_service_handle_t handle,
                           const void *data,
-                          uint32 len);
+                          uint32_t len);
 
 /**
  * @brief 从载荷接收数据
@@ -103,10 +103,10 @@ int32 PayloadService_Send(payload_service_handle_t handle,
  * @return OS_ERROR_TIMEOUT 超时
  * @return OS_ERROR 失败
  */
-int32 PayloadService_Recv(payload_service_handle_t handle,
+int32_t PayloadService_Recv(payload_service_handle_t handle,
                           void *buf,
-                          uint32 buf_size,
-                          uint32 timeout_ms);
+                          uint32_t buf_size,
+                          uint32_t timeout_ms);
 
 /**
  * @brief 检查载荷连接状态
@@ -127,7 +127,7 @@ bool PayloadService_IsConnected(payload_service_handle_t handle);
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 PayloadService_SwitchChannel(payload_service_handle_t handle,
+int32_t PayloadService_SwitchChannel(payload_service_handle_t handle,
                                    payload_channel_t channel);
 
 /**

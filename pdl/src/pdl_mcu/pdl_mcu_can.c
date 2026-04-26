@@ -18,15 +18,15 @@
 typedef struct
 {
     hal_can_handle_t can_handle;
-    uint32 tx_id;
-    uint32 rx_id;
+    uint32_t tx_id;
+    uint32_t rx_id;
     osal_id_t rx_mutex;
 } mcu_can_context_t;
 
 /**
  * @brief 初始化CAN通信
  */
-int32 mcu_can_init(const void *config, void **handle)
+int32_t mcu_can_init(const void *config, void **handle)
 {
     if (config == NULL || handle == NULL)
     {
@@ -73,7 +73,7 @@ int32 mcu_can_init(const void *config, void **handle)
 /**
  * @brief 反初始化CAN通信
  */
-int32 mcu_can_deinit(void *handle)
+int32_t mcu_can_deinit(void *handle)
 {
     if (handle == NULL)
     {
@@ -92,14 +92,14 @@ int32 mcu_can_deinit(void *handle)
 /**
  * @brief 发送命令并接收响应
  */
-int32 mcu_can_send_command(void *handle,
-                          uint8 cmd_code,
-                          const uint8 *data,
-                          uint32 data_len,
-                          uint8 *response,
-                          uint32 resp_size,
-                          uint32 *actual_size,
-                          uint32 timeout_ms)
+int32_t mcu_can_send_command(void *handle,
+                          uint8_t cmd_code,
+                          const uint8_t *data,
+                          uint32_t data_len,
+                          uint8_t *response,
+                          uint32_t resp_size,
+                          uint32_t *actual_size,
+                          uint32_t timeout_ms)
 {
     if (handle == NULL)
     {
@@ -109,15 +109,15 @@ int32 mcu_can_send_command(void *handle,
     mcu_can_context_t *ctx = (mcu_can_context_t *)handle;
 
     /* 封装CAN帧：[cmd_code][data_len][data...] */
-    uint8 tx_frame[8];
-    uint32 tx_len = 0;
+    uint8_t tx_frame[8];
+    uint32_t tx_len = 0;
 
     tx_frame[tx_len++] = cmd_code;
-    tx_frame[tx_len++] = (uint8)data_len;
+    tx_frame[tx_len++] = (uint8_t)data_len;
 
     if (data != NULL && data_len > 0)
     {
-        uint32 copy_len = (data_len > 6) ? 6 : data_len;  /* CAN最多8字节，留2字节给头 */
+        uint32_t copy_len = (data_len > 6) ? 6 : data_len;  /* CAN最多8字节，留2字节给头 */
         OSAL_Memcpy(&tx_frame[tx_len], data, copy_len);
         tx_len += copy_len;
     }
@@ -137,7 +137,7 @@ int32 mcu_can_send_command(void *handle,
     OSAL_MutexLock(ctx->rx_mutex);
 
     can_frame_t rx_frame;
-    int32 ret = HAL_CAN_Recv(ctx->can_handle, &rx_frame, timeout_ms);
+    int32_t ret = HAL_CAN_Recv(ctx->can_handle, &rx_frame, timeout_ms);
 
     if (ret == OS_SUCCESS)
     {
@@ -151,8 +151,8 @@ int32 mcu_can_send_command(void *handle,
         /* 解析响应：[status][data_len][data...] */
         if (rx_frame.dlc >= 2)
         {
-            uint8 status = rx_frame.data[0];
-            uint8 resp_len = rx_frame.data[1];
+            uint8_t status = rx_frame.data[0];
+            uint8_t resp_len = rx_frame.data[1];
 
             if (status != 0)
             {
@@ -162,8 +162,8 @@ int32 mcu_can_send_command(void *handle,
 
             if (response != NULL && resp_len > 0)
             {
-                uint32 copy_len = (resp_len < resp_size) ? resp_len : resp_size;
-                copy_len = (copy_len < ((uint32)rx_frame.dlc - 2)) ? copy_len : ((uint32)rx_frame.dlc - 2);
+                uint32_t copy_len = (resp_len < resp_size) ? resp_len : resp_size;
+                copy_len = (copy_len < ((uint32_t)rx_frame.dlc - 2)) ? copy_len : ((uint32_t)rx_frame.dlc - 2);
                 OSAL_Memcpy(response, &rx_frame.data[2], copy_len);
 
                 if (actual_size != NULL)

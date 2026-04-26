@@ -10,7 +10,7 @@
 #include "osal.h"
 
 /* 外部函数声明 */
-extern int32 XCONFIG_RegisterAll(void);
+extern int32_t XCONFIG_RegisterAll(void);
 extern const xconfig_board_config_t* XCONFIG_SelectDefault(void);
 
 /*===========================================================================
@@ -19,7 +19,7 @@ extern const xconfig_board_config_t* XCONFIG_SelectDefault(void);
 
 static void example_basic_usage(void)
 {
-    int32 ret;
+    int32_t ret;
     const xconfig_board_config_t *board;
 
     OSAL_Printf("\n=== Example 1: Basic Usage ===\n");
@@ -87,7 +87,7 @@ static void example_mcu_init(void)
     const xconfig_mcu_cfg_t *mcu_cfg;
     mcu_handle_t mcu_handle;
     mcu_version_t version;
-    int32 ret;
+    int32_t ret;
 
     OSAL_Printf("\n=== Example 3: MCU Initialization ===\n");
 
@@ -180,8 +180,8 @@ static void example_mcu_init(void)
 static void example_list_configs(void)
 {
     const xconfig_board_config_t *configs[32];
-    uint32 count = 32;
-    int32 ret;
+    uint32_t count = 32;
+    int32_t ret;
 
     OSAL_Printf("\n=== Example 4: List All Configs ===\n");
 
@@ -193,7 +193,7 @@ static void example_list_configs(void)
 
     OSAL_Printf("Total configurations: %d\n\n", count);
 
-    for (uint32 i = 0; i < count; i++) {
+    for (uint32_t i = 0; i < count; i++) {
         OSAL_Printf("[%d] %s/%s/%s\n", i,
                   configs[i]->platform,
                   configs[i]->product,

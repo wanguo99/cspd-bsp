@@ -16,7 +16,7 @@ static payload_service_handle_t test_handle;
 
 /* 模拟服务器线程数据 */
 typedef struct {
-    uint16 port;
+    uint16_t port;
     volatile bool server_ready;
     volatile bool server_running;
     int server_fd;
@@ -153,7 +153,7 @@ void test_payload_service_init_success(void)
         .retry_count = 1
     };
 
-    int32 ret = PayloadService_Init(&config, &test_handle);
+    int32_t ret = PayloadService_Init(&config, &test_handle);
 
     if (ret != OS_SUCCESS) {
         /* 停止模拟服务器 */
@@ -180,7 +180,7 @@ void test_payload_service_init_null_config(void)
 {
     OS_API_Init();
 
-    int32 ret = PayloadService_Init(NULL, &test_handle);
+    int32_t ret = PayloadService_Init(NULL, &test_handle);
     TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
 
     OS_API_Teardown();

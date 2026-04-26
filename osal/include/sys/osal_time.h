@@ -7,7 +7,7 @@
  * - 便于RTOS移植
  *
  * 设计原则：
- * - 使用固定大小类型（uint32/uint64）
+ * - 使用固定大小类型（uint32_t/uint64_t）
  * - 提供多种时间精度的延迟接口
  * - 跨平台兼容
  ************************************************************************/
@@ -27,7 +27,7 @@
  * @return 0成功，-1失败
  * @note 这是最常用的延迟接口，精度为毫秒
  */
-int32 OSAL_msleep(uint32 msec);
+int32_t OSAL_msleep(uint32_t msec);
 
 /**
  * @brief 微秒级延迟
@@ -35,7 +35,7 @@ int32 OSAL_msleep(uint32 msec);
  * @return 0成功，-1失败
  * @note 精度为微秒，适用于需要高精度延迟的场景
  */
-int32 OSAL_usleep(uint32 usec);
+int32_t OSAL_usleep(uint32_t usec);
 
 /**
  * @brief 秒级延迟
@@ -43,7 +43,7 @@ int32 OSAL_usleep(uint32 usec);
  * @return 0成功，-1失败
  * @note 精度为秒，适用于长时间延迟
  */
-int32 OSAL_sleep(uint32 sec);
+int32_t OSAL_sleep(uint32_t sec);
 
 /**
  * @brief 纳秒级延迟
@@ -51,7 +51,7 @@ int32 OSAL_sleep(uint32 sec);
  * @return 0成功，-1失败
  * @note 精度为纳秒，适用于极高精度延迟场景
  */
-int32 OSAL_nanosleep(uint64 nsec);
+int32_t OSAL_nanosleep(uint64_t nsec);
 
 /**
  * @brief 任务延迟（兼容接口）
@@ -59,6 +59,6 @@ int32 OSAL_nanosleep(uint64 nsec);
  * @return OS_SUCCESS成功，OS_ERROR失败
  * @note 这是为了兼容旧代码，推荐使用OSAL_msleep()
  */
-int32 OSAL_TaskDelay(uint32 millisecond);
+int32_t OSAL_TaskDelay(uint32_t millisecond);
 
 #endif /* OSAL_TIME_H */

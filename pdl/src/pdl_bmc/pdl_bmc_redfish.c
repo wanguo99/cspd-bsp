@@ -15,8 +15,8 @@
  */
 typedef struct
 {
-    int32 sockfd;
-    uint32 timeout_ms;
+    int32_t sockfd;
+    uint32_t timeout_ms;
 } bmc_redfish_context_t;
 
 /*
@@ -25,13 +25,13 @@ typedef struct
 typedef struct
 {
     hal_serial_handle_t serial_handle;
-    uint32 timeout_ms;
+    uint32_t timeout_ms;
 } bmc_serial_context_t;
 
 /**
  * @brief 初始化网络通信
  */
-int32 bmc_redfish_init(const char *ip_addr, uint16 port, uint32 timeout_ms, void **handle)
+int32_t bmc_redfish_init(const char *ip_addr, uint16_t port, uint32_t timeout_ms, void **handle)
 {
     if (ip_addr == NULL || handle == NULL)
     {
@@ -88,7 +88,7 @@ int32 bmc_redfish_init(const char *ip_addr, uint16 port, uint32 timeout_ms, void
 /**
  * @brief 反初始化网络通信
  */
-int32 bmc_redfish_deinit(void *handle)
+int32_t bmc_redfish_deinit(void *handle)
 {
     if (handle == NULL)
     {
@@ -106,12 +106,12 @@ int32 bmc_redfish_deinit(void *handle)
 /**
  * @brief 网络发送并接收
  */
-int32 bmc_redfish_send_recv(void *handle,
-                       const uint8 *request,
-                       uint32 req_size,
-                       uint8 *response,
-                       uint32 resp_size,
-                       uint32 *actual_size)
+int32_t bmc_redfish_send_recv(void *handle,
+                       const uint8_t *request,
+                       uint32_t req_size,
+                       uint8_t *response,
+                       uint32_t resp_size,
+                       uint32_t *actual_size)
 {
     if (handle == NULL || request == NULL)
     {
@@ -138,7 +138,7 @@ int32 bmc_redfish_send_recv(void *handle,
 
         if (actual_size != NULL)
         {
-            *actual_size = (uint32)recv_len;
+            *actual_size = (uint32_t)recv_len;
         }
     }
 
@@ -148,7 +148,7 @@ int32 bmc_redfish_send_recv(void *handle,
 /**
  * @brief 初始化串口通信
  */
-int32 bmc_serial_init(const char *device, uint32 baudrate, uint32 timeout_ms, void **handle)
+int32_t bmc_serial_init(const char *device, uint32_t baudrate, uint32_t timeout_ms, void **handle)
 {
     if (device == NULL || handle == NULL)
     {
@@ -185,7 +185,7 @@ int32 bmc_serial_init(const char *device, uint32 baudrate, uint32 timeout_ms, vo
 /**
  * @brief 反初始化串口通信
  */
-int32 bmc_serial_deinit(void *handle)
+int32_t bmc_serial_deinit(void *handle)
 {
     if (handle == NULL)
     {
@@ -203,12 +203,12 @@ int32 bmc_serial_deinit(void *handle)
 /**
  * @brief 串口发送并接收
  */
-int32 bmc_serial_send_recv(void *handle,
-                          const uint8 *request,
-                          uint32 req_size,
-                          uint8 *response,
-                          uint32 resp_size,
-                          uint32 *actual_size)
+int32_t bmc_serial_send_recv(void *handle,
+                          const uint8_t *request,
+                          uint32_t req_size,
+                          uint8_t *response,
+                          uint32_t resp_size,
+                          uint32_t *actual_size)
 {
     if (handle == NULL || request == NULL)
     {
@@ -218,7 +218,7 @@ int32 bmc_serial_send_recv(void *handle,
     bmc_serial_context_t *ctx = (bmc_serial_context_t *)handle;
 
     /* 发送请求 */
-    if (HAL_Serial_Write(ctx->serial_handle, request, req_size, ctx->timeout_ms) != (int32)req_size)
+    if (HAL_Serial_Write(ctx->serial_handle, request, req_size, ctx->timeout_ms) != (int32_t)req_size)
     {
         return OS_ERROR;
     }
@@ -226,7 +226,7 @@ int32 bmc_serial_send_recv(void *handle,
     /* 接收响应 */
     if (response != NULL && resp_size > 0)
     {
-        int32 recv_len = HAL_Serial_Read(ctx->serial_handle, response, resp_size, ctx->timeout_ms);
+        int32_t recv_len = HAL_Serial_Read(ctx->serial_handle, response, resp_size, ctx->timeout_ms);
         if (recv_len < 0)
         {
             return OS_ERROR;

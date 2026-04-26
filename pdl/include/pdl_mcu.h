@@ -44,23 +44,23 @@ typedef struct
     /* CAN配置 */
     struct {
         const char *device;           /* CAN设备（如can0） */
-        uint32 bitrate;               /* 波特率 */
-        uint32 tx_id;                 /* 发送CAN ID */
-        uint32 rx_id;                 /* 接收CAN ID */
+        uint32_t bitrate;               /* 波特率 */
+        uint32_t tx_id;                 /* 发送CAN ID */
+        uint32_t rx_id;                 /* 接收CAN ID */
     } can;
 
     /* 串口配置 */
     struct {
         const char *device;           /* 串口设备（如/dev/ttyS1） */
-        uint32 baudrate;              /* 波特率 */
-        uint8 data_bits;              /* 数据位（5-8） */
-        uint8 stop_bits;              /* 停止位（1-2） */
+        uint32_t baudrate;              /* 波特率 */
+        uint8_t data_bits;              /* 数据位（5-8） */
+        uint8_t stop_bits;              /* 停止位（1-2） */
         str_t parity;                 /* 校验位（'N'/'E'/'O'） */
     } serial;
 
     /* 通用配置 */
-    uint32 cmd_timeout_ms;            /* 命令超时（ms） */
-    uint32 retry_count;               /* 重试次数 */
+    uint32_t cmd_timeout_ms;            /* 命令超时（ms） */
+    uint32_t retry_count;               /* 重试次数 */
     bool enable_crc;                  /* 启用CRC校验 */
 } mcu_config_t;
 
@@ -69,10 +69,10 @@ typedef struct
  */
 typedef struct
 {
-    uint8 major;
-    uint8 minor;
-    uint8 patch;
-    uint8 build;
+    uint8_t major;
+    uint8_t minor;
+    uint8_t patch;
+    uint8_t build;
     str_t version_string[32];
 } mcu_version_t;
 
@@ -82,10 +82,10 @@ typedef struct
 typedef struct
 {
     bool online;                      /* 在线状态 */
-    uint32 uptime_sec;                /* 运行时间 */
-    uint8 error_code;                 /* 错误码 */
+    uint32_t uptime_sec;                /* 运行时间 */
+    uint8_t error_code;                 /* 错误码 */
     float temperature;                /* 温度 */
-    uint16 voltage_mv;                /* 电压（mV） */
+    uint16_t voltage_mv;                /* 电压（mV） */
 } mcu_status_t;
 
 /**
@@ -97,7 +97,7 @@ typedef struct
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 PDL_MCU_Init(const mcu_config_t *config, mcu_handle_t *handle);
+int32_t PDL_MCU_Init(const mcu_config_t *config, mcu_handle_t *handle);
 
 /**
  * @brief 反初始化MCU驱动
@@ -106,7 +106,7 @@ int32 PDL_MCU_Init(const mcu_config_t *config, mcu_handle_t *handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 PDL_MCU_Deinit(mcu_handle_t handle);
+int32_t PDL_MCU_Deinit(mcu_handle_t handle);
 
 /**
  * @brief 获取MCU版本
@@ -116,7 +116,7 @@ int32 PDL_MCU_Deinit(mcu_handle_t handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 PDL_MCU_GetVersion(mcu_handle_t handle, mcu_version_t *version);
+int32_t PDL_MCU_GetVersion(mcu_handle_t handle, mcu_version_t *version);
 
 /**
  * @brief 获取MCU状态
@@ -126,7 +126,7 @@ int32 PDL_MCU_GetVersion(mcu_handle_t handle, mcu_version_t *version);
  *
  * @return OS_SUCCESS 成功
  */
-int32 PDL_MCU_GetStatus(mcu_handle_t handle, mcu_status_t *status);
+int32_t PDL_MCU_GetStatus(mcu_handle_t handle, mcu_status_t *status);
 
 /**
  * @brief MCU复位
@@ -135,7 +135,7 @@ int32 PDL_MCU_GetStatus(mcu_handle_t handle, mcu_status_t *status);
  *
  * @return OS_SUCCESS 成功
  */
-int32 PDL_MCU_Reset(mcu_handle_t handle);
+int32_t PDL_MCU_Reset(mcu_handle_t handle);
 
 /**
  * @brief 读取MCU寄存器
@@ -146,7 +146,7 @@ int32 PDL_MCU_Reset(mcu_handle_t handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 PDL_MCU_ReadRegister(mcu_handle_t handle, uint8 reg_addr, uint8 *value);
+int32_t PDL_MCU_ReadRegister(mcu_handle_t handle, uint8_t reg_addr, uint8_t *value);
 
 /**
  * @brief 写入MCU寄存器
@@ -157,7 +157,7 @@ int32 PDL_MCU_ReadRegister(mcu_handle_t handle, uint8 reg_addr, uint8 *value);
  *
  * @return OS_SUCCESS 成功
  */
-int32 PDL_MCU_WriteRegister(mcu_handle_t handle, uint8 reg_addr, uint8 value);
+int32_t PDL_MCU_WriteRegister(mcu_handle_t handle, uint8_t reg_addr, uint8_t value);
 
 /**
  * @brief 发送自定义命令到MCU
@@ -174,13 +174,13 @@ int32 PDL_MCU_WriteRegister(mcu_handle_t handle, uint8 reg_addr, uint8 value);
  * @return OS_ERROR_TIMEOUT 超时
  * @return OS_ERROR 失败
  */
-int32 PDL_MCU_SendCommand(mcu_handle_t handle,
-                          uint8 cmd_code,
-                          const uint8 *data,
-                          uint32 data_len,
-                          uint8 *response,
-                          uint32 resp_size,
-                          uint32 *actual_size);
+int32_t PDL_MCU_SendCommand(mcu_handle_t handle,
+                          uint8_t cmd_code,
+                          const uint8_t *data,
+                          uint32_t data_len,
+                          uint8_t *response,
+                          uint32_t resp_size,
+                          uint32_t *actual_size);
 
 /**
  * @brief MCU固件升级
@@ -192,8 +192,8 @@ int32 PDL_MCU_SendCommand(mcu_handle_t handle,
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 PDL_MCU_FirmwareUpdate(mcu_handle_t handle,
+int32_t PDL_MCU_FirmwareUpdate(mcu_handle_t handle,
                              const char *firmware_path,
-                             void (*progress_callback)(uint32 percent));
+                             void (*progress_callback)(uint32_t percent));
 
 #endif /* PDL_MCU_H */

@@ -35,13 +35,13 @@ str_t *OSAL_getenv(const str_t *name);
  * @param overwrite 是否覆盖已存在的变量（1=覆盖，0=不覆盖）
  * @return 0成功，-1失败
  */
-int32 OSAL_setenv(const str_t *name, const str_t *value, int32 overwrite);
+int32_t OSAL_setenv(const str_t *name, const str_t *value, int32_t overwrite);
 
 /**
  * @brief 删除环境变量
  * @param name 环境变量名
  * @return 0成功，-1失败
  */
-int32 OSAL_unsetenv(const str_t *name);
+int32_t OSAL_unsetenv(const str_t *name);
 
 #endif /* OSAL_ENV_H */

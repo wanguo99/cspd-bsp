@@ -31,41 +31,41 @@ typedef struct
     payload_service_config_t config;           /* 配置 */
     payload_channel_t        current_channel;  /* 当前通道 */
     conn_state_t             state;            /* 连接状态 */
-    int32                    eth_fd;           /* 以太网socket */
-    int32                    uart_fd;          /* UART文件描述符 */
+    int32_t                    eth_fd;           /* 以太网socket */
+    int32_t                    uart_fd;          /* UART文件描述符 */
     bool                     connected;        /* 连接状态 */
-    uint32                   fail_count;       /* 失败计数 */
-    uint32                   reconnect_count;  /* 重连计数 */
+    uint32_t                   fail_count;       /* 失败计数 */
+    uint32_t                   reconnect_count;  /* 重连计数 */
     osal_id_t                mutex;            /* 互斥锁 */
 
     /* 统计信息 */
-    uint32                   tx_bytes;
-    uint32                   rx_bytes;
-    uint32                   tx_errors;
-    uint32                   rx_errors;
+    uint32_t                   tx_bytes;
+    uint32_t                   rx_bytes;
+    uint32_t                   tx_errors;
+    uint32_t                   rx_errors;
 } payload_service_context_t;
 
 /*
  * 内部函数声明
  */
-static int32 ethernet_connect(payload_service_context_t *ctx);
-static int32 ethernet_disconnect(payload_service_context_t *ctx);
-static int32 ethernet_send(payload_service_context_t *ctx, const void *data, uint32 len);
-static int32 ethernet_recv(payload_service_context_t *ctx, void *buf, uint32 buf_size, uint32 timeout_ms);
+static int32_t ethernet_connect(payload_service_context_t *ctx);
+static int32_t ethernet_disconnect(payload_service_context_t *ctx);
+static int32_t ethernet_send(payload_service_context_t *ctx, const void *data, uint32_t len);
+static int32_t ethernet_recv(payload_service_context_t *ctx, void *buf, uint32_t buf_size, uint32_t timeout_ms);
 
-static int32 uart_open(payload_service_context_t *ctx);
-static int32 uart_close(payload_service_context_t *ctx);
-static int32 uart_send(payload_service_context_t *ctx, const void *data, uint32 len);
-static int32 uart_recv(payload_service_context_t *ctx, void *buf, uint32 buf_size, uint32 timeout_ms);
+static int32_t uart_open(payload_service_context_t *ctx);
+static int32_t uart_close(payload_service_context_t *ctx);
+static int32_t uart_send(payload_service_context_t *ctx, const void *data, uint32_t len);
+static int32_t uart_recv(payload_service_context_t *ctx, void *buf, uint32_t buf_size, uint32_t timeout_ms);
 
 /*
  * 公共接口实现
  */
-int32 PayloadService_Init(const payload_service_config_t *config,
+int32_t PayloadService_Init(const payload_service_config_t *config,
                           payload_service_handle_t *handle)
 {
     payload_service_context_t *ctx;
-    int32 ret;
+    int32_t ret;
 
     if (!config || !handle)
     {
@@ -139,7 +139,7 @@ int32 PayloadService_Init(const payload_service_config_t *config,
     return OS_SUCCESS;
 }
 
-int32 PayloadService_Deinit(payload_service_handle_t handle)
+int32_t PayloadService_Deinit(payload_service_handle_t handle)
 {
     payload_service_context_t *ctx = (payload_service_context_t *)handle;
 
@@ -165,12 +165,12 @@ int32 PayloadService_Deinit(payload_service_handle_t handle)
     return OS_SUCCESS;
 }
 
-int32 PayloadService_Send(payload_service_handle_t handle,
+int32_t PayloadService_Send(payload_service_handle_t handle,
                           const void *data,
-                          uint32 len)
+                          uint32_t len)
 {
     payload_service_context_t *ctx = (payload_service_context_t *)handle;
-    int32 ret;
+    int32_t ret;
 
     if (!ctx || !data || len == 0)
     {
@@ -247,13 +247,13 @@ int32 PayloadService_Send(payload_service_handle_t handle,
     return ret;
 }
 
-int32 PayloadService_Recv(payload_service_handle_t handle,
+int32_t PayloadService_Recv(payload_service_handle_t handle,
                           void *buf,
-                          uint32 buf_size,
-                          uint32 timeout_ms)
+                          uint32_t buf_size,
+                          uint32_t timeout_ms)
 {
     payload_service_context_t *ctx = (payload_service_context_t *)handle;
-    int32 ret;
+    int32_t ret;
 
     if (!ctx || !buf || buf_size == 0)
     {
@@ -308,11 +308,11 @@ bool PayloadService_IsConnected(payload_service_handle_t handle)
     return connected;
 }
 
-int32 PayloadService_SwitchChannel(payload_service_handle_t handle,
+int32_t PayloadService_SwitchChannel(payload_service_handle_t handle,
                                    payload_channel_t channel)
 {
     payload_service_context_t *ctx = (payload_service_context_t *)handle;
-    int32 ret;
+    int32_t ret;
 
     if (!ctx)
     {
@@ -390,11 +390,11 @@ payload_channel_t PayloadService_GetChannel(payload_service_handle_t handle)
 /*
  * 以太网实现
  */
-static int32 ethernet_connect(payload_service_context_t *ctx)
+static int32_t ethernet_connect(payload_service_context_t *ctx)
 {
     osal_sockaddr_in_t server_addr;
-    int32 flags;
-    int32 enable = 1;
+    int32_t flags;
+    int32_t enable = 1;
 
     /* 创建socket */
     ctx->eth_fd = OSAL_socket(OSAL_AF_INET, OSAL_SOCK_STREAM, 0);
@@ -428,7 +428,7 @@ static int32 ethernet_connect(payload_service_context_t *ctx)
     /* 连接 */
     if (OSAL_connect(ctx->eth_fd, (osal_sockaddr_t *)&server_addr, sizeof(server_addr)) < 0)
     {
-        int32 err = OSAL_GetErrno();
+        int32_t err = OSAL_GetErrno();
         if (err != OSAL_EINPROGRESS)
         {
             OSAL_Printf("[PayloadService] 连接失败: %s\n", OSAL_StrError(err));
@@ -473,7 +473,7 @@ static int32 ethernet_connect(payload_service_context_t *ctx)
     return OS_SUCCESS;
 }
 
-static int32 ethernet_disconnect(payload_service_context_t *ctx)
+static int32_t ethernet_disconnect(payload_service_context_t *ctx)
 {
     if (ctx->eth_fd >= 0)
     {
@@ -484,7 +484,7 @@ static int32 ethernet_disconnect(payload_service_context_t *ctx)
     return OS_SUCCESS;
 }
 
-static int32 ethernet_send(payload_service_context_t *ctx, const void *data, uint32 len)
+static int32_t ethernet_send(payload_service_context_t *ctx, const void *data, uint32_t len)
 {
     osal_ssize_t ret;
 
@@ -500,10 +500,10 @@ static int32 ethernet_send(payload_service_context_t *ctx, const void *data, uin
         return OS_ERROR;
     }
 
-    return (int32)ret;
+    return (int32_t)ret;
 }
 
-static int32 ethernet_recv(payload_service_context_t *ctx, void *buf, uint32 buf_size, uint32 timeout_ms)
+static int32_t ethernet_recv(payload_service_context_t *ctx, void *buf, uint32_t buf_size, uint32_t timeout_ms)
 {
     osal_ssize_t ret;
     osal_fd_set_t readfds;
@@ -543,13 +543,13 @@ static int32 ethernet_recv(payload_service_context_t *ctx, void *buf, uint32 buf
         return OS_ERROR;
     }
 
-    return (int32)ret;
+    return (int32_t)ret;
 }
 
 /*
  * UART实现
  */
-static int32 uart_open(payload_service_context_t *ctx)
+static int32_t uart_open(payload_service_context_t *ctx)
 {
     osal_termios_t tty;
 
@@ -573,7 +573,7 @@ static int32 uart_open(payload_service_context_t *ctx)
     }
 
     /* 设置波特率 */
-    uint32 speed = OSAL_B115200;
+    uint32_t speed = OSAL_B115200;
     switch (ctx->config.uart.baudrate)
     {
         case 9600:   speed = OSAL_B9600; break;
@@ -624,7 +624,7 @@ static int32 uart_open(payload_service_context_t *ctx)
     return OS_SUCCESS;
 }
 
-static int32 uart_close(payload_service_context_t *ctx)
+static int32_t uart_close(payload_service_context_t *ctx)
 {
     if (ctx->uart_fd >= 0)
     {
@@ -634,7 +634,7 @@ static int32 uart_close(payload_service_context_t *ctx)
     return OS_SUCCESS;
 }
 
-static int32 uart_send(payload_service_context_t *ctx, const void *data, uint32 len)
+static int32_t uart_send(payload_service_context_t *ctx, const void *data, uint32_t len)
 {
     osal_ssize_t ret;
 
@@ -653,10 +653,10 @@ static int32 uart_send(payload_service_context_t *ctx, const void *data, uint32 
     /* 等待数据发送完成 */
     OSAL_tcdrain(ctx->uart_fd);
 
-    return (int32)ret;
+    return (int32_t)ret;
 }
 
-static int32 uart_recv(payload_service_context_t *ctx, void *buf, uint32 buf_size, uint32 timeout_ms)
+static int32_t uart_recv(payload_service_context_t *ctx, void *buf, uint32_t buf_size, uint32_t timeout_ms)
 {
     osal_ssize_t ret;
     osal_fd_set_t readfds;
@@ -691,5 +691,5 @@ static int32 uart_recv(payload_service_context_t *ctx, void *buf, uint32 buf_siz
         return OS_ERROR;
     }
 
-    return (int32)ret;
+    return (int32_t)ret;
 }

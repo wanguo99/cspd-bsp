@@ -12,7 +12,7 @@ void test_can_gateway_init_success(void)
 {
     OS_API_Init();
 
-    int32 ret = CAN_Gateway_Init();
+    int32_t ret = CAN_Gateway_Init();
 
     if (ret != OS_SUCCESS) {
         TEST_WARNING("CAN Gateway init failed, hardware not available");
@@ -27,7 +27,7 @@ void test_can_gateway_get_rx_queue(void)
 {
     OS_API_Init();
 
-    int32 ret = CAN_Gateway_Init();
+    int32_t ret = CAN_Gateway_Init();
 
     if (ret != OS_SUCCESS) {
         TEST_WARNING("CAN Gateway init failed, hardware not available");
@@ -45,7 +45,7 @@ void test_can_gateway_get_tx_queue(void)
 {
     OS_API_Init();
 
-    int32 ret = CAN_Gateway_Init();
+    int32_t ret = CAN_Gateway_Init();
 
     if (ret != OS_SUCCESS) {
         TEST_WARNING("CAN Gateway init failed, hardware not available");

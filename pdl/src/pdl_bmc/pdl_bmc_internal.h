@@ -28,63 +28,63 @@
 /*
  * 网络通信接口（pdl_bmc_net.c实现）
  */
-int32 bmc_redfish_init(const char *ip_addr, uint16 port, uint32 timeout_ms, void **handle);
-int32 bmc_redfish_deinit(void *handle);
-int32 bmc_redfish_send_recv(void *handle,
-                       const uint8 *request,
-                       uint32 req_size,
-                       uint8 *response,
-                       uint32 resp_size,
-                       uint32 *actual_size);
+int32_t bmc_redfish_init(const char *ip_addr, uint16_t port, uint32_t timeout_ms, void **handle);
+int32_t bmc_redfish_deinit(void *handle);
+int32_t bmc_redfish_send_recv(void *handle,
+                       const uint8_t *request,
+                       uint32_t req_size,
+                       uint8_t *response,
+                       uint32_t resp_size,
+                       uint32_t *actual_size);
 
 /*
  * 串口通信接口（pdl_bmc_net.c实现，复用网络模块）
  */
-int32 bmc_serial_init(const char *device, uint32 baudrate, uint32 timeout_ms, void **handle);
-int32 bmc_serial_deinit(void *handle);
-int32 bmc_serial_send_recv(void *handle,
-                          const uint8 *request,
-                          uint32 req_size,
-                          uint8 *response,
-                          uint32 resp_size,
-                          uint32 *actual_size);
+int32_t bmc_serial_init(const char *device, uint32_t baudrate, uint32_t timeout_ms, void **handle);
+int32_t bmc_serial_deinit(void *handle);
+int32_t bmc_serial_send_recv(void *handle,
+                          const uint8_t *request,
+                          uint32_t req_size,
+                          uint8_t *response,
+                          uint32_t resp_size,
+                          uint32_t *actual_size);
 
 /*
  * IPMI协议接口（pdl_bmc_ipmi.c实现）
  */
-int32 bmc_ipmi_pack_command(uint8 cmd_code,
-                           uint8 subcmd,
-                           const uint8 *data,
-                           uint32 data_len,
-                           uint8 *frame,
-                           uint32 frame_size,
-                           uint32 *actual_size);
+int32_t bmc_ipmi_pack_command(uint8_t cmd_code,
+                           uint8_t subcmd,
+                           const uint8_t *data,
+                           uint32_t data_len,
+                           uint8_t *frame,
+                           uint32_t frame_size,
+                           uint32_t *actual_size);
 
-int32 bmc_ipmi_unpack_response(const uint8 *frame,
-                              uint32 frame_len,
-                              uint8 *status,
-                              uint8 *data,
-                              uint32 data_size,
-                              uint32 *actual_size);
+int32_t bmc_ipmi_unpack_response(const uint8_t *frame,
+                              uint32_t frame_len,
+                              uint8_t *status,
+                              uint8_t *data,
+                              uint32_t data_size,
+                              uint32_t *actual_size);
 
-int32 bmc_ipmi_power_on(void *comm_handle,
-                       int32 (*send_recv)(void*, const uint8*, uint32, uint8*, uint32, uint32*));
+int32_t bmc_ipmi_power_on(void *comm_handle,
+                       int32_t (*send_recv)(void*, const uint8_t*, uint32_t, uint8_t*, uint32_t, uint32_t*));
 
-int32 bmc_ipmi_power_off(void *comm_handle,
-                        int32 (*send_recv)(void*, const uint8*, uint32, uint8*, uint32, uint32*));
+int32_t bmc_ipmi_power_off(void *comm_handle,
+                        int32_t (*send_recv)(void*, const uint8_t*, uint32_t, uint8_t*, uint32_t, uint32_t*));
 
-int32 bmc_ipmi_power_reset(void *comm_handle,
-                          int32 (*send_recv)(void*, const uint8*, uint32, uint8*, uint32, uint32*));
+int32_t bmc_ipmi_power_reset(void *comm_handle,
+                          int32_t (*send_recv)(void*, const uint8_t*, uint32_t, uint8_t*, uint32_t, uint32_t*));
 
-int32 bmc_ipmi_get_power_state(void *comm_handle,
-                              int32 (*send_recv)(void*, const uint8*, uint32, uint8*, uint32, uint32*),
+int32_t bmc_ipmi_get_power_state(void *comm_handle,
+                              int32_t (*send_recv)(void*, const uint8_t*, uint32_t, uint8_t*, uint32_t, uint32_t*),
                               bmc_power_state_t *state);
 
-int32 bmc_ipmi_read_sensors(void *comm_handle,
-                           int32 (*send_recv)(void*, const uint8*, uint32, uint8*, uint32, uint32*),
+int32_t bmc_ipmi_read_sensors(void *comm_handle,
+                           int32_t (*send_recv)(void*, const uint8_t*, uint32_t, uint8_t*, uint32_t, uint32_t*),
                            bmc_sensor_type_t type,
                            bmc_sensor_reading_t *readings,
-                           uint32 max_count,
-                           uint32 *actual_count);
+                           uint32_t max_count,
+                           uint32_t *actual_count);
 
 #endif /* PDL_BMC_INTERNAL_H */

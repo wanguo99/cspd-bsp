@@ -44,10 +44,10 @@ static void native_to_osal_termios(const struct termios *native_term, osal_termi
  * termios函数实现
  *===========================================================================*/
 
-int32 OSAL_tcgetattr(int32 fd, osal_termios_t *termios_p)
+int32_t OSAL_tcgetattr(int32_t fd, osal_termios_t *termios_p)
 {
     struct termios native_term;
-    int32 result = tcgetattr(fd, &native_term);
+    int32_t result = tcgetattr(fd, &native_term);
 
     if (result == 0) {
         native_to_osal_termios(&native_term, termios_p);
@@ -56,7 +56,7 @@ int32 OSAL_tcgetattr(int32 fd, osal_termios_t *termios_p)
     return result;
 }
 
-int32 OSAL_tcsetattr(int32 fd, int32 optional_actions, const osal_termios_t *termios_p)
+int32_t OSAL_tcsetattr(int32_t fd, int32_t optional_actions, const osal_termios_t *termios_p)
 {
     struct termios native_term;
     osal_to_native_termios(termios_p, &native_term);
@@ -67,44 +67,44 @@ int32 OSAL_tcsetattr(int32 fd, int32 optional_actions, const osal_termios_t *ter
     return tcsetattr(fd, optional_actions, &native_term);
 }
 
-int32 OSAL_tcflush(int32 fd, int32 queue_selector)
+int32_t OSAL_tcflush(int32_t fd, int32_t queue_selector)
 {
     return tcflush(fd, queue_selector);
 }
 
-int32 OSAL_tcflow(int32 fd, int32 action)
+int32_t OSAL_tcflow(int32_t fd, int32_t action)
 {
     return tcflow(fd, action);
 }
 
-int32 OSAL_tcsendbreak(int32 fd, int32 duration)
+int32_t OSAL_tcsendbreak(int32_t fd, int32_t duration)
 {
     return tcsendbreak(fd, duration);
 }
 
-int32 OSAL_tcdrain(int32 fd)
+int32_t OSAL_tcdrain(int32_t fd)
 {
     return tcdrain(fd);
 }
 
-int32 OSAL_cfsetispeed(osal_termios_t *termios_p, uint32 speed)
+int32_t OSAL_cfsetispeed(osal_termios_t *termios_p, uint32_t speed)
 {
     termios_p->c_ispeed = speed;
     return 0;
 }
 
-int32 OSAL_cfsetospeed(osal_termios_t *termios_p, uint32 speed)
+int32_t OSAL_cfsetospeed(osal_termios_t *termios_p, uint32_t speed)
 {
     termios_p->c_ospeed = speed;
     return 0;
 }
 
-uint32 OSAL_cfgetispeed(const osal_termios_t *termios_p)
+uint32_t OSAL_cfgetispeed(const osal_termios_t *termios_p)
 {
     return termios_p->c_ispeed;
 }
 
-uint32 OSAL_cfgetospeed(const osal_termios_t *termios_p)
+uint32_t OSAL_cfgetospeed(const osal_termios_t *termios_p)
 {
     return termios_p->c_ospeed;
 }

@@ -21,9 +21,9 @@ typedef struct
 
 static osal_mutex_record_t g_osal_mutex_table[OS_MAX_MUTEXES];
 static pthread_mutex_t g_mutex_table_mutex = PTHREAD_MUTEX_INITIALIZER;
-static uint32 g_next_mutex_id = 1;
+static uint32_t g_next_mutex_id = 1;
 
-static uint32 g_deadlock_threshold_msec = 5000;
+static uint32_t g_deadlock_threshold_msec = 5000;
 static deadlock_callback_t g_deadlock_callback = NULL;
 
 void osal_mutex_table_init(void)
@@ -34,10 +34,10 @@ void osal_mutex_table_init(void)
     pthread_mutex_unlock(&g_mutex_table_mutex);
 }
 
-int32 OSAL_MutexCreate(osal_id_t *mutex_id, const char *mutex_name,
-                     uint32 flags __attribute__((unused)))
+int32_t OSAL_MutexCreate(osal_id_t *mutex_id, const char *mutex_name,
+                     uint32_t flags __attribute__((unused)))
 {
-    uint32 slot = 0;
+    uint32_t slot = 0;
     bool found_slot = false;
 
     if (mutex_id == NULL)
@@ -48,7 +48,7 @@ int32 OSAL_MutexCreate(osal_id_t *mutex_id, const char *mutex_name,
 
     pthread_mutex_lock(&g_mutex_table_mutex);
 
-    for (uint32 i = 0; i < OS_MAX_MUTEXES; i++)
+    for (uint32_t i = 0; i < OS_MAX_MUTEXES; i++)
     {
         if (!g_osal_mutex_table[i].is_used)
         {
@@ -64,7 +64,7 @@ int32 OSAL_MutexCreate(osal_id_t *mutex_id, const char *mutex_name,
         return OS_ERR_NO_FREE_IDS;
     }
 
-    for (uint32 i = 0; i < OS_MAX_MUTEXES; i++)
+    for (uint32_t i = 0; i < OS_MAX_MUTEXES; i++)
     {
         if (g_osal_mutex_table[i].is_used &&
             strcmp(g_osal_mutex_table[i].name, mutex_name) == 0)
@@ -92,14 +92,14 @@ int32 OSAL_MutexCreate(osal_id_t *mutex_id, const char *mutex_name,
     return OS_SUCCESS;
 }
 
-int32 OSAL_MutexDelete(osal_id_t mutex_id)
+int32_t OSAL_MutexDelete(osal_id_t mutex_id)
 {
     pthread_mutex_t *mutex_to_destroy = NULL;
-    uint32 slot_to_clear = OS_MAX_MUTEXES;
+    uint32_t slot_to_clear = OS_MAX_MUTEXES;
 
     pthread_mutex_lock(&g_mutex_table_mutex);
 
-    for (uint32 i = 0; i < OS_MAX_MUTEXES; i++)
+    for (uint32_t i = 0; i < OS_MAX_MUTEXES; i++)
     {
         if (g_osal_mutex_table[i].is_used && g_osal_mutex_table[i].id == mutex_id)
         {
@@ -129,7 +129,7 @@ int32 OSAL_MutexDelete(osal_id_t mutex_id)
     return OS_SUCCESS;
 }
 
-int32 OSAL_MutexLock(osal_id_t mutex_id)
+int32_t OSAL_MutexLock(osal_id_t mutex_id)
 {
     pthread_mutex_t *target_mutex = NULL;
     bool is_valid = false;
@@ -137,7 +137,7 @@ int32 OSAL_MutexLock(osal_id_t mutex_id)
     /* 查找互斥锁 */
     pthread_mutex_lock(&g_mutex_table_mutex);
 
-    for (uint32 i = 0; i < OS_MAX_MUTEXES; i++)
+    for (uint32_t i = 0; i < OS_MAX_MUTEXES; i++)
     {
         if (g_osal_mutex_table[i].is_used &&
             g_osal_mutex_table[i].id == mutex_id &&
@@ -161,7 +161,7 @@ int32 OSAL_MutexLock(osal_id_t mutex_id)
     return OS_SUCCESS;
 }
 
-int32 OSAL_MutexUnlock(osal_id_t mutex_id)
+int32_t OSAL_MutexUnlock(osal_id_t mutex_id)
 {
     pthread_mutex_t *target_mutex = NULL;
     bool is_valid = false;
@@ -169,7 +169,7 @@ int32 OSAL_MutexUnlock(osal_id_t mutex_id)
     /* 查找互斥锁 */
     pthread_mutex_lock(&g_mutex_table_mutex);
 
-    for (uint32 i = 0; i < OS_MAX_MUTEXES; i++)
+    for (uint32_t i = 0; i < OS_MAX_MUTEXES; i++)
     {
         if (g_osal_mutex_table[i].is_used &&
             g_osal_mutex_table[i].id == mutex_id &&
@@ -193,14 +193,14 @@ int32 OSAL_MutexUnlock(osal_id_t mutex_id)
     return OS_SUCCESS;
 }
 
-int32 OSAL_MutexGetIdByName(osal_id_t *mutex_id, const char *mutex_name)
+int32_t OSAL_MutexGetIdByName(osal_id_t *mutex_id, const char *mutex_name)
 {
     if (mutex_id == NULL || mutex_name == NULL)
         return OS_INVALID_POINTER;
 
     pthread_mutex_lock(&g_mutex_table_mutex);
 
-    for (uint32 i = 0; i < OS_MAX_MUTEXES; i++)
+    for (uint32_t i = 0; i < OS_MAX_MUTEXES; i++)
     {
         if (g_osal_mutex_table[i].is_used &&
             strcmp(g_osal_mutex_table[i].name, mutex_name) == 0)
@@ -215,7 +215,7 @@ int32 OSAL_MutexGetIdByName(osal_id_t *mutex_id, const char *mutex_name)
     return OS_ERR_NAME_NOT_FOUND;
 }
 
-int32 OSAL_MutexLockTimeout(osal_id_t mutex_id, uint32 timeout_msec)
+int32_t OSAL_MutexLockTimeout(osal_id_t mutex_id, uint32_t timeout_msec)
 {
     pthread_mutex_t *target_mutex = NULL;
     bool is_valid = false;
@@ -225,7 +225,7 @@ int32 OSAL_MutexLockTimeout(osal_id_t mutex_id, uint32 timeout_msec)
 
     pthread_mutex_lock(&g_mutex_table_mutex);
 
-    for (uint32 i = 0; i < OS_MAX_MUTEXES; i++)
+    for (uint32_t i = 0; i < OS_MAX_MUTEXES; i++)
     {
         if (g_osal_mutex_table[i].is_used &&
             g_osal_mutex_table[i].id == mutex_id &&
@@ -257,7 +257,7 @@ int32 OSAL_MutexLockTimeout(osal_id_t mutex_id, uint32 timeout_msec)
     if (ret == ETIMEDOUT)
     {
         clock_gettime(CLOCK_REALTIME, &current_time);
-        uint32 wait_time = (current_time.tv_sec - start_time.tv_sec) * 1000 +
+        uint32_t wait_time = (current_time.tv_sec - start_time.tv_sec) * 1000 +
                           (current_time.tv_nsec - start_time.tv_nsec) / 1000000;
 
         if (wait_time >= g_deadlock_threshold_msec && g_deadlock_callback != NULL)
@@ -275,7 +275,7 @@ int32 OSAL_MutexLockTimeout(osal_id_t mutex_id, uint32 timeout_msec)
     return OS_SUCCESS;
 }
 
-int32 OSAL_MutexSetDeadlockDetection(uint32 threshold_msec, deadlock_callback_t callback)
+int32_t OSAL_MutexSetDeadlockDetection(uint32_t threshold_msec, deadlock_callback_t callback)
 {
     g_deadlock_threshold_msec = threshold_msec;
     g_deadlock_callback = callback;

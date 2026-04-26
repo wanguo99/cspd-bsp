@@ -11,7 +11,7 @@
 #include "osal_types.h"
 
 /* 使用标准C类型 */
-typedef uint32_t uint32;
+typedef uint32_t uint32_t;
 #include <stdlib.h>
 
 /* 测试用例函数指针类型 */
@@ -27,7 +27,7 @@ typedef struct {
 typedef struct {
     const char *module_name;      /* 模块名称 */
     const test_case_t *test_cases; /* 测试用例数组 */
-    uint32 test_count;            /* 测试用例数量 */
+    uint32_t test_count;            /* 测试用例数量 */
 } test_module_t;
 
 /* 失败测试用例记录 */
@@ -39,9 +39,9 @@ typedef struct {
 
 /* 测试统计 */
 typedef struct {
-    uint32 total;
-    uint32 passed;
-    uint32 failed;
+    uint32_t total;
+    uint32_t passed;
+    uint32_t failed;
     failed_test_t failed_tests[MAX_FAILED_TESTS];
 } test_stats_t;
 

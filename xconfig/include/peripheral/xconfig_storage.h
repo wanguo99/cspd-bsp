@@ -39,8 +39,8 @@ typedef struct {
     const char *device_path;      /* 设备路径（如"/dev/mmcblk0"） */
 
     /* 存储特定配置 */
-    uint64 capacity_mb;           /* 容量（MB） */
-    uint32 block_size;            /* 块大小（字节） */
+    uint64_t capacity_mb;           /* 容量（MB） */
+    uint32_t block_size;            /* 块大小（字节） */
 
     /* GPIO控制（可选） */
     xconfig_gpio_config_t *power_gpio; /* 电源控制GPIO */

@@ -63,14 +63,14 @@
  * @param mode 文件权限（OSAL_S_*），仅在创建文件时使用
  * @return 文件描述符(>=0)，失败返回-1
  */
-int32 OSAL_open(const str_t *pathname, int32 flags, uint32 mode);
+int32_t OSAL_open(const str_t *pathname, int32_t flags, uint32_t mode);
 
 /**
  * @brief 关闭文件描述符
  * @param fd 文件描述符
  * @return 0成功，-1失败
  */
-int32 OSAL_close(int32 fd);
+int32_t OSAL_close(int32_t fd);
 
 /**
  * @brief 读取数据
@@ -79,7 +79,7 @@ int32 OSAL_close(int32 fd);
  * @param count 字节数
  * @return 实际读取字节数(>=0)，0表示EOF，-1失败
  */
-osal_ssize_t OSAL_read(int32 fd, void *buf, osal_size_t count);
+osal_ssize_t OSAL_read(int32_t fd, void *buf, osal_size_t count);
 
 /**
  * @brief 写入数据
@@ -88,7 +88,7 @@ osal_ssize_t OSAL_read(int32 fd, void *buf, osal_size_t count);
  * @param count 字节数
  * @return 实际写入字节数(>=0)，-1失败
  */
-osal_ssize_t OSAL_write(int32 fd, const void *buf, osal_size_t count);
+osal_ssize_t OSAL_write(int32_t fd, const void *buf, osal_size_t count);
 
 /**
  * @brief 移动文件读写位置
@@ -97,7 +97,7 @@ osal_ssize_t OSAL_write(int32 fd, const void *buf, osal_size_t count);
  * @param whence 起始位置（OSAL_SEEK_SET/CUR/END）
  * @return 新的文件位置(>=0)，-1失败
  */
-osal_ssize_t OSAL_lseek(int32 fd, osal_ssize_t offset, int32 whence);
+osal_ssize_t OSAL_lseek(int32_t fd, osal_ssize_t offset, int32_t whence);
 
 /*===========================================================================
  * 文件控制操作（fcntl）
@@ -116,7 +116,7 @@ osal_ssize_t OSAL_lseek(int32 fd, osal_ssize_t offset, int32 whence);
  * @param arg 参数（依赖于cmd）
  * @return 依赖于cmd，失败返回-1
  */
-int32 OSAL_fcntl(int32 fd, int32 cmd, int32 arg);
+int32_t OSAL_fcntl(int32_t fd, int32_t cmd, int32_t arg);
 
 /*===========================================================================
  * 设备控制操作（ioctl）
@@ -129,6 +129,6 @@ int32 OSAL_fcntl(int32 fd, int32 cmd, int32 arg);
  * @param argp 参数指针
  * @return 0成功，-1失败
  */
-int32 OSAL_ioctl(int32 fd, uint32 request, void *argp);
+int32_t OSAL_ioctl(int32_t fd, uint32_t request, void *argp);
 
 #endif /* OSAL_FILE_H */

@@ -23,8 +23,8 @@
  * @brief GPIO配置
  */
 typedef struct {
-    uint32 gpio_num;              /* GPIO编号 */
-    uint32 pin_mux;               /* 引脚复用配置 */
+    uint32_t gpio_num;              /* GPIO编号 */
+    uint32_t pin_mux;               /* 引脚复用配置 */
     bool   active_low;            /* 低电平有效 */
     bool   pull_up;               /* 上拉使能 */
     bool   pull_down;             /* 下拉使能 */
@@ -40,9 +40,9 @@ typedef struct {
 typedef struct {
     const char *name;             /* 电源域名称 */
     xconfig_gpio_config_t *enable_gpio; /* 使能GPIO */
-    uint32      voltage_mv;       /* 电压（mV） */
-    uint32      current_ma;       /* 电流限制（mA） */
-    uint32      startup_delay_ms; /* 启动延时（ms） */
+    uint32_t      voltage_mv;       /* 电压（mV） */
+    uint32_t      current_ma;       /* 电流限制（mA） */
+    uint32_t      startup_delay_ms; /* 启动延时（ms） */
 } xconfig_power_domain_t;
 
 #endif /* XCONFIG_COMMON_H */

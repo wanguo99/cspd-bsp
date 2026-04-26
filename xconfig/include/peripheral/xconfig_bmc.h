@@ -40,7 +40,7 @@ typedef enum {
 typedef struct {
     const char *interface;        /* 网络接口名（如"eth0"） */
     const char *ip_addr;          /* BMC IP地址 */
-    uint16      port;             /* IPMI端口（默认623） */
+    uint16_t      port;             /* IPMI端口（默认623） */
     const char *username;         /* 用户名 */
     const char *password;         /* 密码 */
 } xconfig_bmc_ipmi_lan_cfg_t;
@@ -50,10 +50,10 @@ typedef struct {
  */
 typedef struct {
     const str_t *device;          /* 串口设备（如"/dev/ttyS0"） */
-    uint32       baudrate;        /* 波特率 */
-    uint8        data_bits;       /* 数据位 */
-    uint8        stop_bits;       /* 停止位 */
-    int8         parity;          /* 校验位 */
+    uint32_t       baudrate;        /* 波特率 */
+    uint8_t        data_bits;       /* 数据位 */
+    uint8_t        stop_bits;       /* 停止位 */
+    int8_t         parity;          /* 校验位 */
 } xconfig_bmc_ipmi_serial_cfg_t;
 
 /**
@@ -97,9 +97,9 @@ typedef struct {
     } backup_channel;
 
     /* BMC特定配置 */
-    uint32 cmd_timeout_ms;        /* 命令超时（ms） */
-    uint32 retry_count;           /* 重试次数 */
-    uint32 failover_threshold;    /* 故障切换阈值（连续失败次数） */
+    uint32_t cmd_timeout_ms;        /* 命令超时（ms） */
+    uint32_t retry_count;           /* 重试次数 */
+    uint32_t failover_threshold;    /* 故障切换阈值（连续失败次数） */
 
     /* GPIO控制（可选） */
     xconfig_gpio_config_t *power_gpio; /* 电源控制GPIO */

@@ -13,11 +13,11 @@ typedef void* hal_serial_handle_t;
 
 typedef struct
 {
-    uint32 baud_rate;
-    uint8  data_bits;      /* 5, 6, 7, 8 */
-    uint8  stop_bits;      /* 1, 2 */
-    uint8  parity;         /* NONE, ODD, EVEN */
-    uint8  flow_control;   /* NONE, HW, SW */
+    uint32_t baud_rate;
+    uint8_t  data_bits;      /* 5, 6, 7, 8 */
+    uint8_t  stop_bits;      /* 1, 2 */
+    uint8_t  parity;         /* NONE, ODD, EVEN */
+    uint8_t  flow_control;   /* NONE, HW, SW */
 } hal_serial_config_t;
 
 #define HAL_SERIAL_PARITY_NONE  0
@@ -38,13 +38,13 @@ typedef struct
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 HAL_Serial_Open(const char *device, const hal_serial_config_t *config,
+int32_t HAL_Serial_Open(const char *device, const hal_serial_config_t *config,
                       hal_serial_handle_t *handle);
 
 /**
  * @brief 关闭串口设备
  */
-int32 HAL_Serial_Close(hal_serial_handle_t handle);
+int32_t HAL_Serial_Close(hal_serial_handle_t handle);
 
 /**
  * @brief 向串口写入数据
@@ -53,8 +53,8 @@ int32 HAL_Serial_Close(hal_serial_handle_t handle);
  *
  * @return 实际写入的字节数，负值表示错误
  */
-int32 HAL_Serial_Write(hal_serial_handle_t handle, const void *buffer,
-                       uint32 size, int32 timeout);
+int32_t HAL_Serial_Write(hal_serial_handle_t handle, const void *buffer,
+                       uint32_t size, int32_t timeout);
 
 /**
  * @brief 从串口读取数据
@@ -63,18 +63,18 @@ int32 HAL_Serial_Write(hal_serial_handle_t handle, const void *buffer,
  *
  * @return 实际读取的字节数，负值表示错误
  */
-int32 HAL_Serial_Read(hal_serial_handle_t handle, void *buffer,
-                      uint32 size, int32 timeout);
+int32_t HAL_Serial_Read(hal_serial_handle_t handle, void *buffer,
+                      uint32_t size, int32_t timeout);
 
 /**
  * @brief 刷新串口缓冲区
  */
-int32 HAL_Serial_Flush(hal_serial_handle_t handle);
+int32_t HAL_Serial_Flush(hal_serial_handle_t handle);
 
 /**
  * @brief 设置串口配置
  */
-int32 HAL_Serial_SetConfig(hal_serial_handle_t handle,
+int32_t HAL_Serial_SetConfig(hal_serial_handle_t handle,
                            const hal_serial_config_t *config);
 
 #endif /* HAL_SERIAL_H */

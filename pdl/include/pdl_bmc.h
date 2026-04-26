@@ -53,7 +53,7 @@ typedef struct
 {
     bmc_power_state_t power_state;
     bool bmc_ready;
-    uint32 uptime_sec;
+    uint32_t uptime_sec;
     float cpu_temp;
     float inlet_temp;
 } bmc_status_t;
@@ -67,25 +67,25 @@ typedef struct
     struct {
         bool enabled;             /* 是否启用 */
         const char *ip_addr;      /* IP地址 */
-        uint16 port;              /* 端口（默认623） */
+        uint16_t port;              /* 端口（默认623） */
         const char *username;     /* 用户名 */
         const char *password;     /* 密码 */
-        uint32 timeout_ms;        /* 超时时间 */
+        uint32_t timeout_ms;        /* 超时时间 */
     } network;
 
     /* 串口配置 */
     struct {
         bool enabled;             /* 是否启用 */
         const char *device;       /* 串口设备 */
-        uint32 baudrate;          /* 波特率 */
-        uint32 timeout_ms;        /* 超时时间 */
+        uint32_t baudrate;          /* 波特率 */
+        uint32_t timeout_ms;        /* 超时时间 */
     } serial;
 
     /* 服务配置 */
     bmc_channel_t primary_channel;  /* 主通道 */
     bool auto_switch;             /* 自动切换通道 */
-    uint32 retry_count;           /* 重试次数 */
-    uint32 health_check_interval; /* 健康检查间隔(ms) */
+    uint32_t retry_count;           /* 重试次数 */
+    uint32_t health_check_interval; /* 健康检查间隔(ms) */
 } bmc_config_t;
 
 /*
@@ -120,7 +120,7 @@ typedef struct
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 PDL_BMC_Init(const bmc_config_t *config,
+int32_t PDL_BMC_Init(const bmc_config_t *config,
                    bmc_handle_t *handle);
 
 /**
@@ -130,7 +130,7 @@ int32 PDL_BMC_Init(const bmc_config_t *config,
  *
  * @return OS_SUCCESS 成功
  */
-int32 PDL_BMC_Deinit(bmc_handle_t handle);
+int32_t PDL_BMC_Deinit(bmc_handle_t handle);
 
 /**
  * @brief 电源开机
@@ -141,7 +141,7 @@ int32 PDL_BMC_Deinit(bmc_handle_t handle);
  * @return OS_ERROR_TIMEOUT 超时
  * @return OS_ERROR 失败
  */
-int32 PDL_BMC_PowerOn(bmc_handle_t handle);
+int32_t PDL_BMC_PowerOn(bmc_handle_t handle);
 
 /**
  * @brief 电源关机
@@ -150,7 +150,7 @@ int32 PDL_BMC_PowerOn(bmc_handle_t handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 PDL_BMC_PowerOff(bmc_handle_t handle);
+int32_t PDL_BMC_PowerOff(bmc_handle_t handle);
 
 /**
  * @brief 电源复位
@@ -159,7 +159,7 @@ int32 PDL_BMC_PowerOff(bmc_handle_t handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 PDL_BMC_PowerReset(bmc_handle_t handle);
+int32_t PDL_BMC_PowerReset(bmc_handle_t handle);
 
 /**
  * @brief 查询电源状态
@@ -169,7 +169,7 @@ int32 PDL_BMC_PowerReset(bmc_handle_t handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 PDL_BMC_GetPowerState(bmc_handle_t handle,
+int32_t PDL_BMC_GetPowerState(bmc_handle_t handle,
                             bmc_power_state_t *state);
 
 /**
@@ -183,11 +183,11 @@ int32 PDL_BMC_GetPowerState(bmc_handle_t handle,
  *
  * @return OS_SUCCESS 成功
  */
-int32 PDL_BMC_ReadSensors(bmc_handle_t handle,
+int32_t PDL_BMC_ReadSensors(bmc_handle_t handle,
                           bmc_sensor_type_t type,
                           bmc_sensor_reading_t *readings,
-                          uint32 max_count,
-                          uint32 *actual_count);
+                          uint32_t max_count,
+                          uint32_t *actual_count);
 
 /**
  * @brief 执行原始IPMI命令
@@ -200,10 +200,10 @@ int32 PDL_BMC_ReadSensors(bmc_handle_t handle,
  * @return 实际接收字节数
  * @return <0 错误码
  */
-int32 PDL_BMC_ExecuteCommand(bmc_handle_t handle,
+int32_t PDL_BMC_ExecuteCommand(bmc_handle_t handle,
                              const char *cmd,
                              str_t *response,
-                             uint32 resp_size);
+                             uint32_t resp_size);
 
 /**
  * @brief 切换通信通道
@@ -213,7 +213,7 @@ int32 PDL_BMC_ExecuteCommand(bmc_handle_t handle,
  *
  * @return OS_SUCCESS 成功
  */
-int32 PDL_BMC_SwitchChannel(bmc_handle_t handle,
+int32_t PDL_BMC_SwitchChannel(bmc_handle_t handle,
                             bmc_channel_t channel);
 
 /**
@@ -246,10 +246,10 @@ bool PDL_BMC_IsConnected(bmc_handle_t handle);
  *
  * @return OS_SUCCESS 成功
  */
-int32 PDL_BMC_GetStats(bmc_handle_t handle,
-                       uint32 *cmd_count,
-                       uint32 *success_count,
-                       uint32 *fail_count,
-                       uint32 *switch_count);
+int32_t PDL_BMC_GetStats(bmc_handle_t handle,
+                       uint32_t *cmd_count,
+                       uint32_t *success_count,
+                       uint32_t *fail_count,
+                       uint32_t *switch_count);
 
 #endif /* PDL_BMC_H */

@@ -12,11 +12,11 @@
 #include <unistd.h>
 #include <signal.h>
 
-static volatile int32 g_signal_received = 0;
-static volatile int32 g_signal_number = 0;
+static volatile int32_t g_signal_received = 0;
+static volatile int32_t g_signal_number = 0;
 
 /* 信号处理函数 */
-static void test_signal_handler(int32 signum)
+static void test_signal_handler(int32_t signum)
 {
     g_signal_received = 1;
     g_signal_number = signum;
@@ -43,7 +43,7 @@ __attribute__((unused)) static void tearDown(void)
 void test_osal_signal_register_success(void)
 {
     setUp();
-    int32 ret;
+    int32_t ret;
 
     /* 注册SIGINT处理函数 */
     ret = OSAL_SignalRegister(OS_SIGNAL_INT, test_signal_handler);
@@ -65,7 +65,7 @@ void test_osal_signal_register_success(void)
 void test_osal_signal_ignore_success(void)
 {
     setUp();
-    int32 ret;
+    int32_t ret;
 
     /* 先注册处理函数 */
     ret = OSAL_SignalRegister(OS_SIGNAL_TERM, test_signal_handler);
@@ -89,7 +89,7 @@ void test_osal_signal_ignore_success(void)
 void test_osal_signal_block_success(void)
 {
     setUp();
-    int32 ret;
+    int32_t ret;
 
     /* 阻塞SIGINT */
     ret = OSAL_SignalBlock(OS_SIGNAL_INT);
@@ -123,7 +123,7 @@ void test_osal_signal_block_success(void)
 void test_osal_signal_default_success(void)
 {
     setUp();
-    int32 ret;
+    int32_t ret;
 
     /* 先注册处理函数 */
     ret = OSAL_SignalRegister(OS_SIGNAL_INT, test_signal_handler);
@@ -143,7 +143,7 @@ void test_osal_signal_default_success(void)
 void test_osal_signal_register_multiple(void)
 {
     setUp();
-    int32 ret;
+    int32_t ret;
 
     /* 注册多个信号 */
     ret = OSAL_SignalRegister(OS_SIGNAL_INT, test_signal_handler);
@@ -169,7 +169,7 @@ void test_osal_signal_register_multiple(void)
 void test_osal_signal_register_invalidparams(void)
 {
     setUp();
-    int32 ret;
+    int32_t ret;
 
     /* NULL处理函数 */
     ret = OSAL_SignalRegister(OS_SIGNAL_INT, NULL);

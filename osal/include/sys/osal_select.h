@@ -34,15 +34,15 @@
  * 注意：内部实现与平台相关，但接口保持一致
  */
 typedef struct {
-    uint32 fds_bits[OSAL_FD_SETSIZE / 32];  /* 位图，每个bit代表一个fd */
+    uint32_t fds_bits[OSAL_FD_SETSIZE / 32];  /* 位图，每个bit代表一个fd */
 } osal_fd_set_t;
 
 /**
  * @brief 时间值结构
  */
 typedef struct {
-    int32 tv_sec;   /* 秒 */
-    int32 tv_usec;  /* 微秒 */
+    int32_t tv_sec;   /* 秒 */
+    int32_t tv_usec;  /* 微秒 */
 } osal_timeval_t;
 
 /*===========================================================================
@@ -59,14 +59,14 @@ void OSAL_FD_ZERO(osal_fd_set_t *set);
  * @param fd 文件描述符
  * @param set 文件描述符集合
  */
-void OSAL_FD_SET(int32 fd, osal_fd_set_t *set);
+void OSAL_FD_SET(int32_t fd, osal_fd_set_t *set);
 
 /**
  * @brief 从集合中移除文件描述符
  * @param fd 文件描述符
  * @param set 文件描述符集合
  */
-void OSAL_FD_CLR(int32 fd, osal_fd_set_t *set);
+void OSAL_FD_CLR(int32_t fd, osal_fd_set_t *set);
 
 /**
  * @brief 检查文件描述符是否在集合中
@@ -74,7 +74,7 @@ void OSAL_FD_CLR(int32 fd, osal_fd_set_t *set);
  * @param set 文件描述符集合
  * @return 非0表示在集合中，0表示不在
  */
-int32 OSAL_FD_ISSET(int32 fd, const osal_fd_set_t *set);
+int32_t OSAL_FD_ISSET(int32_t fd, const osal_fd_set_t *set);
 
 /*===========================================================================
  * select系统调用
@@ -95,7 +95,7 @@ int32 OSAL_FD_ISSET(int32 fd, const osal_fd_set_t *set);
  * - readfds/writefds/exceptfds会被修改，返回时只包含就绪的fd
  * - timeout会被修改为剩余时间（Linux特性，其他系统可能不修改）
  */
-int32 OSAL_select(int32 nfds, osal_fd_set_t *readfds, osal_fd_set_t *writefds,
+int32_t OSAL_select(int32_t nfds, osal_fd_set_t *readfds, osal_fd_set_t *writefds,
                   osal_fd_set_t *exceptfds, osal_timeval_t *timeout);
 
 /**
@@ -115,11 +115,11 @@ int32 OSAL_select(int32 nfds, osal_fd_set_t *readfds, osal_fd_set_t *writefds,
  * - sigmask在等待期间临时替换进程的信号屏蔽字
  */
 typedef struct {
-    int32 tv_sec;   /* 秒 */
-    int32 tv_nsec;  /* 纳秒 */
+    int32_t tv_sec;   /* 秒 */
+    int32_t tv_nsec;  /* 纳秒 */
 } osal_timespec_t;
 
-int32 OSAL_pselect(int32 nfds, osal_fd_set_t *readfds, osal_fd_set_t *writefds,
+int32_t OSAL_pselect(int32_t nfds, osal_fd_set_t *readfds, osal_fd_set_t *writefds,
                    osal_fd_set_t *exceptfds, const osal_timespec_t *timeout,
                    const void *sigmask);
 

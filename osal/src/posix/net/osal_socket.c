@@ -13,54 +13,54 @@
  * Socket基本操作
  *===========================================================================*/
 
-int32 OSAL_socket(int32 domain, int32 type, int32 protocol)
+int32_t OSAL_socket(int32_t domain, int32_t type, int32_t protocol)
 {
-    return (int32)socket(domain, type, protocol);
+    return (int32_t)socket(domain, type, protocol);
 }
 
-int32 OSAL_bind(int32 sockfd, const osal_sockaddr_t *addr, osal_size_t addrlen)
+int32_t OSAL_bind(int32_t sockfd, const osal_sockaddr_t *addr, osal_size_t addrlen)
 {
-    return (int32)bind(sockfd, (const struct sockaddr *)addr, (socklen_t)addrlen);
+    return (int32_t)bind(sockfd, (const struct sockaddr *)addr, (socklen_t)addrlen);
 }
 
-int32 OSAL_listen(int32 sockfd, int32 backlog)
+int32_t OSAL_listen(int32_t sockfd, int32_t backlog)
 {
-    return (int32)listen(sockfd, backlog);
+    return (int32_t)listen(sockfd, backlog);
 }
 
-int32 OSAL_accept(int32 sockfd, osal_sockaddr_t *addr, osal_size_t *addrlen)
+int32_t OSAL_accept(int32_t sockfd, osal_sockaddr_t *addr, osal_size_t *addrlen)
 {
     socklen_t len = addrlen ? (socklen_t)(*addrlen) : 0;
-    int32 result = (int32)accept(sockfd, (struct sockaddr *)addr, addrlen ? &len : NULL);
+    int32_t result = (int32_t)accept(sockfd, (struct sockaddr *)addr, addrlen ? &len : NULL);
     if (addrlen) {
         *addrlen = (osal_size_t)len;
     }
     return result;
 }
 
-int32 OSAL_connect(int32 sockfd, const osal_sockaddr_t *addr, osal_size_t addrlen)
+int32_t OSAL_connect(int32_t sockfd, const osal_sockaddr_t *addr, osal_size_t addrlen)
 {
-    return (int32)connect(sockfd, (const struct sockaddr *)addr, (socklen_t)addrlen);
+    return (int32_t)connect(sockfd, (const struct sockaddr *)addr, (socklen_t)addrlen);
 }
 
-osal_ssize_t OSAL_send(int32 sockfd, const void *buf, osal_size_t len, int32 flags)
+osal_ssize_t OSAL_send(int32_t sockfd, const void *buf, osal_size_t len, int32_t flags)
 {
     return (osal_ssize_t)send(sockfd, buf, (size_t)len, flags);
 }
 
-osal_ssize_t OSAL_recv(int32 sockfd, void *buf, osal_size_t len, int32 flags)
+osal_ssize_t OSAL_recv(int32_t sockfd, void *buf, osal_size_t len, int32_t flags)
 {
     return (osal_ssize_t)recv(sockfd, buf, (size_t)len, flags);
 }
 
-osal_ssize_t OSAL_sendto(int32 sockfd, const void *buf, osal_size_t len, int32 flags,
+osal_ssize_t OSAL_sendto(int32_t sockfd, const void *buf, osal_size_t len, int32_t flags,
                   const osal_sockaddr_t *dest_addr, osal_size_t addrlen)
 {
     return (osal_ssize_t)sendto(sockfd, buf, (size_t)len, flags,
                          (const struct sockaddr *)dest_addr, (socklen_t)addrlen);
 }
 
-osal_ssize_t OSAL_recvfrom(int32 sockfd, void *buf, osal_size_t len, int32 flags,
+osal_ssize_t OSAL_recvfrom(int32_t sockfd, void *buf, osal_size_t len, int32_t flags,
                     osal_sockaddr_t *src_addr, osal_size_t *addrlen)
 {
     socklen_t slen = addrlen ? (socklen_t)(*addrlen) : 0;
@@ -72,26 +72,26 @@ osal_ssize_t OSAL_recvfrom(int32 sockfd, void *buf, osal_size_t len, int32 flags
     return result;
 }
 
-int32 OSAL_shutdown(int32 sockfd, int32 how)
+int32_t OSAL_shutdown(int32_t sockfd, int32_t how)
 {
-    return (int32)shutdown(sockfd, how);
+    return (int32_t)shutdown(sockfd, how);
 }
 
 /*===========================================================================
  * Socket选项操作
  *===========================================================================*/
 
-int32 OSAL_setsockopt(int32 sockfd, int32 level, int32 optname,
+int32_t OSAL_setsockopt(int32_t sockfd, int32_t level, int32_t optname,
                       const void *optval, osal_size_t optlen)
 {
-    return (int32)setsockopt(sockfd, level, optname, optval, (socklen_t)optlen);
+    return (int32_t)setsockopt(sockfd, level, optname, optval, (socklen_t)optlen);
 }
 
-int32 OSAL_getsockopt(int32 sockfd, int32 level, int32 optname,
+int32_t OSAL_getsockopt(int32_t sockfd, int32_t level, int32_t optname,
                       void *optval, osal_size_t *optlen)
 {
     socklen_t len = (socklen_t)(*optlen);
-    int32 result = (int32)getsockopt(sockfd, level, optname, optval, &len);
+    int32_t result = (int32_t)getsockopt(sockfd, level, optname, optval, &len);
     *optlen = (osal_size_t)len;
     return result;
 }
@@ -100,12 +100,12 @@ int32 OSAL_getsockopt(int32 sockfd, int32 level, int32 optname,
  * 网络接口操作
  *===========================================================================*/
 
-uint32 OSAL_if_nametoindex(const char *ifname)
+uint32_t OSAL_if_nametoindex(const char *ifname)
 {
-    return (uint32)if_nametoindex(ifname);
+    return (uint32_t)if_nametoindex(ifname);
 }
 
-str_t *OSAL_if_indextoname(uint32 ifindex, str_t *ifname)
+str_t *OSAL_if_indextoname(uint32_t ifindex, str_t *ifname)
 {
     return (str_t *)if_indextoname((unsigned int)ifindex, ifname);
 }
@@ -114,22 +114,22 @@ str_t *OSAL_if_indextoname(uint32 ifindex, str_t *ifname)
  * 字节序转换
  *===========================================================================*/
 
-uint16 OSAL_htons(uint16 hostshort)
+uint16_t OSAL_htons(uint16_t hostshort)
 {
     return htons(hostshort);
 }
 
-uint32 OSAL_htonl(uint32 hostlong)
+uint32_t OSAL_htonl(uint32_t hostlong)
 {
     return htonl(hostlong);
 }
 
-uint16 OSAL_ntohs(uint16 netshort)
+uint16_t OSAL_ntohs(uint16_t netshort)
 {
     return ntohs(netshort);
 }
 
-uint32 OSAL_ntohl(uint32 netlong)
+uint32_t OSAL_ntohl(uint32_t netlong)
 {
     return ntohl(netlong);
 }
@@ -138,12 +138,12 @@ uint32 OSAL_ntohl(uint32 netlong)
  * IP地址转换
  *===========================================================================*/
 
-int32 OSAL_inet_pton(int32 af, const char *src, void *dst)
+int32_t OSAL_inet_pton(int32_t af, const char *src, void *dst)
 {
-    return (int32)inet_pton(af, src, dst);
+    return (int32_t)inet_pton(af, src, dst);
 }
 
-const char *OSAL_inet_ntop(int32 af, const void *src, char *dst, osal_size_t size)
+const char *OSAL_inet_ntop(int32_t af, const void *src, char *dst, osal_size_t size)
 {
     return inet_ntop(af, src, dst, (socklen_t)size);
 }

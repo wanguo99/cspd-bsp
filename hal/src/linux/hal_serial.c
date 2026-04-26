@@ -15,7 +15,7 @@ typedef struct
     str_t device[64];
 } hal_serial_context_t;
 
-static uint32 hal_serial_get_baudrate(uint32 baudrate)
+static uint32_t hal_serial_get_baudrate(uint32_t baudrate)
 {
     switch (baudrate)
     {
@@ -41,11 +41,11 @@ static uint32 hal_serial_get_baudrate(uint32 baudrate)
     }
 }
 
-int32 HAL_Serial_Open(const char *device, const hal_serial_config_t *config, hal_serial_handle_t *handle)
+int32_t HAL_Serial_Open(const char *device, const hal_serial_config_t *config, hal_serial_handle_t *handle)
 {
     hal_serial_context_t *ctx;
     osal_termios_t tty;
-    uint32 speed;
+    uint32_t speed;
 
     if (device == NULL || handle == NULL)
     {
@@ -175,7 +175,7 @@ int32 HAL_Serial_Open(const char *device, const hal_serial_config_t *config, hal
 /************************************************************************
  * HAL_Serial_Close - 关闭串口
  ************************************************************************/
-int32 HAL_Serial_Close(hal_serial_handle_t handle)
+int32_t HAL_Serial_Close(hal_serial_handle_t handle)
 {
     hal_serial_context_t *ctx = (hal_serial_context_t *)handle;
 
@@ -197,13 +197,13 @@ int32 HAL_Serial_Close(hal_serial_handle_t handle)
 /************************************************************************
  * HAL_Serial_Write - 发送数据
  ************************************************************************/
-int32 HAL_Serial_Write(hal_serial_handle_t handle, const void *buffer, uint32 size, int32 timeout)
+int32_t HAL_Serial_Write(hal_serial_handle_t handle, const void *buffer, uint32_t size, int32_t timeout)
 {
     hal_serial_context_t *ctx = (hal_serial_context_t *)handle;
     osal_fd_set_t writefds;
     osal_timeval_t tv;
     int ret;
-    int32 written;
+    int32_t written;
 
     if (ctx == NULL || buffer == NULL)
     {
@@ -244,19 +244,19 @@ int32 HAL_Serial_Write(hal_serial_handle_t handle, const void *buffer, uint32 si
         return OS_ERROR;
     }
 
-    return (int32)written;
+    return (int32_t)written;
 }
 
 /************************************************************************
  * HAL_Serial_Read - 接收数据
  ************************************************************************/
-int32 HAL_Serial_Read(hal_serial_handle_t handle, void *buffer, uint32 size, int32 timeout)
+int32_t HAL_Serial_Read(hal_serial_handle_t handle, void *buffer, uint32_t size, int32_t timeout)
 {
     hal_serial_context_t *ctx = (hal_serial_context_t *)handle;
     osal_fd_set_t readfds;
     osal_timeval_t tv;
     int ret;
-    int32 nread;
+    int32_t nread;
 
     if (ctx == NULL || buffer == NULL)
     {
@@ -297,13 +297,13 @@ int32 HAL_Serial_Read(hal_serial_handle_t handle, void *buffer, uint32 size, int
         return OS_ERROR;
     }
 
-    return (int32)nread;
+    return (int32_t)nread;
 }
 
 /************************************************************************
  * HAL_Serial_Flush - 清空接收缓冲区
  ************************************************************************/
-int32 HAL_Serial_Flush(hal_serial_handle_t handle)
+int32_t HAL_Serial_Flush(hal_serial_handle_t handle)
 {
     hal_serial_context_t *ctx = (hal_serial_context_t *)handle;
 

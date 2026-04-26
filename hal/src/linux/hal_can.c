@@ -22,18 +22,18 @@
 typedef struct
 {
     int sockfd;
-    uint32 tx_count;
-    uint32 rx_count;
-    uint32 err_count;
+    uint32_t tx_count;
+    uint32_t rx_count;
+    uint32_t err_count;
     str_t interface[IFNAMSIZ];
-    uint32 baudrate;
+    uint32_t baudrate;
     bool initialized;
 } hal_can_context_t;
 
 /**
  * @brief 初始化CAN驱动
  */
-int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
+int32_t HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
 {
     hal_can_context_t *impl;
     struct sockaddr_can addr;
@@ -137,7 +137,7 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
 /**
  * @brief 关闭CAN驱动
  */
-int32 HAL_CAN_Deinit(hal_can_handle_t handle)
+int32_t HAL_CAN_Deinit(hal_can_handle_t handle)
 {
     hal_can_context_t *impl = (hal_can_context_t *)handle;
 
@@ -160,7 +160,7 @@ int32 HAL_CAN_Deinit(hal_can_handle_t handle)
 /**
  * @brief 发送CAN帧
  */
-int32 HAL_CAN_Send(hal_can_handle_t handle, const can_frame_t *frame)
+int32_t HAL_CAN_Send(hal_can_handle_t handle, const can_frame_t *frame)
 {
     hal_can_context_t *impl = (hal_can_context_t *)handle;
     struct can_frame can_frame;
@@ -196,7 +196,7 @@ int32 HAL_CAN_Send(hal_can_handle_t handle, const can_frame_t *frame)
         else
         {
             LOG_ERROR("HAL_CAN", "Incomplete send: %d/%u bytes",
-                       (int32)ret, (uint32)sizeof(struct can_frame));
+                       (int32_t)ret, (uint32_t)sizeof(struct can_frame));
         }
         impl->err_count++;
         return OS_ERROR;
@@ -209,7 +209,7 @@ int32 HAL_CAN_Send(hal_can_handle_t handle, const can_frame_t *frame)
 /**
  * @brief 接收CAN帧
  */
-int32 HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32 timeout)
+int32_t HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32_t timeout)
 {
     hal_can_context_t *impl = (hal_can_context_t *)handle;
     struct can_frame can_frame;
@@ -239,7 +239,7 @@ int32 HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32 timeout)
     ret = OSAL_read(impl->sockfd, &can_frame, sizeof(struct can_frame));
     if (ret < 0)
     {
-        int32 err = OSAL_GetErrno();
+        int32_t err = OSAL_GetErrno();
         if (err == OSAL_EAGAIN || err == OSAL_EWOULDBLOCK)
             return OS_ERROR_TIMEOUT;
 
@@ -251,7 +251,7 @@ int32 HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32 timeout)
     if (ret != sizeof(struct can_frame))
     {
         LOG_ERROR("HAL_CAN", "Incomplete receive: %d/%u bytes",
-                   (int32)ret, (uint32)sizeof(struct can_frame));
+                   (int32_t)ret, (uint32_t)sizeof(struct can_frame));
         impl->err_count++;
         return OS_ERROR;
     }
@@ -275,7 +275,7 @@ int32 HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32 timeout)
 /**
  * @brief 设置CAN过滤器
  */
-int32 HAL_CAN_SetFilter(hal_can_handle_t handle, uint32 filter_id, uint32 filter_mask)
+int32_t HAL_CAN_SetFilter(hal_can_handle_t handle, uint32_t filter_id, uint32_t filter_mask)
 {
     hal_can_context_t *impl = (hal_can_context_t *)handle;
     struct can_filter rfilter[1];
@@ -304,10 +304,10 @@ int32 HAL_CAN_SetFilter(hal_can_handle_t handle, uint32 filter_id, uint32 filter
 /**
  * @brief 获取CAN统计信息
  */
-int32 HAL_CAN_GetStats(hal_can_handle_t handle,
-                       uint32 *tx_count,
-                       uint32 *rx_count,
-                       uint32 *err_count)
+int32_t HAL_CAN_GetStats(hal_can_handle_t handle,
+                       uint32_t *tx_count,
+                       uint32_t *rx_count,
+                       uint32_t *err_count)
 {
     hal_can_context_t *impl = (hal_can_context_t *)handle;
 

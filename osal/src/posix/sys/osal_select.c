@@ -15,21 +15,21 @@ void OSAL_FD_ZERO(osal_fd_set_t *set)
     memset(set, 0, sizeof(osal_fd_set_t));
 }
 
-void OSAL_FD_SET(int32 fd, osal_fd_set_t *set)
+void OSAL_FD_SET(int32_t fd, osal_fd_set_t *set)
 {
     if (fd >= 0 && fd < OSAL_FD_SETSIZE) {
         set->fds_bits[fd / 32] |= (1U << (fd % 32));
     }
 }
 
-void OSAL_FD_CLR(int32 fd, osal_fd_set_t *set)
+void OSAL_FD_CLR(int32_t fd, osal_fd_set_t *set)
 {
     if (fd >= 0 && fd < OSAL_FD_SETSIZE) {
         set->fds_bits[fd / 32] &= ~(1U << (fd % 32));
     }
 }
 
-int32 OSAL_FD_ISSET(int32 fd, const osal_fd_set_t *set)
+int32_t OSAL_FD_ISSET(int32_t fd, const osal_fd_set_t *set)
 {
     if (fd >= 0 && fd < OSAL_FD_SETSIZE) {
         return (set->fds_bits[fd / 32] & (1U << (fd % 32))) ? 1 : 0;
@@ -41,7 +41,7 @@ int32 OSAL_FD_ISSET(int32 fd, const osal_fd_set_t *set)
  * select系统调用实现
  *===========================================================================*/
 
-int32 OSAL_select(int32 nfds, osal_fd_set_t *readfds, osal_fd_set_t *writefds,
+int32_t OSAL_select(int32_t nfds, osal_fd_set_t *readfds, osal_fd_set_t *writefds,
                   osal_fd_set_t *exceptfds, osal_timeval_t *timeout)
 {
     struct timeval tv;
@@ -53,7 +53,7 @@ int32 OSAL_select(int32 nfds, osal_fd_set_t *readfds, osal_fd_set_t *writefds,
         ptv = &tv;
     }
 
-    int32 result = (int32)select(nfds, (fd_set *)readfds, (fd_set *)writefds,
+    int32_t result = (int32_t)select(nfds, (fd_set *)readfds, (fd_set *)writefds,
                                  (fd_set *)exceptfds, ptv);
 
     if (timeout && ptv) {
@@ -64,7 +64,7 @@ int32 OSAL_select(int32 nfds, osal_fd_set_t *readfds, osal_fd_set_t *writefds,
     return result;
 }
 
-int32 OSAL_pselect(int32 nfds, osal_fd_set_t *readfds, osal_fd_set_t *writefds,
+int32_t OSAL_pselect(int32_t nfds, osal_fd_set_t *readfds, osal_fd_set_t *writefds,
                    osal_fd_set_t *exceptfds, const osal_timespec_t *timeout,
                    const void *sigmask)
 {
@@ -77,6 +77,6 @@ int32 OSAL_pselect(int32 nfds, osal_fd_set_t *readfds, osal_fd_set_t *writefds,
         pts = &ts;
     }
 
-    return (int32)pselect(nfds, (fd_set *)readfds, (fd_set *)writefds,
+    return (int32_t)pselect(nfds, (fd_set *)readfds, (fd_set *)writefds,
                          (fd_set *)exceptfds, pts, (const sigset_t *)sigmask);
 }

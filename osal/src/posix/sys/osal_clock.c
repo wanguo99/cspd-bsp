@@ -8,7 +8,7 @@
 #include <time.h>
 
 /* 时间API */
-int32 OSAL_GetLocalTime(OS_time_t *time_struct)
+int32_t OSAL_GetLocalTime(OS_time_t *time_struct)
 {
     struct timeval tv;
 
@@ -22,13 +22,13 @@ int32 OSAL_GetLocalTime(OS_time_t *time_struct)
     return OS_SUCCESS;
 }
 
-int32 OSAL_SetLocalTime(const OS_time_t *time_struct __attribute__((unused)))
+int32_t OSAL_SetLocalTime(const OS_time_t *time_struct __attribute__((unused)))
 {
     /* Linux用户空间通常无权设置系统时间 */
     return OS_ERR_NOT_IMPLEMENTED;
 }
 
-uint32 OS_GetTickCount(void)
+uint32_t OS_GetTickCount(void)
 {
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
@@ -37,10 +37,10 @@ uint32 OS_GetTickCount(void)
     uint64_t ms = ((uint64_t)ts.tv_sec * 1000ULL) + (ts.tv_nsec / 1000000ULL);
 
     /* 返回低32位（约49.7天后会回绕） */
-    return (uint32)ms;
+    return (uint32_t)ms;
 }
 
-int32 OSAL_Milli2Ticks(uint32 milliseconds, uint32 *ticks)
+int32_t OSAL_Milli2Ticks(uint32_t milliseconds, uint32_t *ticks)
 {
     if (ticks == NULL)
         return OS_INVALID_POINTER;

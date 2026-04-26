@@ -39,7 +39,7 @@ typedef enum {
 typedef struct {
     const char *function;         /* 功能名称（如"satellite_comm"） */
     xconfig_device_type_t device_type; /* 外设类型 */
-    uint32 device_id;             /* 外设编号（第几个） */
+    uint32_t device_id;             /* 外设编号（第几个） */
     bool required;                /* 是否必需 */
 } xconfig_app_device_mapping_t;
 
@@ -54,15 +54,15 @@ typedef struct {
 
     /* 外设映射列表 */
     xconfig_app_device_mapping_t *device_mappings;
-    uint32 mapping_count;
+    uint32_t mapping_count;
 
     /* APP功能参数 */
     struct {
-        uint32 heartbeat_interval_ms;
-        uint32 cmd_timeout_ms;
-        uint32 retry_count;
-        uint32 queue_depth;
-        uint32 failover_threshold;
+        uint32_t heartbeat_interval_ms;
+        uint32_t cmd_timeout_ms;
+        uint32_t retry_count;
+        uint32_t queue_depth;
+        uint32_t failover_threshold;
     } params;
 } xconfig_app_config_t;
 

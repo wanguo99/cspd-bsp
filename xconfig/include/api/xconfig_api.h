@@ -26,7 +26,7 @@
  *
  * @return OS_SUCCESS 成功
  */
-int32 XCONFIG_Init(void);
+int32_t XCONFIG_Init(void);
 
 /**
  * @brief 清理硬件配置库
@@ -45,7 +45,7 @@ void XCONFIG_Cleanup(void);
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 XCONFIG_Register(const xconfig_board_config_t *config);
+int32_t XCONFIG_Register(const xconfig_board_config_t *config);
 
 /**
  * @brief 获取当前板级配置
@@ -75,7 +75,7 @@ const xconfig_board_config_t* XCONFIG_Find(const char *platform,
  *
  * @return OS_SUCCESS 成功
  */
-int32 XCONFIG_List(const xconfig_board_config_t **configs, uint32 *count);
+int32_t XCONFIG_List(const xconfig_board_config_t **configs, uint32_t *count);
 
 /*===========================================================================
  * 硬件外设配置查询接口（XCONFIG_HW_*）
@@ -101,7 +101,7 @@ const xconfig_mcu_cfg_t* XCONFIG_HW_FindMCU(const xconfig_board_config_t *board,
  * @return MCU配置指针，失败返回NULL
  */
 const xconfig_mcu_cfg_t* XCONFIG_HW_GetMCU(const xconfig_board_config_t *board,
-                                            uint32 id);
+                                            uint32_t id);
 
 /**
  * @brief 根据名称查找BMC外设配置
@@ -123,7 +123,7 @@ const xconfig_bmc_cfg_t* XCONFIG_HW_FindBMC(const xconfig_board_config_t *board,
  * @return BMC配置指针，失败返回NULL
  */
 const xconfig_bmc_cfg_t* XCONFIG_HW_GetBMC(const xconfig_board_config_t *board,
-                                            uint32 id);
+                                            uint32_t id);
 
 /**
  * @brief 根据名称查找卫星平台接口配置
@@ -145,7 +145,7 @@ const xconfig_satellite_cfg_t* XCONFIG_HW_FindSatellite(const xconfig_board_conf
  * @return 卫星平台配置指针，失败返回NULL
  */
 const xconfig_satellite_cfg_t* XCONFIG_HW_GetSatellite(const xconfig_board_config_t *board,
-                                                        uint32 id);
+                                                        uint32_t id);
 
 /**
  * @brief 根据名称查找传感器外设配置
@@ -167,7 +167,7 @@ const xconfig_sensor_cfg_t* XCONFIG_HW_FindSensor(const xconfig_board_config_t *
  * @return 传感器配置指针，失败返回NULL
  */
 const xconfig_sensor_cfg_t* XCONFIG_HW_GetSensor(const xconfig_board_config_t *board,
-                                                  uint32 id);
+                                                  uint32_t id);
 
 /**
  * @brief 根据名称查找存储设备配置
@@ -189,7 +189,7 @@ const xconfig_storage_cfg_t* XCONFIG_HW_FindStorage(const xconfig_board_config_t
  * @return 存储设备配置指针，失败返回NULL
  */
 const xconfig_storage_cfg_t* XCONFIG_HW_GetStorage(const xconfig_board_config_t *board,
-                                                    uint32 id);
+                                                    uint32_t id);
 
 /**
  * @brief 根据名称查找电源域配置
@@ -251,7 +251,7 @@ const void* XCONFIG_APP_GetDeviceByMapping(const xconfig_board_config_t *board,
  * @return OS_SUCCESS 验证通过
  * @return OS_ERROR 验证失败
  */
-int32 XCONFIG_Validate(const xconfig_board_config_t *config);
+int32_t XCONFIG_Validate(const xconfig_board_config_t *config);
 
 /**
  * @brief 打印板级配置信息（用于调试）

@@ -14,11 +14,11 @@
  * 多项式：0xA001
  * 初始值：0xFFFF
  */
-uint16 mcu_protocol_calc_crc16(const uint8 *data, uint32 len)
+uint16_t mcu_protocol_calc_crc16(const uint8_t *data, uint32_t len)
 {
-    uint16 crc = 0xFFFF;
+    uint16_t crc = 0xFFFF;
 
-    for (uint32 i = 0; i < len; i++)
+    for (uint32_t i = 0; i < len; i++)
     {
         crc ^= data[i];
         for (int j = 0; j < 8; j++)
@@ -40,13 +40,13 @@ uint16 mcu_protocol_calc_crc16(const uint8 *data, uint32 len)
 /**
  * @brief 封装通用帧（预留，目前由各通信模块自己实现）
  */
-int32 mcu_protocol_pack_frame(uint8 cmd_code,
-                             const uint8 *data,
-                             uint32 data_len,
+int32_t mcu_protocol_pack_frame(uint8_t cmd_code,
+                             const uint8_t *data,
+                             uint32_t data_len,
                              bool enable_crc,
-                             uint8 *frame,
-                             uint32 frame_size,
-                             uint32 *actual_size)
+                             uint8_t *frame,
+                             uint32_t frame_size,
+                             uint32_t *actual_size)
 {
     (void)cmd_code;
     (void)data;
@@ -62,13 +62,13 @@ int32 mcu_protocol_pack_frame(uint8 cmd_code,
 /**
  * @brief 解析通用帧（预留，目前由各通信模块自己实现）
  */
-int32 mcu_protocol_unpack_frame(const uint8 *frame,
-                               uint32 frame_len,
+int32_t mcu_protocol_unpack_frame(const uint8_t *frame,
+                               uint32_t frame_len,
                                bool enable_crc,
-                               uint8 *cmd_code,
-                               uint8 *data,
-                               uint32 data_size,
-                               uint32 *actual_size)
+                               uint8_t *cmd_code,
+                               uint8_t *data,
+                               uint32_t data_size,
+                               uint32_t *actual_size)
 {
     (void)frame;
     (void)frame_len;

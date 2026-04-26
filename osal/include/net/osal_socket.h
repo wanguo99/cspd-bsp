@@ -96,31 +96,31 @@
 
 /* 通用socket地址（最大128字节） */
 typedef struct {
-    uint16 sa_family;      /* 地址族 */
-    uint8  sa_data[126];   /* 地址数据 */
+    uint16_t sa_family;      /* 地址族 */
+    uint8_t  sa_data[126];   /* 地址数据 */
 } osal_sockaddr_t;
 
 /* IPv4地址结构 */
 typedef struct {
-    uint16 sin_family;     /* AF_INET */
-    uint16 sin_port;       /* 端口号（网络字节序） */
-    uint32 sin_addr;       /* IP地址（网络字节序） */
-    uint8  sin_zero[8];    /* 填充 */
+    uint16_t sin_family;     /* AF_INET */
+    uint16_t sin_port;       /* 端口号（网络字节序） */
+    uint32_t sin_addr;       /* IP地址（网络字节序） */
+    uint8_t  sin_zero[8];    /* 填充 */
 } osal_sockaddr_in_t;
 
 /* IPv6地址结构 */
 typedef struct {
-    uint16 sin6_family;    /* AF_INET6 */
-    uint16 sin6_port;      /* 端口号（网络字节序） */
-    uint32 sin6_flowinfo;  /* 流信息 */
-    uint8  sin6_addr[16];  /* IPv6地址 */
-    uint32 sin6_scope_id;  /* 作用域ID */
+    uint16_t sin6_family;    /* AF_INET6 */
+    uint16_t sin6_port;      /* 端口号（网络字节序） */
+    uint32_t sin6_flowinfo;  /* 流信息 */
+    uint8_t  sin6_addr[16];  /* IPv6地址 */
+    uint32_t sin6_scope_id;  /* 作用域ID */
 } osal_sockaddr_in6_t;
 
 /* CAN地址结构 */
 typedef struct {
-    uint16 can_family;     /* AF_CAN */
-    uint32 can_ifindex;    /* CAN接口索引 */
+    uint16_t can_family;     /* AF_CAN */
+    uint32_t can_ifindex;    /* CAN接口索引 */
 } osal_sockaddr_can_t;
 
 /*===========================================================================
@@ -134,7 +134,7 @@ typedef struct {
  * @param protocol 协议（OSAL_IPPROTO_*或OSAL_CAN_RAW）
  * @return socket描述符(>=0)，失败返回-1
  */
-int32 OSAL_socket(int32 domain, int32 type, int32 protocol);
+int32_t OSAL_socket(int32_t domain, int32_t type, int32_t protocol);
 
 /**
  * @brief 绑定地址
@@ -143,7 +143,7 @@ int32 OSAL_socket(int32 domain, int32 type, int32 protocol);
  * @param addrlen 地址结构长度
  * @return 0成功，-1失败
  */
-int32 OSAL_bind(int32 sockfd, const osal_sockaddr_t *addr, osal_size_t addrlen);
+int32_t OSAL_bind(int32_t sockfd, const osal_sockaddr_t *addr, osal_size_t addrlen);
 
 /**
  * @brief 监听连接
@@ -151,7 +151,7 @@ int32 OSAL_bind(int32 sockfd, const osal_sockaddr_t *addr, osal_size_t addrlen);
  * @param backlog 等待队列最大长度
  * @return 0成功，-1失败
  */
-int32 OSAL_listen(int32 sockfd, int32 backlog);
+int32_t OSAL_listen(int32_t sockfd, int32_t backlog);
 
 /**
  * @brief 接受连接
@@ -160,7 +160,7 @@ int32 OSAL_listen(int32 sockfd, int32 backlog);
  * @param addrlen 地址结构长度指针（可为NULL）
  * @return 新socket描述符(>=0)，失败返回-1
  */
-int32 OSAL_accept(int32 sockfd, osal_sockaddr_t *addr, osal_size_t *addrlen);
+int32_t OSAL_accept(int32_t sockfd, osal_sockaddr_t *addr, osal_size_t *addrlen);
 
 /**
  * @brief 连接到服务器
@@ -169,7 +169,7 @@ int32 OSAL_accept(int32 sockfd, osal_sockaddr_t *addr, osal_size_t *addrlen);
  * @param addrlen 地址结构长度
  * @return 0成功，-1失败
  */
-int32 OSAL_connect(int32 sockfd, const osal_sockaddr_t *addr, osal_size_t addrlen);
+int32_t OSAL_connect(int32_t sockfd, const osal_sockaddr_t *addr, osal_size_t addrlen);
 
 /**
  * @brief 发送数据
@@ -179,7 +179,7 @@ int32 OSAL_connect(int32 sockfd, const osal_sockaddr_t *addr, osal_size_t addrle
  * @param flags 标志（通常为0）
  * @return 实际发送字节数(>=0)，-1失败
  */
-osal_ssize_t OSAL_send(int32 sockfd, const void *buf, osal_size_t len, int32 flags);
+osal_ssize_t OSAL_send(int32_t sockfd, const void *buf, osal_size_t len, int32_t flags);
 
 /**
  * @brief 接收数据
@@ -189,7 +189,7 @@ osal_ssize_t OSAL_send(int32 sockfd, const void *buf, osal_size_t len, int32 fla
  * @param flags 标志（通常为0）
  * @return 实际接收字节数(>=0)，0表示连接关闭，-1失败
  */
-osal_ssize_t OSAL_recv(int32 sockfd, void *buf, osal_size_t len, int32 flags);
+osal_ssize_t OSAL_recv(int32_t sockfd, void *buf, osal_size_t len, int32_t flags);
 
 /**
  * @brief 发送数据到指定地址
@@ -201,7 +201,7 @@ osal_ssize_t OSAL_recv(int32 sockfd, void *buf, osal_size_t len, int32 flags);
  * @param addrlen 地址结构长度
  * @return 实际发送字节数(>=0)，-1失败
  */
-osal_ssize_t OSAL_sendto(int32 sockfd, const void *buf, osal_size_t len, int32 flags,
+osal_ssize_t OSAL_sendto(int32_t sockfd, const void *buf, osal_size_t len, int32_t flags,
                   const osal_sockaddr_t *dest_addr, osal_size_t addrlen);
 
 /**
@@ -214,7 +214,7 @@ osal_ssize_t OSAL_sendto(int32 sockfd, const void *buf, osal_size_t len, int32 f
  * @param addrlen 地址结构长度指针（可为NULL）
  * @return 实际接收字节数(>=0)，-1失败
  */
-osal_ssize_t OSAL_recvfrom(int32 sockfd, void *buf, osal_size_t len, int32 flags,
+osal_ssize_t OSAL_recvfrom(int32_t sockfd, void *buf, osal_size_t len, int32_t flags,
                     osal_sockaddr_t *src_addr, osal_size_t *addrlen);
 
 /**
@@ -223,7 +223,7 @@ osal_ssize_t OSAL_recvfrom(int32 sockfd, void *buf, osal_size_t len, int32 flags
  * @param how 关闭方式（OSAL_SHUT_RD/WR/RDWR）
  * @return 0成功，-1失败
  */
-int32 OSAL_shutdown(int32 sockfd, int32 how);
+int32_t OSAL_shutdown(int32_t sockfd, int32_t how);
 
 /*===========================================================================
  * Socket选项操作
@@ -238,7 +238,7 @@ int32 OSAL_shutdown(int32 sockfd, int32 how);
  * @param optlen 选项值长度
  * @return 0成功，-1失败
  */
-int32 OSAL_setsockopt(int32 sockfd, int32 level, int32 optname,
+int32_t OSAL_setsockopt(int32_t sockfd, int32_t level, int32_t optname,
                       const void *optval, osal_size_t optlen);
 
 /**
@@ -250,7 +250,7 @@ int32 OSAL_setsockopt(int32 sockfd, int32 level, int32 optname,
  * @param optlen 选项值长度指针
  * @return 0成功，-1失败
  */
-int32 OSAL_getsockopt(int32 sockfd, int32 level, int32 optname,
+int32_t OSAL_getsockopt(int32_t sockfd, int32_t level, int32_t optname,
                       void *optval, osal_size_t *optlen);
 
 /*===========================================================================
@@ -262,7 +262,7 @@ int32 OSAL_getsockopt(int32 sockfd, int32 level, int32 optname,
  * @param ifname 接口名称（如"eth0", "can0"）
  * @return 接口索引(>0)，失败返回0
  */
-uint32 OSAL_if_nametoindex(const str_t *ifname);
+uint32_t OSAL_if_nametoindex(const str_t *ifname);
 
 /**
  * @brief 根据接口索引获取接口名
@@ -270,7 +270,7 @@ uint32 OSAL_if_nametoindex(const str_t *ifname);
  * @param ifname 接口名称缓冲区（至少16字节）
  * @return 接口名称指针，失败返回NULL
  */
-str_t *OSAL_if_indextoname(uint32 ifindex, str_t *ifname);
+str_t *OSAL_if_indextoname(uint32_t ifindex, str_t *ifname);
 
 /*===========================================================================
  * 字节序转换
@@ -279,22 +279,22 @@ str_t *OSAL_if_indextoname(uint32 ifindex, str_t *ifname);
 /**
  * @brief 主机字节序转网络字节序（16位）
  */
-uint16 OSAL_htons(uint16 hostshort);
+uint16_t OSAL_htons(uint16_t hostshort);
 
 /**
  * @brief 主机字节序转网络字节序（32位）
  */
-uint32 OSAL_htonl(uint32 hostlong);
+uint32_t OSAL_htonl(uint32_t hostlong);
 
 /**
  * @brief 网络字节序转主机字节序（16位）
  */
-uint16 OSAL_ntohs(uint16 netshort);
+uint16_t OSAL_ntohs(uint16_t netshort);
 
 /**
  * @brief 网络字节序转主机字节序（32位）
  */
-uint32 OSAL_ntohl(uint32 netlong);
+uint32_t OSAL_ntohl(uint32_t netlong);
 
 /*===========================================================================
  * IP地址转换
@@ -307,7 +307,7 @@ uint32 OSAL_ntohl(uint32 netlong);
  * @param dst 输出缓冲区
  * @return 1成功，0格式错误，-1地址族不支持
  */
-int32 OSAL_inet_pton(int32 af, const str_t *src, void *dst);
+int32_t OSAL_inet_pton(int32_t af, const str_t *src, void *dst);
 
 /**
  * @brief 将网络字节序IP地址转换为点分十进制
@@ -317,6 +317,6 @@ int32 OSAL_inet_pton(int32 af, const str_t *src, void *dst);
  * @param size 缓冲区大小
  * @return 字符串指针，失败返回NULL
  */
-const str_t *OSAL_inet_ntop(int32 af, const void *src, str_t *dst, osal_size_t size);
+const str_t *OSAL_inet_ntop(int32_t af, const void *src, str_t *dst, osal_size_t size);
 
 #endif /* OSAL_SOCKET_H */

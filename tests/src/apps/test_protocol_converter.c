@@ -12,7 +12,7 @@ void test_protocol_converter_init_success(void)
 {
     OS_API_Init();
 
-    int32 ret = Protocol_Converter_Init();
+    int32_t ret = Protocol_Converter_Init();
 
     if (ret != OS_SUCCESS) {
         TEST_WARNING("Protocol Converter init failed, hardware not available");
@@ -28,7 +28,7 @@ void test_protocol_converter_get_stats(void)
 {
     OS_API_Init();
 
-    int32 ret = Protocol_Converter_Init();
+    int32_t ret = Protocol_Converter_Init();
 
     if (ret != OS_SUCCESS) {
         TEST_WARNING("Protocol Converter init failed, hardware not available");
@@ -36,7 +36,7 @@ void test_protocol_converter_get_stats(void)
 
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
 
-    uint32 cmd_count, success, fail, timeout;
+    uint32_t cmd_count, success, fail, timeout;
     Protocol_Converter_GetStats(&cmd_count, &success, &fail, &timeout);
     TEST_ASSERT_EQUAL(0, cmd_count);
 

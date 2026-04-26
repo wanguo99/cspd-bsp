@@ -35,7 +35,7 @@ typedef struct
 /**
  * @brief 初始化串口通信
  */
-int32 mcu_serial_init(const void *config, void **handle)
+int32_t mcu_serial_init(const void *config, void **handle)
 {
     if (config == NULL || handle == NULL)
     {
@@ -82,7 +82,7 @@ int32 mcu_serial_init(const void *config, void **handle)
 /**
  * @brief 反初始化串口通信
  */
-int32 mcu_serial_deinit(void *handle)
+int32_t mcu_serial_deinit(void *handle)
 {
     if (handle == NULL)
     {
@@ -101,21 +101,21 @@ int32 mcu_serial_deinit(void *handle)
 /**
  * @brief 封装串口帧
  */
-static int32 mcu_serial_pack_frame(uint8 cmd_code,
-                                   const uint8 *data,
-                                   uint32 data_len,
+static int32_t mcu_serial_pack_frame(uint8_t cmd_code,
+                                   const uint8_t *data,
+                                   uint32_t data_len,
                                    bool enable_crc,
-                                   uint8 *frame,
-                                   uint32 frame_size,
-                                   uint32 *actual_size)
+                                   uint8_t *frame,
+                                   uint32_t frame_size,
+                                   uint32_t *actual_size)
 {
-    uint32 required_size = FRAME_OVERHEAD + data_len;
+    uint32_t required_size = FRAME_OVERHEAD + data_len;
     if (frame_size < required_size)
     {
         return OS_ERROR;
     }
 
-    uint32 pos = 0;
+    uint32_t pos = 0;
 
     /* 帧头 */
     frame[pos++] = FRAME_HEADER_0;
@@ -123,7 +123,7 @@ static int32 mcu_serial_pack_frame(uint8 cmd_code,
 
     /* 命令和长度 */
     frame[pos++] = cmd_code;
-    frame[pos++] = (uint8)data_len;
+    frame[pos++] = (uint8_t)data_len;
 
     /* 数据 */
     if (data != NULL && data_len > 0)
@@ -135,9 +135,9 @@ static int32 mcu_serial_pack_frame(uint8 cmd_code,
     /* CRC校验 */
     if (enable_crc)
     {
-        uint16 crc = mcu_protocol_calc_crc16(&frame[FRAME_HEADER_SIZE], pos - FRAME_HEADER_SIZE);
-        frame[pos++] = (uint8)(crc >> 8);
-        frame[pos++] = (uint8)(crc & 0xFF);
+        uint16_t crc = mcu_protocol_calc_crc16(&frame[FRAME_HEADER_SIZE], pos - FRAME_HEADER_SIZE);
+        frame[pos++] = (uint8_t)(crc >> 8);
+        frame[pos++] = (uint8_t)(crc & 0xFF);
     }
     else
     {
@@ -152,13 +152,13 @@ static int32 mcu_serial_pack_frame(uint8 cmd_code,
 /**
  * @brief 解析串口帧
  */
-static int32 mcu_serial_unpack_frame(const uint8 *frame,
-                                     uint32 frame_len,
+static int32_t mcu_serial_unpack_frame(const uint8_t *frame,
+                                     uint32_t frame_len,
                                      bool enable_crc,
-                                     uint8 *status,
-                                     uint8 *data,
-                                     uint32 data_size,
-                                     uint32 *actual_size)
+                                     uint8_t *status,
+                                     uint8_t *data,
+                                     uint32_t data_size,
+                                     uint32_t *actual_size)
 {
     /* 最小帧长度检查 */
     if (frame_len < FRAME_OVERHEAD)
@@ -175,8 +175,8 @@ static int32 mcu_serial_unpack_frame(const uint8 *frame,
     /* CRC校验 */
     if (enable_crc)
     {
-        uint16 crc_recv = (frame[frame_len - 2] << 8) | frame[frame_len - 1];
-        uint16 crc_calc = mcu_protocol_calc_crc16(&frame[FRAME_HEADER_SIZE], frame_len - FRAME_OVERHEAD);
+        uint16_t crc_recv = (frame[frame_len - 2] << 8) | frame[frame_len - 1];
+        uint16_t crc_calc = mcu_protocol_calc_crc16(&frame[FRAME_HEADER_SIZE], frame_len - FRAME_OVERHEAD);
         if (crc_recv != crc_calc)
         {
             return OS_ERROR;
@@ -185,11 +185,11 @@ static int32 mcu_serial_unpack_frame(const uint8 *frame,
 
     /* 解析状态和数据 */
     *status = frame[2];
-    uint8 data_len = frame[3];
+    uint8_t data_len = frame[3];
 
     if (data != NULL && data_len > 0)
     {
-        uint32 copy_len = (data_len < data_size) ? data_len : data_size;
+        uint32_t copy_len = (data_len < data_size) ? data_len : data_size;
         OSAL_Memcpy(data, &frame[4], copy_len);
         if (actual_size != NULL)
         {
@@ -203,14 +203,14 @@ static int32 mcu_serial_unpack_frame(const uint8 *frame,
 /**
  * @brief 发送命令并接收响应
  */
-int32 mcu_serial_send_command(void *handle,
-                             uint8 cmd_code,
-                             const uint8 *data,
-                             uint32 data_len,
-                             uint8 *response,
-                             uint32 resp_size,
-                             uint32 *actual_size,
-                             uint32 timeout_ms)
+int32_t mcu_serial_send_command(void *handle,
+                             uint8_t cmd_code,
+                             const uint8_t *data,
+                             uint32_t data_len,
+                             uint8_t *response,
+                             uint32_t resp_size,
+                             uint32_t *actual_size,
+                             uint32_t timeout_ms)
 {
     if (handle == NULL)
     {
@@ -220,8 +220,8 @@ int32 mcu_serial_send_command(void *handle,
     mcu_serial_context_t *ctx = (mcu_serial_context_t *)handle;
 
     /* 封装发送帧 */
-    uint8 tx_frame[256];
-    uint32 tx_len;
+    uint8_t tx_frame[256];
+    uint32_t tx_len;
 
     if (mcu_serial_pack_frame(cmd_code, data, data_len, ctx->enable_crc,
                               tx_frame, sizeof(tx_frame), &tx_len) != OS_SUCCESS)
@@ -230,7 +230,7 @@ int32 mcu_serial_send_command(void *handle,
     }
 
     /* 发送 */
-    if (HAL_Serial_Write(ctx->serial_handle, tx_frame, tx_len, timeout_ms) != (int32)tx_len)
+    if (HAL_Serial_Write(ctx->serial_handle, tx_frame, tx_len, timeout_ms) != (int32_t)tx_len)
     {
         return OS_ERROR;
     }
@@ -238,13 +238,13 @@ int32 mcu_serial_send_command(void *handle,
     /* 接收响应 */
     OSAL_MutexLock(ctx->rx_mutex);
 
-    uint8 rx_frame[256];
-    int32 rx_len = HAL_Serial_Read(ctx->serial_handle, rx_frame, sizeof(rx_frame), timeout_ms);
+    uint8_t rx_frame[256];
+    int32_t rx_len = HAL_Serial_Read(ctx->serial_handle, rx_frame, sizeof(rx_frame), timeout_ms);
 
     if (rx_len > 0)
     {
-        uint8 status;
-        int32 ret = mcu_serial_unpack_frame(rx_frame, rx_len, ctx->enable_crc,
+        uint8_t status;
+        int32_t ret = mcu_serial_unpack_frame(rx_frame, rx_len, ctx->enable_crc,
                                             &status, response, resp_size, actual_size);
 
         OSAL_MutexUnlock(ctx->rx_mutex);

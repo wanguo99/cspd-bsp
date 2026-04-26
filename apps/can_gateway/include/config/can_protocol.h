@@ -61,10 +61,10 @@ typedef enum
  */
 typedef struct
 {
-    uint8  msg_type;
-    uint8  cmd_type;
-    uint16 seq_num;
-    uint32 data;
+    uint8_t  msg_type;
+    uint8_t  cmd_type;
+    uint16_t seq_num;
+    uint32_t data;
 } __attribute__((packed)) can_msg_t;
 
 /*
@@ -78,8 +78,8 @@ typedef struct
  */
 static inline void can_build_cmd_request(can_frame_t *frame,
                                          can_cmd_type_t cmd_type,
-                                         uint16 seq_num,
-                                         uint32 param)
+                                         uint16_t seq_num,
+                                         uint32_t param)
 {
     can_msg_t *msg = (can_msg_t *)frame->data;
     frame->can_id = CAN_ID_BRIDGE_TO_SAT;
@@ -94,9 +94,9 @@ static inline void can_build_cmd_request(can_frame_t *frame,
  * @brief 构造CAN命令响应
  */
 static inline void can_build_cmd_response(can_frame_t *frame,
-                                          uint16 seq_num,
+                                          uint16_t seq_num,
                                           can_status_t status,
-                                          uint32 result)
+                                          uint32_t result)
 {
     can_msg_t *msg = (can_msg_t *)frame->data;
     frame->can_id = CAN_ID_BRIDGE_TO_SAT;
@@ -111,8 +111,8 @@ static inline void can_build_cmd_response(can_frame_t *frame,
  * @brief 构造状态上报
  */
 static inline void can_build_status_report(can_frame_t *frame,
-                                           uint16 seq_num,
-                                           uint32 status_data)
+                                           uint16_t seq_num,
+                                           uint32_t status_data)
 {
     can_msg_t *msg = (can_msg_t *)frame->data;
     frame->can_id = CAN_ID_BRIDGE_TO_SAT;
@@ -126,7 +126,7 @@ static inline void can_build_status_report(can_frame_t *frame,
 /**
  * @brief 构造心跳消息
  */
-static inline void can_build_heartbeat(can_frame_t *frame, uint32 uptime_sec)
+static inline void can_build_heartbeat(can_frame_t *frame, uint32_t uptime_sec)
 {
     can_msg_t *msg = (can_msg_t *)frame->data;
     frame->can_id = CAN_ID_BRIDGE_TO_SAT;

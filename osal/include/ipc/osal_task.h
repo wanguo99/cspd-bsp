@@ -24,8 +24,8 @@ typedef void (*osal_task_entry)(void *arg);
 
 typedef struct
 {
-    uint32 stack_size;
-    uint32 priority;      /* 1-255 */
+    uint32_t stack_size;
+    uint32_t priority;      /* 1-255 */
 } OS_TaskProp_t;
 
 /**
@@ -47,13 +47,13 @@ typedef struct
  * @return OS_ERR_NAME_TAKEN 名称已被使用
  * @return OS_ERROR 其他错误
  */
-int32 OSAL_TaskCreate(osal_id_t *task_id,
+int32_t OSAL_TaskCreate(osal_id_t *task_id,
                     const str_t *task_name,
                     osal_task_entry function_pointer,
-                    uint32 *stack_pointer,
-                    uint32 stack_size,
-                    uint32 priority,
-                    uint32 flags);
+                    uint32_t *stack_pointer,
+                    uint32_t stack_size,
+                    uint32_t priority,
+                    uint32_t flags);
 
 /**
  * @brief 删除任务
@@ -61,7 +61,7 @@ int32 OSAL_TaskCreate(osal_id_t *task_id,
  * @return OS_SUCCESS 成功
  * @return OS_ERR_INVALID_ID 无效的任务ID
  */
-int32 OSAL_TaskDelete(osal_id_t task_id);
+int32_t OSAL_TaskDelete(osal_id_t task_id);
 
 /**
  * @brief 设置任务优先级
@@ -70,7 +70,7 @@ int32 OSAL_TaskDelete(osal_id_t task_id);
  * @return OS_ERR_INVALID_ID 无效的任务ID
  * @return OS_ERR_INVALID_PRIORITY 无效的优先级
  */
-int32 OSAL_TaskSetPriority(osal_id_t task_id, uint32 priority);
+int32_t OSAL_TaskSetPriority(osal_id_t task_id, uint32_t priority);
 
 /**
  * @brief 获取当前任务ID
@@ -91,7 +91,7 @@ bool OSAL_TaskShouldShutdown(void);
  * @return OS_INVALID_POINTER task_id为NULL
  * @return OS_ERR_NAME_NOT_FOUND 未找到任务
  */
-int32 OSAL_TaskGetIdByName(osal_id_t *task_id, const str_t *task_name);
+int32_t OSAL_TaskGetIdByName(osal_id_t *task_id, const str_t *task_name);
 
 /**
  * @brief 获取任务信息
@@ -100,6 +100,6 @@ int32 OSAL_TaskGetIdByName(osal_id_t *task_id, const str_t *task_name);
  * @return OS_ERR_INVALID_ID 无效的任务ID
  * @return OS_INVALID_POINTER task_prop为NULL
  */
-int32 OSAL_TaskGetInfo(osal_id_t task_id, OS_TaskProp_t *task_prop);
+int32_t OSAL_TaskGetInfo(osal_id_t task_id, OS_TaskProp_t *task_prop);
 
 #endif /* OSAPI_TASK_H */

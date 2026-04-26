@@ -27,10 +27,10 @@ typedef struct
     bool connected;
 
     /* 统计信息 */
-    uint32 cmd_count;
-    uint32 success_count;
-    uint32 fail_count;
-    uint32 switch_count;
+    uint32_t cmd_count;
+    uint32_t success_count;
+    uint32_t fail_count;
+    uint32_t switch_count;
 
     /* 互斥锁 */
     osal_id_t mutex;
@@ -39,7 +39,7 @@ typedef struct
 /**
  * @brief 初始化BMC服务
  */
-int32 PDL_BMC_Init(const bmc_config_t *config,
+int32_t PDL_BMC_Init(const bmc_config_t *config,
                         bmc_handle_t *handle)
 {
     if (config == NULL || handle == NULL)
@@ -70,7 +70,7 @@ int32 PDL_BMC_Init(const bmc_config_t *config,
     /* 初始化网络通道 */
     if (config->network.enabled)
     {
-        int32 ret = bmc_redfish_init(config->network.ip_addr,
+        int32_t ret = bmc_redfish_init(config->network.ip_addr,
                                 config->network.port,
                                 config->network.timeout_ms,
                                 &ctx->net_handle);
@@ -88,7 +88,7 @@ int32 PDL_BMC_Init(const bmc_config_t *config,
     /* 初始化串口通道 */
     if (config->serial.enabled)
     {
-        int32 ret = bmc_serial_init(config->serial.device,
+        int32_t ret = bmc_serial_init(config->serial.device,
                                    config->serial.baudrate,
                                    config->serial.timeout_ms,
                                    &ctx->serial_handle);
@@ -121,7 +121,7 @@ int32 PDL_BMC_Init(const bmc_config_t *config,
 /**
  * @brief 反初始化BMC服务
  */
-int32 PDL_BMC_Deinit(bmc_handle_t handle)
+int32_t PDL_BMC_Deinit(bmc_handle_t handle)
 {
     if (handle == NULL)
     {
@@ -154,7 +154,7 @@ int32 PDL_BMC_Deinit(bmc_handle_t handle)
 /**
  * @brief 电源开机
  */
-int32 PDL_BMC_PowerOn(bmc_handle_t handle)
+int32_t PDL_BMC_PowerOn(bmc_handle_t handle)
 {
     if (handle == NULL)
     {
@@ -167,7 +167,7 @@ int32 PDL_BMC_PowerOn(bmc_handle_t handle)
 
     ctx->cmd_count++;
 
-    int32 ret;
+    int32_t ret;
     if (ctx->current_channel == BMC_CHANNEL_NETWORK)
     {
         ret = bmc_ipmi_power_on(ctx->net_handle, bmc_redfish_send_recv);
@@ -196,7 +196,7 @@ int32 PDL_BMC_PowerOn(bmc_handle_t handle)
 /**
  * @brief 电源关机
  */
-int32 PDL_BMC_PowerOff(bmc_handle_t handle)
+int32_t PDL_BMC_PowerOff(bmc_handle_t handle)
 {
     if (handle == NULL)
     {
@@ -209,7 +209,7 @@ int32 PDL_BMC_PowerOff(bmc_handle_t handle)
 
     ctx->cmd_count++;
 
-    int32 ret;
+    int32_t ret;
     if (ctx->current_channel == BMC_CHANNEL_NETWORK)
     {
         ret = bmc_ipmi_power_off(ctx->net_handle, bmc_redfish_send_recv);
@@ -238,7 +238,7 @@ int32 PDL_BMC_PowerOff(bmc_handle_t handle)
 /**
  * @brief 电源复位
  */
-int32 PDL_BMC_PowerReset(bmc_handle_t handle)
+int32_t PDL_BMC_PowerReset(bmc_handle_t handle)
 {
     if (handle == NULL)
     {
@@ -251,7 +251,7 @@ int32 PDL_BMC_PowerReset(bmc_handle_t handle)
 
     ctx->cmd_count++;
 
-    int32 ret;
+    int32_t ret;
     if (ctx->current_channel == BMC_CHANNEL_NETWORK)
     {
         ret = bmc_ipmi_power_reset(ctx->net_handle, bmc_redfish_send_recv);
@@ -280,7 +280,7 @@ int32 PDL_BMC_PowerReset(bmc_handle_t handle)
 /**
  * @brief 查询电源状态
  */
-int32 PDL_BMC_GetPowerState(bmc_handle_t handle,
+int32_t PDL_BMC_GetPowerState(bmc_handle_t handle,
                                  bmc_power_state_t *state)
 {
     if (handle == NULL || state == NULL)
@@ -294,7 +294,7 @@ int32 PDL_BMC_GetPowerState(bmc_handle_t handle,
 
     ctx->cmd_count++;
 
-    int32 ret;
+    int32_t ret;
     if (ctx->current_channel == BMC_CHANNEL_NETWORK)
     {
         ret = bmc_ipmi_get_power_state(ctx->net_handle, bmc_redfish_send_recv, state);
@@ -321,11 +321,11 @@ int32 PDL_BMC_GetPowerState(bmc_handle_t handle,
 /**
  * @brief 读取传感器
  */
-int32 PDL_BMC_ReadSensors(bmc_handle_t handle,
+int32_t PDL_BMC_ReadSensors(bmc_handle_t handle,
                                bmc_sensor_type_t type,
                                bmc_sensor_reading_t *readings,
-                               uint32 max_count,
-                               uint32 *actual_count)
+                               uint32_t max_count,
+                               uint32_t *actual_count)
 {
     if (handle == NULL)
     {
@@ -338,7 +338,7 @@ int32 PDL_BMC_ReadSensors(bmc_handle_t handle,
 
     ctx->cmd_count++;
 
-    int32 ret;
+    int32_t ret;
     if (ctx->current_channel == BMC_CHANNEL_NETWORK)
     {
         ret = bmc_ipmi_read_sensors(ctx->net_handle, bmc_redfish_send_recv,
@@ -367,10 +367,10 @@ int32 PDL_BMC_ReadSensors(bmc_handle_t handle,
 /**
  * @brief 执行原始IPMI命令
  */
-int32 PDL_BMC_ExecuteCommand(bmc_handle_t handle,
+int32_t PDL_BMC_ExecuteCommand(bmc_handle_t handle,
                                   const char *cmd,
                                   str_t *response,
-                                  uint32 resp_size)
+                                  uint32_t resp_size)
 {
     (void)handle;
     (void)cmd;
@@ -383,7 +383,7 @@ int32 PDL_BMC_ExecuteCommand(bmc_handle_t handle,
 /**
  * @brief 切换通信通道
  */
-int32 PDL_BMC_SwitchChannel(bmc_handle_t handle,
+int32_t PDL_BMC_SwitchChannel(bmc_handle_t handle,
                                  bmc_channel_t channel)
 {
     if (handle == NULL)
@@ -454,11 +454,11 @@ bool PDL_BMC_IsConnected(bmc_handle_t handle)
 /**
  * @brief 获取服务统计信息
  */
-int32 PDL_BMC_GetStats(bmc_handle_t handle,
-                            uint32 *cmd_count,
-                            uint32 *success_count,
-                            uint32 *fail_count,
-                            uint32 *switch_count)
+int32_t PDL_BMC_GetStats(bmc_handle_t handle,
+                            uint32_t *cmd_count,
+                            uint32_t *success_count,
+                            uint32_t *fail_count,
+                            uint32_t *switch_count)
 {
     if (handle == NULL)
     {
