@@ -87,10 +87,25 @@ add_subdirectory(osal)
 add_library(pmc::osal_public_api ALIAS osal_public_api)
 add_library(pmc::osal ALIAS osal)
 
+# 1.5 Test Library（测试库 - 仅在启用测试时构建）
+if(BUILD_TESTING)
+    add_subdirectory(lib/libtest)
+endif()
+
+# OSAL模块测试
+if(BUILD_TESTING)
+    add_subdirectory(osal/tests)
+endif()
+
 # 2. HAL层（硬件抽象层）
 add_subdirectory(hal)
 add_library(pmc::hal_public_api ALIAS hal_public_api)
 add_library(pmc::hal ALIAS hal)
+
+# HAL模块测试
+if(BUILD_TESTING)
+    add_subdirectory(hal/tests)
+endif()
 
 # 3. XConfig层（硬件配置库）
 add_subdirectory(xconfig)
@@ -102,6 +117,11 @@ add_subdirectory(pdl)
 add_library(pmc::pdl_public_api ALIAS pdl_public_api)
 add_library(pmc::pdl ALIAS pdl)
 
+# PDL模块测试
+if(BUILD_TESTING)
+    add_subdirectory(pdl/tests)
+endif()
+
 # 5. Apps层（应用层）
 add_subdirectory(apps)
 
@@ -111,7 +131,8 @@ add_subdirectory(apps)
 option(BUILD_TESTING "Build unit tests" ON)
 if(BUILD_TESTING)
     message(STATUS "Unit tests enabled")
-    add_subdirectory(tests)
+    # 统一测试运行器
+    add_subdirectory(apps/test_runner)
 else()
     message(STATUS "Unit tests disabled")
 endif()
