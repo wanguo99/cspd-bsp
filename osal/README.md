@@ -145,6 +145,45 @@ cat output/build.log
 cd output/build && cmake -L ../.. && cd ../..
 ```
 
+## 主要特性
+
+- **用户态库设计**：无需显式初始化，使用静态初始化机制
+- **跨平台支持**：POSIX实现，易于移植到RTOS（FreeRTOS、VxWorks等）
+- **线程安全**：所有接口均为线程安全
+- **优雅关闭**：任务管理支持优雅退出，避免资源泄漏
+- **引用计数**：消息队列使用引用计数，防止use-after-free
+- **死锁检测**：互斥锁内置5秒超时和死锁检测
+- **日志轮转**：5级日志系统，支持自动轮转（10MB/5个备份）
+
+## 模块组成
+
+### IPC - 进程间通信
+- **任务管理** (`osal_task.h`) - 任务创建、删除、优雅退出
+- **消息队列** (`osal_queue.h`) - 线程安全的消息队列（引用计数）
+- **互斥锁** (`osal_mutex.h`) - 互斥锁（死锁检测）
+- **原子操作** (`osal_atomic.h`) - 原子操作封装
+
+### SYS - 系统调用封装
+- **时钟** (`osal_clock.h`) - 系统时钟
+- **信号** (`osal_signal.h`) - 信号处理
+- **文件** (`osal_file.h`) - 文件I/O
+- **Select** (`osal_select.h`) - I/O多路复用
+- **环境变量** (`osal_env.h`) - 环境变量操作
+- **时间** (`osal_time.h`) - 时间操作
+
+### NET - 网络抽象
+- **Socket** (`osal_socket.h`) - Socket操作
+- **Termios** (`osal_termios.h`) - 串口控制
+
+### LIB - 标准库封装
+- **字符串** (`osal_string.h`) - 字符串操作
+- **堆内存** (`osal_heap.h`) - 内存管理
+- **错误处理** (`osal_errno.h`) - 错误码和错误信息（37个标准错误码）
+
+### UTIL - 工具类
+- **日志** (`osal_log.h`) - 日志系统（5级别，自动轮转）
+- **版本** - 版本信息查询
+
 ## 模块结构
 
 ```
@@ -263,8 +302,19 @@ target_compile_options(osal PRIVATE
 )
 ```
 
+## 设计原则
+
+1. **平台无关性**：OSAL是唯一允许包含系统头文件的层
+2. **接口稳定性**：API保持向后兼容
+3. **资源管理**：所有资源必须显式释放
+4. **错误处理**：所有函数返回int32状态码
+5. **线程安全**：所有接口均为线程安全
+
 ## 参考文档
 
 - [OSAL详细文档](docs/README.md)
+- [架构设计](docs/ARCHITECTURE.md)
+- [API参考](docs/API_REFERENCE.md)
+- [使用指南](docs/USAGE_GUIDE.md)
 - [编码规范](../docs/CODING_STANDARDS.md)
 - [NASA cFS OSAL](https://github.com/nasa/osal)

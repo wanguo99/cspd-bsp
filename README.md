@@ -39,27 +39,37 @@ PMC-BSP采用5层分层架构：
 ### OSAL - 操作系统抽象层
 跨平台的操作系统抽象接口，提供任务、队列、互斥锁、日志等基础服务。
 
-**文档**: [osal/docs/README.md](osal/docs/README.md)
+**特性**：用户态库设计、线程安全、优雅关闭、死锁检测、日志轮转
+
+**文档**: [osal/README.md](osal/README.md) | [详细文档](osal/docs/)
 
 ### HAL - 硬件抽象层
 硬件驱动封装，提供CAN、串口等硬件接口。
 
-**文档**: [hal/docs/README.md](hal/docs/README.md)
+**特性**：平台隔离、统一接口、驱动封装、配置管理
+
+**文档**: [hal/README.md](hal/README.md) | [详细文档](hal/docs/)
 
 ### PDL - 外设驱动层
 统一管理卫星平台、BMC载荷、MCU等外设服务。
 
-**文档**: [pdl/docs/README.md](pdl/docs/README.md)
+**特性**：统一外设管理、多通道冗余、自动故障切换、心跳机制
+
+**文档**: [pdl/README.md](pdl/README.md) | [详细文档](pdl/docs/)
 
 ### XConfig - 硬件配置库
 类似设备树的硬件配置管理，以外设为单位组织配置。
 
-**文档**: [xconfig/docs/README.md](xconfig/docs/README.md)
+**特性**：外设为单位、配置与代码分离、接口内嵌、运行时查询
+
+**文档**: [xconfig/README.md](xconfig/README.md) | [详细文档](xconfig/docs/)
 
 ### Apps - 应用层
 示例应用，展示如何使用BSP接口。
 
-**文档**: [apps/docs/README.md](apps/docs/README.md)
+**特性**：平台无关、使用抽象接口、优雅退出、错误处理
+
+**文档**: [apps/README.md](apps/README.md) | [详细文档](apps/docs/)
 
 ## 目录结构
 
@@ -106,12 +116,19 @@ pmc-bsp/
 ## 文档导航
 
 ### 模块文档
-- [OSAL层文档](osal/docs/README.md) - 操作系统抽象层
-- [HAL层文档](hal/docs/README.md) - 硬件抽象层
-- [PDL层文档](pdl/docs/README.md) - 外设驱动层
-- [XConfig层文档](xconfig/docs/README.md) - 硬件配置库
-- [Apps层文档](apps/docs/README.md) - 应用层
-- [Tests层文档](tests/docs/TESTING.md) - 测试框架
+- [OSAL层](osal/README.md) - 操作系统抽象层（任务、队列、互斥锁、日志等）
+- [HAL层](hal/README.md) - 硬件抽象层（CAN、串口等驱动）
+- [PDL层](pdl/README.md) - 外设驱动层（卫星平台、BMC载荷、MCU服务）
+- [XConfig层](xconfig/README.md) - 硬件配置库（设备树式配置管理）
+- [Apps层](apps/README.md) - 应用层（示例应用）
+- [Tests层](tests/README.md) - 测试框架（70+测试用例）
+
+### 详细文档
+- [OSAL详细文档](osal/docs/) - API参考、设计文档
+- [HAL详细文档](hal/docs/) - 驱动开发、移植指南
+- [PDL详细文档](pdl/docs/) - 服务设计、协议文档
+- [XConfig详细文档](xconfig/docs/) - 配置规范、平台适配
+- [Apps详细文档](apps/docs/) - 应用开发指南
 
 ### 项目文档
 - [架构设计](docs/ARCHITECTURE.md) - 系统架构和设计理念
