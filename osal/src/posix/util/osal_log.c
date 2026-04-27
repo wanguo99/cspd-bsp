@@ -249,7 +249,7 @@ static void log_internal_ex(log_level_t level, const str_t *module,
     check_and_rotate_log();
 
     /* 输出到终端（带颜色） */
-    printf("%s[%s] [%s] [%s] [%s:%s:%d]%s %s",
+    printf("%s[%s] [%s] [%s] [%s:%s:%d]%s %s\n",
            log_level_colors[level],
            timestamp,
            log_level_names[level],
@@ -263,7 +263,7 @@ static void log_internal_ex(log_level_t level, const str_t *module,
     /* 输出到文件（无颜色） */
     if (NULL != g_log_file)
     {
-        fprintf(g_log_file, "[%s] [%s] [%s] [%s:%s:%d] %s",
+        fprintf(g_log_file, "[%s] [%s] [%s] [%s:%s:%d] %s\n",
                timestamp,
                log_level_names[level],
                module,
@@ -306,7 +306,7 @@ static void log_internal(log_level_t level, const str_t *module,
     /* 输出到终端（带颜色） */
     if (NULL != module)
     {
-        printf("%s[%s] [%s] [%s]%s %s",
+        printf("%s[%s] [%s] [%s]%s %s\n",
                log_level_colors[level],
                timestamp,
                log_level_names[level],
@@ -316,7 +316,7 @@ static void log_internal(log_level_t level, const str_t *module,
     }
     else
     {
-        printf("%s[%s] [%s]%s %s",
+        printf("%s[%s] [%s]%s %s\n",
                log_level_colors[level],
                timestamp,
                log_level_names[level],
@@ -329,7 +329,7 @@ static void log_internal(log_level_t level, const str_t *module,
     {
         if (NULL != module)
         {
-            fprintf(g_log_file, "[%s] [%s] [%s] %s",
+            fprintf(g_log_file, "[%s] [%s] [%s] %s\n",
                    timestamp,
                    log_level_names[level],
                    module,
@@ -337,7 +337,7 @@ static void log_internal(log_level_t level, const str_t *module,
         }
         else
         {
-            fprintf(g_log_file, "[%s] [%s] %s",
+            fprintf(g_log_file, "[%s] [%s] %s\n",
                    timestamp,
                    log_level_names[level],
                    message);
