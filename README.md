@@ -71,6 +71,13 @@ PMC-BSP采用5层分层架构：
 
 **文档**: [apps/README.md](apps/README.md) | [详细文档](apps/docs/)
 
+### Tests - 测试框架
+统一测试框架，提供跨层级的单元测试和集成测试能力。
+
+**特性**：统一框架、交互式菜单、命令行模式、自动注册、详细报告
+
+**文档**: [tests/README.md](tests/README.md)
+
 ## 目录结构
 
 ```
