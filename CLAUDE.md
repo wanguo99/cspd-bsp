@@ -216,6 +216,7 @@ static void task_entry(void *arg)
 2. Use `TEST_MODULE_BEGIN/END` macros
 3. Add source file to `tests/CMakeLists.txt`
 4. Build and run: `./build.sh -d && ./output/target/bin/unit-test -m test_osal_timer`
+5. For fast iteration: `cd output/build && make osal_tests -j$(nproc) && cd ../..`
 
 **Test template**:
 ```c
@@ -260,18 +261,36 @@ TEST_MODULE_END()
 ### Compilation Warnings
 - Project uses `-Werror` - all warnings are errors
 - Must fix all warnings to compile
+- C Standard: C99/C11 with `-D_POSIX_C_SOURCE=200809L`
 
 ### Hardware-Related Test Failures
 - CAN tests require `can0` device
 - Serial tests require `/dev/ttyS0`
 - These failures are expected without hardware
+- Use `-i` interactive mode to skip hardware-dependent tests
 
 ### CAN Interface Setup
 ```bash
+# Check if CAN modules are loaded
 lsmod | grep can
+
+# Load CAN modules
 sudo modprobe can can_raw vcan
+
+# Setup virtual CAN (for testing without hardware)
+sudo ip link add dev vcan0 type vcan
+sudo ip link set vcan0 up
+
+# Setup real CAN interface
 sudo ip link set can0 type can bitrate 500000
 sudo ip link set can0 up
+```
+
+### Cross-Compilation
+```bash
+# Set platform and toolchain
+cmake ../.. -DPLATFORM=generic-linux -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc
+make -j$(nproc)
 ```
 
 ## Build Output Structure
@@ -295,10 +314,11 @@ output/
 ## Project Stats
 
 - **Code Size**: ~18,000 lines (14,000 production, 4,000 test)
-- **Files**: 101 C/H files
+- **Files**: 108 C/H files
 - **Test Coverage**: 58+ test cases across 6 modules
 - **Layers**: 5 (OSAL/HAL/PCL/PDL/Apps)
 - **Platforms**: TI AM6254, vendor_demo (extensible)
+- **Build System**: CMake 3.10+, supports native and cross-compilation
 
 ## Important Files
 
