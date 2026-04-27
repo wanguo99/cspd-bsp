@@ -53,10 +53,10 @@ static test_result_t run_test_case(const test_case_t *test)
 
     /* Check result */
     if (g_test_failed) {
-        OSAL_Printf("[  FAILED  ] %s\n", test->name);
+        OSAL_Printf("[  FAILED  ] %s\n\n", test->name);
         return TEST_RESULT_FAIL;
     } else {
-        OSAL_Printf("[       OK ] %s\n", test->name);
+        OSAL_Printf("[       OK ] %s\n\n", test->name);
         return TEST_RESULT_PASS;
     }
 }
@@ -96,7 +96,7 @@ static int32_t run_suite(const test_suite_t *suite)
         suite->suite_teardown();
     }
 
-    OSAL_Printf("[----------] %u tests from %s\n", suite->case_count, suite->suite_name);
+    OSAL_Printf("[----------] %u tests from %s\n\n", suite->case_count, suite->suite_name);
 
     return OS_SUCCESS;
 }
