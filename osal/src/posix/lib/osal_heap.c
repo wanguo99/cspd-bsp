@@ -8,6 +8,14 @@
 #include <string.h>
 #include <pthread.h>
 
+/* 内存块头部，用于追踪分配大小 */
+typedef struct {
+    size_t size;
+    uint32_t magic;
+} mem_block_header_t;
+
+#define MEM_BLOCK_MAGIC 0xDEADBEEF
+
 typedef struct {
     uint32_t threshold_percent;
     uint32_t peak_usage;
@@ -121,21 +129,60 @@ int32_t OSAL_HeapGetStats(uint32_t *current, uint32_t *peak)
 
 void *OSAL_Malloc(size_t size)
 {
-    void *ptr = malloc(size);
-    if (NULL != ptr) {
-        pthread_mutex_lock(&g_heap_monitor.lock);
-        g_heap_monitor.current_usage += size;
-        if (g_heap_monitor.current_usage > g_heap_monitor.peak_usage) {
-            g_heap_monitor.peak_usage = g_heap_monitor.current_usage;
-        }
-        pthread_mutex_unlock(&g_heap_monitor.lock);
+    /* 分配额外空间存储块头 */
+    size_t total_size = size + sizeof(mem_block_header_t);
+    mem_block_header_t *header = (mem_block_header_t *)malloc(total_size);
+
+    if (NULL == header) {
+        return NULL;
     }
-    return ptr;
+
+    /* 填充块头信息 */
+    header->size = size;
+    header->magic = MEM_BLOCK_MAGIC;
+
+    /* 更新统计信息 */
+    pthread_mutex_lock(&g_heap_monitor.lock);
+    g_heap_monitor.current_usage += size;
+    if (g_heap_monitor.current_usage > g_heap_monitor.peak_usage) {
+        g_heap_monitor.peak_usage = g_heap_monitor.current_usage;
+    }
+    pthread_mutex_unlock(&g_heap_monitor.lock);
+
+    /* 返回用户数据区指针（跳过块头） */
+    return (void *)(header + 1);
 }
 
 void OSAL_Free(void *ptr)
 {
-    if (NULL != ptr) {
-        free(ptr);
+    if (NULL == ptr) {
+        return;
     }
+
+    /* 获取块头指针 */
+    mem_block_header_t *header = ((mem_block_header_t *)ptr) - 1;
+
+    /* 验证魔数，检测内存损坏 */
+    if (MEM_BLOCK_MAGIC != header->magic) {
+        OSAL_Printf("[HEAP] Memory corruption detected at %p (invalid magic: 0x%X)\n",
+                    ptr, header->magic);
+        return;
+    }
+
+    /* 更新统计信息 */
+    pthread_mutex_lock(&g_heap_monitor.lock);
+    if (g_heap_monitor.current_usage >= header->size) {
+        g_heap_monitor.current_usage -= header->size;
+    } else {
+        /* 统计异常，重置为0 */
+        OSAL_Printf("[HEAP] Warning: current_usage underflow, resetting to 0\n");
+        g_heap_monitor.current_usage = 0;
+    }
+    pthread_mutex_unlock(&g_heap_monitor.lock);
+
+    /* 清除魔数，防止double free */
+    header->magic = 0;
+
+    /* 释放内存（包括块头） */
+    free(header);
 }
