@@ -87,22 +87,6 @@ install(EXPORT osal-targets
     DESTINATION lib/cmake/osal
 )
 
-# ============================================================================
-# 4. 配置文件（支持find_package）
-# ============================================================================
-include(CMakePackageConfigHelpers)
-
-configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/osal-config.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/osal-config.cmake
-    INSTALL_DESTINATION lib/cmake/osal
-)
-
-install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/osal-config.cmake
-    DESTINATION lib/cmake/osal
-)
-
 message(STATUS "OSAL module configured")
 message(STATUS "  - Interface library: osal_public_api")
 message(STATUS "  - Implementation library: osal")

@@ -98,22 +98,6 @@ install(EXPORT pdl-targets
     DESTINATION lib/cmake/pdl
 )
 
-# ============================================================================
-# 4. 配置文件（支持find_package）
-# ============================================================================
-include(CMakePackageConfigHelpers)
-
-configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/pdl-config.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/pdl-config.cmake
-    INSTALL_DESTINATION lib/cmake/pdl
-)
-
-install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/pdl-config.cmake
-    DESTINATION lib/cmake/pdl
-)
-
 message(STATUS "Peripheral Driver Layer (PDL) configured for platform: ${PLATFORM}")
 message(STATUS "  - Interface library: pdl_public_api")
 message(STATUS "  - Implementation library: pdl")

@@ -69,22 +69,6 @@ install(EXPORT hal-targets
     DESTINATION lib/cmake/hal
 )
 
-# ============================================================================
-# 4. 配置文件（支持find_package）
-# ============================================================================
-include(CMakePackageConfigHelpers)
-
-configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/hal-config.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/hal-config.cmake
-    INSTALL_DESTINATION lib/cmake/hal
-)
-
-install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/hal-config.cmake
-    DESTINATION lib/cmake/hal
-)
-
 message(STATUS "HAL module configured for platform: ${PLATFORM}")
 message(STATUS "  - Interface library: hal_public_api")
 message(STATUS "  - Implementation library: hal")

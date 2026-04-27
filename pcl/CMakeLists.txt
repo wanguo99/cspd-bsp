@@ -81,23 +81,7 @@ install(EXPORT pcl-targets
 )
 
 # ============================================================================
-# 4. 配置文件（支持find_package）
-# ============================================================================
-include(CMakePackageConfigHelpers)
-
-configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/pcl-config.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/pcl-config.cmake
-    INSTALL_DESTINATION lib/cmake/pcl
-)
-
-install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/pcl-config.cmake
-    DESTINATION lib/cmake/pcl
-)
-
-# ============================================================================
-# 5. 示例程序（可选）
+# 4. 示例程序（可选）
 # ============================================================================
 option(BUILD_PCL_EXAMPLES "Build pcl examples" OFF)
 
