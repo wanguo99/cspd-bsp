@@ -1,5 +1,5 @@
 # OSAL Module Tests
-# Tests for OSAL layer - automatically registered with libtest
+# Tests for OSAL layer - automatically registered with libutest
 
 if(NOT BUILD_TESTING)
     return()

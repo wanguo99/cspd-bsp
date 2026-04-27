@@ -1,5 +1,5 @@
 # HAL Module Tests
-# Tests for HAL layer - automatically registered with libtest
+# Tests for HAL layer - automatically registered with libutest
 
 if(NOT BUILD_TESTING)
     return()

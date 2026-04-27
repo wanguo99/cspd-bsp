@@ -1,30 +1,28 @@
-# PCL单元测试
+# PCL Module Tests
+# Tests for PCL layer - automatically registered with libutest
 
-# 测试可执行文件
-add_executable(test_pcl
-    main.c
+if(NOT BUILD_TESTING)
+    return()
+endif()
+
+# Create PCL test library
+add_library(pcl_tests STATIC
     test_pcl_api.c
 )
 
-# 包含目录
-target_include_directories(test_pcl PRIVATE
-    ${CMAKE_SOURCE_DIR}/pcl/include
-    ${CMAKE_SOURCE_DIR}/pcl/include/api
-    ${CMAKE_SOURCE_DIR}/pcl/include/internal
-    ${CMAKE_SOURCE_DIR}/pcl/include/peripheral
-    ${CMAKE_SOURCE_DIR}/osal/include
-    ${CMAKE_SOURCE_DIR}/libutest/include
+# Include directories
+target_include_directories(pcl_tests PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include/api
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include/internal
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include/peripheral
 )
 
-# 链接库
-target_link_libraries(test_pcl
-    pmc::pcl
-    pmc::osal
-    pmc::libutest
-    pthread
+# Link dependencies
+target_link_libraries(pcl_tests
+    PUBLIC pmc::libutest
+    PRIVATE pmc::pcl pmc::osal
 )
 
-# 安装到bin目录
-install(TARGETS test_pcl
-    RUNTIME DESTINATION bin
-)
+# Export for test runner
+add_library(pmc::pcl_tests ALIAS pcl_tests)

@@ -15,9 +15,13 @@ target_link_libraries(unit-test
     -Wl,--whole-archive
     pmc::osal_tests
     pmc::hal_tests
+    pmc::pcl_tests
+    pmc::pdl_tests
     -Wl,--no-whole-archive
     pmc::osal
     pmc::hal
+    pmc::pcl
+    pmc::pdl
     Threads::Threads
     rt
 )
