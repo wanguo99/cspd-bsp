@@ -32,7 +32,7 @@ module/
 │   ├── api/             # 对外API（可选，仅顶层模块）
 │   ├── internal/        # 内部公共头文件（可选）
 │   ├── peripheral/      # 外设私有头文件（可选）
-│   └── config/          # 模块配置（必需）
+│   └── config/          # 模块配置（必需）# TODO：config不是必须的
 ├── src/                 # 源代码
 │   └── linux/          # Linux平台实现
 └── platform/            # 平台配置（仅PCL）
@@ -567,6 +567,77 @@ int32 PCL_Register(const pcl_board_config_t *config);
 ```
 
 **内部函数** 可省略文档注释（函数名已足够清晰）。
+
+### 5.5 条件判断规范（Yoda Conditions）
+
+**强制要求**：所有条件判断必须将常量放在比较运算符左侧（Yoda条件风格）
+
+**目的**：
+- **防止赋值错误**：避免将 `==` 误写为 `=` 导致的赋值bug
+- **编译器保护**：`if (NULL = ptr)` 会产生编译错误，而 `if (ptr = NULL)` 可能通过编译
+- **代码一致性**：统一的代码风格，提高可读性
+
+**规范**：
+```c
+/* ✅ 正确：常量在左侧 */
+if (NULL == ptr) {
+    return OS_ERROR;
+}
+
+if (OS_SUCCESS == status) {
+    LOG_INFO("MODULE", "Operation succeeded");
+}
+
+if (0 == count) {
+    return OS_ERROR;
+}
+
+if (true == flag) {
+    do_something();
+}
+
+/* ❌ 错误：变量在左侧 */
+if (ptr == NULL) {          // ❌ 应改为 if (NULL == ptr)
+    return OS_ERROR;
+}
+
+if (status == OS_SUCCESS) { // ❌ 应改为 if (OS_SUCCESS == status)
+    return OS_SUCCESS;
+}
+
+if (count == 0) {           // ❌ 应改为 if (0 == count)
+    return OS_ERROR;
+}
+```
+
+**适用范围**：
+- NULL 指针检查
+- 枚举值比较
+- 宏定义常量比较
+- 数字字面量比较
+- 布尔值比较
+
+**注意事项**：
+- 仅适用于 `==` 和 `!=` 运算符
+- 不适用于 `<`, `>`, `<=`, `>=` 运算符（保持自然顺序）
+- 两个变量比较时保持自然顺序
+
+**示例**：
+```c
+/* ✅ 正确：范围比较保持自然顺序 */
+if (count > 0) {
+    process_data();
+}
+
+if (size < MAX_SIZE) {
+    allocate_buffer();
+}
+
+/* ✅ 正确：两个变量比较保持自然顺序 */
+if (current_size == max_size) {
+    resize_buffer();
+}
+```
 
 ---
 

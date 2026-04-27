@@ -25,7 +25,7 @@ TEST_CASE(test_can_init_success)
 
     int32_t ret = HAL_CAN_Init(&config, &test_handle);
 
-    if (ret != OS_SUCCESS) {
+    if (OS_SUCCESS != ret) {
         TEST_SKIP_IF(true, "vcan0 not available");
     }
 

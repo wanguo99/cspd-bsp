@@ -49,7 +49,7 @@ int32_t OSAL_tcgetattr(int32_t fd, osal_termios_t *termios_p)
     struct termios native_term;
     int32_t result = tcgetattr(fd, &native_term);
 
-    if (result == 0) {
+    if (0 == result) {
         native_to_osal_termios(&native_term, termios_p);
     }
 

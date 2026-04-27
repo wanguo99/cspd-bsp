@@ -11,7 +11,7 @@ int32_t OSAL_SignalRegister(int32_t signum, os_signal_handler_t handler)
 {
     struct sigaction sa;
 
-    if (handler == NULL)
+    if (NULL == handler)
         return OS_INVALID_POINTER;
 
     memset(&sa, 0, sizeof(sa));

@@ -54,7 +54,7 @@ int32_t PCL_RegisterAll(void)
 
     for (uint32_t i = 0; i < CONFIG_COUNT; i++) {
         ret = PCL_Register(g_all_configs[i]);
-        if (ret == OS_SUCCESS) {
+        if (OS_SUCCESS == ret) {
             success_count++;
         } else {
             LOG_ERROR("XCONFIG", "Failed to register config[%d]: %s/%s/%s",
@@ -95,7 +95,7 @@ const pcl_board_config_t* PCL_SelectDefault(void)
 
     if (platform != NULL && product != NULL) {
         config = PCL_Find(platform, product, version);
-        if (config != NULL) {
+        if (NULL != config) {
             LOG_INFO("XCONFIG", "Selected config from environment: %s/%s/%s",
                      platform, product, version ? version : "any");
             return config;
@@ -113,7 +113,7 @@ const pcl_board_config_t* PCL_SelectDefault(void)
 #endif
 
     config = PCL_Find(platform, product, version);
-    if (config != NULL) {
+    if (NULL != config) {
         LOG_INFO("XCONFIG", "Selected config from compile-time defaults: %s/%s/%s",
                  platform, product, version ? version : "any");
         return config;

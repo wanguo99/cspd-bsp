@@ -52,7 +52,7 @@ int32_t HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
 
     /* 分配句柄 */
     impl = (hal_can_context_t *)OSAL_Malloc(sizeof(hal_can_context_t));
-    if (impl == NULL)
+    if (NULL == impl)
     {
         LOG_ERROR("HAL_CAN", "Failed to allocate memory");
         return OS_ERROR;
@@ -141,7 +141,7 @@ int32_t HAL_CAN_Deinit(hal_can_handle_t handle)
 {
     hal_can_context_t *impl = (hal_can_context_t *)handle;
 
-    if (impl == NULL)
+    if (NULL == impl)
         return OS_ERR_INVALID_ID;
 
     if (impl->initialized && impl->sockfd >= 0)
@@ -280,7 +280,7 @@ int32_t HAL_CAN_SetFilter(hal_can_handle_t handle, uint32_t filter_id, uint32_t 
     hal_can_context_t *impl = (hal_can_context_t *)handle;
     struct can_filter rfilter[1];
 
-    if (impl == NULL)
+    if (NULL == impl)
         return OS_ERR_INVALID_ID;
 
     if (!impl->initialized || impl->sockfd < 0)
@@ -311,7 +311,7 @@ int32_t HAL_CAN_GetStats(hal_can_handle_t handle,
 {
     hal_can_context_t *impl = (hal_can_context_t *)handle;
 
-    if (impl == NULL)
+    if (NULL == impl)
         return OS_ERR_INVALID_ID;
 
     if (!impl->initialized)

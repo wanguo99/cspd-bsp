@@ -73,12 +73,12 @@ int32_t OSAL_LogInit(const str_t *log_file_path, int32_t level)
         g_log_level = level;
     }
 
-    if (log_file_path != NULL)
+    if (NULL != log_file_path)
     {
         strncpy(g_log_file_path, log_file_path, sizeof(g_log_file_path) - 1);
         g_log_file_path[sizeof(g_log_file_path) - 1] = '\0';
         g_log_file = fopen(log_file_path, "a");
-        if (g_log_file == NULL)
+        if (NULL == g_log_file)
         {
             fprintf(stderr, "无法打开日志文件: %s\n", log_file_path);
             return OS_ERROR;
@@ -93,7 +93,7 @@ int32_t OSAL_LogInit(const str_t *log_file_path, int32_t level)
  */
 void OSAL_LogShutdown(void)
 {
-    if (g_log_file != NULL)
+    if (NULL != g_log_file)
     {
         fclose(g_log_file);
         g_log_file = NULL;
@@ -159,7 +159,7 @@ static void rotate_log_file(void)
         return;
 
     /* 关闭当前日志文件 */
-    if (g_log_file != NULL)
+    if (NULL != g_log_file)
     {
         fclose(g_log_file);
         g_log_file = NULL;
@@ -186,7 +186,7 @@ static void rotate_log_file(void)
 
     /* 打开新的日志文件 */
     g_log_file = fopen(g_log_file_path, "a");
-    if (g_log_file != NULL)
+    if (NULL != g_log_file)
     {
         fprintf(g_log_file, "[LOG ROTATION] Log file rotated\n");
         fflush(g_log_file);
@@ -261,7 +261,7 @@ static void log_internal_ex(log_level_t level, const str_t *module,
            message);
 
     /* 输出到文件（无颜色） */
-    if (g_log_file != NULL)
+    if (NULL != g_log_file)
     {
         fprintf(g_log_file, "[%s] [%s] [%s] [%s:%s:%d] %s",
                timestamp,
@@ -304,7 +304,7 @@ static void log_internal(log_level_t level, const str_t *module,
     check_and_rotate_log();
 
     /* 输出到终端（带颜色） */
-    if (module != NULL)
+    if (NULL != module)
     {
         printf("%s[%s] [%s] [%s]%s %s",
                log_level_colors[level],
@@ -325,9 +325,9 @@ static void log_internal(log_level_t level, const str_t *module,
     }
 
     /* 输出到文件（无颜色） */
-    if (g_log_file != NULL)
+    if (NULL != g_log_file)
     {
-        if (module != NULL)
+        if (NULL != module)
         {
             fprintf(g_log_file, "[%s] [%s] [%s] %s",
                    timestamp,

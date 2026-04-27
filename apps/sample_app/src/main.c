@@ -83,7 +83,7 @@ static void worker_task(void *arg)
 
         /* 发送消息到队列 */
         ret = OSAL_QueuePut(g_msg_queue_id, msg, sizeof(msg), 1000);
-        if (ret == OS_SUCCESS)
+        if (OS_SUCCESS == ret)
         {
             atomic_fetch_add(&g_msg_count, 1);
             LOG_INFO("Worker", "发送消息: %s", msg);
@@ -125,7 +125,7 @@ static void stats_task(void *arg)
     {
         /* 从队列接收消息（超时5秒） */
         ret = OSAL_QueueGet(g_msg_queue_id, msg, sizeof(msg), &msg_size, 5000);
-        if (ret == OS_SUCCESS)
+        if (OS_SUCCESS == ret)
         {
             LOG_INFO("Stats", "接收消息: %s (大小: %u字节)", msg, msg_size);
         }
@@ -166,14 +166,14 @@ int main(int argc, char *argv[])
 
     /* 1. 注册信号处理 */
     ret = OSAL_SignalRegister(OS_SIGNAL_INT, signal_handler);
-    if (ret != OS_SUCCESS)
+    if (OS_SUCCESS != ret)
     {
         LOG_ERROR("Main", "注册SIGINT失败: %d", ret);
         goto cleanup;
     }
 
     ret = OSAL_SignalRegister(OS_SIGNAL_TERM, signal_handler);
-    if (ret != OS_SUCCESS)
+    if (OS_SUCCESS != ret)
     {
         LOG_ERROR("Main", "注册SIGTERM失败: %d", ret);
         goto cleanup;
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
     /* 2. 创建消息队列 */
     ret = OSAL_QueueCreate(&g_msg_queue_id, "MsgQueue",
                            QUEUE_DEPTH, QUEUE_MSG_SIZE, 0);
-    if (ret != OS_SUCCESS)
+    if (OS_SUCCESS != ret)
     {
         LOG_ERROR("Main", "创建消息队列失败: %d", ret);
         goto cleanup;
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
     ret = OSAL_TaskCreate(&g_worker_task_id, "WorkerTask",
                           worker_task, NULL,
                           TASK_STACK_SIZE, TASK_PRIORITY, 0);
-    if (ret != OS_SUCCESS)
+    if (OS_SUCCESS != ret)
     {
         LOG_ERROR("Main", "创建工作任务失败: %d", ret);
         goto cleanup;
@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
     ret = OSAL_TaskCreate(&g_stats_task_id, "StatsTask",
                           stats_task, NULL,
                           TASK_STACK_SIZE, TASK_PRIORITY, 0);
-    if (ret != OS_SUCCESS)
+    if (OS_SUCCESS != ret)
     {
         LOG_ERROR("Main", "创建统计任务失败: %d", ret);
         goto cleanup;
@@ -225,10 +225,10 @@ int main(int argc, char *argv[])
 
 cleanup:
     /* 6. 删除任务 */
-    if (g_worker_task_id != 0)
+    if (0 != g_worker_task_id)
     {
         ret = OSAL_TaskDelete(g_worker_task_id);
-        if (ret == OS_SUCCESS)
+        if (OS_SUCCESS == ret)
         {
             LOG_INFO("Main", "工作任务已删除");
         }
@@ -238,10 +238,10 @@ cleanup:
         }
     }
 
-    if (g_stats_task_id != 0)
+    if (0 != g_stats_task_id)
     {
         ret = OSAL_TaskDelete(g_stats_task_id);
-        if (ret == OS_SUCCESS)
+        if (OS_SUCCESS == ret)
         {
             LOG_INFO("Main", "统计任务已删除");
         }
@@ -252,10 +252,10 @@ cleanup:
     }
 
     /* 7. 删除队列 */
-    if (g_msg_queue_id != 0)
+    if (0 != g_msg_queue_id)
     {
         ret = OSAL_QueueDelete(g_msg_queue_id);
-        if (ret == OS_SUCCESS)
+        if (OS_SUCCESS == ret)
         {
             LOG_INFO("Main", "消息队列已删除");
         }

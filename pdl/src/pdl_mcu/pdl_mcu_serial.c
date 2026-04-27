@@ -44,7 +44,7 @@ int32_t mcu_serial_init(const void *config, void **handle)
 
     const mcu_config_t *mcu_cfg = (const mcu_config_t *)config;
     mcu_serial_context_t *ctx = (mcu_serial_context_t *)OSAL_Malloc(sizeof(mcu_serial_context_t));
-    if (ctx == NULL)
+    if (NULL == ctx)
     {
         return OS_ERROR;
     }
@@ -84,7 +84,7 @@ int32_t mcu_serial_init(const void *config, void **handle)
  */
 int32_t mcu_serial_deinit(void *handle)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }
@@ -191,7 +191,7 @@ static int32_t mcu_serial_unpack_frame(const uint8_t *frame,
     {
         uint32_t copy_len = (data_len < data_size) ? data_len : data_size;
         OSAL_Memcpy(data, &frame[4], copy_len);
-        if (actual_size != NULL)
+        if (NULL != actual_size)
         {
             *actual_size = copy_len;
         }
@@ -212,7 +212,7 @@ int32_t mcu_serial_send_command(void *handle,
                              uint32_t *actual_size,
                              uint32_t timeout_ms)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }

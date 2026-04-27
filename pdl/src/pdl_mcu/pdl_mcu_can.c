@@ -35,7 +35,7 @@ int32_t mcu_can_init(const void *config, void **handle)
 
     const mcu_config_t *mcu_cfg = (const mcu_config_t *)config;
     mcu_can_context_t *ctx = (mcu_can_context_t *)OSAL_Malloc(sizeof(mcu_can_context_t));
-    if (ctx == NULL)
+    if (NULL == ctx)
     {
         return OS_ERROR;
     }
@@ -75,7 +75,7 @@ int32_t mcu_can_init(const void *config, void **handle)
  */
 int32_t mcu_can_deinit(void *handle)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }
@@ -101,7 +101,7 @@ int32_t mcu_can_send_command(void *handle,
                           uint32_t *actual_size,
                           uint32_t timeout_ms)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }
@@ -139,7 +139,7 @@ int32_t mcu_can_send_command(void *handle,
     can_frame_t rx_frame;
     int32_t ret = HAL_CAN_Recv(ctx->can_handle, &rx_frame, timeout_ms);
 
-    if (ret == OS_SUCCESS)
+    if (OS_SUCCESS == ret)
     {
         /* 检查CAN ID */
         if (rx_frame.can_id != ctx->rx_id)
@@ -154,7 +154,7 @@ int32_t mcu_can_send_command(void *handle,
             uint8_t status = rx_frame.data[0];
             uint8_t resp_len = rx_frame.data[1];
 
-            if (status != 0)
+            if (0 != status)
             {
                 OSAL_MutexUnlock(ctx->rx_mutex);
                 return OS_ERROR;
@@ -166,7 +166,7 @@ int32_t mcu_can_send_command(void *handle,
                 copy_len = (copy_len < ((uint32_t)rx_frame.dlc - 2)) ? copy_len : ((uint32_t)rx_frame.dlc - 2);
                 OSAL_Memcpy(response, &rx_frame.data[2], copy_len);
 
-                if (actual_size != NULL)
+                if (NULL != actual_size)
                 {
                     *actual_size = copy_len;
                 }

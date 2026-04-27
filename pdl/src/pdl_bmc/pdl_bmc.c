@@ -49,7 +49,7 @@ int32_t PDL_BMC_Init(const bmc_config_t *config,
 
     /* 分配上下文 */
     bmc_context_t *ctx = (bmc_context_t *)OSAL_Malloc(sizeof(bmc_context_t));
-    if (ctx == NULL)
+    if (NULL == ctx)
     {
         LOG_ERROR("BMC", "Failed to allocate context");
         return OS_ERROR;
@@ -74,7 +74,7 @@ int32_t PDL_BMC_Init(const bmc_config_t *config,
                                 config->network.port,
                                 config->network.timeout_ms,
                                 &ctx->net_handle);
-        if (ret != OS_SUCCESS)
+        if (OS_SUCCESS != ret)
         {
             LOG_WARN("BMC", "Failed to open network channel");
         }
@@ -92,7 +92,7 @@ int32_t PDL_BMC_Init(const bmc_config_t *config,
                                    config->serial.baudrate,
                                    config->serial.timeout_ms,
                                    &ctx->serial_handle);
-        if (ret != OS_SUCCESS)
+        if (OS_SUCCESS != ret)
         {
             LOG_WARN("BMC", "Failed to open serial channel");
         }
@@ -123,7 +123,7 @@ int32_t PDL_BMC_Init(const bmc_config_t *config,
  */
 int32_t PDL_BMC_Deinit(bmc_handle_t handle)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }
@@ -156,7 +156,7 @@ int32_t PDL_BMC_Deinit(bmc_handle_t handle)
  */
 int32_t PDL_BMC_PowerOn(bmc_handle_t handle)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }
@@ -177,7 +177,7 @@ int32_t PDL_BMC_PowerOn(bmc_handle_t handle)
         ret = bmc_ipmi_power_on(ctx->serial_handle, bmc_serial_send_recv);
     }
 
-    if (ret == OS_SUCCESS)
+    if (OS_SUCCESS == ret)
     {
         ctx->success_count++;
         LOG_INFO("BMC", "Power on command sent");
@@ -198,7 +198,7 @@ int32_t PDL_BMC_PowerOn(bmc_handle_t handle)
  */
 int32_t PDL_BMC_PowerOff(bmc_handle_t handle)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }
@@ -219,7 +219,7 @@ int32_t PDL_BMC_PowerOff(bmc_handle_t handle)
         ret = bmc_ipmi_power_off(ctx->serial_handle, bmc_serial_send_recv);
     }
 
-    if (ret == OS_SUCCESS)
+    if (OS_SUCCESS == ret)
     {
         ctx->success_count++;
         LOG_INFO("BMC", "Power off command sent");
@@ -240,7 +240,7 @@ int32_t PDL_BMC_PowerOff(bmc_handle_t handle)
  */
 int32_t PDL_BMC_PowerReset(bmc_handle_t handle)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }
@@ -261,7 +261,7 @@ int32_t PDL_BMC_PowerReset(bmc_handle_t handle)
         ret = bmc_ipmi_power_reset(ctx->serial_handle, bmc_serial_send_recv);
     }
 
-    if (ret == OS_SUCCESS)
+    if (OS_SUCCESS == ret)
     {
         ctx->success_count++;
         LOG_INFO("BMC", "Power reset command sent");
@@ -304,7 +304,7 @@ int32_t PDL_BMC_GetPowerState(bmc_handle_t handle,
         ret = bmc_ipmi_get_power_state(ctx->serial_handle, bmc_serial_send_recv, state);
     }
 
-    if (ret == OS_SUCCESS)
+    if (OS_SUCCESS == ret)
     {
         ctx->success_count++;
     }
@@ -327,7 +327,7 @@ int32_t PDL_BMC_ReadSensors(bmc_handle_t handle,
                                uint32_t max_count,
                                uint32_t *actual_count)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }
@@ -350,7 +350,7 @@ int32_t PDL_BMC_ReadSensors(bmc_handle_t handle,
                                    type, readings, max_count, actual_count);
     }
 
-    if (ret == OS_SUCCESS)
+    if (OS_SUCCESS == ret)
     {
         ctx->success_count++;
     }
@@ -386,7 +386,7 @@ int32_t PDL_BMC_ExecuteCommand(bmc_handle_t handle,
 int32_t PDL_BMC_SwitchChannel(bmc_handle_t handle,
                                  bmc_channel_t channel)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }
@@ -428,7 +428,7 @@ int32_t PDL_BMC_SwitchChannel(bmc_handle_t handle,
  */
 bmc_channel_t PDL_BMC_GetChannel(bmc_handle_t handle)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return BMC_CHANNEL_NETWORK;
     }
@@ -442,7 +442,7 @@ bmc_channel_t PDL_BMC_GetChannel(bmc_handle_t handle)
  */
 bool PDL_BMC_IsConnected(bmc_handle_t handle)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return false;
     }
@@ -460,7 +460,7 @@ int32_t PDL_BMC_GetStats(bmc_handle_t handle,
                             uint32_t *fail_count,
                             uint32_t *switch_count)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }
@@ -469,10 +469,10 @@ int32_t PDL_BMC_GetStats(bmc_handle_t handle,
 
     OSAL_MutexLock(ctx->mutex);
 
-    if (cmd_count != NULL) *cmd_count = ctx->cmd_count;
-    if (success_count != NULL) *success_count = ctx->success_count;
-    if (fail_count != NULL) *fail_count = ctx->fail_count;
-    if (switch_count != NULL) *switch_count = ctx->switch_count;
+    if (NULL != cmd_count) *cmd_count = ctx->cmd_count;
+    if (NULL != success_count) *success_count = ctx->success_count;
+    if (NULL != fail_count) *fail_count = ctx->fail_count;
+    if (NULL != switch_count) *switch_count = ctx->switch_count;
 
     OSAL_MutexUnlock(ctx->mutex);
 

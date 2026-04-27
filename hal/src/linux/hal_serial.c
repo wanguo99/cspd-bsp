@@ -52,13 +52,13 @@ int32_t HAL_Serial_Open(const char *device, const hal_serial_config_t *config, h
         return OS_INVALID_POINTER;
     }
 
-    if (config == NULL)
+    if (NULL == config)
     {
         return OS_INVALID_POINTER;
     }
 
     ctx = (hal_serial_context_t *)OSAL_Malloc(sizeof(hal_serial_context_t));
-    if (ctx == NULL)
+    if (NULL == ctx)
     {
         LOG_ERROR("HAL_Serial", "Failed to allocate context");
         return OS_ERR_NO_MEMORY;
@@ -179,7 +179,7 @@ int32_t HAL_Serial_Close(hal_serial_handle_t handle)
 {
     hal_serial_context_t *ctx = (hal_serial_context_t *)handle;
 
-    if (ctx == NULL)
+    if (NULL == ctx)
     {
         return OS_ERR_INVALID_ID;
     }
@@ -225,7 +225,7 @@ int32_t HAL_Serial_Write(hal_serial_handle_t handle, const void *buffer, uint32_
         tv.tv_usec = (timeout % 1000) * 1000;
 
         ret = OSAL_select(ctx->fd + 1, NULL, &writefds, NULL, &tv);
-        if (ret == 0)
+        if (0 == ret)
         {
             return OS_ERROR_TIMEOUT;
         }
@@ -278,7 +278,7 @@ int32_t HAL_Serial_Read(hal_serial_handle_t handle, void *buffer, uint32_t size,
         tv.tv_usec = (timeout % 1000) * 1000;
 
         ret = OSAL_select(ctx->fd + 1, &readfds, NULL, NULL, &tv);
-        if (ret == 0)
+        if (0 == ret)
         {
             return OS_ERROR_TIMEOUT;
         }
@@ -307,7 +307,7 @@ int32_t HAL_Serial_Flush(hal_serial_handle_t handle)
 {
     hal_serial_context_t *ctx = (hal_serial_context_t *)handle;
 
-    if (ctx == NULL)
+    if (NULL == ctx)
     {
         return OS_ERR_INVALID_ID;
     }

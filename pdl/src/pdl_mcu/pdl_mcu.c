@@ -36,7 +36,7 @@ int32_t PDL_MCU_Init(const mcu_config_t *config, mcu_handle_t *handle)
     }
 
     mcu_context_t *ctx = (mcu_context_t *)OSAL_Malloc(sizeof(mcu_context_t));
-    if (ctx == NULL)
+    if (NULL == ctx)
     {
         return OS_ERROR;
     }
@@ -72,7 +72,7 @@ int32_t PDL_MCU_Init(const mcu_config_t *config, mcu_handle_t *handle)
             break;
     }
 
-    if (ret != OS_SUCCESS)
+    if (OS_SUCCESS != ret)
     {
         OSAL_MutexDelete(ctx->mutex);
         OSAL_Free(ctx);
@@ -90,7 +90,7 @@ int32_t PDL_MCU_Init(const mcu_config_t *config, mcu_handle_t *handle)
  */
 int32_t PDL_MCU_Deinit(mcu_handle_t handle)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }
@@ -223,7 +223,7 @@ int32_t PDL_MCU_GetStatus(mcu_handle_t handle, mcu_status_t *status)
  */
 int32_t PDL_MCU_Reset(mcu_handle_t handle)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }
@@ -266,7 +266,7 @@ int32_t PDL_MCU_ReadRegister(mcu_handle_t handle, uint8_t reg_addr, uint8_t *val
  */
 int32_t PDL_MCU_WriteRegister(mcu_handle_t handle, uint8_t reg_addr, uint8_t value)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }
@@ -291,7 +291,7 @@ int32_t PDL_MCU_SendCommand(mcu_handle_t handle,
                           uint32_t resp_size,
                           uint32_t *actual_size)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }

@@ -16,7 +16,7 @@ int32_t OSAL_tcgetattr(int32_t fd, osal_termios_t *termios_p)
     int ret;
 
     ret = tcgetattr(fd, &native_termios);
-    if (ret != 0) {
+    if (0 != ret) {
         return ret;
     }
 

@@ -66,7 +66,7 @@ int32_t PCL_Register(const pcl_board_config_t *config)
         return OS_ERROR;
     }
 
-    if (config == NULL) {
+    if (NULL == config) {
         LOG_ERROR("XCONFIG", "Invalid config pointer");
         return OS_ERROR;
     }
@@ -378,7 +378,7 @@ const void* PCL_APP_GetDeviceByMapping(const pcl_board_config_t *board,
 
 int32_t PCL_Validate(const pcl_board_config_t *config)
 {
-    if (config == NULL) {
+    if (NULL == config) {
         LOG_ERROR("XCONFIG", "Config is NULL");
         return OS_ERROR;
     }
@@ -457,7 +457,7 @@ int32_t PCL_Validate(const pcl_board_config_t *config)
 
 void PCL_Print(const pcl_board_config_t *config)
 {
-    if (config == NULL) {
+    if (NULL == config) {
         OSAL_Printf("Config is NULL\n");
         return;
     }

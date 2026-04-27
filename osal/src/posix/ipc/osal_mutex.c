@@ -34,7 +34,7 @@ int32_t OSAL_MutexCreate(osal_id_t *mutex_id, const char *mutex_name,
     uint32_t slot = 0;
     bool found_slot = false;
 
-    if (mutex_id == NULL)
+    if (NULL == mutex_id)
         return OS_INVALID_POINTER;
 
     if (mutex_name == NULL || strlen(mutex_name) >= OS_MAX_API_NAME)
@@ -106,7 +106,7 @@ int32_t OSAL_MutexDelete(osal_id_t mutex_id)
 
     pthread_mutex_unlock(&g_mutex_table_mutex);
 
-    if (mutex_to_destroy == NULL)
+    if (NULL == mutex_to_destroy)
         return OS_ERR_INVALID_ID;
 
     /* 在锁外销毁互斥锁 */
@@ -261,7 +261,7 @@ int32_t OSAL_MutexLockTimeout(osal_id_t mutex_id, uint32_t timeout_msec)
 
         return OS_ERROR_TIMEOUT;
     }
-    else if (ret != 0)
+    else if (0 != ret)
     {
         return OS_ERROR;
     }

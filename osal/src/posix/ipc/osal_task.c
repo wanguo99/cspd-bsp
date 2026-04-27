@@ -125,7 +125,7 @@ int32_t OSAL_TaskCreate(osal_id_t *task_id,
         return OS_ERR_INVALID_PRIORITY;
 
     ret = osal_task_find_free_slot(&slot);
-    if (ret != OS_SUCCESS)
+    if (OS_SUCCESS != ret)
         return ret;
 
     pthread_mutex_lock(&g_task_table_mutex);
@@ -140,7 +140,7 @@ int32_t OSAL_TaskCreate(osal_id_t *task_id,
     }
 
     wrapper_arg = malloc(sizeof(task_wrapper_arg_t));
-    if (wrapper_arg == NULL)
+    if (NULL == wrapper_arg)
     {
         pthread_mutex_unlock(&g_task_table_mutex);
         return OS_ERROR;
@@ -237,7 +237,7 @@ int32_t OSAL_TaskDelete(osal_id_t task_id)
         /* 线程可能已经退出或不可join，尝试分离 */
         pthread_detach(thread_to_delete);
     }
-    else if (ret != 0)
+    else if (0 != ret)
     {
         OSAL_Printf("[OS_Task] 等待任务 %u 退出失败: %d\n", task_id, ret);
         pthread_detach(thread_to_delete);
@@ -342,7 +342,7 @@ int32_t OSAL_TaskSetPriority(osal_id_t task_id, uint32_t priority)
 
 int32_t OSAL_TaskGetInfo(osal_id_t task_id, OS_TaskProp_t *task_prop)
 {
-    if (task_prop == NULL)
+    if (NULL == task_prop)
         return OS_INVALID_POINTER;
 
     pthread_mutex_lock(&g_task_table_mutex);

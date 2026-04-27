@@ -14,7 +14,7 @@
 static void test_task_func(void *arg)
 {
     int32_t *counter = (int32_t *)arg;
-    if (counter == NULL) {
+    if (NULL == counter) {
         OSAL_TaskDelay(100);
         return;
     }

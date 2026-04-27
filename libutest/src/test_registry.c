@@ -21,7 +21,7 @@ static uint32_t g_suite_count = 0;
  */
 void libutest_register_suite(const test_suite_t *suite)
 {
-    if (suite == NULL) {
+    if (NULL == suite) {
         return;
     }
 
@@ -37,7 +37,7 @@ void libutest_register_suite(const test_suite_t *suite)
  */
 const test_suite_t** test_get_all_suites(uint32_t *count)
 {
-    if (count != NULL) {
+    if (NULL != count) {
         *count = g_suite_count;
     }
     return g_registered_suites;
@@ -48,7 +48,7 @@ const test_suite_t** test_get_all_suites(uint32_t *count)
  */
 const test_suite_t* test_find_suite(const str_t *name)
 {
-    if (name == NULL) {
+    if (NULL == name) {
         return NULL;
     }
 
@@ -101,7 +101,7 @@ uint32_t test_get_suites_by_module(const str_t *module_name, const test_suite_t 
  */
 uint32_t test_get_layers(const str_t **layers, uint32_t max_layers)
 {
-    if (layers == NULL) {
+    if (NULL == layers) {
         return 0;
     }
 
@@ -130,7 +130,7 @@ uint32_t test_get_layers(const str_t **layers, uint32_t max_layers)
  */
 uint32_t test_get_modules(const str_t **modules, uint32_t max_modules)
 {
-    if (modules == NULL) {
+    if (NULL == modules) {
         return 0;
     }
 

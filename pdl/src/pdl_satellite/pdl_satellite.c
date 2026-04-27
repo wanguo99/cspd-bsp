@@ -76,7 +76,7 @@ static void can_rx_task(void *arg)
         /* 接收CAN消息 */
         ret = satellite_can_recv(ctx->can_handle, &msg, ctx->config.cmd_timeout_ms);
 
-        if (ret == OS_SUCCESS)
+        if (OS_SUCCESS == ret)
         {
             ctx->rx_count++;
 
@@ -112,7 +112,7 @@ int32_t PDL_Satellite_Init(const satellite_service_config_t *config,
 
     /* 分配上下文 */
     satellite_service_context_t *ctx = (satellite_service_context_t *)OSAL_Malloc(sizeof(satellite_service_context_t));
-    if (ctx == NULL)
+    if (NULL == ctx)
     {
         LOG_ERROR("SAT", "Failed to allocate context");
         return OS_ERROR;
@@ -124,7 +124,7 @@ int32_t PDL_Satellite_Init(const satellite_service_config_t *config,
 
     /* 初始化CAN通信 */
     int32_t ret = satellite_can_init(config->can_device, config->can_bitrate, &ctx->can_handle);
-    if (ret != OS_SUCCESS)
+    if (OS_SUCCESS != ret)
     {
         LOG_ERROR("SAT", "Failed to initialize CAN");
         OSAL_Free(ctx);
@@ -136,7 +136,7 @@ int32_t PDL_Satellite_Init(const satellite_service_config_t *config,
                         can_rx_task, (uint32_t *)ctx,
                         OSAL_TASK_STACK_SIZE_MEDIUM,
                         OSAL_TASK_PRIORITY_HIGH, 0);
-    if (ret != OS_SUCCESS)
+    if (OS_SUCCESS != ret)
     {
         LOG_ERROR("SAT", "Failed to create RX task");
         satellite_can_deinit(ctx->can_handle);
@@ -149,7 +149,7 @@ int32_t PDL_Satellite_Init(const satellite_service_config_t *config,
                         heartbeat_task, (uint32_t *)ctx,
                         OSAL_TASK_STACK_SIZE_SMALL,
                         OSAL_TASK_PRIORITY_LOW, 0);
-    if (ret != OS_SUCCESS)
+    if (OS_SUCCESS != ret)
     {
         LOG_ERROR("SAT", "Failed to create heartbeat task");
         OSAL_TaskDelete(ctx->rx_task_id);
@@ -169,7 +169,7 @@ int32_t PDL_Satellite_Init(const satellite_service_config_t *config,
  */
 int32_t PDL_Satellite_Deinit(satellite_service_handle_t handle)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }
@@ -197,7 +197,7 @@ int32_t PDL_Satellite_RegisterCallback(satellite_service_handle_t handle,
                                     satellite_cmd_callback_t callback,
                                     void *user_data)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }
@@ -217,7 +217,7 @@ int32_t PDL_Satellite_SendResponse(satellite_service_handle_t handle,
                                 can_status_t status,
                                 uint32_t result)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }
@@ -225,7 +225,7 @@ int32_t PDL_Satellite_SendResponse(satellite_service_handle_t handle,
     satellite_service_context_t *ctx = (satellite_service_context_t *)handle;
 
     int32_t ret = satellite_can_send_response(ctx->can_handle, seq_num, status, result);
-    if (ret == OS_SUCCESS)
+    if (OS_SUCCESS == ret)
     {
         ctx->tx_count++;
     }
@@ -244,7 +244,7 @@ int32_t PDL_Satellite_SendResponse(satellite_service_handle_t handle,
 int32_t PDL_Satellite_SendHeartbeat(satellite_service_handle_t handle,
                                  can_status_t status)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }
@@ -252,7 +252,7 @@ int32_t PDL_Satellite_SendHeartbeat(satellite_service_handle_t handle,
     satellite_service_context_t *ctx = (satellite_service_context_t *)handle;
 
     int32_t ret = satellite_can_send_heartbeat(ctx->can_handle, status);
-    if (ret == OS_SUCCESS)
+    if (OS_SUCCESS == ret)
     {
         ctx->tx_count++;
     }
@@ -272,16 +272,16 @@ int32_t PDL_Satellite_GetStats(satellite_service_handle_t handle,
                             uint32_t *tx_count,
                             uint32_t *error_count)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }
 
     satellite_service_context_t *ctx = (satellite_service_context_t *)handle;
 
-    if (rx_count != NULL) *rx_count = ctx->rx_count;
-    if (tx_count != NULL) *tx_count = ctx->tx_count;
-    if (error_count != NULL) *error_count = ctx->error_count;
+    if (NULL != rx_count) *rx_count = ctx->rx_count;
+    if (NULL != tx_count) *tx_count = ctx->tx_count;
+    if (NULL != error_count) *error_count = ctx->error_count;
 
     return OS_SUCCESS;
 }

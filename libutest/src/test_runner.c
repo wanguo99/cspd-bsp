@@ -66,7 +66,7 @@ static test_result_t run_test_case(const test_case_t *test)
  */
 static int32_t run_suite(const test_suite_t *suite)
 {
-    if (suite == NULL) {
+    if (NULL == suite) {
         return OS_ERROR;
     }
 
@@ -136,14 +136,14 @@ int32_t libutest_run_all(void)
  */
 int32_t libutest_run_layer(const str_t *layer_name)
 {
-    if (layer_name == NULL) {
+    if (NULL == layer_name) {
         return OS_INVALID_POINTER;
     }
 
     const test_suite_t *suites[MAX_SUITES];
     uint32_t count = test_get_suites_by_layer(layer_name, suites, MAX_SUITES);
 
-    if (count == 0) {
+    if (0 == count) {
         OSAL_Printf("No tests found for layer: %s\n", layer_name);
         return OS_ERROR;
     }
@@ -171,14 +171,14 @@ int32_t libutest_run_layer(const str_t *layer_name)
  */
 int32_t libutest_run_module(const str_t *module_name)
 {
-    if (module_name == NULL) {
+    if (NULL == module_name) {
         return OS_INVALID_POINTER;
     }
 
     const test_suite_t *suites[MAX_SUITES];
     uint32_t count = test_get_suites_by_module(module_name, suites, MAX_SUITES);
 
-    if (count == 0) {
+    if (0 == count) {
         OSAL_Printf("No tests found for module: %s\n", module_name);
         return OS_ERROR;
     }
@@ -206,12 +206,12 @@ int32_t libutest_run_module(const str_t *module_name)
  */
 int32_t libutest_run_suite(const str_t *suite_name)
 {
-    if (suite_name == NULL) {
+    if (NULL == suite_name) {
         return OS_INVALID_POINTER;
     }
 
     const test_suite_t *suite = test_find_suite(suite_name);
-    if (suite == NULL) {
+    if (NULL == suite) {
         OSAL_Printf("Test suite not found: %s\n", suite_name);
         return OS_ERROR;
     }
@@ -238,7 +238,7 @@ int32_t libutest_run_test(const str_t *suite_name, const str_t *test_name)
     }
 
     const test_suite_t *suite = test_find_suite(suite_name);
-    if (suite == NULL) {
+    if (NULL == suite) {
         OSAL_Printf("Test suite not found: %s\n", suite_name);
         return OS_ERROR;
     }
@@ -252,7 +252,7 @@ int32_t libutest_run_test(const str_t *suite_name, const str_t *test_name)
         }
     }
 
-    if (test == NULL) {
+    if (NULL == test) {
         OSAL_Printf("Test case not found: %s\n", test_name);
         return OS_ERROR;
     }

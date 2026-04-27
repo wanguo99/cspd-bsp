@@ -12,7 +12,7 @@ int32_t OSAL_GetLocalTime(OS_time_t *time_struct)
 {
     struct timeval tv;
 
-    if (time_struct == NULL)
+    if (NULL == time_struct)
         return OS_INVALID_POINTER;
 
     gettimeofday(&tv, NULL);
@@ -42,7 +42,7 @@ uint32_t OS_GetTickCount(void)
 
 int32_t OSAL_Milli2Ticks(uint32_t milliseconds, uint32_t *ticks)
 {
-    if (ticks == NULL)
+    if (NULL == ticks)
         return OS_INVALID_POINTER;
 
     *ticks = milliseconds;

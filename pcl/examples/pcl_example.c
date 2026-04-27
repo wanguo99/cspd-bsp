@@ -24,21 +24,21 @@ static void example_basic_usage(void)
 
     /* 初始化配置库 */
     ret = PCL_Init();
-    if (ret != OS_SUCCESS) {
+    if (OS_SUCCESS != ret) {
         OSAL_Printf("Failed to initialize config library\n");
         return;
     }
 
     /* 注册所有配置 */
     ret = PCL_RegisterAll();
-    if (ret != OS_SUCCESS) {
+    if (OS_SUCCESS != ret) {
         OSAL_Printf("Failed to register configurations\n");
         return;
     }
 
     /* 选择默认配置 */
     board = PCL_SelectDefault();
-    if (board == NULL) {
+    if (NULL == board) {
         OSAL_Printf("Failed to select default configuration\n");
         return;
     }
@@ -59,7 +59,7 @@ static void example_find_config(void)
 
     /* 查找TI AM625平台的H200 V1.0配置 */
     board = PCL_Find("ti/am625", "h200_payload", "v1.0");
-    if (board != NULL) {
+    if (NULL != board) {
         OSAL_Printf("Found config: %s/%s/%s\n",
                   board->platform, board->product, board->version);
         OSAL_Printf("Description: %s\n", board->description);
@@ -69,7 +69,7 @@ static void example_find_config(void)
 
     /* 查找任意版本的H200配置 */
     board = PCL_Find("ti/am625", "h200_payload", NULL);
-    if (board != NULL) {
+    if (NULL != board) {
         OSAL_Printf("Found config (any version): %s/%s/%s\n",
                   board->platform, board->product, board->version);
     }
@@ -88,9 +88,9 @@ static void example_query_mcu_config(void)
 
     /* 获取当前板级配置 */
     board = PCL_GetBoard();
-    if (board == NULL) {
+    if (NULL == board) {
         board = PCL_SelectDefault();
-        if (board == NULL) {
+        if (NULL == board) {
             OSAL_Printf("No board configuration available\n");
             return;
         }
@@ -98,7 +98,7 @@ static void example_query_mcu_config(void)
 
     /* 查找MCU配置 */
     mcu_cfg = PCL_HW_FindMCU(board, "stm32_mcu");
-    if (mcu_cfg == NULL) {
+    if (NULL == mcu_cfg) {
         OSAL_Printf("MCU 'stm32_mcu' not found in configuration\n");
         return;
     }
@@ -163,7 +163,7 @@ static void example_list_configs(void)
     OSAL_Printf("\n=== Example 4: List All Configs ===\n");
 
     ret = PCL_List(configs, &count);
-    if (ret != OS_SUCCESS) {
+    if (OS_SUCCESS != ret) {
         OSAL_Printf("Failed to list configurations\n");
         return;
     }

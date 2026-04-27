@@ -127,7 +127,7 @@ static int32_t menu_select_test(const test_suite_t *suite)
 
         int32_t choice = read_choice();
 
-        if (choice == 0) {
+        if (0 == choice) {
             return libutest_run_suite(suite->suite_name);
         } else if (choice > 0 && choice <= (int32_t)suite->case_count) {
             return libutest_run_test(suite->suite_name, suite->cases[choice - 1].name);
@@ -157,7 +157,7 @@ static int32_t menu_select_suite(const test_suite_t **suites, uint32_t count, co
 
         int32_t choice = read_choice();
 
-        if (choice == 0) {
+        if (0 == choice) {
             /* Run all suites */
             libutest_reset_stats();
             for (uint32_t i = 0; i < count; i++) {

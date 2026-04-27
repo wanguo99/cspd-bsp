@@ -31,7 +31,7 @@ void OS_HeapInit(void)
 static uint32_t read_memory_from_proc(const char *field)
 {
     FILE *fp = fopen("/proc/self/status", "r");
-    if (fp == NULL)
+    if (NULL == fp)
         return 0;
 
     str_t line[256];
@@ -57,9 +57,9 @@ int32_t OSAL_HeapGetInfo(uint32_t *free_bytes, uint32_t *total_bytes)
         g_heap_monitor.peak_usage = vm_rss;
     pthread_mutex_unlock(&g_heap_monitor.lock);
 
-    if (free_bytes != NULL)
+    if (NULL != free_bytes)
         *free_bytes = (vm_peak > vm_rss) ? (vm_peak - vm_rss) : 0;
-    if (total_bytes != NULL)
+    if (NULL != total_bytes)
         *total_bytes = vm_peak;
 
     return OS_SUCCESS;
@@ -79,13 +79,13 @@ int32_t OSAL_HeapSetThreshold(uint32_t percent)
 
 int32_t OSAL_HeapCheckThreshold(bool *exceeded)
 {
-    if (exceeded == NULL)
+    if (NULL == exceeded)
         return OS_INVALID_POINTER;
 
     uint32_t free_bytes, total_bytes;
     OSAL_HeapGetInfo(&free_bytes, &total_bytes);
 
-    if (total_bytes == 0) {
+    if (0 == total_bytes) {
         *exceeded = false;
         return OS_SUCCESS;
     }
@@ -122,7 +122,7 @@ int32_t OSAL_HeapGetStats(uint32_t *current, uint32_t *peak)
 void *OSAL_Malloc(size_t size)
 {
     void *ptr = malloc(size);
-    if (ptr != NULL) {
+    if (NULL != ptr) {
         pthread_mutex_lock(&g_heap_monitor.lock);
         g_heap_monitor.current_usage += size;
         if (g_heap_monitor.current_usage > g_heap_monitor.peak_usage) {
@@ -135,7 +135,7 @@ void *OSAL_Malloc(size_t size)
 
 void OSAL_Free(void *ptr)
 {
-    if (ptr != NULL) {
+    if (NULL != ptr) {
         free(ptr);
     }
 }

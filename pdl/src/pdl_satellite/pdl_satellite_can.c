@@ -44,7 +44,7 @@ int32_t satellite_can_init(const char *device, uint32_t bitrate, void **handle)
  */
 int32_t satellite_can_deinit(void *handle)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }
@@ -67,7 +67,7 @@ int32_t satellite_can_recv(void *handle, satellite_can_msg_t *msg, uint32_t time
     can_frame_t frame;
 
     int32_t ret = HAL_CAN_Recv(can_handle, &frame, timeout_ms);
-    if (ret != OS_SUCCESS)
+    if (OS_SUCCESS != ret)
     {
         return ret;
     }

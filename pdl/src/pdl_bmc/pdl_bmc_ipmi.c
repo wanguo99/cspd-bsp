@@ -66,7 +66,7 @@ int32_t bmc_ipmi_unpack_response(const uint8_t *frame,
     }
 
     /* 第一个字节是状态码 */
-    if (status != NULL)
+    if (NULL != status)
     {
         *status = frame[0];
     }
@@ -77,7 +77,7 @@ int32_t bmc_ipmi_unpack_response(const uint8_t *frame,
         uint32_t copy_len = (frame_len - 1 < data_size) ? (frame_len - 1) : data_size;
         OSAL_Memcpy(data, &frame[1], copy_len);
 
-        if (actual_size != NULL)
+        if (NULL != actual_size)
         {
             *actual_size = copy_len;
         }
@@ -200,7 +200,7 @@ int32_t bmc_ipmi_read_sensors(void *comm_handle,
     (void)max_count;
 
     /* TODO: 实现传感器读取逻辑 */
-    if (actual_count != NULL)
+    if (NULL != actual_count)
     {
         *actual_count = 0;
     }

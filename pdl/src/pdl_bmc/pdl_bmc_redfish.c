@@ -39,7 +39,7 @@ int32_t bmc_redfish_init(const char *ip_addr, uint16_t port, uint32_t timeout_ms
     }
 
     bmc_redfish_context_t *ctx = (bmc_redfish_context_t *)OSAL_Malloc(sizeof(bmc_redfish_context_t));
-    if (ctx == NULL)
+    if (NULL == ctx)
     {
         return OS_ERROR;
     }
@@ -90,7 +90,7 @@ int32_t bmc_redfish_init(const char *ip_addr, uint16_t port, uint32_t timeout_ms
  */
 int32_t bmc_redfish_deinit(void *handle)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }
@@ -136,7 +136,7 @@ int32_t bmc_redfish_send_recv(void *handle,
             return OS_ERROR;
         }
 
-        if (actual_size != NULL)
+        if (NULL != actual_size)
         {
             *actual_size = (uint32_t)recv_len;
         }
@@ -156,7 +156,7 @@ int32_t bmc_serial_init(const char *device, uint32_t baudrate, uint32_t timeout_
     }
 
     bmc_serial_context_t *ctx = (bmc_serial_context_t *)OSAL_Malloc(sizeof(bmc_serial_context_t));
-    if (ctx == NULL)
+    if (NULL == ctx)
     {
         return OS_ERROR;
     }
@@ -187,7 +187,7 @@ int32_t bmc_serial_init(const char *device, uint32_t baudrate, uint32_t timeout_
  */
 int32_t bmc_serial_deinit(void *handle)
 {
-    if (handle == NULL)
+    if (NULL == handle)
     {
         return OS_ERROR;
     }
@@ -232,7 +232,7 @@ int32_t bmc_serial_send_recv(void *handle,
             return OS_ERROR;
         }
 
-        if (actual_size != NULL)
+        if (NULL != actual_size)
         {
             *actual_size = recv_len;
         }
