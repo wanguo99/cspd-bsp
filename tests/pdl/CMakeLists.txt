@@ -1,5 +1,5 @@
 # PDL Module Tests
-# Tests for PDL layer - automatically registered with tests_framework
+# Tests for PDL layer - automatically registered with tests_core
 
 if(NOT BUILD_TESTING)
     return()
@@ -25,7 +25,7 @@ target_include_directories(pdl_tests PRIVATE
 
 # Link dependencies
 target_link_libraries(pdl_tests
-    PUBLIC pmc::tests_framework
+    PUBLIC pmc::tests_core
     PRIVATE pmc::pdl pmc::hal pmc::osal
 )
 

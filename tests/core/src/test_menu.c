@@ -6,7 +6,7 @@
  * as well as test listing functionality.
  */
 
-#include "tests_framework.h"
+#include "tests_core.h"
 #include "osal.h"
 
 #define MAX_LAYERS 16

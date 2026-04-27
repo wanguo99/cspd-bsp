@@ -94,7 +94,7 @@ add_library(pmc::osal ALIAS osal)
 
 # 1.5 Test Library（测试库 - 仅在启用测试时构建）
 if(BUILD_TESTING)
-    add_subdirectory(tests/framework)
+    add_subdirectory(tests/core)
     add_subdirectory(tests/osal)
     add_subdirectory(tests/hal)
     add_subdirectory(tests/pcl)
@@ -124,7 +124,7 @@ add_subdirectory(apps)
 # ============================================================================
 if(BUILD_TESTING)
     # 统一测试运行器
-    add_subdirectory(apps/test_runner)
+    add_subdirectory(tests/runner)
 endif()
 
 # ============================================================================

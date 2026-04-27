@@ -5,7 +5,7 @@
  * Executes test cases and suites, tracks statistics, and reports results.
  */
 
-#include "tests_framework.h"
+#include "tests_core.h"
 #include "test_assert.h"
 #include "osal.h"
 

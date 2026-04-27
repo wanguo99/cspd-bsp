@@ -1,5 +1,5 @@
 # OSAL Module Tests
-# Tests for OSAL layer - automatically registered with tests_framework
+# Tests for OSAL layer - automatically registered with tests_core
 
 if(NOT BUILD_TESTING)
     return()
@@ -20,7 +20,7 @@ target_include_directories(osal_tests PRIVATE
 
 # Link dependencies
 target_link_libraries(osal_tests
-    PUBLIC pmc::tests_framework
+    PUBLIC pmc::tests_core
     PRIVATE pmc::osal
 )
 

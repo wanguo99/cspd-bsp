@@ -5,7 +5,7 @@
  * 使用新的libtest框架，测试自动注册
  */
 
-#include "tests_framework.h"
+#include "tests_core.h"
 #include "test_assert.h"
 #include "test_registry.h"
 #include "osal.h"

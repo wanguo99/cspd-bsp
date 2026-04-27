@@ -1,5 +1,5 @@
 /**
- * @file tests_framework.h
+ * @file tests_core.h
  * @brief libutest - 通用单元测试框架
  *
  * 提供通用的、平台无关的测试框架，支持：

@@ -10,7 +10,7 @@
  * - 配置验证
  */
 
-#include "tests_framework.h"
+#include "tests_core.h"
 #include "test_assert.h"
 #include "test_registry.h"
 #include "pcl_api.h"
