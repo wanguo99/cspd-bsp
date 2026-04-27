@@ -1,10 +1,177 @@
 # PMC-BSP 软件架构优化分析报告
 
-## 背景与目标
-
-PMC-BSP是一个为卫星算存载荷设计的板级支持包，采用5层架构（OSAL/HAL/XConfig/PDL/Apps）。项目已有约18,000行代码，70+测试用例，整体架构清晰。本次分析旨在识别架构中的设计缺陷、性能瓶颈和可维护性问题，并提供系统的优化建议。
+## 目录
+- [背景与目标](#背景与目标)
+- [TODO List（优化任务清单）](#todo-list优化任务清单)
+- [问题详细分析](#问题详细分析)
+- [实施建议](#实施建议)
 
 ---
+
+## 背景与目标
+
+PMC-BSP（Payload Management Controller Board Support Package，载荷管理控制器板级支持包）是为算存载荷管理控制器设计的板级支持包，采用5层架构（OSAL/HAL/PCL/PDL/Apps）。PMC作为卫星平台与算存载荷之间的通信桥接和管理中间层。项目已有约18,000行代码，70+测试用例，整体架构清晰。本次分析旨在识别架构中的设计缺陷、性能瓶颈和可维护性问题，并提供系统的优化建议，所有优化项将在本次计划中全部完成。
+
+---
+
+## TODO List（优化任务清单）
+
+### 阶段1：架构重构（1周）⏳
+
+- [ ] **#1 重命名PCL（Peripheral Configuration Library）** 🔴
+  - [ ] 目录重命名：`xconfig/` → `pcl/`
+  - [ ] 文件重命名：所有 `xconfig_*.c/h` → `pcl_*.c/h`
+  - [ ] 接口重命名：`XCONFIG_*` → `PCL_*`
+  - [ ] 更新文档：README.md、CLAUDE.md、CODING_STANDARDS.md
+  - [ ] 更新构建脚本：CMakeLists.txt、build.sh
+  - [ ] 充分测试后合并
+  - [ ] **提交到git master分支**
+
+- [ ] **#2 统一条件判断（Yoda条件）** 🔴
+  - [ ] 更新编码规范文档
+  - [ ] 编写自动化检查脚本
+  - [ ] 批量修改：`if (ptr == NULL)` → `if (NULL == ptr)`
+  - [ ] 批量修改：`if (status == OS_SUCCESS)` → `if (OS_SUCCESS == status)`
+  - [ ] 人工审查所有改动
+  - [ ] 在Code Review中强制执行
+  - [ ] **提交到git master分支**
+
+### 阶段2：修复严重问题（1-2周）⏳
+
+- [ ] **#3 修复termios重复定义** 🔴
+  - [ ] 合并 `osal/include/sys/osal_termios.h` 和 `osal/include/net/osal_termios.h`
+  - [ ] 删除 `osal/include/net/osal_termios.h`
+  - [ ] 更新所有引用
+  - [ ] **提交到git master分支**
+
+- [ ] **#4 修复任务管理的DETACHED/JOIN混用** 🔴
+  - [ ] 修改 `osal/src/posix/ipc/osal_task.c`
+  - [ ] 改为JOINABLE模式或DETACHED+条件变量
+  - [ ] 充分测试任务创建和删除
+  - [ ] **提交到git master分支**
+
+- [ ] **#5 修复堆内存统计** 🔴
+  - [ ] 修改 `osal/src/posix/lib/osal_heap.c`
+  - [ ] 在OSAL_Free中减少current_usage
+  - [ ] 添加内存泄漏检测
+  - [ ] 测试内存统计准确性
+  - [ ] **提交到git master分支**
+
+- [ ] **#6 修复死锁检测回调的线程安全** 🔴
+  - [ ] 修改 `osal/src/posix/ipc/osal_mutex.c`
+  - [ ] 使用互斥锁或原子操作保护全局变量
+  - [ ] 测试多线程场景
+  - [ ] **提交到git master分支**
+
+- [ ] **#7 添加PCL单元测试** 🔴
+  - [ ] 创建 `pcl/tests/test_pcl_api.c`
+  - [ ] 覆盖所有API和边界情况
+  - [ ] 测试配置注册、查询、验证
+  - [ ] **提交到git master分支**
+
+### 阶段3：重构优化（2-3周）⏳
+
+- [ ] **#8 统一接口命名** 🟡
+  - [ ] 修改 `osal/include/osal.h`
+  - [ ] 修改 `osal/include/sys/osal_clock.h`
+  - [ ] 将所有OS_前缀改为OSAL_
+  - [ ] 提供宏兼容旧接口
+  - [ ] **提交到git master分支**
+
+- [ ] **#9 实现任务ID重用机制** 🟡
+  - [ ] 修改 `osal/src/posix/ipc/osal_task.c`
+  - [ ] 使用位图或空闲列表管理ID
+  - [ ] 测试ID分配和回收
+  - [ ] **提交到git master分支**
+
+- [ ] **#10 完善配置验证** 🟡
+  - [ ] 修改 `pcl/src/pcl_api.c`
+  - [ ] 验证外设名称唯一性
+  - [ ] 验证APP映射有效性
+  - [ ] 验证GPIO冲突
+  - [ ] 提供详细错误报告
+  - [ ] **提交到git master分支**
+
+- [ ] **#11 优化配置查询性能** 🟡
+  - [ ] 修改 `pcl/src/pcl_api.c`
+  - [ ] 实现哈希表索引或三级索引
+  - [ ] 性能测试对比
+  - [ ] **提交到git master分支**
+
+- [ ] **#12 创建通用外设框架** 🟡
+  - [ ] 创建 `pdl/include/peripheral_device.h`
+  - [ ] 定义通用外设接口
+  - [ ] 提取公共初始化代码
+  - [ ] 重构MCU/BMC/Satellite服务
+  - [ ] **提交到git master分支**
+
+- [ ] **#13 统一互斥锁策略** 🟡
+  - [ ] 修改 `pdl/src/pdl_mcu/pdl_mcu.c`
+  - [ ] 修改 `pdl/src/pdl_satellite/pdl_satellite.c`
+  - [ ] 所有PDL服务统一加锁
+  - [ ] 测试线程安全性
+  - [ ] **提交到git master分支**
+
+- [ ] **#14 统一日志输出** 🟡
+  - [ ] 修改所有PDL模块
+  - [ ] 统一使用LOG_ERROR/LOG_INFO
+  - [ ] 定义日志级别
+  - [ ] **提交到git master分支**
+
+- [ ] **#15 消除魔术数字重复** 🟡
+  - [ ] 修改 `libutest/include/libutest.h`
+  - [ ] 在公共头文件中统一定义MAX_SUITES等常量
+  - [ ] 更新所有引用
+  - [ ] **提交到git master分支**
+
+### 阶段4：长期改进（1-2周）⏳
+
+- [ ] **#16 改进原子操作类型** 🟢
+  - [ ] 修改 `osal/include/ipc/osal_atomic.h`
+  - [ ] 使用C11标准_Atomic
+  - [ ] 测试原子操作正确性
+  - [ ] **提交到git master分支**
+
+- [ ] **#17 改进文件I/O封装** 🟢
+  - [ ] 修改 `osal/src/posix/sys/osal_file.c`
+  - [ ] 添加参数验证和错误处理
+  - [ ] 测试错误处理
+  - [ ] **提交到git master分支**
+
+- [ ] **#18 实现版本语义化比较** 🟢
+  - [ ] 修改 `pcl/src/pcl_api.c`
+  - [ ] 支持版本范围查询
+  - [ ] 测试版本匹配逻辑
+  - [ ] **提交到git master分支**
+
+- [ ] **#19 添加测试超时机制** 🟢
+  - [ ] 修改测试框架
+  - [ ] 防止测试卡住
+  - [ ] 测试超时功能
+  - [ ] **提交到git master分支**
+
+- [ ] **#20 实现测试隔离** 🟢
+  - [ ] 修改 `libutest/src/test_runner.c`
+  - [ ] 使用TLS或测试上下文
+  - [ ] 支持并行测试
+  - [ ] **提交到git master分支**
+
+- [ ] **#21 实现I2C/SPI驱动** 🟢
+  - [ ] 创建 `hal/include/hal_i2c.h`
+  - [ ] 创建 `hal/include/hal_spi.h`
+  - [ ] 实现Linux驱动
+  - [ ] 编写单元测试
+  - [ ] **提交到git master分支**
+
+- [ ] **#22 配置动态扩展** 🟢
+  - [ ] 修改 `pcl/src/pcl_api.c`
+  - [ ] 使用动态数组替代固定大小
+  - [ ] 测试动态扩展
+  - [ ] **提交到git master分支**
+
+---
+
+## 问题详细分析
 
 ## 一、OSAL层（操作系统抽象层）问题
 
@@ -131,35 +298,16 @@ PMC-BSP是一个为卫星算存载荷设计的板级支持包，采用5层架构
 
 ## 三、HAL/PDL层（硬件抽象/外设驱动）问题
 
-### 3.1 严重问题 🔴
+### 3.1 中等问题 🟡
 
-#### 问题14：PDL层跨层调用违规（最严重）
-- **位置**：`pdl/src/pdl_bmc/pdl_bmc_redfish.c`
-  - 第11行：`#include "hal_serial.h"` （直接包含HAL头文件）
-  - 第51行：`OSAL_socket(OSAL_AF_INET, OSAL_SOCK_STREAM, 0)` （直接调用OSAL）
-  - 第77行：`OSAL_connect(ctx->sockfd, ...)` （直接调用OSAL）
-- **问题**：违反分层原则，PDL应该通过HAL访问底层
-- **影响**：
-  - 代码耦合度高，难以移植到RTOS
-  - 无法统一管理网络资源
-  - 破坏架构一致性
-- **建议**：创建 `hal/include/hal_network.h`，PDL通过HAL访问网络
-
-#### 问题15：缺少HAL网络驱动层
-- **问题**：HAL层只有CAN和串口驱动，没有网络驱动
-- **影响**：PDL层直接调用OSAL网络接口，违反分层
-- **建议**：实现 `hal_network.c`，提供统一的网络抽象
-
-### 3.2 中等问题 🟡
-
-#### 问题16：缺少通用外设框架
+#### 问题14：缺少通用外设框架
 - **问题**：三个PDL服务（MCU/BMC/Satellite）有大量重复代码
   - 上下文初始化模式重复（3处）
   - 互斥锁创建模式重复（3处）
   - CAN初始化模式重复（2处）
 - **建议**：创建 `pdl/include/peripheral_device.h`，定义通用外设接口
 
-#### 问题17：互斥锁策略不一致
+#### 问题15：互斥锁策略不一致
 - **问题**：
   - MCU服务：只在1处使用互斥锁
   - BMC服务：在16处使用互斥锁
@@ -167,7 +315,7 @@ PMC-BSP是一个为卫星算存载荷设计的板级支持包，采用5层架构
 - **影响**：线程安全性不确定
 - **建议**：统一互斥锁策略，所有服务都应该保护共享资源
 
-#### 问题18：日志输出不一致
+#### 问题16：日志输出不一致
 - **问题**：
   - pdl_mcu.c：没有任何日志输出
   - pdl_satellite.c 和 pdl_bmc.c：有日志但不一致
@@ -179,7 +327,7 @@ PMC-BSP是一个为卫星算存载荷设计的板级支持包，采用5层架构
 
 ### 4.1 中等问题 🟡
 
-#### 问题19：魔术数字重复定义
+#### 问题17：魔术数字重复定义
 - **位置**：
   - `libutest/src/test_registry.c:12` - `#define MAX_SUITES 128`
   - `libutest/src/test_runner.c:12` - `#define MAX_SUITES 128`
@@ -187,7 +335,7 @@ PMC-BSP是一个为卫星算存载荷设计的板级支持包，采用5层架构
 - **问题**：同一常数定义3次，修改时容易遗漏
 - **建议**：在 `libutest/include/libutest.h` 中统一定义
 
-#### 问题20：测试框架缺少关键功能
+#### 问题18：测试框架缺少关键功能
 - **问题**：
   - 无测试超时机制（长时间运行的测试会卡住）
   - 无测试隔离（全局状态污染）
@@ -195,7 +343,7 @@ PMC-BSP是一个为卫星算存载荷设计的板级支持包，采用5层架构
   - 无覆盖率统计
 - **建议**：逐步添加这些功能
 
-#### 问题21：全局状态管理不当
+#### 问题19：全局状态管理不当
 - **位置**：`libutest/src/test_runner.c:14-19`
   ```c
   bool g_test_failed = false;
@@ -204,7 +352,7 @@ PMC-BSP是一个为卫星算存载荷设计的板级支持包，采用5层架构
 - **问题**：使用全局变量，无法并行执行测试
 - **建议**：使用线程本地存储（TLS）或测试上下文
 
-#### 问题22：测试发现使用O(n²)算法
+#### 问题20：测试发现使用O(n²)算法
 - **位置**：`libutest/src/test_registry.c:102-126`
 - **问题**：获取唯一layer/module名称时嵌套循环
 - **建议**：缓存结果或使用哈希集合
@@ -213,31 +361,61 @@ PMC-BSP是一个为卫星算存载荷设计的板级支持包，采用5层架构
 
 ## 五、架构设计问题总结
 
-### 5.1 分层违规问题
+### 5.1 架构层次说明
 
-**当前依赖链（有问题）：**
-```
-Apps
-  ↓
-PDL (pdl_mcu, pdl_bmc, pdl_satellite)
-  ↓
-HAL (hal_can, hal_serial) + OSAL (直接调用) ← 违规
-  ↓
-OSAL
-```
+#### OSAL - 操作系统抽象层
+跨平台的操作系统抽象接口，提供任务、队列、互斥锁、日志等基础服务，所有标准库函数、系统调用都应该在此进行封装。
 
-**应该的依赖链：**
+**特性**：用户态库设计、线程安全、优雅关闭、死锁检测、日志轮转
+
+**文档**: [osal/README.md](../osal/README.md) | [详细文档](../osal/docs/)
+
+#### HAL - 硬件抽象层
+硬件驱动封装，提供CAN、串口等硬件接口，只允许PDL访问该库。
+
+**特性**：平台隔离、统一接口、驱动封装、配置管理
+
+**文档**: [hal/README.md](../hal/README.md) | [详细文档](../hal/docs/)
+
+#### PDL - 外设驱动层
+统一管理卫星平台、BMC载荷、MCU等外设服务，对应用提供访问外设的统一接口，只允许APP和TEST层访问该库的接口。
+
+**特性**：统一外设管理、多通道冗余、自动故障切换、心跳机制
+
+**文档**: [pdl/README.md](../pdl/README.md) | [详细文档](../pdl/docs/)
+
+#### XConfig - 外设配置库
+参考设备树架构，以外设为单位的硬件配置库，只允许PDL访问该库。
+
+**特性**：外设为单位、配置与代码分离、接口内嵌、运行时查询
+
+**文档**: [xconfig/README.md](../xconfig/README.md) | [详细文档](../xconfig/docs/)
+
+#### Apps - 应用层
+暂未加入业务应用，只有示例应用，用于后期扩展使用参考。
+
+**特性**：平台无关、使用抽象接口、优雅退出、错误处理
+
+**文档**: [apps/README.md](../apps/README.md) | [详细文档](../apps/docs/)
+
+**正确的依赖链：**
 ```
 Apps
   ↓
 PDL (外设服务)
   ↓
-HAL (统一硬件抽象：CAN/串口/网络/I2C/SPI)
+HAL (硬件驱动：CAN/串口/I2C/SPI等)
   ↓
-OSAL (操作系统抽象)
+OSAL (操作系统抽象：任务/队列/互斥锁/socket/文件等)
   ↓
 Linux系统调用
 ```
+
+**重要说明**：
+- **OSAL是所有层的基础**：PCL、HAL、PDL、Apps、Tests都可以直接使用OSAL接口
+- **HAL封装硬件设备**：CAN控制器、串口芯片、I2C/SPI总线等特定硬件
+- **网络socket属于OSAL**：socket是操作系统提供的通用接口，不是特定硬件设备
+- **PDL调用OSAL_socket()是正确的**：不存在跨层调用问题
 
 ### 5.2 代码复用问题
 
@@ -256,32 +434,38 @@ Linux系统调用
 
 ### 优先级1：立即修复（影响功能正确性）🔴
 
-1. **修复termios重复定义**
+1. **重命名PCL（Peripheral Configuration Library）**
+   - 将XConfig重命名为PCL，与PDL命名风格统一
+   - 目录：`xconfig/` → `pcl/`
+   - 文件：所有 `xconfig_*.c/h` → `pcl_*.c/h`
+   - 接口：`XCONFIG_*` → `PCL_*`
+   - 更新所有文档和构建脚本
+
+2. **统一条件判断中的常量位置（Yoda条件）**
+   - 将所有条件判断改为常量在左侧
+   - `if (ptr == NULL)` → `if (NULL == ptr)`
+   - `if (status == OS_SUCCESS)` → `if (OS_SUCCESS == status)`
+   - 使用脚本批量修改，人工审查
+   - 更新编码规范文档
+
+3. **修复termios重复定义**
    - 合并两个定义，保留更完整的版本
    - 更新所有引用
 
-2. **修复任务管理的DETACHED/JOIN混用**
+4. **修复任务管理的DETACHED/JOIN混用**
    - 改为JOINABLE模式
    - 或使用DETACHED+条件变量通知
 
-3. **修复堆内存统计**
+5. **修复堆内存统计**
    - 在OSAL_Free中减少current_usage
    - 添加内存泄漏检测
 
-4. **修复死锁检测回调的线程安全**
+6. **修复死锁检测回调的线程安全**
    - 使用互斥锁保护全局变量
    - 或使用原子操作
 
-5. **创建HAL网络驱动层**
-   - 实现 `hal/include/hal_network.h`
-   - 实现 `hal/src/linux/hal_network.c`
-
-6. **修复PDL跨层调用**
-   - pdl_bmc_redfish.c 改用HAL_Network接口
-   - 移除对OSAL_socket的直接调用
-
-7. **添加XConfig单元测试**
-   - 创建 `xconfig/tests/test_xconfig_api.c`
+7. **添加PCL单元测试**
+   - 创建 `pcl/tests/test_pcl_api.c`
    - 覆盖所有API和边界情况
 
 ### 优先级2：重构优化（影响性能和可维护性）🟡
@@ -337,61 +521,21 @@ Linux系统调用
 22. **配置动态扩展**
     - 使用动态数组替代固定大小
 
-23. **统一条件判断中的常量位置（Yoda条件）**
-    - **问题**：当前代码中条件判断常量位置不统一，如 `if (handler == NULL)`
-    - **风险**：容易将 `==` 误写成 `=`，导致赋值而非比较，编译器可能不报错
-    - **建议**：统一使用 Yoda 条件风格，将常量放在左侧
-      ```c
-      // ❌ 错误写法（容易误写）
-      if (handler == NULL)  // 如果误写成 = 会赋值
-      if (status == OS_SUCCESS)
-      
-      // ✅ 正确写法（Yoda条件）
-      if (NULL == handler)  // 如果误写成 = 编译器会报错
-      if (OS_SUCCESS == status)
-      ```
-    - **影响范围**：全代码库（约18,000行）
-    - **实施方式**：
-      1. 更新 `docs/CODING_STANDARDS.md`，添加Yoda条件规范
-      2. 使用脚本批量检查和修改
-      3. 在Code Review中强制执行
-    - **优先级**：低（不影响功能，但提高代码安全性）
-
-24. **重命名XConfig为PCL（Peripheral Configuration Library）**
-    - **问题**：`XConfig` 名称含义不明确，"X"前缀无明确意义
-    - **最终方案**：`PCL` (Peripheral Configuration Library)
-    - **选择理由**：
-      - **命名一致性最佳**：与PDL（Peripheral Driver Layer）完全对应
-        - PDL = Peripheral Driver Layer
-        - PCL = Peripheral Configuration Library
-      - **统一的3字母+L风格**：HAL、PDL、PCL 形成统一命名模式
-      - **含义清晰**：Library后缀明确表示这是一个库
-      - **项目内部无歧义**：虽然外部有PCL点云库，但项目内部不会混淆
-    - **其他候选方案对比**：
-      - `PC` (Peripheral Configuration) - 过于简短，PC常指个人电脑，容易混淆 ⭐⭐⭐
-      - `PConfig` (Peripheral Config) - 简洁明了，但不如PCL统一 ⭐⭐⭐⭐
-      - `DevConfig` (Device Config) - 含义明确但较长 ⭐⭐⭐⭐
-      - `PCL` (Peripheral Configuration Library) - **最佳选择** ⭐⭐⭐⭐⭐
-    - **影响范围**：
-      - 目录：`xconfig/` → `pcl/`
-      - 文件：所有 `xconfig_*.c/h` → `pcl_*.c/h`
-      - 接口：`XCONFIG_*` → `PCL_*`
-      - 文档：README.md、CLAUDE.md、CODING_STANDARDS.md
-      - 测试：测试文件和测试用例名称
-    - **实施方式**：
-      1. 先在新分支中完成重命名
-      2. 使用脚本批量替换（sed/awk）
-      3. 更新所有文档和注释
-      4. 更新CMakeLists.txt和构建脚本
-      5. 充分测试后合并
-    - **优先级**：低（不影响功能，但提高代码可读性）
-    - **建议时机**：在完成优先级1和2的改进后再进行，避免大规模重命名影响其他改进工作
-
 ---
 
 ## 七、关键文件清单
 
 ### 需要修改的文件（优先级1）
+
+1. `xconfig/` → `pcl/` - 目录重命名
+2. 所有 `xconfig_*.c/h` → `pcl_*.c/h` - 文件重命名
+3. 全代码库条件判断 - Yoda条件改造
+4. `osal/include/sys/osal_termios.h` - 合并termios定义
+5. `osal/include/net/osal_termios.h` - 删除此文件
+6. `osal/src/posix/ipc/osal_task.c` - 修复DETACHED/JOIN
+7. `osal/src/posix/lib/osal_heap.c` - 修复内存统计
+8. `osal/src/posix/ipc/osal_mutex.c` - 修复死锁检测
+9. `pcl/tests/test_pcl_api.c` - 新建测试
 
 1. `osal/include/sys/osal_termios.h` - 合并termios定义
 2. `osal/include/net/osal_termios.h` - 删除此文件
@@ -417,23 +561,44 @@ Linux系统调用
 
 ## 八、实施建议
 
-### 阶段1：修复严重问题（1-2周）
+### 进度跟踪
+
+使用文档顶部的 [TODO List](#todo-list优化任务清单) 跟踪所有优化任务的完成状态。每完成一项任务，将对应的 `[ ]` 改为 `[x]`。
+
+### 阶段划分
+
+#### 阶段1：架构重构（1周）
+- 重命名PCL（XConfig → PCL）
+- 统一Yoda条件（常量在左侧）
+- 更新所有文档和构建脚本
+
+#### 阶段2：修复严重问题（1-2周）
 - 修复OSAL层的4个严重问题
 - 创建HAL网络驱动
 - 修复PDL跨层调用
-- 添加XConfig测试
+- 添加PCL测试
 
-### 阶段2：重构优化（2-3周）
+#### 阶段3：重构优化（2-3周）
 - 统一命名和日志
 - 优化配置系统
 - 创建外设框架
 - 消除代码重复
 
-### 阶段3：长期改进（持续）
+#### 阶段4：长期改进（1-2周）
 - 改进测试框架
 - 完善驱动支持
 - 性能优化
 - 文档更新
+
+### 每日工作流程
+
+1. **开始工作前**：查看TODO List，选择当前阶段的任务
+2. **工作中**：专注完成选定任务的所有子项
+3. **完成后**：
+   - 更新TODO List，标记已完成项 `[x]`
+   - 运行相关测试验证
+   - 提交代码并记录改动
+4. **每周回顾**：检查阶段进度，调整计划
 
 ---
 
@@ -441,31 +606,29 @@ Linux系统调用
 
 | 改动 | 风险 | 缓解措施 |
 |------|------|---------|
+| 重命名PCL | 中 | 在独立分支完成，充分测试后合并 |
+| Yoda条件改造 | 低 | 使用脚本批量修改，人工审查 |
 | 修复任务管理 | 高 | 充分测试，逐步迁移 |
-| 创建HAL网络层 | 中 | 保持接口兼容，增量实现 |
-| 修复PDL跨层调用 | 中 | 先实现HAL，再修改PDL |
 | 优化配置查询 | 低 | 保持接口不变，内部优化 |
 | 统一命名 | 低 | 使用宏兼容旧接口 |
-| 重命名XConfig | 中 | 在独立分支完成，充分测试后合并 |
-| Yoda条件改造 | 低 | 使用脚本批量修改，逐步推进 |
 
 ---
 
 ## 十、预期收益
 
-1. **可靠性提升**：修复内存泄漏、线程安全等严重问题
-2. **可维护性提升**：消除代码重复，统一编码风格
-3. **可移植性提升**：严格分层，便于移植到RTOS
-4. **性能提升**：优化配置查询，减少O(n²)算法
-5. **测试覆盖**：添加XConfig测试，提高代码质量
-6. **代码安全性**：Yoda条件避免赋值错误，减少潜在bug
-7. **代码可读性**：重命名XConfig为更直观的名称，降低理解成本
+1. **架构一致性**：PCL命名与PDL统一，形成清晰的命名体系
+2. **代码安全性**：Yoda条件避免赋值错误，减少潜在bug
+3. **可靠性提升**：修复内存泄漏、线程安全等严重问题
+4. **可维护性提升**：消除代码重复，统一编码风格
+5. **可移植性提升**：严格分层，便于移植到RTOS
+6. **性能提升**：优化配置查询，减少O(n²)算法
+7. **测试覆盖**：添加PCL测试，提高代码质量
 
 ---
 
 ## 十一、命名方案讨论
 
-### XConfig重命名为PCL的最终决定
+### PCL重命名的最终决定
 
 **最终方案**：`PCL` (Peripheral Configuration Library)
 
@@ -490,6 +653,30 @@ Linux系统调用
 # 预估需要修改的文件数量
 目录重命名：1个 (xconfig/ → pcl/)
 源文件重命名：约15个 (.c/.h文件，xconfig_* → pcl_*)
+接口重命名：约50个函数 (XCONFIG_* → PCL_*)
+文档更新：5个 (README.md, CLAUDE.md等)
+测试更新：新增测试文件
+构建脚本：2个 (CMakeLists.txt, build.sh)
+```
+
+**重命名后的架构层次**：
+```
+Apps
+  ↓
+PDL (Peripheral Driver Layer) - 外设驱动层
+  ↓
+HAL (Hardware Abstraction Layer) - 硬件抽象层
+  ↓
+PCL (Peripheral Configuration Library) - 外设配置库 ← 新名称
+  ↓
+OSAL (Operating System Abstraction Layer) - 操作系统抽象层
+```
+
+**命名统一性**：
+- HAL - 3字母 + L (Layer)
+- PDL - 3字母 + L (Layer)
+- PCL - 3字母 + L (Library)
+- OSAL - 4字母 + L (Layer)
 接口重命名：约50个函数 (XCONFIG_* → PCL_*)
 文档更新：5个 (README.md, CLAUDE.md等)
 测试更新：待添加的测试文件
@@ -571,13 +758,31 @@ done
 
 ## 总结
 
-PMC-BSP项目整体架构设计良好，5层分层清晰，模块化程度高。但存在以下主要问题：
+PMC-BSP（Payload Management Controller Board Support Package，载荷管理控制器板级支持包）项目整体架构设计良好，5层分层清晰，模块化程度高。但存在以下主要问题：
 
-1. **OSAL层**：线程管理、内存统计、线程安全有严重缺陷
-2. **XConfig层**：缺少测试、验证不完整、性能待优化、命名不够直观（将重命名为PCL）
-3. **HAL/PDL层**：缺少网络驱动、存在跨层调用、代码重复度高
-4. **测试框架**：功能不完整、全局状态管理不当
-5. **编码规范**：条件判断中常量位置不统一，存在误写风险
+1. **命名规范**：XConfig命名不够直观（将重命名为PCL），条件判断常量位置不统一
+2. **OSAL层**：线程管理、内存统计、线程安全有严重缺陷
+3. **PCL层**：缺少测试、验证不完整、性能待优化
+4. **HAL/PDL层**：代码重复度高、互斥锁策略不一致、日志输出不统一
+5. **测试框架**：功能不完整、全局状态管理不当
+
+**架构澄清**：
+- OSAL是所有层的基础，PCL/HAL/PDL/Apps/Tests都可以直接使用OSAL接口
+- 网络socket属于OSAL（操作系统抽象），不属于HAL（硬件抽象）
+- PDL直接调用OSAL_socket()是正确的，不存在跨层调用问题
+
+本次分析共识别出**22个优化点**（已删除2个错误判断）：
+- 🔴 **7个严重问题**（优先级1）：影响功能正确性和架构一致性，需立即修复
+- 🟡 **8个中等问题**（优先级2）：影响性能和可维护性，需重构优化
+- 🟢 **7个轻微问题**（优先级3）：改进用户体验和代码质量
+
+建议按优先级分阶段实施改进：
+- **阶段1（1周）**：架构重构（PCL重命名、Yoda条件）
+- **阶段2（1-2周）**：修复严重问题，确保系统稳定性
+- **阶段3（2-3周）**：重构优化，提升性能和可维护性
+- **阶段4（1-2周）**：长期改进，完善测试和驱动
+
+预计5-7周可完成所有改进，显著提升代码质量和可维护性。所有优化项将在本次计划中全部完成，不遗留待优化点。
 
 本次分析共识别出**24个优化点**：
 - 🔴 **7个严重问题**（优先级1）：影响功能正确性，需立即修复

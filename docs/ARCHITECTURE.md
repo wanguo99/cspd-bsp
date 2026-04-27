@@ -1118,10 +1118,21 @@ pmc-bsp/
 ### 3.3 依赖隔离
 
 **依赖关系**：
-- OSAL层：只依赖自己的 `osal/include/config/`
-- HAL层：依赖 `hal/include/config/` 和 OSAL接口
-- PDL层：依赖 `pdl/include/config/`、HAL接口、OSAL接口
-- Apps层：依赖 `apps/*/include/config/`、PDL接口、HAL接口、OSAL接口
+
+PMC-BSP采用分层架构，各层职责清晰：
+
+- **OSAL层（操作系统抽象层）**：所有层的基础，封装操作系统API（任务、队列、互斥锁、网络socket、文件操作等）
+- **HAL层（硬件抽象层）**：封装硬件设备驱动（CAN、UART等），依赖OSAL
+- **PDL层（外设驱动层）**：管理外设服务（卫星、BMC、MCU），依赖HAL和OSAL
+- **XConfig层（硬件配置库）**：以外设为单位的硬件配置管理，纯数据结构，无依赖
+- **Apps层（应用层）**：业务应用，依赖PDL、HAL、OSAL
+
+**依赖链**：`Apps → PDL → HAL → OSAL → Linux系统调用`
+
+**重要说明**：
+- OSAL是所有层的基础抽象层，所有层都可以直接使用OSAL接口
+- 网络socket属于操作系统抽象（OSAL），而非硬件抽象（HAL）
+- PDL调用OSAL接口（如OSAL_socket）是正确的设计，不是跨层调用
 
 **引用规范**：
 ```c
