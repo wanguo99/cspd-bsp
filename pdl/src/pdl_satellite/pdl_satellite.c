@@ -30,6 +30,9 @@ typedef struct
     osal_id_t rx_task_id;
     osal_id_t heartbeat_task_id;
     bool running;
+
+    /* 互斥锁保护 */
+    osal_id_t mutex;
 } satellite_service_context_t;
 
 /*
@@ -46,11 +49,15 @@ static void heartbeat_task(void *arg)
         /* 发送心跳 */
         if (satellite_can_send_heartbeat(ctx->can_handle, STATUS_OK) == OS_SUCCESS)
         {
+            OSAL_MutexLock(ctx->mutex);
             ctx->tx_count++;
+            OSAL_MutexUnlock(ctx->mutex);
         }
         else
         {
+            OSAL_MutexLock(ctx->mutex);
             ctx->error_count++;
+            OSAL_MutexUnlock(ctx->mutex);
         }
 
         /* 延迟 */
@@ -78,20 +85,29 @@ static void can_rx_task(void *arg)
 
         if (OS_SUCCESS == ret)
         {
+            OSAL_MutexLock(ctx->mutex);
             ctx->rx_count++;
+            OSAL_MutexUnlock(ctx->mutex);
 
             /* 处理命令请求 */
             if (msg.msg_type == CAN_MSG_TYPE_CMD_REQ)
             {
-                if (ctx->callback != NULL)
+                OSAL_MutexLock(ctx->mutex);
+                satellite_cmd_callback_t callback = ctx->callback;
+                void *user_data = ctx->user_data;
+                OSAL_MutexUnlock(ctx->mutex);
+
+                if (callback != NULL)
                 {
-                    ctx->callback(msg.cmd_type, msg.data, ctx->user_data);
+                    callback(msg.cmd_type, msg.data, user_data);
                 }
             }
         }
         else if (ret != OS_ERROR_TIMEOUT)
         {
+            OSAL_MutexLock(ctx->mutex);
             ctx->error_count++;
+            OSAL_MutexUnlock(ctx->mutex);
             LOG_ERROR("SAT", "CAN receive error: %d", ret);
         }
     }
@@ -122,11 +138,20 @@ int32_t PDL_Satellite_Init(const satellite_service_config_t *config,
     OSAL_Memcpy(&ctx->config, config, sizeof(satellite_service_config_t));
     ctx->running = true;
 
+    /* 创建互斥锁 */
+    if (OSAL_MutexCreate(&ctx->mutex, "sat_mutex", 0) != OS_SUCCESS)
+    {
+        LOG_ERROR("SAT", "Failed to create mutex");
+        OSAL_Free(ctx);
+        return OS_ERROR;
+    }
+
     /* 初始化CAN通信 */
     int32_t ret = satellite_can_init(config->can_device, config->can_bitrate, &ctx->can_handle);
     if (OS_SUCCESS != ret)
     {
         LOG_ERROR("SAT", "Failed to initialize CAN");
+        OSAL_MutexDelete(ctx->mutex);
         OSAL_Free(ctx);
         return ret;
     }
@@ -140,6 +165,7 @@ int32_t PDL_Satellite_Init(const satellite_service_config_t *config,
     {
         LOG_ERROR("SAT", "Failed to create RX task");
         satellite_can_deinit(ctx->can_handle);
+        OSAL_MutexDelete(ctx->mutex);
         OSAL_Free(ctx);
         return ret;
     }
@@ -154,6 +180,7 @@ int32_t PDL_Satellite_Init(const satellite_service_config_t *config,
         LOG_ERROR("SAT", "Failed to create heartbeat task");
         OSAL_TaskDelete(ctx->rx_task_id);
         satellite_can_deinit(ctx->can_handle);
+        OSAL_MutexDelete(ctx->mutex);
         OSAL_Free(ctx);
         return ret;
     }
@@ -184,6 +211,9 @@ int32_t PDL_Satellite_Deinit(satellite_service_handle_t handle)
     /* 关闭CAN */
     satellite_can_deinit(ctx->can_handle);
 
+    /* 删除互斥锁 */
+    OSAL_MutexDelete(ctx->mutex);
+
     OSAL_Free(ctx);
     LOG_INFO("SAT", "Satellite service deinitialized");
 
@@ -203,8 +233,11 @@ int32_t PDL_Satellite_RegisterCallback(satellite_service_handle_t handle,
     }
 
     satellite_service_context_t *ctx = (satellite_service_context_t *)handle;
+
+    OSAL_MutexLock(ctx->mutex);
     ctx->callback = callback;
     ctx->user_data = user_data;
+    OSAL_MutexUnlock(ctx->mutex);
 
     return OS_SUCCESS;
 }
@@ -227,11 +260,15 @@ int32_t PDL_Satellite_SendResponse(satellite_service_handle_t handle,
     int32_t ret = satellite_can_send_response(ctx->can_handle, seq_num, status, result);
     if (OS_SUCCESS == ret)
     {
+        OSAL_MutexLock(ctx->mutex);
         ctx->tx_count++;
+        OSAL_MutexUnlock(ctx->mutex);
     }
     else
     {
+        OSAL_MutexLock(ctx->mutex);
         ctx->error_count++;
+        OSAL_MutexUnlock(ctx->mutex);
         LOG_ERROR("SAT", "Failed to send response");
     }
 
