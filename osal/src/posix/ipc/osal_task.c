@@ -37,7 +37,47 @@ typedef struct
 
 static osal_task_record_t g_osal_task_table[OS_MAX_TASKS] = {0};  /* 静态变量自动初始化为0 */
 static pthread_mutex_t g_task_table_mutex = PTHREAD_MUTEX_INITIALIZER;
-static uint32_t g_next_task_id = 1;
+
+/* ID位图管理（支持1-64的ID，0保留为无效ID）*/
+static uint64_t g_task_id_bitmap = 0;  /* 每个bit代表一个ID是否被使用 */
+
+/**
+ * @brief 分配一个空闲的任务ID
+ * @param[out] task_id 分配的任务ID
+ * @return OS_SUCCESS 成功, OS_ERR_NO_FREE_IDS 无可用ID
+ * @note 调用前必须持有 g_task_table_mutex
+ */
+static int32_t allocate_task_id(osal_id_t *task_id)
+{
+    /* 查找第一个空闲的bit（ID范围：1-64） */
+    for (uint32_t i = 0; i < OS_MAX_TASKS; i++)
+    {
+        uint64_t mask = (1ULL << i);
+        if ((g_task_id_bitmap & mask) == 0)
+        {
+            /* 找到空闲ID，标记为已使用 */
+            g_task_id_bitmap |= mask;
+            *task_id = i + 1;  /* ID从1开始 */
+            return OS_SUCCESS;
+        }
+    }
+
+    return OS_ERR_NO_FREE_IDS;
+}
+
+/**
+ * @brief 释放一个任务ID
+ * @param task_id 要释放的任务ID
+ * @note 调用前必须持有 g_task_table_mutex
+ */
+static void release_task_id(osal_id_t task_id)
+{
+    if (task_id >= 1 && task_id <= OS_MAX_TASKS)
+    {
+        uint64_t mask = (1ULL << (task_id - 1));
+        g_task_id_bitmap &= ~mask;  /* 清除对应bit */
+    }
+}
 
 /* 移除 osal_task_table_init() - 静态变量已自动初始化 */
 
@@ -146,7 +186,15 @@ int32_t OSAL_TaskCreate(osal_id_t *task_id,
         return OS_ERROR;
     }
 
-    osal_id_t new_task_id = g_next_task_id++;
+    /* 分配任务ID */
+    osal_id_t new_task_id;
+    ret = allocate_task_id(&new_task_id);
+    if (OS_SUCCESS != ret)
+    {
+        free(wrapper_arg);
+        pthread_mutex_unlock(&g_task_table_mutex);
+        return ret;
+    }
 
     wrapper_arg->entry_func = function_pointer;
     wrapper_arg->user_arg = (void *)stack_pointer;
@@ -177,6 +225,7 @@ int32_t OSAL_TaskCreate(osal_id_t *task_id,
                        task_wrapper, wrapper_arg) != 0)
     {
         g_osal_task_table[slot].is_used = false;
+        release_task_id(new_task_id);  /* 释放已分配的ID */
         pthread_attr_destroy(&attr);
         free(wrapper_arg);
         pthread_mutex_unlock(&g_task_table_mutex);
@@ -244,6 +293,7 @@ int32_t OSAL_TaskDelete(osal_id_t task_id)
     if (g_osal_task_table[slot_index].is_used && g_osal_task_table[slot_index].id == task_id)
     {
         g_osal_task_table[slot_index].is_used = false;
+        release_task_id(task_id);  /* 释放任务ID，允许重用 */
     }
     pthread_mutex_unlock(&g_task_table_mutex);
 
