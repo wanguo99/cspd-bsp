@@ -434,7 +434,13 @@ bmc_channel_t PDL_BMC_GetChannel(bmc_handle_t handle)
     }
 
     bmc_context_t *ctx = (bmc_context_t *)handle;
-    return ctx->current_channel;
+
+    /* 加锁保护，确保读取一致性 */
+    OSAL_MutexLock(ctx->mutex);
+    bmc_channel_t channel = ctx->current_channel;
+    OSAL_MutexUnlock(ctx->mutex);
+
+    return channel;
 }
 
 /**
@@ -448,7 +454,13 @@ bool PDL_BMC_IsConnected(bmc_handle_t handle)
     }
 
     bmc_context_t *ctx = (bmc_context_t *)handle;
-    return ctx->connected;
+
+    /* 加锁保护，确保读取一致性 */
+    OSAL_MutexLock(ctx->mutex);
+    bool connected = ctx->connected;
+    OSAL_MutexUnlock(ctx->mutex);
+
+    return connected;
 }
 
 /**

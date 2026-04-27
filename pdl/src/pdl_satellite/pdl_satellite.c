@@ -289,13 +289,19 @@ int32_t PDL_Satellite_SendHeartbeat(satellite_service_handle_t handle,
     satellite_service_context_t *ctx = (satellite_service_context_t *)handle;
 
     int32_t ret = satellite_can_send_heartbeat(ctx->can_handle, status);
+
+    /* 加锁保护统计计数器，与其他函数保持一致 */
     if (OS_SUCCESS == ret)
     {
+        OSAL_MutexLock(ctx->mutex);
         ctx->tx_count++;
+        OSAL_MutexUnlock(ctx->mutex);
     }
     else
     {
+        OSAL_MutexLock(ctx->mutex);
         ctx->error_count++;
+        OSAL_MutexUnlock(ctx->mutex);
     }
 
     return ret;

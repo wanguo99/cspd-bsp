@@ -11,6 +11,7 @@
 #include <linux/can.h>
 #include <linux/can/raw.h>
 #include <sys/ioctl.h>        /* SIOCGIFINDEX 宏定义 */
+#include <stdatomic.h>        /* C11 原子操作 */
 #include "hal_can.h"
 #include "osal.h"
 
@@ -22,9 +23,9 @@
 typedef struct
 {
     int sockfd;
-    uint32_t tx_count;
-    uint32_t rx_count;
-    uint32_t err_count;
+    atomic_uint tx_count;      /* 使用原子操作保证线程安全 */
+    atomic_uint rx_count;      /* 使用原子操作保证线程安全 */
+    atomic_uint err_count;     /* 使用原子操作保证线程安全 */
     str_t interface[IFNAMSIZ];
     uint32_t baudrate;
     bool initialized;
@@ -198,11 +199,11 @@ int32_t HAL_CAN_Send(hal_can_handle_t handle, const can_frame_t *frame)
             LOG_ERROR("HAL_CAN", "Incomplete send: %d/%u bytes",
                        (int32_t)ret, (uint32_t)sizeof(struct can_frame));
         }
-        impl->err_count++;
+        atomic_fetch_add(&impl->err_count, 1);
         return OS_ERROR;
     }
 
-    impl->tx_count++;
+    atomic_fetch_add(&impl->tx_count, 1);
     return OS_SUCCESS;
 }
 
@@ -244,7 +245,7 @@ int32_t HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32_t timeou
             return OS_ERROR_TIMEOUT;
 
         LOG_ERROR("HAL_CAN", "Receive failed: %s", OSAL_StrError(err));
-        impl->err_count++;
+        atomic_fetch_add(&impl->err_count, 1);
         return OS_ERROR;
     }
 
@@ -252,7 +253,7 @@ int32_t HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32_t timeou
     {
         LOG_ERROR("HAL_CAN", "Incomplete receive: %d/%u bytes",
                    (int32_t)ret, (uint32_t)sizeof(struct can_frame));
-        impl->err_count++;
+        atomic_fetch_add(&impl->err_count, 1);
         return OS_ERROR;
     }
 
@@ -268,7 +269,7 @@ int32_t HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32_t timeou
     OSAL_Memcpy(frame->data, can_frame.data, can_frame.can_dlc);
     frame->timestamp = OSAL_GetTickCount();
 
-    impl->rx_count++;
+    atomic_fetch_add(&impl->rx_count, 1);
     return OS_SUCCESS;
 }
 
@@ -317,9 +318,10 @@ int32_t HAL_CAN_GetStats(hal_can_handle_t handle,
     if (!impl->initialized)
         return OS_ERR_INVALID_ID;
 
-    if (tx_count)  *tx_count = impl->tx_count;
-    if (rx_count)  *rx_count = impl->rx_count;
-    if (err_count) *err_count = impl->err_count;
+    /* 原子读取统计信息 */
+    if (tx_count)  *tx_count = atomic_load(&impl->tx_count);
+    if (rx_count)  *rx_count = atomic_load(&impl->rx_count);
+    if (err_count) *err_count = atomic_load(&impl->err_count);
 
     return OS_SUCCESS;
 }
