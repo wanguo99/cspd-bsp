@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
 
     OSAL_Printf("========================================\n");
     OSAL_Printf("  Sample应用 v%s\n", APP_VERSION);
-    OSAL_Printf("  OSAL版本: %s\n", OS_GetVersionString());
+    OSAL_Printf("  OSAL版本: %s\n", OSAL_GetVersionString());
     OSAL_Printf("========================================\n\n");
 
     /* 注意：OSAL作为用户态库，不需要显式初始化 */

@@ -60,6 +60,6 @@
  *
  * @return 版本字符串，例如 "PMC-BSP OSAL v1.0.0"
  */
-const str_t *OS_GetVersionString(void);
+const str_t *OSAL_GetVersionString(void);
 
 #endif /* OSAL_H */

@@ -266,7 +266,7 @@ int32_t HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32_t timeou
         can_frame.can_dlc = 8;
 
     OSAL_Memcpy(frame->data, can_frame.data, can_frame.can_dlc);
-    frame->timestamp = OS_GetTickCount();
+    frame->timestamp = OSAL_GetTickCount();
 
     impl->rx_count++;
     return OS_SUCCESS;

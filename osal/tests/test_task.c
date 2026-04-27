@@ -119,11 +119,11 @@ TEST_CASE(test_task_delete_invalid_id)
 /* 测试用例8: 任务延时 */
 TEST_CASE(test_task_delay_success)
 {
-    uint32_t start = OS_GetTickCount();
+    uint32_t start = OSAL_GetTickCount();
 
     int32_t ret = OSAL_TaskDelay(500);
 
-    uint32_t elapsed = OS_GetTickCount() - start;
+    uint32_t elapsed = OSAL_GetTickCount() - start;
 
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
     TEST_ASSERT_GREATER_OR_EQUAL(450, elapsed);

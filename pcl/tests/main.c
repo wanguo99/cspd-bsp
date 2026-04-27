@@ -43,7 +43,7 @@ int32_t main(int32_t argc, str_t *argv[])
     OSAL_Printf("\n");
     OSAL_Printf("========================================\n");
     OSAL_Printf("  PCL Module Unit Test\n");
-    OSAL_Printf("  Version: %s\n", OS_GetVersionString());
+    OSAL_Printf("  Version: %s\n", OSAL_GetVersionString());
     OSAL_Printf("========================================\n");
     OSAL_Printf("\n");
 

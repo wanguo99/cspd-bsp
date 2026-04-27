@@ -41,7 +41,7 @@ int32_t OSAL_SetLocalTime(const OS_time_t *time_struct);
  *
  * @return 系统滴答数(毫秒)
  */
-uint32_t OS_GetTickCount(void);
+uint32_t OSAL_GetTickCount(void);
 
 /**
  * @brief 毫秒延时

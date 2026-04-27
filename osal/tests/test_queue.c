@@ -106,11 +106,11 @@ TEST_CASE(test_queue_get_timeout)
 
     uint8_t data[64];
     uint32_t size;
-    uint32_t start = OS_GetTickCount();
+    uint32_t start = OSAL_GetTickCount();
 
     int32_t ret = OSAL_QueueGet(queue_id, data, 64, &size, 500);
 
-    uint32_t elapsed = OS_GetTickCount() - start;
+    uint32_t elapsed = OSAL_GetTickCount() - start;
 
     TEST_ASSERT_EQUAL(OS_QUEUE_TIMEOUT, ret);
     TEST_ASSERT_GREATER_OR_EQUAL(450, elapsed);

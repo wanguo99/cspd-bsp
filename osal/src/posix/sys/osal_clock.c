@@ -28,7 +28,7 @@ int32_t OSAL_SetLocalTime(const OS_time_t *time_struct __attribute__((unused)))
     return OS_ERR_NOT_IMPLEMENTED;
 }
 
-uint32_t OS_GetTickCount(void)
+uint32_t OSAL_GetTickCount(void)
 {
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
