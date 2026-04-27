@@ -93,12 +93,7 @@ add_library(pmc::osal_public_api ALIAS osal_public_api)
 add_library(pmc::osal ALIAS osal)
 
 # 1.5 Test Library（测试库 - 仅在启用测试时构建）
-if(BUILD_TESTING)
-    add_subdirectory(tests/osal)
-    add_subdirectory(tests/hal)
-    add_subdirectory(tests/pcl)
-    add_subdirectory(tests/pdl)
-endif()
+# 现在由统一的tests/CMakeLists.txt管理
 
 # 2. HAL层（硬件抽象层）
 add_subdirectory(hal)
@@ -122,8 +117,8 @@ add_subdirectory(apps)
 # 测试框架（可选）
 # ============================================================================
 if(BUILD_TESTING)
-    # 统一测试运行器
-    add_subdirectory(tests/runner)
+    # 统一测试框架（包含所有测试模块和运行器）
+    add_subdirectory(tests)
 endif()
 
 # ============================================================================
