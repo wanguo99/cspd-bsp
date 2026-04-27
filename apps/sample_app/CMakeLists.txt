@@ -25,5 +25,4 @@ install(TARGETS sample_app
     RUNTIME DESTINATION bin
 )
 
-message(STATUS "")
-message(STATUS "Sample application configured")
+message(STATUS "Sample app configured")

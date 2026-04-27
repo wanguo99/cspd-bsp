@@ -69,8 +69,4 @@ install(EXPORT hal-targets
     DESTINATION lib/cmake/hal
 )
 
-message(STATUS "")
-message(STATUS "HAL module configured for platform: ${PLATFORM}")
-message(STATUS "  - Interface library: hal_public_api")
-message(STATUS "  - Implementation library: hal")
-message(STATUS "")
+message(STATUS "HAL configured (${PLATFORM})")
