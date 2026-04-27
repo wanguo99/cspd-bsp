@@ -95,11 +95,10 @@ add_library(pmc::osal ALIAS osal)
 # 1.5 Test Library（测试库 - 仅在启用测试时构建）
 if(BUILD_TESTING)
     add_subdirectory(tests/framework)
-endif()
-
-# OSAL模块测试
-if(BUILD_TESTING)
-    add_subdirectory(osal/tests)
+    add_subdirectory(tests/osal)
+    add_subdirectory(tests/hal)
+    add_subdirectory(tests/pcl)
+    add_subdirectory(tests/pdl)
 endif()
 
 # 2. HAL层（硬件抽象层）
@@ -107,30 +106,15 @@ add_subdirectory(hal)
 add_library(pmc::hal_public_api ALIAS hal_public_api)
 add_library(pmc::hal ALIAS hal)
 
-# HAL模块测试
-if(BUILD_TESTING)
-    add_subdirectory(hal/tests)
-endif()
-
 # 3. XConfig层（硬件配置库）
 add_subdirectory(pcl)
 add_library(pmc::pcl_public_api ALIAS pcl_public_api)
 add_library(pmc::pcl ALIAS pcl)
 
-# PCL模块测试
-if(BUILD_TESTING)
-    add_subdirectory(pcl/tests)
-endif()
-
 # 4. PDL层（外设驱动层）
 add_subdirectory(pdl)
 add_library(pmc::pdl_public_api ALIAS pdl_public_api)
 add_library(pmc::pdl ALIAS pdl)
-
-# PDL模块测试
-if(BUILD_TESTING)
-    add_subdirectory(pdl/tests)
-endif()
 
 # 5. Apps层（应用层）
 add_subdirectory(apps)

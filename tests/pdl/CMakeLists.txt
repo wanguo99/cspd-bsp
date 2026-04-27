@@ -20,7 +20,7 @@ add_library(pdl_tests STATIC
 
 # Include directories
 target_include_directories(pdl_tests PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../pdl/include
 )
 
 # Link dependencies

@@ -12,10 +12,10 @@ add_library(pcl_tests STATIC
 
 # Include directories
 target_include_directories(pcl_tests PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/api
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/internal
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/peripheral
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../pcl/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../pcl/include/api
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../pcl/include/internal
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../pcl/include/peripheral
 )
 
 # Link dependencies

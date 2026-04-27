@@ -12,7 +12,7 @@ add_library(hal_tests STATIC
 
 # Include directories
 target_include_directories(hal_tests PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../hal/include
 )
 
 # Link dependencies
