@@ -3,10 +3,14 @@
 
 cmake_minimum_required(VERSION 3.10)
 
+# 目录变量
+set(SRC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(INC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 add_library(libutest STATIC
-    src/test_runner.c
-    src/test_registry.c
-    src/test_menu.c
+    ${SRC}/test_runner.c
+    ${SRC}/test_registry.c
+    ${SRC}/test_menu.c
 )
 
 # 设置输出名称为libutest.a
@@ -15,7 +19,7 @@ set_target_properties(libutest PROPERTIES
 )
 
 target_include_directories(libutest PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${INC}>
     $<INSTALL_INTERFACE:include>
 )
 

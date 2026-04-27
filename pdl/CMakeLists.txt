@@ -4,10 +4,15 @@
 # ============================================================================
 # 1. 接口库 (pdl_public_api) - 仅头文件，供上层模块使用
 # ============================================================================
+
+# 目录变量
+set(PDL_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(PDL_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 add_library(pdl_public_api INTERFACE)
 
 target_include_directories(pdl_public_api INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${PDL_INC_DIR}>
     $<INSTALL_INTERFACE:include>
 )
 
@@ -20,19 +25,19 @@ if(PLATFORM STREQUAL "native" OR PLATFORM STREQUAL "generic-linux")
     # Linux平台实现
     set(PDL_SOURCES
         # MCU外设驱动（独立封装）
-        src/pdl_mcu/pdl_mcu.c
-        src/pdl_mcu/pdl_mcu_can.c
-        src/pdl_mcu/pdl_mcu_serial.c
-        src/pdl_mcu/pdl_mcu_protocol.c
+        ${PDL_SRC_DIR}/pdl_mcu/pdl_mcu.c
+        ${PDL_SRC_DIR}/pdl_mcu/pdl_mcu_can.c
+        ${PDL_SRC_DIR}/pdl_mcu/pdl_mcu_serial.c
+        ${PDL_SRC_DIR}/pdl_mcu/pdl_mcu_protocol.c
 
         # 卫星平台服务（独立封装）
-        src/pdl_satellite/pdl_satellite.c
-        src/pdl_satellite/pdl_satellite_can.c
+        ${PDL_SRC_DIR}/pdl_satellite/pdl_satellite.c
+        ${PDL_SRC_DIR}/pdl_satellite/pdl_satellite_can.c
 
         # BMC服务（独立封装）
-        src/pdl_bmc/pdl_bmc.c
-        src/pdl_bmc/pdl_bmc_redfish.c
-        src/pdl_bmc/pdl_bmc_ipmi.c
+        ${PDL_SRC_DIR}/pdl_bmc/pdl_bmc.c
+        ${PDL_SRC_DIR}/pdl_bmc/pdl_bmc_redfish.c
+        ${PDL_SRC_DIR}/pdl_bmc/pdl_bmc_ipmi.c
     )
 elseif(PLATFORM STREQUAL "rtems")
     # RTEMS平台实现（预留）

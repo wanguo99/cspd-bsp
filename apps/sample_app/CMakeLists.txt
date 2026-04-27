@@ -1,9 +1,12 @@
 # Sample应用
 # 参考cFS应用模块设计
 
+# 目录变量
+set(SAMPLE_APP_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
 # 源文件
 set(SAMPLE_APP_SOURCES
-    src/main.c
+    ${SAMPLE_APP_SRC_DIR}/main.c
 )
 
 # 创建可执行文件

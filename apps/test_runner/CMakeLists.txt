@@ -5,8 +5,11 @@ if(NOT BUILD_TESTING)
     return()
 endif()
 
+# 目录变量
+set(SRC ${CMAKE_CURRENT_SOURCE_DIR})
+
 add_executable(unit-test
-    main.c
+    ${SRC}/main.c
 )
 
 # Link all test libraries

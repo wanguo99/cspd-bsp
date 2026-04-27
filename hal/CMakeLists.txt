@@ -4,10 +4,15 @@
 # ============================================================================
 # 1. 接口库 (hal_public_api) - 仅头文件，供上层模块使用
 # ============================================================================
+
+# 目录变量
+set(HAL_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(HAL_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 add_library(hal_public_api INTERFACE)
 
 target_include_directories(hal_public_api INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${HAL_INC_DIR}>
     $<INSTALL_INTERFACE:include>
 )
 
@@ -18,8 +23,8 @@ target_include_directories(hal_public_api INTERFACE
 # HAL源文件（根据平台选择）
 if(PLATFORM STREQUAL "native" OR PLATFORM STREQUAL "generic-linux")
     set(HAL_SOURCES
-        src/linux/hal_can.c
-        src/linux/hal_serial.c
+        ${HAL_SRC_DIR}/linux/hal_can.c
+        ${HAL_SRC_DIR}/linux/hal_serial.c
     )
 elseif(PLATFORM STREQUAL "rtems")
     # RTEMS平台实现（预留）

@@ -4,10 +4,16 @@
 # ============================================================================
 # 1. 接口库 (pcl_public_api) - 仅头文件，供上层模块使用
 # ============================================================================
+
+# 目录变量
+set(PCL_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(PCL_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(PCL_PLATFORM_DIR ${CMAKE_CURRENT_SOURCE_DIR}/platform)
+
 add_library(pcl_public_api INTERFACE)
 
 target_include_directories(pcl_public_api INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${PCL_INC_DIR}>
     $<INSTALL_INTERFACE:include>
 )
 
@@ -17,16 +23,16 @@ target_include_directories(pcl_public_api INTERFACE
 
 # 核心源文件
 set(PCL_SOURCES
-    src/pcl_api.c
-    src/pcl_register.c
+    ${PCL_SRC_DIR}/pcl_api.c
+    ${PCL_SRC_DIR}/pcl_register.c
 )
 
 # 平台配置源文件（递归查找所有平台配置）
 file(GLOB_RECURSE PLATFORM_CONFIGS
-    platform/ti/am6254/*/*.c
-    platform/vendor_demo/*/*/*/*.c
+    ${PCL_PLATFORM_DIR}/ti/am6254/*/*.c
+    ${PCL_PLATFORM_DIR}/vendor_demo/*/*/*/*.c
     # 其他平台配置可以在这里添加
-    # platform/xilinx/zynq/*/*.c
+    # ${PCL_PLATFORM_DIR}/xilinx/zynq/*/*.c
 )
 
 # 创建静态库
@@ -40,9 +46,9 @@ target_link_libraries(pcl PUBLIC pcl_public_api)
 
 # 内部需要访问自己的头文件（api/internal/peripheral子目录）
 target_include_directories(pcl PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/api
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/internal
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/peripheral
+    ${PCL_INC_DIR}/api
+    ${PCL_INC_DIR}/internal
+    ${PCL_INC_DIR}/peripheral
 )
 
 # 依赖OSAL接口库（仅头文件依赖）

@@ -4,10 +4,15 @@
 # ============================================================================
 # 1. 接口库 (osal_public_api) - 仅头文件，供上层模块使用
 # ============================================================================
+
+# 目录变量
+set(OSAL_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/posix)
+set(OSAL_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 add_library(osal_public_api INTERFACE)
 
 target_include_directories(osal_public_api INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${OSAL_INC_DIR}>
     $<INSTALL_INTERFACE:include>
 )
 
@@ -18,34 +23,34 @@ target_include_directories(osal_public_api INTERFACE
 # OSAL源文件
 set(OSAL_SOURCES
     # IPC - 进程间通信
-    src/posix/ipc/osal_task.c
-    src/posix/ipc/osal_queue.c
-    src/posix/ipc/osal_mutex.c
-    src/posix/ipc/osal_atomic.c
+    ${OSAL_SRC_DIR}/ipc/osal_task.c
+    ${OSAL_SRC_DIR}/ipc/osal_queue.c
+    ${OSAL_SRC_DIR}/ipc/osal_mutex.c
+    ${OSAL_SRC_DIR}/ipc/osal_atomic.c
 
     # SYS - 系统调用封装
-    src/posix/sys/osal_clock.c
-    src/posix/sys/osal_signal.c
-    src/posix/sys/osal_file.c
-    src/posix/sys/osal_select.c
-    src/posix/sys/osal_env.c
-    src/posix/sys/osal_time.c
-    src/posix/sys/osal_termios.c
-    src/posix/sys/osal_process.c
-    src/posix/sys/osal_thread.c
+    ${OSAL_SRC_DIR}/sys/osal_clock.c
+    ${OSAL_SRC_DIR}/sys/osal_signal.c
+    ${OSAL_SRC_DIR}/sys/osal_file.c
+    ${OSAL_SRC_DIR}/sys/osal_select.c
+    ${OSAL_SRC_DIR}/sys/osal_env.c
+    ${OSAL_SRC_DIR}/sys/osal_time.c
+    ${OSAL_SRC_DIR}/sys/osal_termios.c
+    ${OSAL_SRC_DIR}/sys/osal_process.c
+    ${OSAL_SRC_DIR}/sys/osal_thread.c
 
     # NET - 网络相关
-    src/posix/net/osal_socket.c
+    ${OSAL_SRC_DIR}/net/osal_socket.c
 
     # LIB - 标准库封装
-    src/posix/lib/osal_heap.c
-    src/posix/lib/osal_string.c
-    src/posix/lib/osal_stdio.c
-    src/posix/lib/osal_errno.c
+    ${OSAL_SRC_DIR}/lib/osal_heap.c
+    ${OSAL_SRC_DIR}/lib/osal_string.c
+    ${OSAL_SRC_DIR}/lib/osal_stdio.c
+    ${OSAL_SRC_DIR}/lib/osal_errno.c
 
     # UTIL - 工具类
-    src/posix/util/osal_version.c
-    src/posix/util/osal_log.c
+    ${OSAL_SRC_DIR}/util/osal_version.c
+    ${OSAL_SRC_DIR}/util/osal_log.c
 )
 
 # 创建OSAL静态库
