@@ -117,6 +117,11 @@ add_subdirectory(pcl)
 add_library(pmc::pcl_public_api ALIAS pcl_public_api)
 add_library(pmc::pcl ALIAS pcl)
 
+# PCL模块测试
+if(BUILD_TESTING)
+    add_subdirectory(pcl/tests)
+endif()
+
 # 4. PDL层（外设驱动层）
 add_subdirectory(pdl)
 add_library(pmc::pdl_public_api ALIAS pdl_public_api)
