@@ -39,8 +39,8 @@ extern const str_t *g_current_test;
 #define TEST_ASSERT_EQUAL(expected, actual) \
     do { \
         if ((expected) != (actual)) { \
-            OSAL_Printf("[  FAILED  ] %s:%d: Expected %d, got %d\n", \
-                   __FILE__, __LINE__, (int32_t)(expected), (int32_t)(actual)); \
+            OSAL_Printf("[  FAILED  ] %s:%d: Expected %ld, got %ld\n", \
+                   __FILE__, __LINE__, (intptr_t)(expected), (intptr_t)(actual)); \
             g_test_failed = true; \
             return; \
         } \
@@ -49,8 +49,8 @@ extern const str_t *g_current_test;
 #define TEST_EXPECT_EQUAL(expected, actual) \
     do { \
         if ((expected) != (actual)) { \
-            OSAL_Printf("[  FAILED  ] %s:%d: Expected %d, got %d\n", \
-                   __FILE__, __LINE__, (int32_t)(expected), (int32_t)(actual)); \
+            OSAL_Printf("[  FAILED  ] %s:%d: Expected %ld, got %ld\n", \
+                   __FILE__, __LINE__, (intptr_t)(expected), (intptr_t)(actual)); \
             g_test_failed = true; \
         } \
     } while(0)
@@ -58,8 +58,8 @@ extern const str_t *g_current_test;
 #define TEST_ASSERT_NOT_EQUAL(expected, actual) \
     do { \
         if ((expected) == (actual)) { \
-            OSAL_Printf("[  FAILED  ] %s:%d: Values should not be equal: %d\n", \
-                   __FILE__, __LINE__, (int32_t)(expected)); \
+            OSAL_Printf("[  FAILED  ] %s:%d: Values should not be equal: %ld\n", \
+                   __FILE__, __LINE__, (intptr_t)(expected)); \
             g_test_failed = true; \
             return; \
         } \

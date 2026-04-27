@@ -39,6 +39,12 @@ add_library(osal_tests STATIC
     osal/test_osal_queue.c
     osal/test_osal_mutex.c
     osal/test_osal_signal.c
+    osal/test_osal_atomic.c
+    osal/test_osal_string.c
+    osal/test_osal_file.c
+    osal/test_osal_time.c
+    osal/test_osal_heap.c
+    osal/test_osal_log.c
 )
 
 target_include_directories(osal_tests PRIVATE
@@ -58,6 +64,7 @@ add_library(pmc::osal_tests ALIAS osal_tests)
 # ============================================================================
 add_library(hal_tests STATIC
     hal/test_hal_can.c
+    hal/test_hal_serial.c
 )
 
 target_include_directories(hal_tests PRIVATE
@@ -95,14 +102,17 @@ target_link_libraries(pcl_tests
 add_library(pmc::pcl_tests ALIAS pcl_tests)
 
 # ============================================================================
-# PDL Tests (placeholder)
+# PDL Tests
 # ============================================================================
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pdl_tests_placeholder.c
-    "void pdl_tests_placeholder(void) {}\n"
+add_library(pdl_tests STATIC
+    pdl/test_pdl_satellite.c
+    pdl/test_pdl_mcu.c
+    pdl/test_pdl_bmc.c
 )
 
-add_library(pdl_tests STATIC
-    ${CMAKE_CURRENT_BINARY_DIR}/pdl_tests_placeholder.c
+target_include_directories(pdl_tests PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../pdl/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 target_link_libraries(pdl_tests
