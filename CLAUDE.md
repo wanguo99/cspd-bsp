@@ -98,13 +98,16 @@ cd ../..
 ./output/target/bin/unit-test -a    # 运行所有测试
 ./output/target/bin/unit-test -L OSAL  # 运行OSAL层测试
 ./output/target/bin/unit-test -L HAL   # 运行HAL层测试
+./output/target/bin/unit-test -L PCL   # 运行PCL层测试
 ./output/target/bin/unit-test -L PDL   # 运行PDL层测试
 ./output/target/bin/unit-test -m test_osal_task  # 运行指定模块
 ./output/target/bin/unit-test -l    # 列出所有测试
 
 # 编译单个测试模块（快速迭代）
 cd output/build
-make test_osal_task  # 仅编译指定测试模块
+make osal_tests -j$(nproc)  # 仅编译OSAL测试模块
+make hal_tests -j$(nproc)   # 仅编译HAL测试模块
+make pcl_tests -j$(nproc)   # 仅编译PCL测试模块
 cd ../..
 
 # 完整的测试工作流
@@ -292,14 +295,26 @@ pmc-bsp/
 │       └── lib/             # 静态库
 └── tests/                   # 测试框架
     ├── include/             # 测试框架头文件
-    │   ├── test_framework.h     # 测试框架宏定义
-    │   └── test_runner.h        # 测试运行器接口
-    ├── src/                 # 测试源代码
-    │   ├── test_entry.c         # 统一测试入口
+    │   ├── test_assert.h        # 测试断言宏
+    │   ├── test_registry.h      # 测试注册接口
+    │   └── tests_core.h         # 测试核心接口
+    ├── core/                # 测试框架核心
+    │   ├── main.c               # 测试入口
     │   ├── test_runner.c        # 测试运行器实现
-    │   ├── osal/                # OSAL层测试
-    │   └── hal/                 # HAL层测试
-    └── docs/                # 测试文档
+    │   ├── test_registry.c      # 测试注册实现
+    │   └── test_menu.c          # 交互式菜单实现
+    ├── osal/                # OSAL层测试
+    │   ├── test_osal_task.c     # 任务管理测试
+    │   ├── test_osal_queue.c    # 消息队列测试
+    │   ├── test_osal_mutex.c    # 互斥锁测试
+    │   └── test_osal_signal.c   # 信号处理测试
+    ├── hal/                 # HAL层测试
+    │   └── test_hal_can.c       # CAN驱动测试
+    ├── pcl/                 # PCL层测试
+    │   └── test_pcl_api.c       # PCL API测试
+    ├── pdl/                 # PDL层测试（占位）
+    ├── CMakeLists.txt       # 统一测试构建配置
+    └── README.md            # 测试框架文档
 ```
 
 ## 关键设计特点
@@ -473,11 +488,41 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
 3. 重新编译：`./build.sh`
 
 ### 添加新测试
-1. 在 `tests/src/<layer>/` 创建测试文件（如`test_new_module.c`）
+1. 在 `tests/<layer>/` 创建测试文件（如`test_osal_timer.c`）
 2. 使用 `TEST_MODULE_BEGIN/END` 宏注册测试模块
-3. 在 `tests/src/test_entry.c` 的对应层级数组中添加模块引用
+3. 在 `tests/CMakeLists.txt` 的对应测试库中添加源文件
 4. 重新编译：`./build.sh -d`
-5. 运行测试：`./output/target/bin/unit-test -m test_new_module`
+5. 运行测试：`./output/target/bin/unit-test -m test_osal_timer`
+
+**示例**：
+```c
+/* tests/osal/test_osal_timer.c */
+#include "tests_core.h"
+#include <osal.h>
+
+TEST_CASE(test_timer_create)
+{
+    osal_id_t timer_id;
+    int32 ret = OSAL_TimerCreate(&timer_id, "test_timer", NULL, NULL);
+    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    OSAL_TimerDelete(timer_id);
+}
+
+TEST_MODULE_BEGIN(test_osal_timer, "定时器测试")
+    TEST_CASE_REGISTER(test_timer_create, "定时器创建")
+TEST_MODULE_END()
+```
+
+然后在 `tests/CMakeLists.txt` 中添加：
+```cmake
+add_library(osal_tests STATIC
+    osal/test_osal_task.c
+    osal/test_osal_queue.c
+    osal/test_osal_mutex.c
+    osal/test_osal_signal.c
+    osal/test_osal_timer.c      # 添加新测试
+)
+```
 
 ### 调试
 ```bash
@@ -514,14 +559,21 @@ output/
 
 | 层级 | 模块数 | 测试用例数 | 覆盖范围 |
 |------|--------|-----------|---------|
-| OSAL | 5 | 50+ | 任务、队列、互斥锁、信号 |
+| OSAL | 4 | 50+ | 任务、队列、互斥锁、信号 |
 | HAL | 1 | 3 | CAN驱动 |
-| **总计** | **6** | **53+** | **核心功能完整覆盖** |
+| PCL | 1 | 5+ | 配置查询、外设枚举 |
+| PDL | 0 | 0 | 占位符（待添加） |
+| **总计** | **6** | **58+** | **核心功能完整覆盖** |
 
 ### 交互式菜单特点
 - 三级选择：层级 → 模块 → 测试用例
 - 使用序号选择，无需输入完整名称
 - 支持单个测试、模块测试、层级测试
+
+### 测试文件命名规范
+- 规则：`test_<module>_<component>.c`
+- 示例：`test_osal_task.c`, `test_hal_can.c`, `test_pcl_api.c`
+- 详细规范：参考 [编码规范](docs/CODING_STANDARDS.md)
 
 ## 编码规范
 
@@ -687,10 +739,19 @@ sudo ./output/target/bin/sample_app
 - 依赖隔离：各模块通过接口依赖，便于多人协作和多仓库拆分
 - 构建日志：`build.log` 生成到 `output/` 目录，所有构建产物统一管理
 
-### 测试框架重构
-- 统一命名：使用`test_`前缀（`test_framework.h`, `test_runner.c/h`, `test_entry.c`）
-- 统一日志：所有`printf`替换为`OSAL_Printf`
-- 目录重组：测试框架头文件在`tests/include/`，实现在`tests/src/`
+### 测试框架重构（2026-04-27）
+- **目标**：统一测试目录结构，简化配置管理
+- **目录扁平化**：`tests/core/{include,src}` → `tests/{include,core}`
+- **配置统一**：删除5个子目录的CMakeLists.txt，集中到 `tests/CMakeLists.txt`
+- **命名规范**：测试文件添加模块前缀（`test_<module>_<component>.c`）
+  - `test_task.c` → `test_osal_task.c`
+  - `test_queue.c` → `test_osal_queue.c`
+  - `test_mutex.c` → `test_osal_mutex.c`
+  - `test_signal.c` → `test_osal_signal.c`
+  - `test_can.c` → `test_hal_can.c`
+- **runner合并**：`tests/runner/` 合并到 `tests/core/`
+- **配置减少**：净减少53行配置代码（从413行到360行）
+- **设计理念**：统一管理，简化维护，提高可读性
 
 ## 开发建议
 
@@ -789,7 +850,7 @@ valgrind --leak-check=full ./output/target/bin/sample_app
 
 - **代码规模**：约18,000行（生产代码14,000行，测试代码4,000行）
 - **文件数量**：97个C/H文件
-- **测试覆盖**：70+测试用例
+- **测试覆盖**：58+测试用例（6个测试模块）
 - **模块数量**：5层架构（OSAL/HAL/PCL/PDL/Apps）
 - **支持平台**：TI AM6254, 演示平台（可扩展到其他平台）
 
@@ -809,5 +870,7 @@ valgrind --leak-check=full ./output/target/bin/sample_app
 - [apps/sample_app/src/main.c](apps/sample_app/src/main.c) - 示例应用
 
 ### 测试入口
-- [apps/test_runner/main.c](apps/test_runner/main.c) - 统一测试运行器
-- [libutest/include/libutest.h](libutest/include/libutest.h) - 测试框架
+- [tests/core/main.c](tests/core/main.c) - 统一测试运行器
+- [tests/include/test_assert.h](tests/include/test_assert.h) - 测试断言宏
+- [tests/include/tests_core.h](tests/include/tests_core.h) - 测试核心接口
+- [tests/README.md](tests/README.md) - 测试框架文档

@@ -1330,7 +1330,7 @@ static int32 execute_ipmi_command(uint8_t cmd_type, uint32_t param, uint32_t *re
 - **日志系统**：多级别日志、文件轮转、彩色终端
 - **统计信息**：收发计数、错误计数、成功率
 - **调试模式**：Debug编译、GDB支持
-- **测试框架**：70个测试用例覆盖4层架构
+- **测试框架**：58+测试用例覆盖4层架构（OSAL/HAL/PCL/PDL）
 
 ## 7. 可移植性设计
 
