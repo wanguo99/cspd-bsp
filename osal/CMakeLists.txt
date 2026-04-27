@@ -87,6 +87,8 @@ install(EXPORT osal-targets
     DESTINATION lib/cmake/osal
 )
 
+message(STATUS "")
 message(STATUS "OSAL module configured")
 message(STATUS "  - Interface library: osal_public_api")
 message(STATUS "  - Implementation library: osal")
+message(STATUS "")

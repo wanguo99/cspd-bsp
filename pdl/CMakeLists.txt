@@ -98,9 +98,11 @@ install(EXPORT pdl-targets
     DESTINATION lib/cmake/pdl
 )
 
+message(STATUS "")
 message(STATUS "Peripheral Driver Layer (PDL) configured for platform: ${PLATFORM}")
 message(STATUS "  - Interface library: pdl_public_api")
 message(STATUS "  - Implementation library: pdl")
 message(STATUS "  - MCU driver: pdl_mcu.c + pdl_mcu_can.c + pdl_mcu_serial.c + pdl_mcu_protocol.c")
 message(STATUS "  - Satellite driver: pdl_satellite.c + pdl_satellite_can.c")
 message(STATUS "  - BMC driver: pdl_bmc.c + pdl_bmc_redfish.c + pdl_bmc_ipmi.c")
+message(STATUS "")
