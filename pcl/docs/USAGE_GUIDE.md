@@ -1,9 +1,9 @@
-# XConfig 使用指南
+# PCL 使用指南
 
 ## 基本使用
 
 ```c
-#include "xconfig_api.h"
+#include "pcl_api.h"
 
 int main(void)
 {
@@ -12,7 +12,7 @@ int main(void)
     HW_Config_RegisterAll();
     
     /* 选择配置 */
-    const xconfig_board_config_t *board = HW_Config_SelectDefault();
+    const pcl_board_config_t *board = HW_Config_SelectDefault();
     
     /* 打印配置 */
     HW_Config_Print(board);
@@ -25,10 +25,10 @@ int main(void)
 
 ```c
 /* 获取板级配置 */
-const xconfig_board_config_t *board = HW_Config_GetBoard();
+const pcl_board_config_t *board = HW_Config_GetBoard();
 
 /* 查找MCU外设配置 */
-const xconfig_mcu_cfg_t *mcu_cfg = XCONFIG_HW_FindMCU(board, "stm32_mcu");
+const pcl_mcu_cfg_t *mcu_cfg = XCONFIG_HW_FindMCU(board, "stm32_mcu");
 if (mcu_cfg == NULL) {
     LOG_ERROR("Main", "MCU配置未找到");
     return -1;
@@ -59,7 +59,7 @@ if (mcu_cfg->interface_type == HW_INTERFACE_UART) {
 
 ```c
 /* 查找BMC外设配置 */
-const xconfig_bmc_cfg_t *bmc_cfg = XCONFIG_HW_FindBMC(board, "payload_bmc");
+const pcl_bmc_cfg_t *bmc_cfg = XCONFIG_HW_FindBMC(board, "payload_bmc");
 
 /* 初始化主通道（以太网） */
 if (bmc_cfg->primary_channel.type == HW_INTERFACE_ETHERNET) {
@@ -82,10 +82,10 @@ if (bmc_cfg->backup_channel.type == HW_INTERFACE_UART) {
 ## 遍历所有传感器外设
 
 ```c
-const xconfig_board_config_t *board = HW_Config_GetBoard();
+const pcl_board_config_t *board = HW_Config_GetBoard();
 
 for (uint32_t i = 0; i < board->sensor_count; i++) {
-    const xconfig_sensor_cfg_t *sensor = board->sensors[i];
+    const pcl_sensor_cfg_t *sensor = board->sensors[i];
     
     if (!sensor->enabled) {
         continue;
@@ -112,7 +112,7 @@ for (uint32_t i = 0; i < board->sensor_count; i++) {
 
 ```c
 /* 新增MCU外设 */
-static xconfig_mcu_cfg_t mcu_new = {
+static pcl_mcu_cfg_t mcu_new = {
     .name = "new_mcu",
     .enabled = true,
     .interface_type = HW_INTERFACE_CAN,
@@ -131,7 +131,7 @@ static xconfig_mcu_cfg_t mcu_new = {
 ### 步骤2：添加到外设列表
 
 ```c
-static xconfig_mcu_cfg_t *mcu_list[] = {
+static pcl_mcu_cfg_t *mcu_list[] = {
     &mcu_stm32,
     &mcu_new  /* 添加新MCU */
 };
@@ -140,7 +140,7 @@ static xconfig_mcu_cfg_t *mcu_list[] = {
 ### 步骤3：更新板级配置
 
 ```c
-const xconfig_board_config_t xconfig_xxx = {
+const pcl_board_config_t pcl_xxx = {
     /* ... */
     .mcus = mcu_list,
     .mcu_count = sizeof(mcu_list) / sizeof(mcu_list[0]),
@@ -148,4 +148,4 @@ const xconfig_board_config_t xconfig_xxx = {
 };
 ```
 
-完整的使用示例请参考 `xconfig/examples/xconfig_example.c`。
+完整的使用示例请参考 `pcl/examples/pcl_example.c`。

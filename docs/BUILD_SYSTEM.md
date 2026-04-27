@@ -9,7 +9,7 @@
 参考cFS的模块化设计，PMC-BSP采用以下核心原则：
 
 1. **接口与实现分离**：每个模块提供接口库（仅头文件）和实现库（静态库）
-2. **清晰的依赖层次**：OSAL → HAL → XConfig → PDL → Apps
+2. **清晰的依赖层次**：OSAL → HAL → PCL → PDL → Apps
 3. **独立编译**：每个模块可独立编译和测试
 4. **跨平台支持**：通过平台配置支持多种目标架构
 
@@ -19,7 +19,7 @@
 |-----|---------|------|
 | OSAL | OSAL | 操作系统抽象层 |
 | PSP | HAL | 平台/硬件支持包 |
-| cFE Core | XConfig + PDL | 核心服务（配置+外设驱动） |
+| cFE Core | PCL + PDL | 核心服务（配置+外设驱动） |
 | Apps | Apps | 应用层 |
 | ut_assert | test_runner | 测试框架 |
 
@@ -37,10 +37,10 @@
 │    PDL (Peripheral Driver Layer)        │
 │  MCU, Satellite, BMC 外设驱动           │
 └──────────────┬──────────────────────────┘
-               │ 依赖 xconfig_public_api
+               │ 依赖 pcl_public_api
                │      hal_public_api
 ┌──────────────▼──────────────────────────┐
-│    XConfig (Hardware Config)            │
+│    PCL (Hardware Config)            │
 │  硬件配置库（类似设备树）                │
 └──────────────┬──────────────────────────┘
                │ 依赖 osal_public_api
@@ -134,13 +134,13 @@ target_link_libraries(my_module
 - 封装CAN、串口等硬件驱动
 - 根据PLATFORM变量选择不同实现（linux/rtems）
 
-### 3.3 XConfig层
+### 3.3 PCL层
 
-**文件**：`xconfig/CMakeLists.txt`
+**文件**：`pcl/CMakeLists.txt`
 
 **提供的库**：
-- `xconfig_public_api` - 接口库
-- `xconfig` - 实现库
+- `pcl_public_api` - 接口库
+- `pcl` - 实现库
 
 **依赖**：
 - `pmc::osal_public_api` (PUBLIC)
@@ -153,7 +153,7 @@ target_link_libraries(my_module
 
 **平台配置**：
 ```
-xconfig/platform/
+pcl/platform/
 ├── ti/am6254/H200_100P/        # TI AM6254平台
 │   ├── h200_100p_base.c
 │   ├── h200_100p_v1.c
@@ -173,15 +173,15 @@ xconfig/platform/
 **依赖**：
 - `pmc::osal_public_api` (PUBLIC)
 - `pmc::hal_public_api` (PUBLIC)
-- `pmc::xconfig_public_api` (PUBLIC)
+- `pmc::pcl_public_api` (PUBLIC)
 - `pmc::osal` (PRIVATE)
 - `pmc::hal` (PRIVATE)
-- `pmc::xconfig` (PRIVATE)
+- `pmc::pcl` (PRIVATE)
 
 **特点**：
 - 统一外设管理层
 - 管理MCU、卫星、BMC等外设
-- 通过XConfig获取硬件配置
+- 通过PCL获取硬件配置
 
 ### 3.5 Apps层
 
@@ -232,7 +232,7 @@ endif()
 # 按依赖顺序添加子目录
 add_subdirectory(osal)
 add_subdirectory(hal)
-add_subdirectory(xconfig)
+add_subdirectory(pcl)
 add_subdirectory(pdl)
 add_subdirectory(apps)
 add_subdirectory(tests)
@@ -272,7 +272,7 @@ output/
 │   ├── lib/            # 静态库
 │   │   ├── libosal.a
 │   │   ├── libhal.a
-│   │   ├── libxconfig.a
+│   │   ├── libpcl.a
 │   │   └── libpdl.a
 │   └── ...
 └── target/             # 最终产物
@@ -290,7 +290,7 @@ output/
 cd output/build
 make osal -j$(nproc)        # 仅编译OSAL
 make hal -j$(nproc)         # 仅编译HAL
-make xconfig -j$(nproc)     # 仅编译XConfig
+make pcl -j$(nproc)     # 仅编译PCL
 make pdl -j$(nproc)         # 仅编译PDL
 make sample_app -j$(nproc)  # 仅编译示例应用
 make unit-test -j$(nproc)   # 仅编译测试

@@ -1,4 +1,4 @@
-# XConfig 更新日志
+# PCL 更新日志
 
 ## 2026-04-24 - 初始版本
 
@@ -10,12 +10,12 @@
    - 支持多平台、多产品、多版本配置管理
 
 2. **核心数据结构**
-   - `xconfig_mcu_cfg_t` - MCU外设配置（内嵌通信接口）
-   - `xconfig_bmc_cfg_t` - BMC外设配置（支持主备双通道）
-   - `xconfig_satellite_cfg_t` - 卫星平台接口配置
-   - `xconfig_sensor_cfg_t` - 传感器外设配置
-   - `xconfig_storage_cfg_t` - 存储设备配置
-   - `xconfig_board_config_t` - 板级配置（顶层）
+   - `pcl_mcu_cfg_t` - MCU外设配置（内嵌通信接口）
+   - `pcl_bmc_cfg_t` - BMC外设配置（支持主备双通道）
+   - `pcl_satellite_cfg_t` - 卫星平台接口配置
+   - `pcl_sensor_cfg_t` - 传感器外设配置
+   - `pcl_storage_cfg_t` - 存储设备配置
+   - `pcl_board_config_t` - 板级配置（顶层）
 
 3. **支持的接口类型**
    - CAN总线
@@ -65,20 +65,20 @@
 ### 文件结构
 
 ```
-xconfig/
+pcl/
 ├── include/
-│   ├── xconfig_types.h       # 配置类型定义
-│   └── xconfig_api.h         # API接口
+│   ├── pcl_types.h       # 配置类型定义
+│   └── pcl_api.h         # API接口
 ├── src/
-│   ├── xconfig_api.c         # API实现
-│   └── xconfig_register.c    # 配置注册
+│   ├── pcl_api.c         # API实现
+│   └── pcl_register.c    # 配置注册
 ├── platform/
 │   └── ti/am625/
 │       ├── h200_payload_base.c # 基础配置
 │       ├── h200_payload_v1.c   # V1.0配置
 │       └── h200_payload_v2.c   # V2.0配置
 ├── examples/
-│   └── xconfig_example.c     # 使用示例
+│   └── pcl_example.c     # 使用示例
 ├── README.md                   # 详细说明
 ├── INTEGRATION.md              # 集成指南
 ├── CHANGELOG.md                # 更新日志
@@ -89,7 +89,7 @@ xconfig/
 
 - 已集成到主项目CMakeLists.txt
 - 已更新主项目README.md
-- 编译成功，生成libxconfig.a静态库
+- 编译成功，生成libpcl.a静态库
 
 ### 下一步计划
 

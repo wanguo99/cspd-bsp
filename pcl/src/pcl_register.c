@@ -6,7 +6,7 @@
  * - 在系统启动时调用
  ************************************************************************/
 
-#include "xconfig_api.h"
+#include "pcl_api.h"
 #include "util/osal_log.h"
 #include "sys/osal_env.h"
 
@@ -15,21 +15,21 @@
  *===========================================================================*/
 
 /* TI AM625平台 - H200载荷板 */
-extern const xconfig_board_config_t xconfig_h200_base;
-extern const xconfig_board_config_t xconfig_h200_v1;
-extern const xconfig_board_config_t xconfig_h200_v2;
+extern const pcl_board_config_t pcl_h200_base;
+extern const pcl_board_config_t pcl_h200_v1;
+extern const pcl_board_config_t pcl_h200_v2;
 
 /* 其他平台配置可以在这里添加 */
-/* extern const xconfig_board_config_t xconfig_xxx; */
+/* extern const pcl_board_config_t pcl_xxx; */
 
 /*===========================================================================
  * 配置注册表
  *===========================================================================*/
 
-static const xconfig_board_config_t* g_all_configs[] = {
-    &xconfig_h200_base,
-    &xconfig_h200_v1,
-    &xconfig_h200_v2,
+static const pcl_board_config_t* g_all_configs[] = {
+    &pcl_h200_base,
+    &pcl_h200_v1,
+    &pcl_h200_v2,
     /* 在这里添加新的配置 */
 };
 
@@ -45,7 +45,7 @@ static const xconfig_board_config_t* g_all_configs[] = {
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32_t XCONFIG_RegisterAll(void)
+int32_t PCL_RegisterAll(void)
 {
     int32_t ret;
     uint32_t success_count = 0;
@@ -53,7 +53,7 @@ int32_t XCONFIG_RegisterAll(void)
     LOG_INFO("XCONFIG", "Registering %d hardware configurations...", CONFIG_COUNT);
 
     for (uint32_t i = 0; i < CONFIG_COUNT; i++) {
-        ret = XCONFIG_Register(g_all_configs[i]);
+        ret = PCL_Register(g_all_configs[i]);
         if (ret == OS_SUCCESS) {
             success_count++;
         } else {
@@ -75,26 +75,26 @@ int32_t XCONFIG_RegisterAll(void)
  * @brief 根据环境变量或编译选项选择默认配置
  *
  * 优先级：
- * 1. 环境变量 XCONFIG_PLATFORM, XCONFIG_PRODUCT, XCONFIG_VERSION
+ * 1. 环境变量 PCL_PLATFORM, PCL_PRODUCT, PCL_VERSION
  * 2. 编译时定义 DEFAULT_PLATFORM, DEFAULT_PRODUCT, DEFAULT_VERSION
  * 3. 默认使用第一个配置
  *
  * @return 配置指针，失败返回NULL
  */
-const xconfig_board_config_t* XCONFIG_SelectDefault(void)
+const pcl_board_config_t* PCL_SelectDefault(void)
 {
     const char *platform = NULL;
     const char *product = NULL;
     const char *version = NULL;
-    const xconfig_board_config_t *config = NULL;
+    const pcl_board_config_t *config = NULL;
 
     /* 1. 尝试从环境变量读取 */
-    platform = OSAL_getenv("XCONFIG_PLATFORM");
-    product = OSAL_getenv("XCONFIG_PRODUCT");
-    version = OSAL_getenv("XCONFIG_VERSION");
+    platform = OSAL_getenv("PCL_PLATFORM");
+    product = OSAL_getenv("PCL_PRODUCT");
+    version = OSAL_getenv("PCL_VERSION");
 
     if (platform != NULL && product != NULL) {
-        config = XCONFIG_Find(platform, product, version);
+        config = PCL_Find(platform, product, version);
         if (config != NULL) {
             LOG_INFO("XCONFIG", "Selected config from environment: %s/%s/%s",
                      platform, product, version ? version : "any");
@@ -112,7 +112,7 @@ const xconfig_board_config_t* XCONFIG_SelectDefault(void)
     version = NULL;
 #endif
 
-    config = XCONFIG_Find(platform, product, version);
+    config = PCL_Find(platform, product, version);
     if (config != NULL) {
         LOG_INFO("XCONFIG", "Selected config from compile-time defaults: %s/%s/%s",
                  platform, product, version ? version : "any");

@@ -10,10 +10,10 @@
  * - 通过外设类型+编号映射到具体硬件
  ************************************************************************/
 
-#ifndef XCONFIG_APP_H
-#define XCONFIG_APP_H
+#ifndef PCL_APP_H
+#define PCL_APP_H
 
-#include "xconfig_common.h"
+#include "pcl_common.h"
 
 /*===========================================================================
  * APP配置
@@ -23,13 +23,13 @@
  * @brief 外设类型枚举
  */
 typedef enum {
-    XCONFIG_DEV_SATELLITE = 0,     /* 卫星平台接口 */
-    XCONFIG_DEV_MCU,               /* MCU外设 */
-    XCONFIG_DEV_BMC,               /* BMC外设 */
-    XCONFIG_DEV_SENSOR,            /* 传感器 */
-    XCONFIG_DEV_STORAGE,           /* 存储设备 */
-    XCONFIG_DEV_MAX
-} xconfig_device_type_t;
+    PCL_DEV_SATELLITE = 0,     /* 卫星平台接口 */
+    PCL_DEV_MCU,               /* MCU外设 */
+    PCL_DEV_BMC,               /* BMC外设 */
+    PCL_DEV_SENSOR,            /* 传感器 */
+    PCL_DEV_STORAGE,           /* 存储设备 */
+    PCL_DEV_MAX
+} pcl_device_type_t;
 
 /**
  * @brief APP外设映射
@@ -38,10 +38,10 @@ typedef enum {
  */
 typedef struct {
     const char *function;         /* 功能名称（如"satellite_comm"） */
-    xconfig_device_type_t device_type; /* 外设类型 */
+    pcl_device_type_t device_type; /* 外设类型 */
     uint32_t device_id;             /* 外设编号（第几个） */
     bool required;                /* 是否必需 */
-} xconfig_app_device_mapping_t;
+} pcl_app_device_mapping_t;
 
 /**
  * @brief APP配置
@@ -53,7 +53,7 @@ typedef struct {
     const char *description;      /* 描述 */
 
     /* 外设映射列表 */
-    xconfig_app_device_mapping_t *device_mappings;
+    pcl_app_device_mapping_t *device_mappings;
     uint32_t mapping_count;
 
     /* APP功能参数 */
@@ -64,6 +64,6 @@ typedef struct {
         uint32_t queue_depth;
         uint32_t failover_threshold;
     } params;
-} xconfig_app_config_t;
+} pcl_app_config_t;
 
-#endif /* XCONFIG_APP_H */
+#endif /* PCL_APP_H */

@@ -1,13 +1,13 @@
 /**
- * @file xconfig_storage.h
+ * @file pcl_storage.h
  * @brief 存储设备配置定义
  * @note 对应PDL层的存储设备（预留扩展）
  */
 
-#ifndef XCONFIG_STORAGE_H
-#define XCONFIG_STORAGE_H
+#ifndef PCL_STORAGE_H
+#define PCL_STORAGE_H
 
-#include "xconfig_common.h"
+#include "pcl_common.h"
 
 /*===========================================================================
  * 存储设备配置
@@ -43,7 +43,7 @@ typedef struct {
     uint32_t block_size;            /* 块大小（字节） */
 
     /* GPIO控制（可选） */
-    xconfig_gpio_config_t *power_gpio; /* 电源控制GPIO */
-} xconfig_storage_cfg_t;
+    pcl_gpio_config_t *power_gpio; /* 电源控制GPIO */
+} pcl_storage_cfg_t;
 
-#endif /* XCONFIG_STORAGE_H */
+#endif /* PCL_STORAGE_H */

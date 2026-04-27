@@ -169,7 +169,7 @@ target_link_libraries(my_app
     osal
     hal
     pdl
-    xconfig
+    pcl
 )
 
 # 包含目录

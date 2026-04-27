@@ -3,7 +3,7 @@
 ## 1. 总则
 
 ### 1.1 适用范围
-本规范适用于 PMC-BSP 项目的所有 C 代码，包括 OSAL、HAL、XConfig、PDL 和 Apps 层。
+本规范适用于 PMC-BSP 项目的所有 C 代码，包括 OSAL、HAL、PCL、PDL 和 Apps 层。
 
 ### 1.2 设计原则
 - **航空航天级可靠性**：代码必须具备容错和自愈能力
@@ -35,7 +35,7 @@ module/
 │   └── config/          # 模块配置（必需）
 ├── src/                 # 源代码
 │   └── linux/          # Linux平台实现
-└── platform/            # 平台配置（仅XConfig）
+└── platform/            # 平台配置（仅PCL）
 ```
 
 ### 2.2 头文件组织
@@ -44,13 +44,13 @@ module/
 - **internal/**：内部公共头文件（模块内部共享）
 - **peripheral/**：外设私有头文件（设备特定）
 
-**示例**（XConfig 层）：
+**示例**（PCL 层）：
 ```c
 /* PDL层使用 */
-#include "xconfig_api.h"
+#include "pcl_api.h"
 
-/* XConfig内部源文件使用 */
-#include "internal/xconfig.h"
+/* PCL内部源文件使用 */
+#include "internal/pcl.h"
 ```
 
 ### 2.3 文件头注释
@@ -77,9 +77,9 @@ module/
  * 硬件配置库API实现
  *
  * 命名规范：
- * - XCONFIG_*       - 通用接口
- * - XCONFIG_HW_*    - 硬件配置接口
- * - XCONFIG_APP_*   - APP配置接口
+ * - PCL_*       - 通用接口
+ * - PCL_HW_*    - 硬件配置接口
+ * - PCL_APP_*   - APP配置接口
  ************************************************************************/
 ```
 
@@ -97,7 +97,7 @@ module/
 - **安全加固**：在 OSAL 层统一进行参数校验和安全检查
 
 ### 3.2 禁止的系统调用
-**HAL、XConfig、PDL、Apps 层禁止直接使用以下系统调用**：
+**HAL、PCL、PDL、Apps 层禁止直接使用以下系统调用**：
 
 | 类别 | 禁止使用 | 必须使用 OSAL 封装 |
 |------|----------|-------------------|
@@ -211,7 +211,7 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
 |------|------|------|
 | OSAL | `osal_<submodule>.c/h` | `osal_task.c`, `osal_queue.h` |
 | HAL | `hal_<device>.c/h` | `hal_can.c`, `hal_serial.h` |
-| XConfig | `xconfig_<module>.c/h` | `xconfig_api.c`, `xconfig_register.h` |
+| PCL | `pcl_<module>.c/h` | `pcl_api.c`, `pcl_register.h` |
 | PDL | `pdl_<peripheral>.c/h` | `pdl_satellite.c`, `pdl_bmc.h` |
 | Apps | `apps_<application>.c/h` | `apps_can_gateway.c`, `apps_protocol_converter.h` |
 
@@ -236,7 +236,7 @@ TEST_MODULE_END(test_<module>_<submodule>)
 |------|------|------|------|
 | OSAL | `OSAL_<Module><Function>()` | `OSAL_TaskCreate()`, `OSAL_QueuePut()` | 大写前缀+大驼峰 |
 | HAL | `HAL_<Device><Function>()` | `HAL_CANInit()`, `HAL_SerialOpen()` | 大写前缀+大驼峰 |
-| XConfig | `XCONFIG_<Module><Function>()` | `XCONFIG_Init()`, `XCONFIG_Register()` | 大写前缀+大驼峰 |
+| PCL | `PCL_<Module><Function>()` | `PCL_Init()`, `PCL_Register()` | 大写前缀+大驼峰 |
 | PDL | `PDL_<Peripheral><Function>()` | `PDL_SatelliteInit()`, `PDL_BMCPowerOn()` | 大写前缀+大驼峰 |
 | Apps | `<Application><Function>()` | `CanGatewayInit()`, `ProtocolConverterInit()` | 大驼峰 |
 
@@ -246,7 +246,7 @@ TEST_MODULE_END(test_<module>_<submodule>)
 |------|------|------|------|
 | OSAL | `osal_<module>_<function>()` | `osal_task_find_by_id()` | 小写前缀+小写+下划线 |
 | HAL | `hal_<device>_<function>()` | `hal_can_set_filter()` | 小写前缀+小写+下划线 |
-| XConfig | `xconfig_<module>_<function>()` | `xconfig_find_config()` | 小写前缀+小写+下划线 |
+| PCL | `pcl_<module>_<function>()` | `pcl_find_config()` | 小写前缀+小写+下划线 |
 | PDL | `pdl_<peripheral>_<function>()` | `pdl_satellite_parse_frame()` | 小写前缀+小写+下划线 |
 | Apps | `<application>_<function>()` | `can_gateway_process_rx()` | 小写+下划线 |
 
@@ -341,10 +341,10 @@ int32 HAL_CANInit(const char *interface);
 int32 HAL_CANSend(int32 fd, const can_frame_t *frame);
 int32 HAL_SerialOpen(const char *device, const hal_serial_config_t *config);
 
-/* XConfig层 - 对外API */
-int32 XCONFIG_Init(void);
-int32 XCONFIG_Register(const xconfig_board_config_t *config);
-const xconfig_mcu_cfg_t* XCONFIG_HWFindMCU(const char *name);
+/* PCL层 - 对外API */
+int32 PCL_Init(void);
+int32 PCL_Register(const pcl_board_config_t *config);
+const pcl_mcu_cfg_t* PCL_HWFindMCU(const char *name);
 
 /* PDL层 - 对外API */
 int32 PDL_SatelliteInit(const satellite_config_t *config);
@@ -395,9 +395,9 @@ static osal_task_record_t g_task_table[OS_MAX_TASKS];
 static pthread_mutex_t g_task_table_mutex;
 static bool g_osal_initialized = false;
 
-/* XConfig层全局变量 */
-static xconfig_registry_t g_registry = {0};
-static bool g_xconfig_initialized = false;
+/* PCL层全局变量 */
+static pcl_registry_t g_registry = {0};
+static bool g_pcl_initialized = false;
 ```
 
 #### 静态变量
@@ -420,7 +420,7 @@ static bool debug_enabled = false;
 int32 ret;
 uint32 success_count = 0;
 osal_id_t task_id;
-const xconfig_board_config_t *config = NULL;
+const pcl_board_config_t *config = NULL;
 osal_task_record_t *record = NULL;
 ```
 
@@ -435,28 +435,28 @@ osal_task_record_t *record = NULL;
 ```
 
 ### 4.5 类型命名
-- **结构体**：`<模块>_<名称>_t`，如 `xconfig_board_config_t`
-- **枚举**：`<模块>_<名称>_e`，如 `xconfig_device_type_e`
-- **枚举值**：全大写，如 `XCONFIG_DEV_MCU`
+- **结构体**：`<模块>_<名称>_t`，如 `pcl_board_config_t`
+- **枚举**：`<模块>_<名称>_e`，如 `pcl_device_type_e`
+- **枚举值**：全大写，如 `PCL_DEV_MCU`
 - **函数指针**：`<模块>_<名称>_t`，如 `satellite_cmd_callback_t`
 
 **示例**：
 ```c
 /* 结构体 */
 typedef struct {
-    const xconfig_board_config_t *configs[MAX_BOARD_CONFIGS];
+    const pcl_board_config_t *configs[MAX_BOARD_CONFIGS];
     uint32 count;
-    const xconfig_board_config_t *current;
-} xconfig_registry_t;
+    const pcl_board_config_t *current;
+} pcl_registry_t;
 
 /* 枚举 */
 typedef enum {
-    XCONFIG_DEV_MCU = 0,
-    XCONFIG_DEV_BMC,
-    XCONFIG_DEV_SATELLITE,
-    XCONFIG_DEV_SENSOR,
-    XCONFIG_DEV_STORAGE
-} xconfig_device_type_e;
+    PCL_DEV_MCU = 0,
+    PCL_DEV_BMC,
+    PCL_DEV_SATELLITE,
+    PCL_DEV_SENSOR,
+    PCL_DEV_STORAGE
+} pcl_device_type_e;
 
 /* 函数指针 */
 typedef void (*satellite_cmd_callback_t)(uint8 cmd_type, const uint8 *data, void *user_data);
@@ -478,7 +478,7 @@ typedef void (*satellite_cmd_callback_t)(uint8 cmd_type, const uint8 *data, void
 **示例**：
 ```c
 /* 正确 */
-int32 XCONFIG_Register(const xconfig_board_config_t *config)
+int32 PCL_Register(const pcl_board_config_t *config)
 {
     if (config == NULL) {
         LOG_ERROR("XCONFIG", "Invalid config pointer");
@@ -489,8 +489,8 @@ int32 XCONFIG_Register(const xconfig_board_config_t *config)
 }
 
 /* 参数换行 */
-const xconfig_satellite_cfg_t* XCONFIG_HW_FindSatellite(
-    const xconfig_board_config_t *board,
+const pcl_satellite_cfg_t* PCL_HW_FindSatellite(
+    const pcl_board_config_t *board,
     const char *name)
 {
     /* ... */
@@ -504,7 +504,7 @@ const xconfig_satellite_cfg_t* XCONFIG_HW_FindSatellite(
 **示例**：
 ```c
 /* 函数 */
-int32 XCONFIG_Init(void)
+int32 PCL_Init(void)
 {
     /* ... */
 }
@@ -538,7 +538,7 @@ while (!OSAL_TaskShouldShutdown()) {
 ```c
 /* 正确：解释WHY */
 /* 优先级：环境变量 > 编译选项 > 默认配置 */
-platform = getenv("XCONFIG_PLATFORM");
+platform = getenv("PCL_PLATFORM");
 
 /* 检查重复注册（避免配置冲突） */
 for (uint32 i = 0; i < g_registry.count; i++) {
@@ -563,7 +563,7 @@ memset(&g_registry, 0, sizeof(g_registry));
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32 XCONFIG_Register(const xconfig_board_config_t *config);
+int32 PCL_Register(const pcl_board_config_t *config);
 ```
 
 **内部函数** 可省略文档注释（函数名已足够清晰）。
@@ -580,20 +580,20 @@ int32 XCONFIG_Register(const xconfig_board_config_t *config);
 **示例**：
 ```c
 /* 正确 */
-int32 ret = XCONFIG_Register(config);
+int32 ret = PCL_Register(config);
 if (ret != OS_SUCCESS) {
     LOG_ERROR("XCONFIG", "Failed to register config");
     return OS_ERROR;
 }
 
 /* 错误：未检查返回值 */
-XCONFIG_Register(config);  // ❌
+PCL_Register(config);  // ❌
 ```
 
 ### 4.2 参数校验
 **对外 API** 必须校验所有参数：
 ```c
-int32 XCONFIG_Register(const xconfig_board_config_t *config)
+int32 PCL_Register(const pcl_board_config_t *config)
 {
     if (!g_initialized) {
         LOG_ERROR("XCONFIG", "Library not initialized");
@@ -980,7 +980,7 @@ TEST_MODULE_END(test_osal_file)
 
 **示例**：
 ```
-feat: 添加XConfig硬件配置库
+feat: 添加PCL硬件配置库
 
 - 实现板级配置注册和查询
 - 支持MCU/BMC/卫星平台外设配置
@@ -1021,7 +1021,7 @@ Closes #123
 
 ### 14.2 代码即文档
 - **优先使用清晰的命名**而非注释
-- **函数名应说明意图**：`XCONFIG_HW_FindMCU` 优于 `find_mcu`
+- **函数名应说明意图**：`PCL_HW_FindMCU` 优于 `find_mcu`
 - **避免缩写**：`config` 优于 `cfg`（除非是行业标准）
 
 ---
@@ -1095,7 +1095,7 @@ PDL_SatelliteSendCommand(cmd);  // ✓
 ```c
 /* 错误 */
 malloc(size);  // ❌
-XCONFIG_Register(config);  // ❌
+PCL_Register(config);  // ❌
 
 /* 正确 */
 void *ptr = malloc(size);
@@ -1103,7 +1103,7 @@ if (ptr == NULL) {
     return OS_ERROR;
 }
 
-int32 ret = XCONFIG_Register(config);
+int32 ret = PCL_Register(config);
 if (ret != OS_SUCCESS) {
     LOG_ERROR("MODULE", "Register failed");
     return OS_ERROR;

@@ -1,14 +1,14 @@
 /**
- * @file xconfig_sensor.h
+ * @file pcl_sensor.h
  * @brief 传感器外设配置定义
  * @note 对应PDL层的传感器外设（预留扩展）
  */
 
-#ifndef XCONFIG_SENSOR_H
-#define XCONFIG_SENSOR_H
+#ifndef PCL_SENSOR_H
+#define PCL_SENSOR_H
 
-#include "xconfig_common.h"
-#include "xconfig_hardware_interface.h"
+#include "pcl_common.h"
+#include "pcl_hardware_interface.h"
 
 /*===========================================================================
  * 传感器外设配置
@@ -40,11 +40,11 @@ typedef struct {
     bool        enabled;          /* 是否启用 */
 
     /* 硬件通信接口配置（使用联合体） */
-    xconfig_hw_interface_type_t interface_type;
+    pcl_hw_interface_type_t interface_type;
     union {
-        xconfig_i2c_cfg_t  i2c;
-        xconfig_spi_cfg_t  spi;
-        xconfig_uart_cfg_t uart;
+        pcl_i2c_cfg_t  i2c;
+        pcl_spi_cfg_t  spi;
+        pcl_uart_cfg_t uart;
     } interface_cfg;
 
     /* 传感器特定配置 */
@@ -52,8 +52,8 @@ typedef struct {
     uint32_t resolution;            /* 分辨率（位） */
 
     /* GPIO控制（可选） */
-    xconfig_gpio_config_t *power_gpio; /* 电源控制GPIO */
-    xconfig_gpio_config_t *irq_gpio;   /* 中断GPIO */
-} xconfig_sensor_cfg_t;
+    pcl_gpio_config_t *power_gpio; /* 电源控制GPIO */
+    pcl_gpio_config_t *irq_gpio;   /* 中断GPIO */
+} pcl_sensor_cfg_t;
 
-#endif /* XCONFIG_SENSOR_H */
+#endif /* PCL_SENSOR_H */

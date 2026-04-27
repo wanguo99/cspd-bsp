@@ -11,10 +11,10 @@
  * - 备份通道：IPMI over Serial（串口）
  ************************************************************************/
 
-#ifndef XCONFIG_BMC_H
-#define XCONFIG_BMC_H
+#ifndef PCL_BMC_H
+#define PCL_BMC_H
 
-#include "xconfig_common.h"
+#include "pcl_common.h"
 
 /*===========================================================================
  * BMC协议类型枚举
@@ -24,11 +24,11 @@
  * @brief BMC协议类型
  */
 typedef enum {
-    XCONFIG_BMC_PROTOCOL_NONE = 0,
-    XCONFIG_BMC_PROTOCOL_IPMI,      /* IPMI协议 */
-    XCONFIG_BMC_PROTOCOL_REDFISH,   /* Redfish协议 */
-    XCONFIG_BMC_PROTOCOL_MAX
-} xconfig_bmc_protocol_t;
+    PCL_BMC_PROTOCOL_NONE = 0,
+    PCL_BMC_PROTOCOL_IPMI,      /* IPMI协议 */
+    PCL_BMC_PROTOCOL_REDFISH,   /* Redfish协议 */
+    PCL_BMC_PROTOCOL_MAX
+} pcl_bmc_protocol_t;
 
 /*===========================================================================
  * BMC通道配置
@@ -43,7 +43,7 @@ typedef struct {
     uint16_t      port;             /* IPMI端口（默认623） */
     const char *username;         /* 用户名 */
     const char *password;         /* 密码 */
-} xconfig_bmc_ipmi_lan_cfg_t;
+} pcl_bmc_ipmi_lan_cfg_t;
 
 /**
  * @brief IPMI over Serial配置（串口通道）
@@ -54,7 +54,7 @@ typedef struct {
     uint8_t        data_bits;       /* 数据位 */
     uint8_t        stop_bits;       /* 停止位 */
     int8_t         parity;          /* 校验位 */
-} xconfig_bmc_ipmi_serial_cfg_t;
+} pcl_bmc_ipmi_serial_cfg_t;
 
 /**
  * @brief Redfish配置（基于HTTP/HTTPS）
@@ -64,7 +64,7 @@ typedef struct {
     const char *username;         /* 用户名 */
     const char *password;         /* 密码 */
     bool        use_https;        /* 是否使用HTTPS */
-} xconfig_bmc_redfish_cfg_t;
+} pcl_bmc_redfish_cfg_t;
 
 /*===========================================================================
  * BMC外设配置
@@ -83,17 +83,17 @@ typedef struct {
 
     /* 主通道配置 */
     struct {
-        xconfig_bmc_protocol_t protocol; /* 协议类型 */
+        pcl_bmc_protocol_t protocol; /* 协议类型 */
         union {
-            xconfig_bmc_ipmi_lan_cfg_t  ipmi_lan;
-            xconfig_bmc_redfish_cfg_t   redfish;
+            pcl_bmc_ipmi_lan_cfg_t  ipmi_lan;
+            pcl_bmc_redfish_cfg_t   redfish;
         } cfg;
     } primary_channel;
 
     /* 备份通道配置（通常是IPMI over Serial） */
     struct {
-        xconfig_bmc_protocol_t protocol; /* 协议类型 */
-        xconfig_bmc_ipmi_serial_cfg_t cfg;
+        pcl_bmc_protocol_t protocol; /* 协议类型 */
+        pcl_bmc_ipmi_serial_cfg_t cfg;
     } backup_channel;
 
     /* BMC特定配置 */
@@ -102,8 +102,8 @@ typedef struct {
     uint32_t failover_threshold;    /* 故障切换阈值（连续失败次数） */
 
     /* GPIO控制（可选） */
-    xconfig_gpio_config_t *power_gpio; /* 电源控制GPIO */
-    xconfig_gpio_config_t *reset_gpio; /* 复位GPIO */
-} xconfig_bmc_cfg_t;
+    pcl_gpio_config_t *power_gpio; /* 电源控制GPIO */
+    pcl_gpio_config_t *reset_gpio; /* 复位GPIO */
+} pcl_bmc_cfg_t;
 
-#endif /* XCONFIG_BMC_H */
+#endif /* PCL_BMC_H */

@@ -10,11 +10,11 @@
  * - 支持SpaceWire/1553B/CAN等航天专用接口
  ************************************************************************/
 
-#ifndef XCONFIG_SATELLITE_H
-#define XCONFIG_SATELLITE_H
+#ifndef PCL_SATELLITE_H
+#define PCL_SATELLITE_H
 
-#include "xconfig_common.h"
-#include "xconfig_hardware_interface.h"
+#include "pcl_common.h"
+#include "pcl_hardware_interface.h"
 
 /*===========================================================================
  * 卫星平台配置
@@ -32,12 +32,12 @@ typedef struct {
     bool        enabled;          /* 是否启用 */
 
     /* 硬件通信接口配置（使用联合体） */
-    xconfig_hw_interface_type_t interface_type;
+    pcl_hw_interface_type_t interface_type;
     union {
-        xconfig_spacewire_cfg_t spacewire;
-        xconfig_1553b_cfg_t     mil1553b;
-        xconfig_can_cfg_t       can;
-        xconfig_uart_cfg_t      uart;
+        pcl_spacewire_cfg_t spacewire;
+        pcl_1553b_cfg_t     mil1553b;
+        pcl_can_cfg_t       can;
+        pcl_uart_cfg_t      uart;
     } interface_cfg;
 
     /* 卫星平台特定配置 */
@@ -46,8 +46,8 @@ typedef struct {
     bool   enable_telemetry;      /* 启用遥测 */
 
     /* GPIO控制（可选） */
-    xconfig_gpio_config_t *power_gpio; /* 电源控制GPIO */
-    xconfig_gpio_config_t *reset_gpio; /* 复位GPIO */
-} xconfig_satellite_cfg_t;
+    pcl_gpio_config_t *power_gpio; /* 电源控制GPIO */
+    pcl_gpio_config_t *reset_gpio; /* 复位GPIO */
+} pcl_satellite_cfg_t;
 
-#endif /* XCONFIG_SATELLITE_H */
+#endif /* PCL_SATELLITE_H */

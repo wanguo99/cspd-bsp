@@ -53,14 +53,14 @@ target_link_libraries(pdl PUBLIC pdl_public_api)
 target_link_libraries(pdl PUBLIC
     pmc::osal_public_api
     pmc::hal_public_api
-    pmc::xconfig_public_api
+    pmc::pcl_public_api
 )
 
 # 链接下层实现库（运行时依赖）
 target_link_libraries(pdl PRIVATE
     pmc::osal
     pmc::hal
-    pmc::xconfig
+    pmc::pcl
 )
 
 # 内部头文件目录（私有）

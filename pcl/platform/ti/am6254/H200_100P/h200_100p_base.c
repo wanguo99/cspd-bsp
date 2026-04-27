@@ -8,14 +8,14 @@
  * 配置理念：以外设为单位进行配置
  ************************************************************************/
 
-#include "xconfig.h"
+#include "pcl.h"
 
 /*===========================================================================
  * GPIO定义
  *===========================================================================*/
 
 /* MCU控制GPIO */
-static xconfig_gpio_config_t gpio_mcu_reset = {
+static pcl_gpio_config_t gpio_mcu_reset = {
     .gpio_num = 42,               /* GPIO1_10 */
     .pin_mux = 0x07,              /* Mode 7: GPIO */
     .active_low = true,           /* 低电平复位 */
@@ -23,7 +23,7 @@ static xconfig_gpio_config_t gpio_mcu_reset = {
     .pull_down = false
 };
 
-static xconfig_gpio_config_t gpio_mcu_irq = {
+static pcl_gpio_config_t gpio_mcu_irq = {
     .gpio_num = 43,               /* GPIO1_11 */
     .pin_mux = 0x07,
     .active_low = true,
@@ -32,7 +32,7 @@ static xconfig_gpio_config_t gpio_mcu_irq = {
 };
 
 /* BMC控制GPIO */
-static xconfig_gpio_config_t gpio_bmc_power = {
+static pcl_gpio_config_t gpio_bmc_power = {
     .gpio_num = 50,               /* GPIO1_18 */
     .pin_mux = 0x07,
     .active_low = false,
@@ -40,7 +40,7 @@ static xconfig_gpio_config_t gpio_bmc_power = {
     .pull_down = true
 };
 
-static xconfig_gpio_config_t gpio_bmc_reset = {
+static pcl_gpio_config_t gpio_bmc_reset = {
     .gpio_num = 51,               /* GPIO1_19 */
     .pin_mux = 0x07,
     .active_low = true,
@@ -49,7 +49,7 @@ static xconfig_gpio_config_t gpio_bmc_reset = {
 };
 
 /* 传感器控制GPIO */
-static xconfig_gpio_config_t gpio_sensor_power = {
+static pcl_gpio_config_t gpio_sensor_power = {
     .gpio_num = 52,               /* GPIO1_20 */
     .pin_mux = 0x07,
     .active_low = false,
@@ -66,14 +66,14 @@ static xconfig_gpio_config_t gpio_sensor_power = {
  * - 通信接口：UART1
  * - 功能：辅助控制、GPIO扩展、ADC采集
  */
-static xconfig_mcu_cfg_t mcu_stm32 = {
+static pcl_mcu_cfg_t mcu_stm32 = {
     /* 外设基本信息 */
     .name = "stm32_mcu",
     .description = "STM32 MCU for auxiliary control",
     .enabled = true,
 
     /* 通信接口：UART */
-    .interface_type = XCONFIG_HW_INTERFACE_UART,
+    .interface_type = PCL_HW_INTERFACE_UART,
     .interface_cfg.uart = {
         .device = "/dev/ttyS1",
         .baudrate = 115200,
@@ -92,7 +92,7 @@ static xconfig_mcu_cfg_t mcu_stm32 = {
     .irq_gpio = &gpio_mcu_irq
 };
 
-static xconfig_mcu_cfg_t *mcu_list[] = {
+static pcl_mcu_cfg_t *mcu_list[] = {
     &mcu_stm32
 };
 
@@ -106,7 +106,7 @@ static xconfig_mcu_cfg_t *mcu_list[] = {
  * - 备份通道：串口（IPMI over Serial）
  * - 功能：载荷电源管理、状态监控、传感器读取
  */
-static xconfig_bmc_cfg_t bmc_payload = {
+static pcl_bmc_cfg_t bmc_payload = {
     /* 外设基本信息 */
     .name = "payload_bmc",
     .description = "Payload BMC for power and thermal management",
@@ -114,7 +114,7 @@ static xconfig_bmc_cfg_t bmc_payload = {
 
     /* 主通道：IPMI over LAN */
     .primary_channel = {
-        .protocol = XCONFIG_BMC_PROTOCOL_IPMI,
+        .protocol = PCL_BMC_PROTOCOL_IPMI,
         .cfg.ipmi_lan = {
             .interface = "eth0",
             .ip_addr = "192.168.1.100",
@@ -126,7 +126,7 @@ static xconfig_bmc_cfg_t bmc_payload = {
 
     /* 备份通道：IPMI over Serial */
     .backup_channel = {
-        .protocol = XCONFIG_BMC_PROTOCOL_IPMI,
+        .protocol = PCL_BMC_PROTOCOL_IPMI,
         .cfg = {
             .device = "/dev/ttyS2",
             .baudrate = 115200,
@@ -146,7 +146,7 @@ static xconfig_bmc_cfg_t bmc_payload = {
     .reset_gpio = &gpio_bmc_reset
 };
 
-static xconfig_bmc_cfg_t *bmc_list[] = {
+static pcl_bmc_cfg_t *bmc_list[] = {
     &bmc_payload
 };
 
@@ -159,14 +159,14 @@ static xconfig_bmc_cfg_t *bmc_list[] = {
  * - 通信接口：CAN0
  * - 功能：接收卫星平台命令，上报载荷状态
  */
-static xconfig_satellite_cfg_t satellite_platform = {
+static pcl_satellite_cfg_t satellite_platform = {
     /* 外设基本信息 */
     .name = "satellite_platform",
     .description = "Satellite platform CAN interface",
     .enabled = true,
 
     /* 通信接口：CAN */
-    .interface_type = XCONFIG_HW_INTERFACE_CAN,
+    .interface_type = PCL_HW_INTERFACE_CAN,
     .interface_cfg.can = {
         .device = "can0",
         .bitrate = 500000,        /* 500Kbps */
@@ -183,7 +183,7 @@ static xconfig_satellite_cfg_t satellite_platform = {
     .reset_gpio = NULL
 };
 
-static xconfig_satellite_cfg_t *satellite_list[] = {
+static pcl_satellite_cfg_t *satellite_list[] = {
     &satellite_platform
 };
 
@@ -197,7 +197,7 @@ static xconfig_satellite_cfg_t *satellite_list[] = {
  * - 型号：TMP75（示例）
  * - 功能：监控板载温度
  */
-static xconfig_sensor_cfg_t sensor_board_temp = {
+static pcl_sensor_cfg_t sensor_board_temp = {
     /* 外设基本信息 */
     .name = "board_temp",
     .description = "Board temperature sensor (TMP75)",
@@ -205,7 +205,7 @@ static xconfig_sensor_cfg_t sensor_board_temp = {
     .enabled = true,
 
     /* 通信接口：I2C */
-    .interface_type = XCONFIG_HW_INTERFACE_I2C,
+    .interface_type = PCL_HW_INTERFACE_I2C,
     .interface_cfg.i2c = {
         .device = "/dev/i2c-1",
         .slave_addr = 0x48,       /* TMP75地址 */
@@ -221,7 +221,7 @@ static xconfig_sensor_cfg_t sensor_board_temp = {
     .irq_gpio = NULL
 };
 
-static xconfig_sensor_cfg_t *sensor_list[] = {
+static pcl_sensor_cfg_t *sensor_list[] = {
     &sensor_board_temp
 };
 
@@ -234,7 +234,7 @@ static xconfig_sensor_cfg_t *sensor_list[] = {
  * - 容量：16GB
  * - 功能：系统启动、数据存储
  */
-static xconfig_storage_cfg_t storage_emmc = {
+static pcl_storage_cfg_t storage_emmc = {
     /* 外设基本信息 */
     .name = "emmc_storage",
     .description = "16GB eMMC for system and data",
@@ -252,7 +252,7 @@ static xconfig_storage_cfg_t storage_emmc = {
     .power_gpio = NULL
 };
 
-static xconfig_storage_cfg_t *storage_list[] = {
+static pcl_storage_cfg_t *storage_list[] = {
     &storage_emmc
 };
 
@@ -260,7 +260,7 @@ static xconfig_storage_cfg_t *storage_list[] = {
  * 电源域配置
  *===========================================================================*/
 
-static xconfig_power_domain_t power_payload = {
+static pcl_power_domain_t power_payload = {
     .name = "payload_power",
     .enable_gpio = &gpio_bmc_power,
     .voltage_mv = 12000,          /* 12V */
@@ -268,7 +268,7 @@ static xconfig_power_domain_t power_payload = {
     .startup_delay_ms = 100
 };
 
-static xconfig_power_domain_t power_sensor = {
+static pcl_power_domain_t power_sensor = {
     .name = "sensor_power",
     .enable_gpio = &gpio_sensor_power,
     .voltage_mv = 3300,           /* 3.3V */
@@ -276,7 +276,7 @@ static xconfig_power_domain_t power_sensor = {
     .startup_delay_ms = 50
 };
 
-static xconfig_power_domain_t *power_domain_list[] = {
+static pcl_power_domain_t *power_domain_list[] = {
     &power_payload,
     &power_sensor
 };
@@ -286,22 +286,22 @@ static xconfig_power_domain_t *power_domain_list[] = {
  *===========================================================================*/
 
 /* CAN网关APP配置 */
-static xconfig_app_device_mapping_t can_gateway_devices[] = {
+static pcl_app_device_mapping_t can_gateway_devices[] = {
     {
         .function = "satellite_comm",
-        .device_type = XCONFIG_DEV_SATELLITE,
+        .device_type = PCL_DEV_SATELLITE,
         .device_id = 0,           /* 使用第0个卫星接口 */
         .required = true
     },
     {
         .function = "aux_control",
-        .device_type = XCONFIG_DEV_MCU,
+        .device_type = PCL_DEV_MCU,
         .device_id = 0,           /* 使用第0个MCU */
         .required = false
     }
 };
 
-static xconfig_app_config_t app_can_gateway = {
+static pcl_app_config_t app_can_gateway = {
     .app_name = "can_gateway",
     .description = "CAN Gateway Application",
     .device_mappings = can_gateway_devices,
@@ -316,20 +316,20 @@ static xconfig_app_config_t app_can_gateway = {
 };
 
 /* 协议转换器APP配置 */
-static xconfig_app_device_mapping_t protocol_converter_devices[] = {
+static pcl_app_device_mapping_t protocol_converter_devices[] = {
     {
         .function = "satellite_comm",
-        .device_type = XCONFIG_DEV_SATELLITE,
+        .device_type = PCL_DEV_SATELLITE,
         .device_id = 0
     },
     {
         .function = "payload_comm",
-        .device_type = XCONFIG_DEV_BMC,
+        .device_type = PCL_DEV_BMC,
         .device_id = 0            /* 使用第0个BMC */
     }
 };
 
-static xconfig_app_config_t app_protocol_converter = {
+static pcl_app_config_t app_protocol_converter = {
     .app_name = "protocol_converter",
     .description = "Protocol Converter Application",
     .device_mappings = protocol_converter_devices,
@@ -344,7 +344,7 @@ static xconfig_app_config_t app_protocol_converter = {
 };
 
 /* APP配置列表 */
-static xconfig_app_config_t *app_list[] = {
+static pcl_app_config_t *app_list[] = {
     &app_can_gateway,
     &app_protocol_converter
 };
@@ -353,7 +353,7 @@ static xconfig_app_config_t *app_list[] = {
  * 板级配置（导出）
  *===========================================================================*/
 
-const xconfig_board_config_t xconfig_h200_100p_base = {
+const pcl_board_config_t pcl_h200_100p_base = {
     .platform = "ti/am6254",
     .product = "H200_100P",
     .version = "base",

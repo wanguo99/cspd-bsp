@@ -8,14 +8,14 @@
  * - 运行时配置切换
  *
  * 命名规范：
- * - XCONFIG_HW_*  - 硬件配置相关接口
- * - XCONFIG_APP_* - APP配置相关接口
+ * - PCL_HW_*  - 硬件配置相关接口
+ * - PCL_APP_* - APP配置相关接口
  ************************************************************************/
 
-#ifndef XCONFIG_API_H
-#define XCONFIG_API_H
+#ifndef PCL_API_H
+#define PCL_API_H
 
-#include "xconfig_board.h"
+#include "pcl_board.h"
 
 /*===========================================================================
  * 配置库初始化
@@ -26,12 +26,12 @@
  *
  * @return OS_SUCCESS 成功
  */
-int32_t XCONFIG_Init(void);
+int32_t PCL_Init(void);
 
 /**
  * @brief 清理硬件配置库
  */
-void XCONFIG_Cleanup(void);
+void PCL_Cleanup(void);
 
 /*===========================================================================
  * 板级配置注册和查询
@@ -45,14 +45,14 @@ void XCONFIG_Cleanup(void);
  * @return OS_SUCCESS 成功
  * @return OS_ERROR 失败
  */
-int32_t XCONFIG_Register(const xconfig_board_config_t *config);
+int32_t PCL_Register(const pcl_board_config_t *config);
 
 /**
  * @brief 获取当前板级配置
  *
  * @return 板级配置指针，失败返回NULL
  */
-const xconfig_board_config_t* XCONFIG_GetBoard(void);
+const pcl_board_config_t* PCL_GetBoard(void);
 
 /**
  * @brief 根据平台和产品名称查找配置
@@ -63,7 +63,7 @@ const xconfig_board_config_t* XCONFIG_GetBoard(void);
  *
  * @return 板级配置指针，失败返回NULL
  */
-const xconfig_board_config_t* XCONFIG_Find(const char *platform,
+const pcl_board_config_t* PCL_Find(const char *platform,
                                             const char *product,
                                             const char *version);
 
@@ -75,10 +75,10 @@ const xconfig_board_config_t* XCONFIG_Find(const char *platform,
  *
  * @return OS_SUCCESS 成功
  */
-int32_t XCONFIG_List(const xconfig_board_config_t **configs, uint32_t *count);
+int32_t PCL_List(const pcl_board_config_t **configs, uint32_t *count);
 
 /*===========================================================================
- * 硬件外设配置查询接口（XCONFIG_HW_*）
+ * 硬件外设配置查询接口（PCL_HW_*）
  *===========================================================================*/
 
 /**
@@ -89,7 +89,7 @@ int32_t XCONFIG_List(const xconfig_board_config_t **configs, uint32_t *count);
  *
  * @return MCU配置指针，失败返回NULL
  */
-const xconfig_mcu_cfg_t* XCONFIG_HW_FindMCU(const xconfig_board_config_t *board,
+const pcl_mcu_cfg_t* PCL_HW_FindMCU(const pcl_board_config_t *board,
                                              const char *name);
 
 /**
@@ -100,7 +100,7 @@ const xconfig_mcu_cfg_t* XCONFIG_HW_FindMCU(const xconfig_board_config_t *board,
  *
  * @return MCU配置指针，失败返回NULL
  */
-const xconfig_mcu_cfg_t* XCONFIG_HW_GetMCU(const xconfig_board_config_t *board,
+const pcl_mcu_cfg_t* PCL_HW_GetMCU(const pcl_board_config_t *board,
                                             uint32_t id);
 
 /**
@@ -111,7 +111,7 @@ const xconfig_mcu_cfg_t* XCONFIG_HW_GetMCU(const xconfig_board_config_t *board,
  *
  * @return BMC配置指针，失败返回NULL
  */
-const xconfig_bmc_cfg_t* XCONFIG_HW_FindBMC(const xconfig_board_config_t *board,
+const pcl_bmc_cfg_t* PCL_HW_FindBMC(const pcl_board_config_t *board,
                                              const char *name);
 
 /**
@@ -122,7 +122,7 @@ const xconfig_bmc_cfg_t* XCONFIG_HW_FindBMC(const xconfig_board_config_t *board,
  *
  * @return BMC配置指针，失败返回NULL
  */
-const xconfig_bmc_cfg_t* XCONFIG_HW_GetBMC(const xconfig_board_config_t *board,
+const pcl_bmc_cfg_t* PCL_HW_GetBMC(const pcl_board_config_t *board,
                                             uint32_t id);
 
 /**
@@ -133,7 +133,7 @@ const xconfig_bmc_cfg_t* XCONFIG_HW_GetBMC(const xconfig_board_config_t *board,
  *
  * @return 卫星平台配置指针，失败返回NULL
  */
-const xconfig_satellite_cfg_t* XCONFIG_HW_FindSatellite(const xconfig_board_config_t *board,
+const pcl_satellite_cfg_t* PCL_HW_FindSatellite(const pcl_board_config_t *board,
                                                          const char *name);
 
 /**
@@ -144,7 +144,7 @@ const xconfig_satellite_cfg_t* XCONFIG_HW_FindSatellite(const xconfig_board_conf
  *
  * @return 卫星平台配置指针，失败返回NULL
  */
-const xconfig_satellite_cfg_t* XCONFIG_HW_GetSatellite(const xconfig_board_config_t *board,
+const pcl_satellite_cfg_t* PCL_HW_GetSatellite(const pcl_board_config_t *board,
                                                         uint32_t id);
 
 /**
@@ -155,7 +155,7 @@ const xconfig_satellite_cfg_t* XCONFIG_HW_GetSatellite(const xconfig_board_confi
  *
  * @return 传感器配置指针，失败返回NULL
  */
-const xconfig_sensor_cfg_t* XCONFIG_HW_FindSensor(const xconfig_board_config_t *board,
+const pcl_sensor_cfg_t* PCL_HW_FindSensor(const pcl_board_config_t *board,
                                                    const char *name);
 
 /**
@@ -166,7 +166,7 @@ const xconfig_sensor_cfg_t* XCONFIG_HW_FindSensor(const xconfig_board_config_t *
  *
  * @return 传感器配置指针，失败返回NULL
  */
-const xconfig_sensor_cfg_t* XCONFIG_HW_GetSensor(const xconfig_board_config_t *board,
+const pcl_sensor_cfg_t* PCL_HW_GetSensor(const pcl_board_config_t *board,
                                                   uint32_t id);
 
 /**
@@ -177,7 +177,7 @@ const xconfig_sensor_cfg_t* XCONFIG_HW_GetSensor(const xconfig_board_config_t *b
  *
  * @return 存储设备配置指针，失败返回NULL
  */
-const xconfig_storage_cfg_t* XCONFIG_HW_FindStorage(const xconfig_board_config_t *board,
+const pcl_storage_cfg_t* PCL_HW_FindStorage(const pcl_board_config_t *board,
                                                      const char *name);
 
 /**
@@ -188,7 +188,7 @@ const xconfig_storage_cfg_t* XCONFIG_HW_FindStorage(const xconfig_board_config_t
  *
  * @return 存储设备配置指针，失败返回NULL
  */
-const xconfig_storage_cfg_t* XCONFIG_HW_GetStorage(const xconfig_board_config_t *board,
+const pcl_storage_cfg_t* PCL_HW_GetStorage(const pcl_board_config_t *board,
                                                     uint32_t id);
 
 /**
@@ -199,11 +199,11 @@ const xconfig_storage_cfg_t* XCONFIG_HW_GetStorage(const xconfig_board_config_t 
  *
  * @return 电源域配置指针，失败返回NULL
  */
-const xconfig_power_domain_t* XCONFIG_HW_FindPowerDomain(const xconfig_board_config_t *board,
+const pcl_power_domain_t* PCL_HW_FindPowerDomain(const pcl_board_config_t *board,
                                                           const char *name);
 
 /*===========================================================================
- * APP配置查询接口（XCONFIG_APP_*）
+ * APP配置查询接口（PCL_APP_*）
  *===========================================================================*/
 
 /**
@@ -214,7 +214,7 @@ const xconfig_power_domain_t* XCONFIG_HW_FindPowerDomain(const xconfig_board_con
  *
  * @return APP配置指针，失败返回NULL
  */
-const xconfig_app_config_t* XCONFIG_APP_Find(const xconfig_board_config_t *board,
+const pcl_app_config_t* PCL_APP_Find(const pcl_board_config_t *board,
                                               const char *app_name);
 
 /**
@@ -225,7 +225,7 @@ const xconfig_app_config_t* XCONFIG_APP_Find(const xconfig_board_config_t *board
  *
  * @return 外设映射指针，失败返回NULL
  */
-const xconfig_app_device_mapping_t* XCONFIG_APP_FindDevice(const xconfig_app_config_t *app,
+const pcl_app_device_mapping_t* PCL_APP_FindDevice(const pcl_app_config_t *app,
                                                             const char *function);
 
 /**
@@ -236,8 +236,8 @@ const xconfig_app_device_mapping_t* XCONFIG_APP_FindDevice(const xconfig_app_con
  *
  * @return 硬件外设配置指针（需要根据device_type转换类型），失败返回NULL
  */
-const void* XCONFIG_APP_GetDeviceByMapping(const xconfig_board_config_t *board,
-                                             const xconfig_app_device_mapping_t *mapping);
+const void* PCL_APP_GetDeviceByMapping(const pcl_board_config_t *board,
+                                             const pcl_app_device_mapping_t *mapping);
 
 /*===========================================================================
  * 配置验证
@@ -251,13 +251,13 @@ const void* XCONFIG_APP_GetDeviceByMapping(const xconfig_board_config_t *board,
  * @return OS_SUCCESS 验证通过
  * @return OS_ERROR 验证失败
  */
-int32_t XCONFIG_Validate(const xconfig_board_config_t *config);
+int32_t PCL_Validate(const pcl_board_config_t *config);
 
 /**
  * @brief 打印板级配置信息（用于调试）
  *
  * @param[in] config 板级配置
  */
-void XCONFIG_Print(const xconfig_board_config_t *config);
+void PCL_Print(const pcl_board_config_t *config);
 
-#endif /* XCONFIG_API_H */
+#endif /* PCL_API_H */

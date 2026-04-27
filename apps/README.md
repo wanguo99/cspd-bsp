@@ -350,22 +350,22 @@ int main(void)
 
 ## 应用配置
 
-### 使用XConfig配置
+### 使用PCL配置
 
 ```c
-#include <xconfig.h>
+#include <pcl.h>
 
 int main(void)
 {
-    /* 初始化XConfig */
-    XConfig_Init();
+    /* 初始化PCL */
+    PCL_Init();
     
     /* 获取板级配置 */
-    const xconfig_board_t *board = XConfig_GetBoardConfig();
+    const pcl_board_t *board = PCL_GetBoardConfig();
     LOG_INFO("APP", "Board: %s", board->name);
     
     /* 获取MCU配置 */
-    const xconfig_mcu_t *mcu = XConfig_GetMCUConfig("mcu0");
+    const pcl_mcu_t *mcu = PCL_GetMCUConfig("mcu0");
     if (mcu != NULL) {
         /* 使用配置初始化PDL */
         pdl_mcu_config_t pdl_cfg = {

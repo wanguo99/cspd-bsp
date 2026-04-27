@@ -2,12 +2,12 @@
  * 硬件配置库API实现
  *
  * 命名规范：
- * - XCONFIG_*       - 通用接口
- * - XCONFIG_HW_*    - 硬件配置接口
- * - XCONFIG_APP_*   - APP配置接口
+ * - PCL_*       - 通用接口
+ * - PCL_HW_*    - 硬件配置接口
+ * - PCL_APP_*   - APP配置接口
  ************************************************************************/
 
-#include "xconfig_api.h"
+#include "pcl_api.h"
 #include "util/osal_log.h"
 #include "osal.h"
 
@@ -18,19 +18,19 @@
 #define MAX_BOARD_CONFIGS 32
 
 typedef struct {
-    const xconfig_board_config_t *configs[MAX_BOARD_CONFIGS];
+    const pcl_board_config_t *configs[MAX_BOARD_CONFIGS];
     uint32_t count;
-    const xconfig_board_config_t *current;
-} xconfig_registry_t;
+    const pcl_board_config_t *current;
+} pcl_registry_t;
 
-static xconfig_registry_t g_registry = {0};
+static pcl_registry_t g_registry = {0};
 static bool g_initialized = false;
 
 /*===========================================================================
  * 配置库初始化
  *===========================================================================*/
 
-int32_t XCONFIG_Init(void)
+int32_t PCL_Init(void)
 {
     if (g_initialized) {
         return OS_SUCCESS;
@@ -43,7 +43,7 @@ int32_t XCONFIG_Init(void)
     return OS_SUCCESS;
 }
 
-void XCONFIG_Cleanup(void)
+void PCL_Cleanup(void)
 {
     if (!g_initialized) {
         return;
@@ -59,7 +59,7 @@ void XCONFIG_Cleanup(void)
  * 板级配置注册和查询
  *===========================================================================*/
 
-int32_t XCONFIG_Register(const xconfig_board_config_t *config)
+int32_t PCL_Register(const pcl_board_config_t *config)
 {
     if (!g_initialized) {
         LOG_ERROR("XCONFIG", "Library not initialized");
@@ -77,7 +77,7 @@ int32_t XCONFIG_Register(const xconfig_board_config_t *config)
     }
 
     /* 验证配置 */
-    if (XCONFIG_Validate(config) != OS_SUCCESS) {
+    if (PCL_Validate(config) != OS_SUCCESS) {
         LOG_ERROR("XCONFIG", "Config validation failed: %s/%s/%s",
                   config->platform, config->product, config->version);
         return OS_ERROR;
@@ -85,7 +85,7 @@ int32_t XCONFIG_Register(const xconfig_board_config_t *config)
 
     /* 检查重复 */
     for (uint32_t i = 0; i < g_registry.count; i++) {
-        const xconfig_board_config_t *existing = g_registry.configs[i];
+        const pcl_board_config_t *existing = g_registry.configs[i];
         if (OSAL_Strcmp(existing->platform, config->platform) == 0 &&
             OSAL_Strcmp(existing->product, config->product) == 0 &&
             OSAL_Strcmp(existing->version, config->version) == 0) {
@@ -105,7 +105,7 @@ int32_t XCONFIG_Register(const xconfig_board_config_t *config)
     return OS_SUCCESS;
 }
 
-const xconfig_board_config_t* XCONFIG_GetBoard(void)
+const pcl_board_config_t* PCL_GetBoard(void)
 {
     if (!g_initialized) {
         return NULL;
@@ -113,7 +113,7 @@ const xconfig_board_config_t* XCONFIG_GetBoard(void)
     return g_registry.current;
 }
 
-const xconfig_board_config_t* XCONFIG_Find(const char *platform,
+const pcl_board_config_t* PCL_Find(const char *platform,
                                        const char *product,
                                        const char *version)
 {
@@ -122,7 +122,7 @@ const xconfig_board_config_t* XCONFIG_Find(const char *platform,
     }
 
     for (uint32_t i = 0; i < g_registry.count; i++) {
-        const xconfig_board_config_t *config = g_registry.configs[i];
+        const pcl_board_config_t *config = g_registry.configs[i];
 
         if (OSAL_Strcmp(config->platform, platform) != 0) {
             continue;
@@ -141,7 +141,7 @@ const xconfig_board_config_t* XCONFIG_Find(const char *platform,
     return NULL;
 }
 
-int32_t XCONFIG_List(const xconfig_board_config_t **configs, uint32_t *count)
+int32_t PCL_List(const pcl_board_config_t **configs, uint32_t *count)
 {
     if (!g_initialized || configs == NULL || count == NULL) {
         return OS_ERROR;
@@ -159,10 +159,10 @@ int32_t XCONFIG_List(const xconfig_board_config_t **configs, uint32_t *count)
 }
 
 /*===========================================================================
- * 硬件外设配置查询接口（XCONFIG_HW_*）
+ * 硬件外设配置查询接口（PCL_HW_*）
  *===========================================================================*/
 
-const xconfig_mcu_cfg_t* XCONFIG_HW_FindMCU(const xconfig_board_config_t *board,
+const pcl_mcu_cfg_t* PCL_HW_FindMCU(const pcl_board_config_t *board,
                                         const char *name)
 {
     if (board == NULL || name == NULL) {
@@ -178,7 +178,7 @@ const xconfig_mcu_cfg_t* XCONFIG_HW_FindMCU(const xconfig_board_config_t *board,
     return NULL;
 }
 
-const xconfig_mcu_cfg_t* XCONFIG_HW_GetMCU(const xconfig_board_config_t *board,
+const pcl_mcu_cfg_t* PCL_HW_GetMCU(const pcl_board_config_t *board,
                                        uint32_t id)
 {
     if (board == NULL || id >= board->mcu_count) {
@@ -188,7 +188,7 @@ const xconfig_mcu_cfg_t* XCONFIG_HW_GetMCU(const xconfig_board_config_t *board,
     return board->mcus[id];
 }
 
-const xconfig_bmc_cfg_t* XCONFIG_HW_FindBMC(const xconfig_board_config_t *board,
+const pcl_bmc_cfg_t* PCL_HW_FindBMC(const pcl_board_config_t *board,
                                         const char *name)
 {
     if (board == NULL || name == NULL) {
@@ -204,7 +204,7 @@ const xconfig_bmc_cfg_t* XCONFIG_HW_FindBMC(const xconfig_board_config_t *board,
     return NULL;
 }
 
-const xconfig_bmc_cfg_t* XCONFIG_HW_GetBMC(const xconfig_board_config_t *board,
+const pcl_bmc_cfg_t* PCL_HW_GetBMC(const pcl_board_config_t *board,
                                        uint32_t id)
 {
     if (board == NULL || id >= board->bmc_count) {
@@ -214,7 +214,7 @@ const xconfig_bmc_cfg_t* XCONFIG_HW_GetBMC(const xconfig_board_config_t *board,
     return board->bmcs[id];
 }
 
-const xconfig_satellite_cfg_t* XCONFIG_HW_FindSatellite(const xconfig_board_config_t *board,
+const pcl_satellite_cfg_t* PCL_HW_FindSatellite(const pcl_board_config_t *board,
                                                      const char *name)
 {
     if (board == NULL || name == NULL) {
@@ -230,7 +230,7 @@ const xconfig_satellite_cfg_t* XCONFIG_HW_FindSatellite(const xconfig_board_conf
     return NULL;
 }
 
-const xconfig_satellite_cfg_t* XCONFIG_HW_GetSatellite(const xconfig_board_config_t *board,
+const pcl_satellite_cfg_t* PCL_HW_GetSatellite(const pcl_board_config_t *board,
                                                     uint32_t id)
 {
     if (board == NULL || id >= board->satellite_count) {
@@ -240,7 +240,7 @@ const xconfig_satellite_cfg_t* XCONFIG_HW_GetSatellite(const xconfig_board_confi
     return board->satellites[id];
 }
 
-const xconfig_sensor_cfg_t* XCONFIG_HW_FindSensor(const xconfig_board_config_t *board,
+const pcl_sensor_cfg_t* PCL_HW_FindSensor(const pcl_board_config_t *board,
                                               const char *name)
 {
     if (board == NULL || name == NULL) {
@@ -256,7 +256,7 @@ const xconfig_sensor_cfg_t* XCONFIG_HW_FindSensor(const xconfig_board_config_t *
     return NULL;
 }
 
-const xconfig_sensor_cfg_t* XCONFIG_HW_GetSensor(const xconfig_board_config_t *board,
+const pcl_sensor_cfg_t* PCL_HW_GetSensor(const pcl_board_config_t *board,
                                              uint32_t id)
 {
     if (board == NULL || id >= board->sensor_count) {
@@ -266,7 +266,7 @@ const xconfig_sensor_cfg_t* XCONFIG_HW_GetSensor(const xconfig_board_config_t *b
     return board->sensors[id];
 }
 
-const xconfig_storage_cfg_t* XCONFIG_HW_FindStorage(const xconfig_board_config_t *board,
+const pcl_storage_cfg_t* PCL_HW_FindStorage(const pcl_board_config_t *board,
                                                  const char *name)
 {
     if (board == NULL || name == NULL) {
@@ -282,7 +282,7 @@ const xconfig_storage_cfg_t* XCONFIG_HW_FindStorage(const xconfig_board_config_t
     return NULL;
 }
 
-const xconfig_storage_cfg_t* XCONFIG_HW_GetStorage(const xconfig_board_config_t *board,
+const pcl_storage_cfg_t* PCL_HW_GetStorage(const pcl_board_config_t *board,
                                                 uint32_t id)
 {
     if (board == NULL || id >= board->storage_count) {
@@ -292,7 +292,7 @@ const xconfig_storage_cfg_t* XCONFIG_HW_GetStorage(const xconfig_board_config_t 
     return board->storages[id];
 }
 
-const xconfig_power_domain_t* XCONFIG_HW_FindPowerDomain(const xconfig_board_config_t *board,
+const pcl_power_domain_t* PCL_HW_FindPowerDomain(const pcl_board_config_t *board,
                                                       const char *name)
 {
     if (board == NULL || name == NULL) {
@@ -309,10 +309,10 @@ const xconfig_power_domain_t* XCONFIG_HW_FindPowerDomain(const xconfig_board_con
 }
 
 /*===========================================================================
- * APP配置查询接口（XCONFIG_APP_*）
+ * APP配置查询接口（PCL_APP_*）
  *===========================================================================*/
 
-const xconfig_app_config_t* XCONFIG_APP_Find(const xconfig_board_config_t *board,
+const pcl_app_config_t* PCL_APP_Find(const pcl_board_config_t *board,
                                          const char *app_name)
 {
     if (board == NULL || app_name == NULL) {
@@ -328,7 +328,7 @@ const xconfig_app_config_t* XCONFIG_APP_Find(const xconfig_board_config_t *board
     return NULL;
 }
 
-const xconfig_app_device_mapping_t* XCONFIG_APP_FindDevice(const xconfig_app_config_t *app,
+const pcl_app_device_mapping_t* PCL_APP_FindDevice(const pcl_app_config_t *app,
                                                         const char *function)
 {
     if (app == NULL || function == NULL) {
@@ -344,28 +344,28 @@ const xconfig_app_device_mapping_t* XCONFIG_APP_FindDevice(const xconfig_app_con
     return NULL;
 }
 
-const void* XCONFIG_APP_GetDeviceByMapping(const xconfig_board_config_t *board,
-                                             const xconfig_app_device_mapping_t *mapping)
+const void* PCL_APP_GetDeviceByMapping(const pcl_board_config_t *board,
+                                             const pcl_app_device_mapping_t *mapping)
 {
     if (board == NULL || mapping == NULL) {
         return NULL;
     }
 
     switch (mapping->device_type) {
-        case XCONFIG_DEV_MCU:
-            return XCONFIG_HW_GetMCU(board, mapping->device_id);
+        case PCL_DEV_MCU:
+            return PCL_HW_GetMCU(board, mapping->device_id);
 
-        case XCONFIG_DEV_BMC:
-            return XCONFIG_HW_GetBMC(board, mapping->device_id);
+        case PCL_DEV_BMC:
+            return PCL_HW_GetBMC(board, mapping->device_id);
 
-        case XCONFIG_DEV_SATELLITE:
-            return XCONFIG_HW_GetSatellite(board, mapping->device_id);
+        case PCL_DEV_SATELLITE:
+            return PCL_HW_GetSatellite(board, mapping->device_id);
 
-        case XCONFIG_DEV_SENSOR:
-            return XCONFIG_HW_GetSensor(board, mapping->device_id);
+        case PCL_DEV_SENSOR:
+            return PCL_HW_GetSensor(board, mapping->device_id);
 
-        case XCONFIG_DEV_STORAGE:
-            return XCONFIG_HW_GetStorage(board, mapping->device_id);
+        case PCL_DEV_STORAGE:
+            return PCL_HW_GetStorage(board, mapping->device_id);
 
         default:
             return NULL;
@@ -376,7 +376,7 @@ const void* XCONFIG_APP_GetDeviceByMapping(const xconfig_board_config_t *board,
  * 配置验证
  *===========================================================================*/
 
-int32_t XCONFIG_Validate(const xconfig_board_config_t *config)
+int32_t PCL_Validate(const pcl_board_config_t *config)
 {
     if (config == NULL) {
         LOG_ERROR("XCONFIG", "Config is NULL");
@@ -455,7 +455,7 @@ int32_t XCONFIG_Validate(const xconfig_board_config_t *config)
     return OS_SUCCESS;
 }
 
-void XCONFIG_Print(const xconfig_board_config_t *config)
+void PCL_Print(const pcl_board_config_t *config)
 {
     if (config == NULL) {
         OSAL_Printf("Config is NULL\n");
@@ -474,21 +474,21 @@ void XCONFIG_Print(const xconfig_board_config_t *config)
     /* 打印MCU外设配置 */
     OSAL_Printf("MCU Peripherals: %d\n", config->mcu_count);
     for (uint32_t i = 0; i < config->mcu_count; i++) {
-        const xconfig_mcu_cfg_t *mcu = config->mcus[i];
+        const pcl_mcu_cfg_t *mcu = config->mcus[i];
         OSAL_Printf("  [%d] %s - %s\n", i, mcu->name,
                   mcu->enabled ? "Enabled" : "Disabled");
         OSAL_Printf("      Interface: %s\n",
-                  mcu->interface_type == XCONFIG_HW_INTERFACE_CAN ? "CAN" :
-                  mcu->interface_type == XCONFIG_HW_INTERFACE_UART ? "UART" :
-                  mcu->interface_type == XCONFIG_HW_INTERFACE_I2C ? "I2C" :
-                  mcu->interface_type == XCONFIG_HW_INTERFACE_SPI ? "SPI" : "Unknown");
+                  mcu->interface_type == PCL_HW_INTERFACE_CAN ? "CAN" :
+                  mcu->interface_type == PCL_HW_INTERFACE_UART ? "UART" :
+                  mcu->interface_type == PCL_HW_INTERFACE_I2C ? "I2C" :
+                  mcu->interface_type == PCL_HW_INTERFACE_SPI ? "SPI" : "Unknown");
     }
     OSAL_Printf("\n");
 
     /* 打印BMC外设配置 */
     OSAL_Printf("BMC Peripherals: %d\n", config->bmc_count);
     for (uint32_t i = 0; i < config->bmc_count; i++) {
-        const xconfig_bmc_cfg_t *bmc = config->bmcs[i];
+        const pcl_bmc_cfg_t *bmc = config->bmcs[i];
         OSAL_Printf("  [%d] %s - %s\n", i, bmc->name,
                   bmc->enabled ? "Enabled" : "Disabled");
     }
@@ -497,7 +497,7 @@ void XCONFIG_Print(const xconfig_board_config_t *config)
     /* 打印卫星平台接口配置 */
     OSAL_Printf("Satellite Interfaces: %d\n", config->satellite_count);
     for (uint32_t i = 0; i < config->satellite_count; i++) {
-        const xconfig_satellite_cfg_t *sat = config->satellites[i];
+        const pcl_satellite_cfg_t *sat = config->satellites[i];
         OSAL_Printf("  [%d] %s - %s\n", i, sat->name,
                   sat->enabled ? "Enabled" : "Disabled");
     }
@@ -506,7 +506,7 @@ void XCONFIG_Print(const xconfig_board_config_t *config)
     /* 打印传感器外设配置 */
     OSAL_Printf("Sensor Peripherals: %d\n", config->sensor_count);
     for (uint32_t i = 0; i < config->sensor_count; i++) {
-        const xconfig_sensor_cfg_t *sensor = config->sensors[i];
+        const pcl_sensor_cfg_t *sensor = config->sensors[i];
         OSAL_Printf("  [%d] %s - %s\n", i, sensor->name,
                   sensor->enabled ? "Enabled" : "Disabled");
     }
@@ -515,7 +515,7 @@ void XCONFIG_Print(const xconfig_board_config_t *config)
     /* 打印存储设备配置 */
     OSAL_Printf("Storage Devices: %d\n", config->storage_count);
     for (uint32_t i = 0; i < config->storage_count; i++) {
-        const xconfig_storage_cfg_t *storage = config->storages[i];
+        const pcl_storage_cfg_t *storage = config->storages[i];
         OSAL_Printf("  [%d] %s - %s\n", i, storage->name,
                   storage->enabled ? "Enabled" : "Disabled");
     }
@@ -524,18 +524,18 @@ void XCONFIG_Print(const xconfig_board_config_t *config)
     /* 打印APP配置 */
     OSAL_Printf("APP Configurations: %d\n", config->app_count);
     for (uint32_t i = 0; i < config->app_count; i++) {
-        const xconfig_app_config_t *app = config->apps[i];
+        const pcl_app_config_t *app = config->apps[i];
         OSAL_Printf("  [%d] %s - %s\n", i, app->app_name, app->description);
         OSAL_Printf("      Device Mappings: %d\n", app->mapping_count);
         for (uint32_t j = 0; j < app->mapping_count; j++) {
-            const xconfig_app_device_mapping_t *mapping = &app->device_mappings[j];
+            const pcl_app_device_mapping_t *mapping = &app->device_mappings[j];
             OSAL_Printf("        - %s: %s[%d] %s\n",
                       mapping->function,
-                      mapping->device_type == XCONFIG_DEV_MCU ? "MCU" :
-                      mapping->device_type == XCONFIG_DEV_BMC ? "BMC" :
-                      mapping->device_type == XCONFIG_DEV_SATELLITE ? "SATELLITE" :
-                      mapping->device_type == XCONFIG_DEV_SENSOR ? "SENSOR" :
-                      mapping->device_type == XCONFIG_DEV_STORAGE ? "STORAGE" : "Unknown",
+                      mapping->device_type == PCL_DEV_MCU ? "MCU" :
+                      mapping->device_type == PCL_DEV_BMC ? "BMC" :
+                      mapping->device_type == PCL_DEV_SATELLITE ? "SATELLITE" :
+                      mapping->device_type == PCL_DEV_SENSOR ? "SENSOR" :
+                      mapping->device_type == PCL_DEV_STORAGE ? "STORAGE" : "Unknown",
                       mapping->device_id,
                       mapping->required ? "(Required)" : "(Optional)");
         }

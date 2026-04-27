@@ -113,9 +113,9 @@ if(BUILD_TESTING)
 endif()
 
 # 3. XConfig层（硬件配置库）
-add_subdirectory(xconfig)
-add_library(pmc::xconfig_public_api ALIAS xconfig_public_api)
-add_library(pmc::xconfig ALIAS xconfig)
+add_subdirectory(pcl)
+add_library(pmc::pcl_public_api ALIAS pcl_public_api)
+add_library(pmc::pcl ALIAS pcl)
 
 # 4. PDL层（外设驱动层）
 add_subdirectory(pdl)
@@ -154,7 +154,7 @@ file(MAKE_DIRECTORY ${OUTPUT_TARGET}/lib)
 add_custom_target(copy_libs ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${OUTPUT_BUILD}/lib ${OUTPUT_TARGET}/lib
     COMMENT "Copying libraries to target directory"
-    DEPENDS osal hal xconfig pdl
+    DEPENDS osal hal pcl pdl
 )
 
 # ============================================================================

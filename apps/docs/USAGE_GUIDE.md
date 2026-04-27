@@ -23,7 +23,7 @@ target_link_libraries(my_app
     osal
     hal
     pdl
-    xconfig
+    pcl
 )
 
 target_include_directories(my_app PRIVATE
@@ -131,24 +131,24 @@ int main(void)
 }
 ```
 
-## 使用XConfig层
+## 使用PCL层
 
 ```c
 #include "osal.h"
-#include "xconfig_api.h"
+#include "pcl_api.h"
 #include "hal_serial.h"
 
 int main(void)
 {
-    /* 初始化XConfig */
+    /* 初始化PCL */
     HW_Config_Init();
     HW_Config_RegisterAll();
     
     /* 获取板级配置 */
-    const xconfig_board_config_t *board = HW_Config_SelectDefault();
+    const pcl_board_config_t *board = HW_Config_SelectDefault();
     
     /* 查找MCU配置 */
-    const xconfig_mcu_cfg_t *mcu = XCONFIG_HW_FindMCU(board, "stm32_mcu");
+    const pcl_mcu_cfg_t *mcu = PCL_HW_FindMCU(board, "stm32_mcu");
     if (mcu != NULL && mcu->interface_type == HW_INTERFACE_UART) {
         /* 使用配置初始化串口 */
         hal_serial_config_t serial_cfg = {

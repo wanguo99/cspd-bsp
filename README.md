@@ -57,12 +57,12 @@ PMC-BSP采用5层分层架构：
 
 **文档**: [pdl/README.md](pdl/README.md) | [详细文档](pdl/docs/)
 
-### XConfig - 外设配置库
+### PCL - 外设配置库
 参考设备树架构，以外设为单位的硬件配置库，只允许PDL访问该库。
 
 **特性**：外设为单位、配置与代码分离、接口内嵌、运行时查询
 
-**文档**: [xconfig/README.md](xconfig/README.md) | [详细文档](xconfig/docs/)
+**文档**: [pcl/README.md](pcl/README.md) | [详细文档](pcl/docs/)
 
 ### Apps - 应用层
 暂未加入业务应用，只有示例应用，用于后期扩展使用参考。
@@ -87,7 +87,7 @@ pmc-bsp/
 │   ├── include/           # 服务接口
 │   ├── src/               # 服务实现
 │   └── docs/              # 文档
-├── xconfig/                # 硬件配置库
+├── pcl/                # 硬件配置库
 │   ├── include/           # 配置接口
 │   ├── platform/          # 平台配置
 │   └── docs/              # 文档
@@ -119,7 +119,7 @@ pmc-bsp/
 - [OSAL层](osal/README.md) - 操作系统抽象层（任务、队列、互斥锁、日志等）
 - [HAL层](hal/README.md) - 硬件抽象层（CAN、串口等驱动）
 - [PDL层](pdl/README.md) - 外设驱动层（卫星平台、BMC载荷、MCU服务）
-- [XConfig层](xconfig/README.md) - 硬件配置库（设备树式配置管理）
+- [PCL层](pcl/README.md) - 硬件配置库（设备树式配置管理）
 - [Apps层](apps/README.md) - 应用层（示例应用）
 - [Tests层](tests/README.md) - 测试框架（70+测试用例）
 
@@ -127,7 +127,7 @@ pmc-bsp/
 - [OSAL详细文档](osal/docs/) - API参考、设计文档
 - [HAL详细文档](hal/docs/) - 驱动开发、移植指南
 - [PDL详细文档](pdl/docs/) - 服务设计、协议文档
-- [XConfig详细文档](xconfig/docs/) - 配置规范、平台适配
+- [PCL详细文档](pcl/docs/) - 配置规范、平台适配
 - [Apps详细文档](apps/docs/) - 应用开发指南
 
 ### 项目文档
@@ -177,7 +177,7 @@ pmc-bsp/
 
 1. **平台无关性**：OSAL是唯一允许包含系统头文件的层
 2. **分层隔离**：上层只能调用下层接口，不能跨层调用
-3. **配置分离**：硬件配置集中在XConfig层
+3. **配置分离**：硬件配置集中在PCL层
 4. **错误处理**：所有函数返回int32状态码
 5. **资源管理**：所有资源必须显式释放
 

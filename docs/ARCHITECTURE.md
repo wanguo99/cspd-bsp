@@ -32,7 +32,7 @@
 │  │  ├── pdl_bmc            - BMC载荷服务                  │ │
 │  │  └── pdl_mcu            - MCU外设服务                  │ │
 │  ├────────────────────────────────────────────────────────┤ │
-│  │  XConfig层 (硬件配置库 - 仅供PDL层使用)                 │ │
+│  │  PCL层 (硬件配置库 - 仅供PDL层使用)                 │ │
 │  │  └── 以外设为单位的硬件配置管理 (类似设备树)            │ │
 │  ├────────────────────────────────────────────────────────┤ │
 │  │  HAL层 (硬件抽象层)                                     │ │
@@ -464,7 +464,7 @@ typedef struct {
 - `SetConfig` 接口缺失：头文件声明但未实现，无法动态修改配置
 - 设备权限要求：需要读写 `/dev/ttyS0` 权限（通常需root或dialout组）
 
-### 2.3 XConfig层 (硬件配置层)
+### 2.3 PCL层 (硬件配置层)
 
 **职责**：管理硬件配置和APP配置，实现配置与代码分离
 
@@ -475,15 +475,15 @@ typedef struct {
 #### 2.3.1 硬件配置 (Hardware Config)
 
 **文件**：
-- `xconfig/include/hw_config_types.h` - 配置数据结构定义
-- `xconfig/include/hw_config_api.h` - 配置API接口
-- `xconfig/src/hw_config_api.c` - 配置管理实现
-- `xconfig/src/hw_config_register.c` - 配置注册实现
+- `pcl/include/hw_config_types.h` - 配置数据结构定义
+- `pcl/include/hw_config_api.h` - 配置API接口
+- `pcl/src/hw_config_api.c` - 配置管理实现
+- `pcl/src/hw_config_register.c` - 配置注册实现
 
 **配置组织**：
 ```
-xconfig/platform/{vendor}/{soc}/{product}_{variant}.c
-例如：xconfig/platform/ti/am625/h200_payload_base.c
+pcl/platform/{vendor}/{soc}/{product}_{variant}.c
+例如：pcl/platform/ti/am625/h200_payload_base.c
 ```
 
 **硬件配置结构**：
@@ -492,12 +492,12 @@ xconfig/platform/{vendor}/{soc}/{product}_{variant}.c
 - **配置继承**：base → v1 → v2（版本演进）
 
 **关键接口**：
-- `XCONFIG_Init()` - 初始化配置系统
-- `XCONFIG_HW_GetMCU(id)` - 获取MCU配置
-- `XCONFIG_HW_GetBMC(id)` - 获取BMC配置
-- `XCONFIG_HW_GetSatellite(id)` - 获取卫星接口配置
-- `XCONFIG_HW_GetSensor(id)` - 获取传感器配置
-- `XCONFIG_HW_GetStorage(id)` - 获取存储设备配置
+- `PCL_Init()` - 初始化配置系统
+- `PCL_HW_GetMCU(id)` - 获取MCU配置
+- `PCL_HW_GetBMC(id)` - 获取BMC配置
+- `PCL_HW_GetSatellite(id)` - 获取卫星接口配置
+- `PCL_HW_GetSensor(id)` - 获取传感器配置
+- `PCL_HW_GetStorage(id)` - 获取存储设备配置
 
 **配置选择机制**：
 1. 环境变量：`HW_CONFIG=h200_payload_v2`
@@ -528,24 +528,24 @@ typedef struct {
 ```
 
 **关键接口**：
-- `XCONFIG_APP_Find(app_name)` - 查找APP配置
-- `XCONFIG_APP_FindDevice(app_cfg, logical_name)` - 查找外设映射
-- `XCONFIG_APP_GetDeviceByMapping(mapping)` - 获取外设配置
+- `PCL_APP_Find(app_name)` - 查找APP配置
+- `PCL_APP_FindDevice(app_cfg, logical_name)` - 查找外设映射
+- `PCL_APP_GetDeviceByMapping(mapping)` - 获取外设配置
 
 **使用示例**：
 ```c
 // 1. 初始化配置系统
-XCONFIG_Init();
+PCL_Init();
 
 // 2. 查找APP配置
-const hw_app_config_t *app = XCONFIG_APP_Find("can_gateway");
+const hw_app_config_t *app = PCL_APP_Find("can_gateway");
 
 // 3. 查找外设映射
 const hw_app_device_mapping_t *mapping = 
-    XCONFIG_APP_FindDevice(app, "satellite_comm");
+    PCL_APP_FindDevice(app, "satellite_comm");
 
 // 4. 获取硬件配置
-const void *device = XCONFIG_APP_GetDeviceByMapping(mapping);
+const void *device = PCL_APP_GetDeviceByMapping(mapping);
 const hw_satellite_config_t *sat = (const hw_satellite_config_t *)device;
 
 // 5. 使用硬件配置
@@ -1124,7 +1124,7 @@ PMC-BSP采用分层架构，各层职责清晰：
 - **OSAL层（操作系统抽象层）**：所有层的基础，封装操作系统API（任务、队列、互斥锁、网络socket、文件操作等）
 - **HAL层（硬件抽象层）**：封装硬件设备驱动（CAN、UART等），依赖OSAL
 - **PDL层（外设驱动层）**：管理外设服务（卫星、BMC、MCU），依赖HAL和OSAL
-- **XConfig层（硬件配置库）**：以外设为单位的硬件配置管理，纯数据结构，无依赖
+- **PCL层（硬件配置库）**：以外设为单位的硬件配置管理，纯数据结构，无依赖
 - **Apps层（应用层）**：业务应用，依赖PDL、HAL、OSAL
 
 **依赖链**：`Apps → PDL → HAL → OSAL → Linux系统调用`
@@ -1397,12 +1397,12 @@ static int32 execute_ipmi_command(uint8_t cmd_type, uint32_t param, uint32_t *re
 ## 10. 版本历史
 
 ### v1.0.0 (2026-04-25)
-- 完成5层架构设计（OSAL/HAL/XConfig/PDL/Apps）
+- 完成5层架构设计（OSAL/HAL/PCL/PDL/Apps）
 - 实现CAN网关和协议转换应用
 - 完成70个测试用例覆盖
 - 模块化配置重构
 - Service层重命名为PDL层
-- 新增XConfig硬件配置库
+- 新增PCL硬件配置库
 - 优雅退出机制
 - 引用计数保护
 - 死锁检测

@@ -1,24 +1,24 @@
-# XConfig (硬件配置库) 模块
+# PCL (Peripheral Configuration Library) 模块
 # 参考cFS设计：纯数据配置库，类似设备树
 
 # ============================================================================
-# 1. 接口库 (xconfig_public_api) - 仅头文件，供上层模块使用
+# 1. 接口库 (pcl_public_api) - 仅头文件，供上层模块使用
 # ============================================================================
-add_library(xconfig_public_api INTERFACE)
+add_library(pcl_public_api INTERFACE)
 
-target_include_directories(xconfig_public_api INTERFACE
+target_include_directories(pcl_public_api INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
 
 # ============================================================================
-# 2. 实现库 (xconfig) - 包含配置数据和API实现
+# 2. 实现库 (pcl) - 包含配置数据和API实现
 # ============================================================================
 
 # 核心源文件
-set(XCONFIG_SOURCES
-    src/xconfig_api.c
-    src/xconfig_register.c
+set(PCL_SOURCES
+    src/pcl_api.c
+    src/pcl_register.c
 )
 
 # 平台配置源文件（递归查找所有平台配置）
@@ -30,30 +30,30 @@ file(GLOB_RECURSE PLATFORM_CONFIGS
 )
 
 # 创建静态库
-add_library(xconfig STATIC
-    ${XCONFIG_SOURCES}
+add_library(pcl STATIC
+    ${PCL_SOURCES}
     ${PLATFORM_CONFIGS}
 )
 
 # 链接接口库（继承头文件路径）
-target_link_libraries(xconfig PUBLIC xconfig_public_api)
+target_link_libraries(pcl PUBLIC pcl_public_api)
 
 # 内部需要访问自己的头文件（api/internal/peripheral子目录）
-target_include_directories(xconfig PRIVATE
+target_include_directories(pcl PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include/api
     ${CMAKE_CURRENT_SOURCE_DIR}/include/internal
     ${CMAKE_CURRENT_SOURCE_DIR}/include/peripheral
 )
 
 # 依赖OSAL接口库（仅头文件依赖）
-target_link_libraries(xconfig PUBLIC pmc::osal_public_api)
+target_link_libraries(pcl PUBLIC pmc::osal_public_api)
 
 # 链接OSAL实现库（运行时依赖）
-target_link_libraries(xconfig PRIVATE pmc::osal)
+target_link_libraries(pcl PRIVATE pmc::osal)
 
 # 设置编译选项
 set(CMAKE_C_STANDARD 99)
-target_compile_options(xconfig PRIVATE
+target_compile_options(pcl PRIVATE
     -Wall
     -Wextra
     -Werror
@@ -62,22 +62,22 @@ target_compile_options(xconfig PRIVATE
 # ============================================================================
 # 3. 安装规则
 # ============================================================================
-install(TARGETS xconfig xconfig_public_api
-    EXPORT xconfig-targets
+install(TARGETS pcl pcl_public_api
+    EXPORT pcl-targets
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
 )
 
 install(DIRECTORY include/
-    DESTINATION include/xconfig
+    DESTINATION include/pcl
     FILES_MATCHING PATTERN "*.h"
 )
 
-install(EXPORT xconfig-targets
-    FILE xconfig-targets.cmake
+install(EXPORT pcl-targets
+    FILE pcl-targets.cmake
     NAMESPACE pmc::
-    DESTINATION lib/cmake/xconfig
+    DESTINATION lib/cmake/pcl
 )
 
 # ============================================================================
@@ -86,38 +86,38 @@ install(EXPORT xconfig-targets
 include(CMakePackageConfigHelpers)
 
 configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/xconfig-config.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/xconfig-config.cmake
-    INSTALL_DESTINATION lib/cmake/xconfig
+    ${CMAKE_CURRENT_SOURCE_DIR}/pcl-config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/pcl-config.cmake
+    INSTALL_DESTINATION lib/cmake/pcl
 )
 
 install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/xconfig-config.cmake
-    DESTINATION lib/cmake/xconfig
+    ${CMAKE_CURRENT_BINARY_DIR}/pcl-config.cmake
+    DESTINATION lib/cmake/pcl
 )
 
 # ============================================================================
 # 5. 示例程序（可选）
 # ============================================================================
-option(BUILD_XCONFIG_EXAMPLES "Build xconfig examples" OFF)
+option(BUILD_PCL_EXAMPLES "Build pcl examples" OFF)
 
-if(BUILD_XCONFIG_EXAMPLES)
-    add_executable(xconfig_example
-        examples/xconfig_example.c
+if(BUILD_PCL_EXAMPLES)
+    add_executable(pcl_example
+        examples/pcl_example.c
     )
 
-    target_link_libraries(xconfig_example
-        pmc::xconfig
+    target_link_libraries(pcl_example
+        pmc::pcl
         pmc::osal
         pthread
     )
 
-    install(TARGETS xconfig_example
+    install(TARGETS pcl_example
         RUNTIME DESTINATION bin
     )
 endif()
 
-message(STATUS "XConfig module configured")
-message(STATUS "  - Interface library: xconfig_public_api")
-message(STATUS "  - Implementation library: xconfig")
+message(STATUS "PCL module configured")
+message(STATUS "  - Interface library: pcl_public_api")
+message(STATUS "  - Implementation library: pcl")
 message(STATUS "  - Platform configs: ${PLATFORM_CONFIGS}")

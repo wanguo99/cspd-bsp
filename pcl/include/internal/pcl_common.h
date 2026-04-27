@@ -10,8 +10,8 @@
  * - 被所有xconfig头文件引用
  ************************************************************************/
 
-#ifndef XCONFIG_COMMON_H
-#define XCONFIG_COMMON_H
+#ifndef PCL_COMMON_H
+#define PCL_COMMON_H
 
 #include "osal_types.h"
 
@@ -28,7 +28,7 @@ typedef struct {
     bool   active_low;            /* 低电平有效 */
     bool   pull_up;               /* 上拉使能 */
     bool   pull_down;             /* 下拉使能 */
-} xconfig_gpio_config_t;
+} pcl_gpio_config_t;
 
 /*===========================================================================
  * 电源域配置
@@ -39,10 +39,10 @@ typedef struct {
  */
 typedef struct {
     const char *name;             /* 电源域名称 */
-    xconfig_gpio_config_t *enable_gpio; /* 使能GPIO */
+    pcl_gpio_config_t *enable_gpio; /* 使能GPIO */
     uint32_t      voltage_mv;       /* 电压（mV） */
     uint32_t      current_ma;       /* 电流限制（mA） */
     uint32_t      startup_delay_ms; /* 启动延时（ms） */
-} xconfig_power_domain_t;
+} pcl_power_domain_t;
 
-#endif /* XCONFIG_COMMON_H */
+#endif /* PCL_COMMON_H */

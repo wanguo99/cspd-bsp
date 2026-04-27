@@ -142,12 +142,12 @@ PMC-BSP采用5层分层架构：
 
 **文档**: [pdl/README.md](pdl/README.md) | [详细文档](pdl/docs/)
 
-### XConfig - 外设配置库
+### PCL - 外设配置库
 参考设备树架构，以外设为单位的硬件配置库，只允许PDL访问该库。
 
 **特性**：外设为单位、配置与代码分离、接口内嵌、运行时查询
 
-**文档**: [xconfig/README.md](xconfig/README.md) | [详细文档](xconfig/docs/)
+**文档**: [pcl/README.md](pcl/README.md) | [详细文档](pcl/docs/)
 
 ### Apps - 应用层
 暂未加入业务应用，只有示例应用，用于后期扩展使用参考。
@@ -182,7 +182,7 @@ Linux系统调用
 - **OSAL抽象层**：提供跨平台的操作系统抽象接口（任务、队列、互斥锁、网络、文件等）
 - **HAL硬件层**：封装硬件驱动（CAN、串口、网络等）
 - **PDL外设层**：统一管理卫星/载荷/MCU等外设
-- **XConfig配置**：硬件配置库，支持多平台多产品配置
+- **PCL配置**：硬件配置库，支持多平台多产品配置
 
 ## 代码结构（5层架构 + 模块化配置）
 
@@ -231,21 +231,21 @@ pmc-bsp/
 │       ├── hal_can_linux.c  # CAN驱动（SocketCAN）
 │       ├── hal_serial_linux.c # 串口驱动
 │       └── hal_network_linux.c # 网络驱动
-├── xconfig/                 # 硬件配置库 (XConfig)
+├── pcl/                 # 硬件配置库 (PCL)
 │   ├── include/             # 接口定义
-│   │   ├── xconfig.h       # 总头文件
-│   │   ├── xconfig_common.h # 通用类型（GPIO、电源域）
-│   │   ├── xconfig_hardware_interface.h # 硬件接口定义
-│   │   ├── xconfig_mcu.h   # MCU外设配置
-│   │   ├── xconfig_bmc.h   # BMC外设配置
-│   │   ├── xconfig_satellite.h # 卫星平台接口配置
-│   │   ├── xconfig_sensor.h # 传感器外设配置
-│   │   ├── xconfig_storage.h # 存储设备配置
-│   │   ├── xconfig_app.h   # APP配置
-│   │   └── xconfig_board.h # 板级配置
+│   │   ├── pcl.h       # 总头文件
+│   │   ├── pcl_common.h # 通用类型（GPIO、电源域）
+│   │   ├── pcl_hardware_interface.h # 硬件接口定义
+│   │   ├── pcl_mcu.h   # MCU外设配置
+│   │   ├── pcl_bmc.h   # BMC外设配置
+│   │   ├── pcl_satellite.h # 卫星平台接口配置
+│   │   ├── pcl_sensor.h # 传感器外设配置
+│   │   ├── pcl_storage.h # 存储设备配置
+│   │   ├── pcl_app.h   # APP配置
+│   │   └── pcl_board.h # 板级配置
 │   ├── src/                 # 源代码
-│   │   ├── xconfig_api.c   # API实现
-│   │   └── xconfig_register.c # 配置注册
+│   │   ├── pcl_api.c   # API实现
+│   │   └── pcl_register.c # 配置注册
 │   └── platform/            # 平台配置（嵌套目录结构）
 │       ├── ti/am6254/        # TI AM6254平台
 │       │   └── H200_100P/  # H200-100P产品（100P算力）
@@ -307,7 +307,7 @@ pmc-bsp/
 ### 1. 模块化配置（重要）
 - **配置分布**：配置文件分布在各模块的 `include/config/` 目录
 - **HAL配置**：`hal/include/config/` - CAN、串口等硬件配置
-- **XConfig配置**：`xconfig/platform/` - 以外设为单位的硬件配置
+- **PCL配置**：`pcl/platform/` - 以外设为单位的硬件配置
 - **Apps配置**：`apps/*/include/config/` - 应用层协议和参数配置
 - **依赖隔离**：
   - OSAL层：提供基础抽象接口
@@ -319,7 +319,7 @@ pmc-bsp/
 - **平台相关代码隔离原则**：
   - **OSAL层**：唯一允许包含操作系统相关代码的层（Linux/RTOS/Windows等）
   - **HAL层**：唯一允许包含硬件平台相关代码的层（ARM/x86/RISC-V等，SocketCAN/硬件CAN等）
-  - **XConfig/PDL/Apps/Tests层**：必须保持完全平台无关，可无修改移植到任何平台
+  - **PCL/PDL/Apps/Tests层**：必须保持完全平台无关，可无修改移植到任何平台
   
 - **OSAL层**：封装操作系统API，支持跨平台移植
   - **唯一允许直接调用系统调用的层**
@@ -334,7 +334,7 @@ pmc-bsp/
   - **唯一允许包含硬件平台相关代码的层**（如SocketCAN、硬件寄存器操作等）
   - 平台相关实现放在 `src/linux/`, `src/ti_am62/`, `src/nxp_imx8/` 等目录
   
-- **XConfig层**：硬件配置库，纯数据配置
+- **PCL层**：硬件配置库，纯数据配置
   - **必须保持完全平台无关**，只包含配置数据结构
   - 禁止包含任何系统头文件（`<unistd.h>`, `<sys/socket.h>` 等）
   - 禁止调用任何系统API，只能使用OSAL接口
@@ -411,7 +411,7 @@ int32 HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
 - ✅ 所有标准库函数（memcpy/strlen等）必须使用OSAL封装
 - ❌ 除OSAL层外，任何层都不允许 `#include <unistd.h>` 或 `#include <sys/socket.h>`
 
-### 3. XConfig层（硬件配置库）
+### 3. PCL层（硬件配置库）
 - **两层配置架构**：硬件配置层（定义外设硬件接口）+ APP配置层（定义APP使用哪些外设）
 - **外设为单位**：以外设为单位（MCU/BMC/传感器等）管理硬件配置，类似Linux设备树
 - **接口内嵌**：每个外设配置内嵌其通信接口配置（CAN/UART/I2C/SPI/Ethernet等）
@@ -507,7 +507,7 @@ output/
         ├── libosal.a
         ├── libhal.a
         ├── libpdl.a
-        └── libxconfig.a
+        └── libpcl.a
 ```
 
 ## 测试覆盖
@@ -531,10 +531,10 @@ output/
 - **平台相关代码隔离**：
   - ✅ **OSAL层**：唯一允许包含操作系统相关代码（`#include <unistd.h>`, `pthread_*` 等）
   - ✅ **HAL层**：唯一允许包含硬件平台相关代码（SocketCAN、硬件寄存器等）
-  - ❌ **XConfig/PDL/Apps/Tests层**：严禁包含任何平台相关代码，必须可无修改移植
+  - ❌ **PCL/PDL/Apps/Tests层**：严禁包含任何平台相关代码，必须可无修改移植
   
 - **系统调用封装**：
-  - **禁止**XConfig/PDL/Apps/Tests层直接使用系统调用
+  - **禁止**PCL/PDL/Apps/Tests层直接使用系统调用
   - **必须**使用OSAL封装的接口：
     - 文件操作：`OSAL_open()`, `OSAL_close()`, `OSAL_read()`, `OSAL_write()`
     - Socket操作：`OSAL_socket()`, `OSAL_bind()`, `OSAL_connect()`, `OSAL_setsockopt()`
@@ -546,7 +546,7 @@ output/
 - **头文件包含规则**：
   - ✅ OSAL层：可以包含 `<unistd.h>`, `<sys/socket.h>`, `<pthread.h>`, `<stdlib.h>` 等
   - ✅ HAL层：可以包含硬件相关头文件（`<linux/can.h>`, `<net/if.h>` 等），但必须使用OSAL封装的系统调用
-  - ❌ XConfig/PDL/Apps/Tests层：严禁包含任何系统头文件，只能包含OSAL接口头文件
+  - ❌ PCL/PDL/Apps/Tests层：严禁包含任何系统头文件，只能包含OSAL接口头文件
 
 ### 日志接口
 - **禁止**直接使用`printf`/`fprintf`
@@ -651,7 +651,7 @@ sudo ./output/target/bin/sample_app
 - **新增应用**：sample_app（示例应用，展示OSAL基本用法）
 - **设计理念**：BSP专注于提供抽象层和驱动，业务应用由用户实现
 
-### XConfig平台简化（2026-04-26）
+### PCL平台简化（2026-04-26）
 - **删除配置**：H200_32P平台配置（暂时无用）
 - **保留配置**：H200_100P（实际产品）、vendor_demo（演示用）
 - **设计理念**：按需配置，避免维护无用代码
@@ -721,8 +721,8 @@ sudo ./output/target/bin/sample_app
 5. 更新`hal/README.md`文档
 
 ### 添加新的外设支持
-1. 在`xconfig/include/peripheral/`添加外设配置结构
-2. 在`xconfig/platform/`添加具体平台配置
+1. 在`pcl/include/peripheral/`添加外设配置结构
+2. 在`pcl/platform/`添加具体平台配置
 3. 在`pdl/include/`添加外设服务接口
 4. 在`pdl/src/`实现外设服务
 5. 在`pdl/tests/`添加单元测试
@@ -790,7 +790,7 @@ valgrind --leak-check=full ./output/target/bin/sample_app
 - **代码规模**：约18,000行（生产代码14,000行，测试代码4,000行）
 - **文件数量**：97个C/H文件
 - **测试覆盖**：70+测试用例
-- **模块数量**：5层架构（OSAL/HAL/XConfig/PDL/Apps）
+- **模块数量**：5层架构（OSAL/HAL/PCL/PDL/Apps）
 - **支持平台**：TI AM6254, 演示平台（可扩展到其他平台）
 
 ## 重要文件索引
@@ -804,7 +804,7 @@ valgrind --leak-check=full ./output/target/bin/sample_app
 ### 模块入口文件
 - [osal/include/osal.h](osal/include/osal.h) - OSAL层总头文件
 - [hal/include/hal_can.h](hal/include/hal_can.h) - HAL CAN驱动接口
-- [xconfig/include/api/xconfig_api.h](xconfig/include/api/xconfig_api.h) - XConfig API
+- [pcl/include/api/pcl_api.h](pcl/include/api/pcl_api.h) - PCL API
 - [pdl/include/pdl_satellite.h](pdl/include/pdl_satellite.h) - PDL卫星服务接口
 - [apps/sample_app/src/main.c](apps/sample_app/src/main.c) - 示例应用
 
