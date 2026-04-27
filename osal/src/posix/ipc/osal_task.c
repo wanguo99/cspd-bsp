@@ -153,7 +153,8 @@ int32_t OSAL_TaskCreate(osal_id_t *task_id,
     wrapper_arg->task_id = new_task_id;
 
     pthread_attr_init(&attr);
-    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+    /* 使用JOINABLE模式，以便在TaskDelete时可以join等待线程退出 */
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
     if (stack_size > 0)
     {
@@ -226,21 +227,16 @@ int32_t OSAL_TaskDelete(osal_id_t task_id)
 
     int ret = pthread_timedjoin_np(thread_to_delete, NULL, &timeout);
 
-    if (ret == ETIMEDOUT)
+    if (ETIMEDOUT == ret)
     {
-        /* 超时后分离线程，不强制取消 */
+        /* 超时后强制分离线程，允许其自然退出 */
         OSAL_Printf("[OS_Task] 任务 %u 优雅关闭超时，分离线程\n", task_id);
-        pthread_detach(thread_to_delete);
-    }
-    else if (ret == EINVAL)
-    {
-        /* 线程可能已经退出或不可join，尝试分离 */
         pthread_detach(thread_to_delete);
     }
     else if (0 != ret)
     {
+        /* join失败，记录错误但继续清理 */
         OSAL_Printf("[OS_Task] 等待任务 %u 退出失败: %d\n", task_id, ret);
-        pthread_detach(thread_to_delete);
     }
 
     /* 从任务表中移除 */
