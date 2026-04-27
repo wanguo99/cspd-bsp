@@ -254,9 +254,15 @@ int32_t OSAL_MutexLockTimeout(osal_id_t mutex_id, uint32_t timeout_msec)
         uint32_t wait_time = (current_time.tv_sec - start_time.tv_sec) * 1000 +
                           (current_time.tv_nsec - start_time.tv_nsec) / 1000000;
 
-        if (wait_time >= g_deadlock_threshold_msec && g_deadlock_callback != NULL)
+        /* 读取死锁检测配置时加锁保护 */
+        pthread_mutex_lock(&g_mutex_table_mutex);
+        uint32_t threshold = g_deadlock_threshold_msec;
+        deadlock_callback_t callback = g_deadlock_callback;
+        pthread_mutex_unlock(&g_mutex_table_mutex);
+
+        if (wait_time >= threshold && NULL != callback)
         {
-            g_deadlock_callback(mutex_name, wait_time);
+            callback(mutex_name, wait_time);
         }
 
         return OS_ERROR_TIMEOUT;
@@ -271,7 +277,9 @@ int32_t OSAL_MutexLockTimeout(osal_id_t mutex_id, uint32_t timeout_msec)
 
 int32_t OSAL_MutexSetDeadlockDetection(uint32_t threshold_msec, deadlock_callback_t callback)
 {
+    pthread_mutex_lock(&g_mutex_table_mutex);
     g_deadlock_threshold_msec = threshold_msec;
     g_deadlock_callback = callback;
+    pthread_mutex_unlock(&g_mutex_table_mutex);
     return OS_SUCCESS;
 }
