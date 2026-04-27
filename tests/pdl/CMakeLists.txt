@@ -21,11 +21,12 @@ add_library(pdl_tests STATIC
 # Include directories
 target_include_directories(pdl_tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../../pdl/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../core/include
 )
 
 # Link dependencies
 target_link_libraries(pdl_tests
-    PUBLIC pmc::tests_core
+    PUBLIC pmc::osal_public_api
     PRIVATE pmc::pdl pmc::hal pmc::osal
 )
 

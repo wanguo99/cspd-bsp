@@ -7,14 +7,25 @@ endif()
 
 # 目录变量
 set(SRC ${CMAKE_CURRENT_SOURCE_DIR})
+set(CORE_SRC ${CMAKE_CURRENT_SOURCE_DIR}/../core/src)
+set(CORE_INC ${CMAKE_CURRENT_SOURCE_DIR}/../core/include)
 
 add_executable(unit-test
     ${SRC}/main.c
+    # 直接编译tests/core源文件
+    ${CORE_SRC}/test_runner.c
+    ${CORE_SRC}/test_registry.c
+    ${CORE_SRC}/test_menu.c
+)
+
+# 包含tests/core头文件
+target_include_directories(unit-test PRIVATE
+    ${CORE_INC}
 )
 
 # Link all test libraries
 target_link_libraries(unit-test
-    pmc::tests_core
+    pmc::osal_public_api
     -Wl,--whole-archive
     pmc::osal_tests
     pmc::hal_tests

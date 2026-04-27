@@ -16,11 +16,12 @@ target_include_directories(pcl_tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../../pcl/include/api
     ${CMAKE_CURRENT_SOURCE_DIR}/../../pcl/include/internal
     ${CMAKE_CURRENT_SOURCE_DIR}/../../pcl/include/peripheral
+    ${CMAKE_CURRENT_SOURCE_DIR}/../core/include
 )
 
 # Link dependencies
 target_link_libraries(pcl_tests
-    PUBLIC pmc::tests_core
+    PUBLIC pmc::osal_public_api
     PRIVATE pmc::pcl pmc::osal
 )
 

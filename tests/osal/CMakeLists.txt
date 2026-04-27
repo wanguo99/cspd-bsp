@@ -16,11 +16,12 @@ add_library(osal_tests STATIC
 # Include directories
 target_include_directories(osal_tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../../osal/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../core/include
 )
 
 # Link dependencies
 target_link_libraries(osal_tests
-    PUBLIC pmc::tests_core
+    PUBLIC pmc::osal_public_api
     PRIVATE pmc::osal
 )
 

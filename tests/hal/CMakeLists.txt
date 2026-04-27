@@ -13,11 +13,12 @@ add_library(hal_tests STATIC
 # Include directories
 target_include_directories(hal_tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../../hal/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../core/include
 )
 
 # Link dependencies
 target_link_libraries(hal_tests
-    PUBLIC pmc::tests_core
+    PUBLIC pmc::osal_public_api
     PRIVATE pmc::hal pmc::osal
 )
 
