@@ -1,5 +1,5 @@
 # PDL Module Tests
-# Tests for PDL layer - automatically registered with libutest
+# Tests for PDL layer - automatically registered with tests_framework
 
 if(NOT BUILD_TESTING)
     return()
@@ -25,7 +25,7 @@ target_include_directories(pdl_tests PRIVATE
 
 # Link dependencies
 target_link_libraries(pdl_tests
-    PUBLIC pmc::libutest
+    PUBLIC pmc::tests_framework
     PRIVATE pmc::pdl pmc::hal pmc::osal
 )
 

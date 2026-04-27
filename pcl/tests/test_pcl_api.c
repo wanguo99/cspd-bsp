@@ -10,7 +10,7 @@
  * - 配置验证
  */
 
-#include "libutest.h"
+#include "tests_framework.h"
 #include "test_assert.h"
 #include "test_registry.h"
 #include "pcl_api.h"

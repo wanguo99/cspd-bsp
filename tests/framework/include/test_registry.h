@@ -9,7 +9,7 @@
 #ifndef TEST_REGISTRY_H
 #define TEST_REGISTRY_H
 
-#include "libutest.h"
+#include "tests_framework.h"
 
 /* Define a test case */
 #define TEST_CASE(name) \

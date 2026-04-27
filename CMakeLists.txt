@@ -94,7 +94,7 @@ add_library(pmc::osal ALIAS osal)
 
 # 1.5 Test Library（测试库 - 仅在启用测试时构建）
 if(BUILD_TESTING)
-    add_subdirectory(libutest)
+    add_subdirectory(tests/framework)
 endif()
 
 # OSAL模块测试

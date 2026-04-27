@@ -5,7 +5,7 @@
  * Aggregates all module tests and provides CLI interface
  */
 
-#include "libutest.h"
+#include "tests_framework.h"
 #include "osal.h"
 
 int main(int argc, char *argv[])

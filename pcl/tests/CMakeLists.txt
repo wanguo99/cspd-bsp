@@ -1,5 +1,5 @@
 # PCL Module Tests
-# Tests for PCL layer - automatically registered with libutest
+# Tests for PCL layer - automatically registered with tests_framework
 
 if(NOT BUILD_TESTING)
     return()
@@ -20,7 +20,7 @@ target_include_directories(pcl_tests PRIVATE
 
 # Link dependencies
 target_link_libraries(pcl_tests
-    PUBLIC pmc::libutest
+    PUBLIC pmc::tests_framework
     PRIVATE pmc::pcl pmc::osal
 )
 

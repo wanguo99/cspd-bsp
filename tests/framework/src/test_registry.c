@@ -6,7 +6,7 @@
  * constructor attributes. Provides lookup and enumeration functions.
  */
 
-#include "libutest.h"
+#include "tests_framework.h"
 #include "osal.h"
 
 #define MAX_SUITES 128

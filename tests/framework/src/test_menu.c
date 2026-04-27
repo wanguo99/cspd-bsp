@@ -6,7 +6,7 @@
  * as well as test listing functionality.
  */
 
-#include "libutest.h"
+#include "tests_framework.h"
 #include "osal.h"
 
 #define MAX_LAYERS 16

@@ -1,5 +1,5 @@
 # HAL Module Tests
-# Tests for HAL layer - automatically registered with libutest
+# Tests for HAL layer - automatically registered with tests_framework
 
 if(NOT BUILD_TESTING)
     return()
@@ -17,7 +17,7 @@ target_include_directories(hal_tests PRIVATE
 
 # Link dependencies
 target_link_libraries(hal_tests
-    PUBLIC pmc::libutest
+    PUBLIC pmc::tests_framework
     PRIVATE pmc::hal pmc::osal
 )
 

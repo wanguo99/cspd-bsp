@@ -14,7 +14,7 @@ add_executable(unit-test
 
 # Link all test libraries
 target_link_libraries(unit-test
-    pmc::libutest
+    pmc::tests_framework
     -Wl,--whole-archive
     pmc::osal_tests
     pmc::hal_tests
