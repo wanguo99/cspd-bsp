@@ -49,12 +49,19 @@ int32_t HAL_I2C_Open(const hal_i2c_config_t *config, hal_i2c_handle_t *handle)
     impl->timeout = config->timeout;
     impl->initialized = false;
 
-    /* 打开I2C设备 */
-    impl->fd = OSAL_open(config->device, OSAL_O_RDWR, 0);
+    /* 打开I2C设备（O_EXCL 保证独占访问，防止多进程竞争） */
+    impl->fd = OSAL_open(config->device, OSAL_O_RDWR | OSAL_O_EXCL, 0);
     if (impl->fd < 0)
     {
+        int32_t err = OSAL_GetErrno();
+        if (OSAL_EBUSY == err)
+        {
+            LOG_ERROR("HAL_I2C", "Device %s is busy (already opened by another process)", config->device);
+            OSAL_Free(impl);
+            return OSAL_ERR_BUSY;
+        }
         LOG_ERROR("HAL_I2C", "Failed to open device %s: %s",
-                  config->device, OSAL_StrError(OSAL_GetErrno()));
+                  config->device, OSAL_StrError(err));
         OSAL_Free(impl);
         return OSAL_ERR_GENERIC;
     }

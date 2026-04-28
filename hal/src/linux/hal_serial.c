@@ -66,11 +66,18 @@ int32_t HAL_Serial_Open(const char *device, const hal_serial_config_t *config, h
 
     OSAL_Memset(ctx, 0, sizeof(hal_serial_context_t));
 
-    /* 打开串口设备 */
-    ctx->fd = OSAL_open(device, OSAL_O_RDWR | OSAL_O_NOCTTY | OSAL_O_NONBLOCK, 0);
+    /* 打开串口设备（O_EXCL 保证独占访问，防止多进程竞争） */
+    ctx->fd = OSAL_open(device, OSAL_O_RDWR | OSAL_O_NOCTTY | OSAL_O_NONBLOCK | OSAL_O_EXCL, 0);
     if (ctx->fd < 0)
     {
-        LOG_ERROR("HAL_Serial", "Failed to open %s: %s", device, OSAL_StrError(OSAL_GetErrno()));
+        int32_t err = OSAL_GetErrno();
+        if (OSAL_EBUSY == err)
+        {
+            LOG_ERROR("HAL_Serial", "Device %s is busy (already opened by another process)", device);
+            OSAL_Free(ctx);
+            return OSAL_ERR_BUSY;
+        }
+        LOG_ERROR("HAL_Serial", "Failed to open %s: %s", device, OSAL_StrError(err));
         OSAL_Free(ctx);
         return OSAL_ERR_GENERIC;
     }

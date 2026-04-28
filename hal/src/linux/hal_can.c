@@ -74,6 +74,13 @@ int32_t HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
         return OSAL_ERR_GENERIC;
     }
 
+    /* 禁用 SO_REUSEADDR，防止多进程绑定同一CAN接口 */
+    int reuse = 0;
+    if (OSAL_setsockopt(impl->sockfd, OSAL_SOL_SOCKET, OSAL_SO_REUSEADDR, &reuse, sizeof(reuse)) < 0)
+    {
+        LOG_WARN("HAL_CAN", "Failed to disable SO_REUSEADDR: %s", OSAL_StrError(OSAL_GetErrno()));
+    }
+
     /* 获取接口索引 */
     OSAL_Memset(&ifr, 0, sizeof(ifr));
     OSAL_Strncpy(ifr.ifr_name, config->interface, IFNAMSIZ - 1);
@@ -96,7 +103,15 @@ int32_t HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
     ret = OSAL_bind(impl->sockfd, (const osal_sockaddr_t *)&addr, sizeof(addr));
     if (ret < 0)
     {
-        LOG_ERROR("HAL_CAN", "Failed to bind interface: %s", OSAL_StrError(OSAL_GetErrno()));
+        int32_t err = OSAL_GetErrno();
+        if (OSAL_EADDRINUSE == err)
+        {
+            LOG_ERROR("HAL_CAN", "CAN interface %s is already in use by another process", config->interface);
+            OSAL_close(impl->sockfd);
+            OSAL_Free(impl);
+            return OSAL_ERR_BUSY;
+        }
+        LOG_ERROR("HAL_CAN", "Failed to bind interface: %s", OSAL_StrError(err));
         OSAL_close(impl->sockfd);
         OSAL_Free(impl);
         return OSAL_ERR_GENERIC;
