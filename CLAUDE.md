@@ -14,10 +14,36 @@ Satellite Platform <--CAN--> PMC Controller <--Ethernet/UART/CAN--> Compute/Stor
 ## Quick Commands
 
 ### Build
+
+**Native Build (本地架构)**:
 ```bash
 ./build.sh              # Release build
 ./build.sh -d           # Debug build
 ./build.sh -c           # Clean build directory
+```
+
+**Cross-Compilation (交叉编译)**:
+```bash
+# ARM32 (ARMv7-A)
+./build.sh -a arm32
+./build.sh -a arm32 -d  # Debug mode
+
+# ARM64 (ARMv8-A)
+./build.sh -a arm64
+
+# RISC-V 64
+./build.sh -a riscv64
+
+# x86_64 (explicit)
+./build.sh -a x86_64
+```
+
+**Prerequisites for Cross-Compilation**:
+```bash
+# Ubuntu/Debian
+sudo apt-get install gcc-arm-linux-gnueabihf      # ARM32
+sudo apt-get install gcc-aarch64-linux-gnu        # ARM64
+sudo apt-get install gcc-riscv64-linux-gnu        # RISC-V 64
 ```
 
 ### Test
@@ -275,6 +301,33 @@ TEST_MODULE_END()
 - Project uses `-Werror` - all warnings are errors
 - Must fix all warnings to compile
 - C Standard: C99/C11 with `-D_POSIX_C_SOURCE=200809L`
+
+### Multi-Architecture Support
+- **Supported Architectures**: x86_64, ARM32 (ARMv7-A), ARM64 (ARMv8-A), RISC-V 64
+- **Type System**: Uses fixed-size types (`uint32_t`, `int64_t`) for portability
+- **Endianness**: Automatic detection with `OSAL_HTONS/HTONL` macros for byte order conversion
+- **Atomic Operations**: Uses C11 `_Atomic` with fixed-size types (`_Atomic uint32_t`)
+- **Pointer Casting**: Uses `uintptr_t` for safe pointer-to-integer conversions
+
+### Cross-Compilation
+```bash
+# ARM32 (requires arm-linux-gnueabihf-gcc)
+./build.sh -a arm32
+
+# ARM64 (requires aarch64-linux-gnu-gcc)
+./build.sh -a arm64
+
+# RISC-V 64 (requires riscv64-linux-gnu-gcc)
+./build.sh -a riscv64
+
+# Install toolchains on Ubuntu/Debian:
+sudo apt-get install gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu gcc-riscv64-linux-gnu
+```
+
+**Architecture-Specific Compiler Flags**:
+- ARM32: `-march=armv7-a -mfpu=neon-vfpv4 -mfloat-abi=hard`
+- ARM64: `-march=armv8-a`
+- RISC-V 64: `-march=rv64imafdc -mabi=lp64d`
 
 ### Hardware-Related Test Failures
 - CAN tests require `can0` device

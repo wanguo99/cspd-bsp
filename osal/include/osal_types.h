@@ -95,15 +95,82 @@ typedef uint32_t osal_id_t;
  * - 32位平台：使用32位类型
  * - 64位平台：使用64位类型
  * - 保证应用层代码在不同平台间兼容
+ *
+ * 支持架构：x86_64, ARM32, ARM64, RISC-V 32/64
  */
-#if defined(__LP64__) || defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__)
-    /* 64位平台 */
+#if defined(__LP64__) || defined(_WIN64) || \
+    defined(__x86_64__) || defined(__amd64__) || \
+    defined(__aarch64__) || \
+    (defined(__riscv) && (__riscv_xlen == 64))
+    /* 64位平台：x86_64, ARM64, RISC-V 64 */
     typedef uint64_t osal_size_t;
     typedef int64_t  osal_ssize_t;
 #else
-    /* 32位平台 */
+    /* 32位平台：ARM32, RISC-V 32, x86 */
     typedef uint32_t osal_size_t;
     typedef int32_t  osal_ssize_t;
+#endif
+
+/*===========================================================================
+ * 字节序转换宏（支持大小端平台）
+ *===========================================================================*/
+
+/*
+ * 字节序检测
+ * - __BYTE_ORDER__ 是 GCC/Clang 内置宏
+ * - 支持 x86_64(小端), ARM32/ARM64(小端), RISC-V(小端/大端可配置)
+ */
+#if defined(__BYTE_ORDER__)
+    #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+        #define OSAL_LITTLE_ENDIAN 1
+        #define OSAL_BIG_ENDIAN    0
+    #elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+        #define OSAL_LITTLE_ENDIAN 0
+        #define OSAL_BIG_ENDIAN    1
+    #else
+        #error "Unknown byte order"
+    #endif
+#else
+    /* 如果编译器不提供字节序宏，假设小端（x86/ARM/RISC-V 默认） */
+    #warning "Byte order not detected, assuming little-endian"
+    #define OSAL_LITTLE_ENDIAN 1
+    #define OSAL_BIG_ENDIAN    0
+#endif
+
+/*
+ * 字节序转换宏
+ * - OSAL_HTONS/HTONL: 主机序 -> 网络序（大端）
+ * - OSAL_NTOHS/NTOHL: 网络序（大端）-> 主机序
+ */
+#if OSAL_LITTLE_ENDIAN
+    /* 小端平台需要字节交换 */
+    #if defined(__GNUC__) || defined(__clang__)
+        /* GCC/Clang 内置函数（编译器优化为单条指令） */
+        #define OSAL_HTONS(x)  __builtin_bswap16(x)
+        #define OSAL_HTONL(x)  __builtin_bswap32(x)
+        #define OSAL_HTONLL(x) __builtin_bswap64(x)
+        #define OSAL_NTOHS(x)  __builtin_bswap16(x)
+        #define OSAL_NTOHL(x)  __builtin_bswap32(x)
+        #define OSAL_NTOHLL(x) __builtin_bswap64(x)
+    #else
+        /* 手动实现字节交换 */
+        #define OSAL_HTONS(x)  ((uint16_t)(((x) >> 8) | ((x) << 8)))
+        #define OSAL_HTONL(x)  ((uint32_t)(((x) >> 24) | (((x) & 0x00FF0000) >> 8) | \
+                                           (((x) & 0x0000FF00) << 8) | ((x) << 24)))
+        #define OSAL_HTONLL(x) ((uint64_t)(((uint64_t)OSAL_HTONL((x) & 0xFFFFFFFF) << 32) | \
+                                           OSAL_HTONL((x) >> 32)))
+        #define OSAL_NTOHS(x)  OSAL_HTONS(x)
+        #define OSAL_NTOHL(x)  OSAL_HTONL(x)
+        #define OSAL_NTOHLL(x) OSAL_HTONLL(x)
+    #endif
+#else
+    /* 大端平台无需转换 */
+    #define OSAL_HTONS(x)  (x)
+    #define OSAL_HTONL(x)  (x)
+    #define OSAL_HTONLL(x) (x)
+    #define OSAL_NTOHS(x)  (x)
+    #define OSAL_NTOHL(x)  (x)
+    #define OSAL_NTOHLL(x) (x)
 #endif
 
 /*===========================================================================

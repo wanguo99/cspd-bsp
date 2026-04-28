@@ -16,7 +16,7 @@ option(BUILD_SHARED_LIBS "Build shared libraries instead of static" ON)
 # 平台配置
 # ============================================================================
 if(NOT DEFINED PLATFORM)
-    set(PLATFORM "native" CACHE STRING "Target platform: native, generic-linux")
+    set(PLATFORM "native" CACHE STRING "Target platform: native, arm32-linux, arm64-linux, riscv64-linux")
 endif()
 
 message(STATUS "Target platform: ${PLATFORM}")
@@ -26,8 +26,73 @@ if(PLATFORM STREQUAL "native")
     # 本地编译 - 使用系统默认编译器
     message(STATUS "Building for native platform")
 
+elseif(PLATFORM STREQUAL "arm32-linux")
+    # ARM32 Linux 交叉编译
+    message(STATUS "Building for ARM32 Linux (cross-compile)")
+
+    # 设置交叉编译工具链
+    if(NOT DEFINED CMAKE_C_COMPILER)
+        set(CMAKE_C_COMPILER "arm-linux-gnueabihf-gcc" CACHE STRING "C compiler")
+    endif()
+
+    # 设置系统信息
+    set(CMAKE_SYSTEM_NAME Linux)
+    set(CMAKE_SYSTEM_PROCESSOR arm)
+
+    # ARM32 特定编译选项
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv7-a -mfpu=neon-vfpv4 -mfloat-abi=hard")
+
+    # 设置查找路径
+    set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+    set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+
+elseif(PLATFORM STREQUAL "arm64-linux")
+    # ARM64 Linux 交叉编译
+    message(STATUS "Building for ARM64 Linux (cross-compile)")
+
+    # 设置交叉编译工具链
+    if(NOT DEFINED CMAKE_C_COMPILER)
+        set(CMAKE_C_COMPILER "aarch64-linux-gnu-gcc" CACHE STRING "C compiler")
+    endif()
+
+    # 设置系统信息
+    set(CMAKE_SYSTEM_NAME Linux)
+    set(CMAKE_SYSTEM_PROCESSOR aarch64)
+
+    # ARM64 特定编译选项
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv8-a")
+
+    # 设置查找路径
+    set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+    set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+
+elseif(PLATFORM STREQUAL "riscv64-linux")
+    # RISC-V 64 Linux 交叉编译
+    message(STATUS "Building for RISC-V 64 Linux (cross-compile)")
+
+    # 设置交叉编译工具链
+    if(NOT DEFINED CMAKE_C_COMPILER)
+        set(CMAKE_C_COMPILER "riscv64-linux-gnu-gcc" CACHE STRING "C compiler")
+    endif()
+
+    # 设置系统信息
+    set(CMAKE_SYSTEM_NAME Linux)
+    set(CMAKE_SYSTEM_PROCESSOR riscv64)
+
+    # RISC-V 64 特定编译选项
+    # rv64imafdc = RV64I base + M(乘除法) + A(原子) + F(单精度浮点) + D(双精度浮点) + C(压缩指令)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=rv64imafdc -mabi=lp64d")
+
+    # 设置查找路径
+    set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+    set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+
 elseif(PLATFORM STREQUAL "generic-linux")
-    # 标准Linux交叉编译
+    # 保留旧的 generic-linux 选项以兼容现有脚本
+    message(WARNING "PLATFORM=generic-linux is deprecated, use arm32-linux instead")
     message(STATUS "Building for generic Linux (cross-compile)")
 
     # 设置交叉编译工具链
@@ -45,7 +110,7 @@ elseif(PLATFORM STREQUAL "generic-linux")
     set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 else()
-    message(FATAL_ERROR "Unknown platform: ${PLATFORM}. Supported: native, generic-linux")
+    message(FATAL_ERROR "Unknown platform: ${PLATFORM}. Supported: native, arm32-linux, arm64-linux, riscv64-linux")
 endif()
 
 # ============================================================================

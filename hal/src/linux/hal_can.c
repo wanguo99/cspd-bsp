@@ -23,9 +23,9 @@
 typedef struct
 {
     int sockfd;
-    atomic_uint tx_count;      /* 使用原子操作保证线程安全 */
-    atomic_uint rx_count;      /* 使用原子操作保证线程安全 */
-    atomic_uint err_count;     /* 使用原子操作保证线程安全 */
+    _Atomic uint32_t tx_count;      /* 使用 C11 原子操作，固定大小类型 */
+    _Atomic uint32_t rx_count;      /* 使用 C11 原子操作，固定大小类型 */
+    _Atomic uint32_t err_count;     /* 使用 C11 原子操作，固定大小类型 */
     str_t interface[IFNAMSIZ];
     uint32_t baudrate;
     bool initialized;

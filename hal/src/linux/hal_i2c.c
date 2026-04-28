@@ -115,7 +115,7 @@ int32_t HAL_I2C_Write(hal_i2c_handle_t handle, uint16_t slave_addr,
         return OSAL_ERR_GENERIC;
 
     /* 设置从设备地址 (参考: Linux内核文档 i2c-dev.txt) */
-    ret = OSAL_ioctl(impl->fd, I2C_SLAVE, (void *)(unsigned long)slave_addr);
+    ret = OSAL_ioctl(impl->fd, I2C_SLAVE, (void *)(uintptr_t)slave_addr);
     if (ret < 0)
     {
         LOG_ERROR("HAL_I2C", "Failed to set slave address 0x%02X: %s",
@@ -156,7 +156,7 @@ int32_t HAL_I2C_Read(hal_i2c_handle_t handle, uint16_t slave_addr,
         return OSAL_ERR_GENERIC;
 
     /* 设置从设备地址 */
-    ret = OSAL_ioctl(impl->fd, I2C_SLAVE, (void *)(unsigned long)slave_addr);
+    ret = OSAL_ioctl(impl->fd, I2C_SLAVE, (void *)(uintptr_t)slave_addr);
     if (ret < 0)
     {
         LOG_ERROR("HAL_I2C", "Failed to set slave address 0x%02X: %s",

@@ -30,7 +30,7 @@ typedef struct
     pthread_t   thread;
     uint32_t      priority;
     uint32_t      stack_size;
-    atomic_int  ref_count;
+    _Atomic int32_t  ref_count;  /* 使用 C11 原子类型，固定大小 */
     task_state_t state;
     volatile bool shutdown_requested;
 } osal_task_record_t;

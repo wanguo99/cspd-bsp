@@ -216,8 +216,8 @@ int32_t HAL_SPI_Transfer(hal_spi_handle_t handle, const uint8_t *tx_buffer,
 
     /* 构造传输结构 (参考: Linux内核 spidev.h) */
     OSAL_Memset(&xfer, 0, sizeof(xfer));
-    xfer.tx_buf = (unsigned long)tx_buffer;
-    xfer.rx_buf = (unsigned long)rx_buffer;
+    xfer.tx_buf = (uintptr_t)tx_buffer;
+    xfer.rx_buf = (uintptr_t)rx_buffer;
     xfer.len = size;
     xfer.speed_hz = impl->max_speed_hz;
     xfer.bits_per_word = impl->bits_per_word;
@@ -269,8 +269,8 @@ int32_t HAL_SPI_TransferMulti(hal_spi_handle_t handle, spi_transfer_t *transfers
     OSAL_Memset(xfers, 0, sizeof(struct spi_ioc_transfer) * num);
     for (i = 0; i < num; i++)
     {
-        xfers[i].tx_buf = (unsigned long)transfers[i].tx_buf;
-        xfers[i].rx_buf = (unsigned long)transfers[i].rx_buf;
+        xfers[i].tx_buf = (uintptr_t)transfers[i].tx_buf;
+        xfers[i].rx_buf = (uintptr_t)transfers[i].rx_buf;
         xfers[i].len = transfers[i].len;
         xfers[i].speed_hz = (transfers[i].speed_hz != 0) ? transfers[i].speed_hz : impl->max_speed_hz;
         xfers[i].bits_per_word = (transfers[i].bits_per_word != 0) ? transfers[i].bits_per_word : impl->bits_per_word;

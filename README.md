@@ -15,10 +15,28 @@ PMC-BSP 是专为卫星算存载荷管理控制器设计的板级支持包。
 
 ### 编译
 
+**本地编译**：
 ```bash
 ./build.sh              # Release模式
 ./build.sh -d           # Debug模式
 ./build.sh -c           # 清理
+```
+
+**交叉编译**（支持 ARM32/ARM64/RISC-V 64）：
+```bash
+# ARM32 (ARMv7-A)
+./build.sh -a arm32
+
+# ARM64 (ARMv8-A)
+./build.sh -a arm64
+
+# RISC-V 64
+./build.sh -a riscv64
+
+# 安装交叉编译工具链 (Ubuntu/Debian)
+sudo apt-get install gcc-arm-linux-gnueabihf      # ARM32
+sudo apt-get install gcc-aarch64-linux-gnu        # ARM64
+sudo apt-get install gcc-riscv64-linux-gnu        # RISC-V 64
 ```
 
 ### 运行
@@ -123,6 +141,10 @@ pmc-bsp/
 ## 核心特性
 
 - **跨平台设计**：POSIX实现，易于移植到RTOS
+- **多架构支持**：支持 x86_64、ARM32、ARM64、RISC-V 64
+  - 固定大小类型（`uint32_t`、`int64_t`）保证跨架构一致性
+  - 自动字节序检测和转换（`OSAL_HTONS/HTONL`）
+  - C11 原子操作支持所有架构
 - **模块化架构**：5层分层，职责清晰
 - **完整测试**：142+测试用例，覆盖核心功能
   - OSAL层：50+测试用例
