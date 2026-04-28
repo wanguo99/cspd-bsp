@@ -22,6 +22,12 @@
 #define OSAL_LOG_FILE_MAX_SIZE_MB    10
 #define OSAL_LOG_FILE_BACKUP_COUNT   5
 
+/* 日志缓冲区大小 */
+#define OSAL_LOG_PATH_SIZE           256U   /* 日志路径缓冲区大小 */
+#define OSAL_LOG_FILENAME_SIZE       512U   /* 日志文件名缓冲区大小 */
+#define OSAL_LOG_TIMESTAMP_SIZE      64U    /* 时间戳缓冲区大小 */
+#define OSAL_LOG_MESSAGE_SIZE        1024U  /* 日志消息缓冲区大小 */
+
 /**
  * @brief 初始化日志系统
  *

@@ -30,9 +30,9 @@ typedef enum
 static log_level_t g_log_level = LOG_LEVEL_INFO;
 static FILE *g_log_file = NULL;
 static pthread_mutex_t g_log_mutex = PTHREAD_MUTEX_INITIALIZER;
-static str_t g_log_file_path[256] = {0};
-static uint32_t g_max_log_size = 10 * 1024 * 1024;  /* 10MB */
-static uint32_t g_max_log_files = 5;
+static str_t g_log_file_path[OSAL_LOG_PATH_SIZE] = {0};
+static uint32_t g_max_log_size = OSAL_LOG_FILE_MAX_SIZE_MB * 1024 * 1024;  /* 10MB */
+static uint32_t g_max_log_files = OSAL_LOG_FILE_BACKUP_COUNT;
 
 /*
  * 日志级别名称
@@ -147,7 +147,7 @@ static void get_timestamp(str_t *buffer, size_t size)
              tm_info.tm_hour,
              tm_info.tm_min,
              tm_info.tm_sec,
-             (long)(tv.tv_usec / 1000));
+             (long)(tv.tv_usec / OSAL_USEC_PER_MSEC));
 }
 
 /**
@@ -166,21 +166,21 @@ static void rotate_log_file(void)
     }
 
     /* 删除最旧的日志文件 */
-    str_t old_file[512];
+    str_t old_file[OSAL_LOG_FILENAME_SIZE];
     snprintf(old_file, sizeof(old_file), "%s.%u", g_log_file_path, g_max_log_files);
     remove(old_file);
 
     /* 重命名日志文件 */
     for (uint32_t i = g_max_log_files - 1; i > 0; i--)
     {
-        str_t from[512], to[512];
+        str_t from[OSAL_LOG_FILENAME_SIZE], to[OSAL_LOG_FILENAME_SIZE];
         snprintf(from, sizeof(from), "%s.%u", g_log_file_path, i - 1);
         snprintf(to, sizeof(to), "%s.%u", g_log_file_path, i);
         rename(from, to);
     }
 
     /* 重命名当前日志文件 */
-    str_t current_backup[512];
+    str_t current_backup[OSAL_LOG_FILENAME_SIZE];
     snprintf(current_backup, sizeof(current_backup), "%s.1", g_log_file_path);
     rename(g_log_file_path, current_backup);
 
@@ -228,8 +228,8 @@ static void log_internal_ex(log_level_t level, const str_t *module,
                             const str_t *file, const str_t *func, int32_t line,
                             const str_t *format, va_list args)
 {
-    str_t timestamp[64];
-    str_t message[1024];
+    str_t timestamp[OSAL_LOG_TIMESTAMP_SIZE];
+    str_t message[OSAL_LOG_MESSAGE_SIZE];
     const str_t *filename = extract_filename(file);
 
     /* 检查日志级别 */
@@ -284,8 +284,8 @@ static void log_internal_ex(log_level_t level, const str_t *module,
 static void log_internal(log_level_t level, const str_t *module,
                          const str_t *format, va_list args)
 {
-    str_t timestamp[64];
-    str_t message[1024];
+    str_t timestamp[OSAL_LOG_TIMESTAMP_SIZE];
+    str_t message[OSAL_LOG_MESSAGE_SIZE];
 
     /* 检查日志级别 */
     if (level < g_log_level)
