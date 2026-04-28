@@ -367,7 +367,7 @@ TEST_CASE(test_osal_file_close_invalid_fd)
  * 测试模块注册
  *===========================================================================*/
 
-TEST_SUITE_BEGIN(test_osal_file, "test_osal_file", "OSAL")
+TEST_SUITE_BEGIN(test_osal_file, "osal_file", "OSAL")
     // OSAL文件I/O操作测试
     /* 文件打开/关闭 */
     TEST_CASE_REF(test_osal_file_open_close_success)

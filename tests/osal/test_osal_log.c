@@ -339,7 +339,7 @@ TEST_CASE(test_osal_log_performance)
  * 测试模块注册
  *===========================================================================*/
 
-TEST_SUITE_BEGIN(test_osal_log, "test_osal_log", "OSAL")
+TEST_SUITE_BEGIN(test_osal_log, "osal_log", "OSAL")
     // OSAL日志系统测试
     /* 日志初始化 */
     TEST_CASE_REF(test_osal_log_init_success)

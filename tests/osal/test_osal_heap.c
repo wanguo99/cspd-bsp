@@ -355,7 +355,7 @@ TEST_CASE(test_osal_malloc_performance)
  * 测试模块注册
  *===========================================================================*/
 
-TEST_SUITE_BEGIN(test_osal_heap, "test_osal_heap", "OSAL")
+TEST_SUITE_BEGIN(test_osal_heap, "osal_heap", "OSAL")
     // OSAL内存管理测试
     /* 内存分配 */
     TEST_CASE_REF(test_osal_malloc_success)

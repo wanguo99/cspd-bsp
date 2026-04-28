@@ -288,7 +288,7 @@ TEST_CASE(test_osal_time_get_performance)
  * 测试模块注册
  *===========================================================================*/
 
-TEST_SUITE_BEGIN(test_osal_time, "test_osal_time", "OSAL")
+TEST_SUITE_BEGIN(test_osal_time, "osal_time", "OSAL")
     // OSAL时间操作测试
     /* 延时函数 */
     TEST_CASE_REF(test_osal_msleep_success)

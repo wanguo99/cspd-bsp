@@ -280,7 +280,7 @@ TEST_CASE(test_pdl_mcu_firmware_update_null_path)
  * 测试模块注册
  *===========================================================================*/
 
-TEST_SUITE_BEGIN(test_pdl_mcu, "test_pdl_mcu", "PDL")
+TEST_SUITE_BEGIN(test_pdl_mcu, "pdl_mcu", "PDL")
     // PDL MCU外设驱动测试
     /* 初始化和清理 */
     TEST_CASE_REF(test_pdl_mcu_init_can_success)

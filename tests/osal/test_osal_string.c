@@ -349,7 +349,7 @@ TEST_CASE(test_osal_strtol_base)
  * 测试模块注册
  *===========================================================================*/
 
-TEST_SUITE_BEGIN(test_osal_string, "test_osal_string", "OSAL")
+TEST_SUITE_BEGIN(test_osal_string, "osal_string", "OSAL")
     // OSAL字符串和内存操作测试
     /* 内存操作 */
     TEST_CASE_REF(test_osal_memset_success)

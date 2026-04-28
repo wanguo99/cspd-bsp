@@ -308,7 +308,7 @@ TEST_CASE(test_atomic_boundary_values)
  * 测试套件注册
  *===========================================================================*/
 
-TEST_SUITE_BEGIN(osal_atomic, "test_osal_atomic", "OSAL")
+TEST_SUITE_BEGIN(osal_atomic, "osal_atomic", "OSAL")
     TEST_CASE_REF(test_atomic_init_and_load)
     TEST_CASE_REF(test_atomic_store)
     TEST_CASE_REF(test_atomic_increment)

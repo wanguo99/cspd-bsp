@@ -212,7 +212,7 @@ TEST_CASE(test_pdl_satellite_different_heartbeat_interval)
  * 测试模块注册
  *===========================================================================*/
 
-TEST_SUITE_BEGIN(test_pdl_satellite, "test_pdl_satellite", "PDL")
+TEST_SUITE_BEGIN(test_pdl_satellite, "pdl_satellite", "PDL")
     /* 初始化和清理 */
     TEST_CASE_REF(test_pdl_satellite_init_success)
     TEST_CASE_REF(test_pdl_satellite_init_null_config)

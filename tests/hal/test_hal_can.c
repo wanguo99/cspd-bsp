@@ -427,7 +427,7 @@ TEST_CASE(test_hal_can_different_baudrate)
  * 测试模块注册
  *===========================================================================*/
 
-TEST_SUITE_BEGIN(test_hal_can, "test_hal_can", "HAL")
+TEST_SUITE_BEGIN(test_hal_can, "hal_can", "HAL")
     // HAL CAN驱动测试
     /* 初始化和清理 */
     TEST_CASE_REF(test_hal_can_init_success)

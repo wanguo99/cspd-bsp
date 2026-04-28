@@ -441,7 +441,7 @@ TEST_CASE(test_hal_serial_different_databits)
  * 测试模块注册
  *===========================================================================*/
 
-TEST_SUITE_BEGIN(test_hal_serial, "test_hal_serial", "HAL")
+TEST_SUITE_BEGIN(test_hal_serial, "hal_serial", "HAL")
     // HAL串口驱动测试
     /* 初始化和清理 */
     TEST_CASE_REF(test_hal_serial_open_success)

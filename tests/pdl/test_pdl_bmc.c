@@ -640,7 +640,7 @@ TEST_CASE(test_pdl_bmc_get_stats_null_pointer)
  * 测试模块注册
  *===========================================================================*/
 
-TEST_SUITE_BEGIN(test_pdl_bmc, "test_pdl_bmc", "PDL")
+TEST_SUITE_BEGIN(test_pdl_bmc, "pdl_bmc", "PDL")
     // PDL BMC通信服务测试
     /* 初始化和清理 */
     TEST_CASE_REF(test_pdl_bmc_init_network_success)
