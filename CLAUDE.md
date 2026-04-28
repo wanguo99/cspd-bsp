@@ -211,6 +211,19 @@ static void task_entry(void *arg)
 3. Implement Linux version in `hal/src/linux/` (using OSAL wrappers)
 4. Add unit tests in `tests/hal/`
 
+### Adding New PDL Service
+1. Add service interface in `pdl/include/` (e.g., `pdl_satellite.h`)
+2. Implement service in `pdl/src/` (using HAL and PCL APIs)
+3. Add unit tests in `tests/pdl/`
+4. Update `pdl/README.md`
+
+### Adding New Platform Configuration
+1. Create platform directory: `pcl/platform/<vendor>/<chip>/<product>/`
+2. Add hardware config file (defines peripheral interfaces)
+3. Add application config file (maps apps to peripherals)
+4. Register platform in PCL initialization
+5. Add platform-specific tests if needed
+
 ### Adding New Test
 1. Create test file in `tests/<layer>/` (e.g., `test_osal_timer.c`)
 2. Use `TEST_MODULE_BEGIN/END` macros
@@ -313,9 +326,13 @@ output/
 
 ## Project Stats
 
-- **Code Size**: ~18,000 lines (14,000 production, 4,000 test)
-- **Files**: 108 C/H files
-- **Test Coverage**: 58+ test cases across 6 modules
+- **Code Size**: ~22,000 lines (15,500 production, 4,500 test)
+- **Files**: 116 C/H files
+- **Test Coverage**: 142+ test cases across all layers
+  - OSAL: 50+ tests (10 modules)
+  - HAL: 72 tests (CAN, UART, I2C, SPI)
+  - PCL: 5+ tests
+  - PDL: 15+ tests (Satellite, BMC, MCU)
 - **Layers**: 5 (OSAL/HAL/PCL/PDL/Apps)
 - **Platforms**: TI AM6254, vendor_demo (extensible)
 - **Build System**: CMake 3.10+, supports native and cross-compilation
