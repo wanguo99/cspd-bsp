@@ -48,8 +48,8 @@ else()
     message(FATAL_ERROR "Unsupported platform: ${PLATFORM}")
 endif()
 
-# 创建PDL静态库
-add_library(pdl STATIC ${PDL_SOURCES})
+# 创建PDL库（类型由BUILD_SHARED_LIBS控制）
+add_library(pdl ${PDL_SOURCES})
 
 # 链接接口库（继承头文件路径）
 target_link_libraries(pdl PUBLIC pdl_public_api)

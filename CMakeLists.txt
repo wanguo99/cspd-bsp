@@ -10,6 +10,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 # 构建选项
 # ============================================================================
 option(BUILD_TESTING "Build unit tests" ON)
+option(BUILD_SHARED_LIBS "Build shared libraries instead of static" ON)
 
 # ============================================================================
 # 平台配置

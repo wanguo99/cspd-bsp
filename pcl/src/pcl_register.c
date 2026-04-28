@@ -15,9 +15,9 @@
  *===========================================================================*/
 
 /* TI AM625平台 - H200载荷板 */
-extern const pcl_board_config_t pcl_h200_base;
-extern const pcl_board_config_t pcl_h200_v1;
-extern const pcl_board_config_t pcl_h200_v2;
+extern const pcl_board_config_t pcl_h200_100p_base;
+extern const pcl_board_config_t pcl_h200_100p_v1;
+extern const pcl_board_config_t pcl_h200_100p_v2;
 
 /* 其他平台配置可以在这里添加 */
 /* extern const pcl_board_config_t pcl_xxx; */
@@ -27,9 +27,9 @@ extern const pcl_board_config_t pcl_h200_v2;
  *===========================================================================*/
 
 static const pcl_board_config_t* g_all_configs[] = {
-    &pcl_h200_base,
-    &pcl_h200_v1,
-    &pcl_h200_v2,
+    &pcl_h200_100p_base,
+    &pcl_h200_100p_v1,
+    &pcl_h200_100p_v2,
     /* 在这里添加新的配置 */
 };
 

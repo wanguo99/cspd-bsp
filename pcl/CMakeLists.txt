@@ -35,8 +35,8 @@ file(GLOB_RECURSE PLATFORM_CONFIGS
     # ${PCL_PLATFORM_DIR}/xilinx/zynq/*/*.c
 )
 
-# 创建静态库
-add_library(pcl STATIC
+# 创建PCL库（类型由BUILD_SHARED_LIBS控制）
+add_library(pcl
     ${PCL_SOURCES}
     ${PLATFORM_CONFIGS}
 )

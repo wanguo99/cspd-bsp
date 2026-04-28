@@ -53,8 +53,8 @@ set(OSAL_SOURCES
     ${OSAL_SRC_DIR}/util/osal_log.c
 )
 
-# 创建OSAL静态库
-add_library(osal STATIC ${OSAL_SOURCES})
+# 创建OSAL库（类型由BUILD_SHARED_LIBS控制）
+add_library(osal ${OSAL_SOURCES})
 
 # 链接接口库（继承头文件路径）
 target_link_libraries(osal PUBLIC osal_public_api)
