@@ -178,26 +178,25 @@ TEST_CASE(test_atomic_multithread_increment)
 {
     osal_atomic_uint32_t counter;
     osal_id_t threads[THREAD_COUNT];
-    atomic_thread_data_t thread_data;
+    atomic_thread_data_t thread_data[THREAD_COUNT];
+    str_t task_name[32];
 
     OSAL_AtomicInit(&counter, 0);
-    thread_data.counter = &counter;
-    thread_data.iterations = ITERATIONS_PER_THREAD;
 
     /* 创建多个线程同时自增 */
     for (int i = 0; i < THREAD_COUNT; i++) {
-        int32_t ret = OSAL_TaskCreate(&threads[i], "atomic_test",
-                                     atomic_increment_thread, (uint32_t *)&thread_data,
+        thread_data[i].counter = &counter;
+        thread_data[i].iterations = ITERATIONS_PER_THREAD;
+
+        OSAL_Snprintf(task_name, sizeof(task_name), "atomic_test_%d", i);
+        int32_t ret = OSAL_TaskCreate(&threads[i], task_name,
+                                     atomic_increment_thread, (uint32_t *)&thread_data[i],
                                      32 * 1024, 100, 0);
         TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
     }
 
     /* 等待所有线程完成 */
-    for (int i = 0; i < THREAD_COUNT; i++) {
-        OSAL_TaskDelay(10);
-    }
-
-    OSAL_TaskDelay(500);  /* 确保所有线程完成 */
+    OSAL_TaskDelay(1000);  /* 确保所有线程完成 */
 
     /* 验证计数器值 */
     uint32_t expected = THREAD_COUNT * ITERATIONS_PER_THREAD;
@@ -232,16 +231,19 @@ TEST_CASE(test_atomic_multithread_cas)
 {
     osal_atomic_uint32_t counter;
     osal_id_t threads[THREAD_COUNT];
-    atomic_thread_data_t thread_data;
+    atomic_thread_data_t thread_data[THREAD_COUNT];
+    str_t task_name[32];
 
     OSAL_AtomicInit(&counter, 0);
-    thread_data.counter = &counter;
-    thread_data.iterations = ITERATIONS_PER_THREAD;
 
     /* 创建多个线程使用CAS自增 */
     for (int i = 0; i < THREAD_COUNT; i++) {
-        int32_t ret = OSAL_TaskCreate(&threads[i], "cas_test",
-                                     atomic_cas_thread, (uint32_t *)&thread_data,
+        thread_data[i].counter = &counter;
+        thread_data[i].iterations = ITERATIONS_PER_THREAD;
+
+        OSAL_Snprintf(task_name, sizeof(task_name), "cas_test_%d", i);
+        int32_t ret = OSAL_TaskCreate(&threads[i], task_name,
+                                     atomic_cas_thread, (uint32_t *)&thread_data[i],
                                      32 * 1024, 100, 0);
         TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
     }
