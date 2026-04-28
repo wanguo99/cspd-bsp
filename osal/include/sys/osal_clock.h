@@ -7,6 +7,10 @@
 
 #include "osal_types.h"
 
+/* 时间转换常量 */
+#define OSAL_MS_PER_SEC         1000ULL     /* 每秒毫秒数 */
+#define OSAL_NS_PER_MS          1000000ULL  /* 每毫秒纳秒数 */
+
 /*
  * 时间结构
  */

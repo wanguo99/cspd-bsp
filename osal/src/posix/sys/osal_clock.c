@@ -34,7 +34,7 @@ uint32_t OSAL_GetTickCount(void)
     clock_gettime(CLOCK_MONOTONIC, &ts);
 
     /* 防止溢出：使用64位计算后再转换 */
-    uint64_t ms = ((uint64_t)ts.tv_sec * 1000ULL) + (ts.tv_nsec / 1000000ULL);
+    uint64_t ms = ((uint64_t)ts.tv_sec * OSAL_MS_PER_SEC) + (ts.tv_nsec / OSAL_NS_PER_MS);
 
     /* 返回低32位（约49.7天后会回绕） */
     return (uint32_t)ms;
