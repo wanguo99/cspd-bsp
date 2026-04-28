@@ -36,7 +36,7 @@ static test_result_t run_test_case(const test_case_t *test)
     g_test_failed = false;
     g_current_test = test->name;
 
-    OSAL_Printf("[ RUN      ] %s\n", test->name);
+    OSAL_Printf("[  RUN     ] %s\n", test->name);
 
     /* Run setup if provided */
     if (test->setup != NULL) {
@@ -56,7 +56,7 @@ static test_result_t run_test_case(const test_case_t *test)
         OSAL_Printf("[  FAILED  ] %s\n\n", test->name);
         return TEST_RESULT_FAIL;
     } else {
-        OSAL_Printf("[       OK ] %s\n\n", test->name);
+        OSAL_Printf("[  OK      ] %s\n\n", test->name);
         return TEST_RESULT_PASS;
     }
 }
