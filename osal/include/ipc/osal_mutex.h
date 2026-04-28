@@ -7,6 +7,9 @@
 
 #include "osal_types.h"
 
+/* 死锁检测超时阈值（毫秒） */
+#define OSAL_MUTEX_DEADLOCK_TIMEOUT_MSEC  5000U  /* 5秒 */
+
 /**
  * @brief 创建互斥锁
  *

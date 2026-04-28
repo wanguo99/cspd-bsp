@@ -23,7 +23,7 @@ static osal_mutex_record_t g_osal_mutex_table[OS_MAX_MUTEXES] = {0};  /* 静态�
 static pthread_mutex_t g_mutex_table_mutex = PTHREAD_MUTEX_INITIALIZER;
 static uint32_t g_next_mutex_id = 1;
 
-static uint32_t g_deadlock_threshold_msec = 5000;
+static uint32_t g_deadlock_threshold_msec = OSAL_MUTEX_DEADLOCK_TIMEOUT_MSEC;
 static deadlock_callback_t g_deadlock_callback = NULL;
 
 /* 移除 osal_mutex_table_init() - 静态变量已自动初始化 */
@@ -238,12 +238,12 @@ int32_t OSAL_MutexLockTimeout(osal_id_t mutex_id, uint32_t timeout_msec)
         return OSAL_ERR_INVALID_ID;
 
     clock_gettime(CLOCK_REALTIME, &start_time);
-    abs_timeout.tv_sec = start_time.tv_sec + timeout_msec / 1000;
-    abs_timeout.tv_nsec = start_time.tv_nsec + (timeout_msec % 1000) * 1000000;
-    if (abs_timeout.tv_nsec >= 1000000000)
+    abs_timeout.tv_sec = start_time.tv_sec + timeout_msec / OSAL_MSEC_PER_SEC;
+    abs_timeout.tv_nsec = start_time.tv_nsec + (timeout_msec % OSAL_MSEC_PER_SEC) * OSAL_NSEC_PER_MSEC;
+    if (abs_timeout.tv_nsec >= OSAL_NSEC_PER_SEC)
     {
         abs_timeout.tv_sec++;
-        abs_timeout.tv_nsec -= 1000000000;
+        abs_timeout.tv_nsec -= OSAL_NSEC_PER_SEC;
     }
 
     ret = pthread_mutex_timedlock(target_mutex, &abs_timeout);
@@ -251,8 +251,8 @@ int32_t OSAL_MutexLockTimeout(osal_id_t mutex_id, uint32_t timeout_msec)
     if (ETIMEDOUT == ret)
     {
         clock_gettime(CLOCK_REALTIME, &current_time);
-        uint32_t wait_time = (current_time.tv_sec - start_time.tv_sec) * 1000 +
-                          (current_time.tv_nsec - start_time.tv_nsec) / 1000000;
+        uint32_t wait_time = (current_time.tv_sec - start_time.tv_sec) * OSAL_MSEC_PER_SEC +
+                          (current_time.tv_nsec - start_time.tv_nsec) / OSAL_NSEC_PER_MSEC;
 
         /* 读取死锁检测配置时加锁保护 */
         pthread_mutex_lock(&g_mutex_table_mutex);
