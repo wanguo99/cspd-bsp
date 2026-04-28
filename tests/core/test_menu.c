@@ -110,6 +110,54 @@ void libutest_list_module(const str_t *module_name)
 }
 
 /**
+ * Print all test case names
+ */
+void libutest_print_all(void)
+{
+    uint32_t suite_count = 0;
+    const test_suite_t **suites = test_get_all_suites(&suite_count);
+
+    for (uint32_t i = 0; i < suite_count; i++) {
+        const test_suite_t *suite = suites[i];
+        for (uint32_t j = 0; j < suite->case_count; j++) {
+            OSAL_Printf("%s\n", suite->cases[j].name);
+        }
+    }
+}
+
+/**
+ * Print test case names from a specific layer
+ */
+void libutest_print_layer(const str_t *layer_name)
+{
+    const test_suite_t *suites[MAX_SUITES];
+    uint32_t count = test_get_suites_by_layer(layer_name, suites, MAX_SUITES);
+
+    for (uint32_t i = 0; i < count; i++) {
+        const test_suite_t *suite = suites[i];
+        for (uint32_t j = 0; j < suite->case_count; j++) {
+            OSAL_Printf("%s\n", suite->cases[j].name);
+        }
+    }
+}
+
+/**
+ * Print test case names from a specific module
+ */
+void libutest_print_module(const str_t *module_name)
+{
+    const test_suite_t *suites[MAX_SUITES];
+    uint32_t count = test_get_suites_by_module(module_name, suites, MAX_SUITES);
+
+    for (uint32_t i = 0; i < count; i++) {
+        const test_suite_t *suite = suites[i];
+        for (uint32_t j = 0; j < suite->case_count; j++) {
+            OSAL_Printf("%s\n", suite->cases[j].name);
+        }
+    }
+}
+
+/**
  * Interactive menu - select test case
  */
 static int32_t menu_select_test(const test_suite_t *suite)

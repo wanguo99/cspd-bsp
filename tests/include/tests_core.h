@@ -68,6 +68,11 @@ void libutest_list_all(void);
 void libutest_list_layer(const str_t *layer_name);
 void libutest_list_module(const str_t *module_name);
 
+/* Core API - Test Case Printing */
+void libutest_print_all(void);
+void libutest_print_layer(const str_t *layer_name);
+void libutest_print_module(const str_t *module_name);
+
 /* Core API - Interactive Mode */
 int32_t libutest_interactive_menu(void);
 
