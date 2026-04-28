@@ -272,7 +272,7 @@ int32_t OSAL_TaskDelete(osal_id_t task_id)
     /* 等待线程优雅退出，超时时间为5秒 */
     struct timespec timeout;
     clock_gettime(CLOCK_REALTIME, &timeout);
-    timeout.tv_sec += 5;
+    timeout.tv_sec += OSAL_TASK_DELETE_TIMEOUT_SEC;
 
     int ret = pthread_timedjoin_np(thread_to_delete, NULL, &timeout);
 

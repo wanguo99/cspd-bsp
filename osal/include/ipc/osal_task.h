@@ -20,6 +20,9 @@
 #define OSAL_TASK_PRIORITY_LOW       150  /* 低优先级 */
 #define OSAL_TASK_PRIORITY_IDLE      200  /* 空闲任务 */
 
+/* 任务删除超时时间（秒） */
+#define OSAL_TASK_DELETE_TIMEOUT_SEC 5    /* 等待任务退出的超时时间 */
+
 typedef void (*osal_task_entry)(void *arg);
 
 typedef struct
