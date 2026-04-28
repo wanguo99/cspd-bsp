@@ -11,6 +11,7 @@
 #include <string.h>
 #include <sys/time.h>
 #include <pthread.h>
+#include <errno.h>
 
 /*
  * 日志级别
@@ -140,14 +141,14 @@ static void get_timestamp(str_t *buffer, size_t size)
     gettimeofday(&tv, NULL);
     localtime_r(&tv.tv_sec, &tm_info);  /* 线程安全版本 */
 
-    snprintf(buffer, size, "%04d-%02d-%02d %02d:%02d:%02d.%03ld",
+    snprintf(buffer, size, "%04d-%02d-%02d %02d:%02d:%02d.%03d",
              tm_info.tm_year + 1900,
              tm_info.tm_mon + 1,
              tm_info.tm_mday,
              tm_info.tm_hour,
              tm_info.tm_min,
              tm_info.tm_sec,
-             (long)(tv.tv_usec / OSAL_USEC_PER_MSEC));
+             (int)(tv.tv_usec / OSAL_USEC_PER_MSEC));
 }
 
 /**
@@ -168,7 +169,11 @@ static void rotate_log_file(void)
     /* 删除最旧的日志文件 */
     str_t old_file[OSAL_LOG_FILENAME_SIZE];
     snprintf(old_file, sizeof(old_file), "%s.%u", g_log_file_path, g_max_log_files);
-    remove(old_file);
+    if (remove(old_file) != 0 && errno != ENOENT)
+    {
+        /* 文件不存在是正常情况，其他错误记录到 stderr */
+        fprintf(stderr, "[LOG] 警告：无法删除旧日志文件 %s: %s\n", old_file, strerror(errno));
+    }
 
     /* 重命名日志文件 */
     for (uint32_t i = g_max_log_files - 1; i > 0; i--)
@@ -176,13 +181,21 @@ static void rotate_log_file(void)
         str_t from[OSAL_LOG_FILENAME_SIZE], to[OSAL_LOG_FILENAME_SIZE];
         snprintf(from, sizeof(from), "%s.%u", g_log_file_path, i - 1);
         snprintf(to, sizeof(to), "%s.%u", g_log_file_path, i);
-        rename(from, to);
+        if (rename(from, to) != 0 && errno != ENOENT)
+        {
+            fprintf(stderr, "[LOG] 警告：无法重命名日志文件 %s -> %s: %s\n",
+                    from, to, strerror(errno));
+        }
     }
 
     /* 重命名当前日志文件 */
     str_t current_backup[OSAL_LOG_FILENAME_SIZE];
     snprintf(current_backup, sizeof(current_backup), "%s.1", g_log_file_path);
-    rename(g_log_file_path, current_backup);
+    if (rename(g_log_file_path, current_backup) != 0)
+    {
+        fprintf(stderr, "[LOG] 警告：无法重命名当前日志文件 %s -> %s: %s\n",
+                g_log_file_path, current_backup, strerror(errno));
+    }
 
     /* 打开新的日志文件 */
     g_log_file = fopen(g_log_file_path, "a");
@@ -190,6 +203,11 @@ static void rotate_log_file(void)
     {
         fprintf(g_log_file, "[LOG ROTATION] Log file rotated\n");
         fflush(g_log_file);
+    }
+    else
+    {
+        fprintf(stderr, "[LOG] 错误：无法打开新日志文件 %s: %s\n",
+                g_log_file_path, strerror(errno));
     }
 }
 
@@ -204,7 +222,6 @@ static void check_and_rotate_log(void)
     /* 获取文件大小 */
     fseek(g_log_file, 0, SEEK_END);
     long file_size = ftell(g_log_file);
-    fseek(g_log_file, 0, SEEK_END);
 
     if (file_size > (long)g_max_log_size)
     {
