@@ -53,7 +53,7 @@ const test_suite_t* test_find_suite(const str_t *name)
     }
 
     for (uint32_t i = 0; i < g_suite_count; i++) {
-        if (OSAL_Strcmp(g_registered_suites[i]->suite_name, name) == 0) {
+        if (0 == OSAL_Strcmp(g_registered_suites[i]->suite_name, name)) {
             return g_registered_suites[i];
         }
     }
@@ -65,13 +65,13 @@ const test_suite_t* test_find_suite(const str_t *name)
  */
 uint32_t test_get_suites_by_layer(const str_t *layer_name, const test_suite_t **suites, uint32_t max_suites)
 {
-    if (layer_name == NULL || suites == NULL) {
+    if (NULL == layer_name || NULL == suites) {
         return 0;
     }
 
     uint32_t count = 0;
     for (uint32_t i = 0; i < g_suite_count && count < max_suites; i++) {
-        if (OSAL_Strcmp(g_registered_suites[i]->layer_name, layer_name) == 0) {
+        if (0 == OSAL_Strcmp(g_registered_suites[i]->layer_name, layer_name)) {
             suites[count++] = g_registered_suites[i];
         }
     }
@@ -83,13 +83,13 @@ uint32_t test_get_suites_by_layer(const str_t *layer_name, const test_suite_t **
  */
 uint32_t test_get_suites_by_module(const str_t *module_name, const test_suite_t **suites, uint32_t max_suites)
 {
-    if (module_name == NULL || suites == NULL) {
+    if (NULL == module_name || NULL == suites) {
         return 0;
     }
 
     uint32_t count = 0;
     for (uint32_t i = 0; i < g_suite_count && count < max_suites; i++) {
-        if (OSAL_Strcmp(g_registered_suites[i]->module_name, module_name) == 0) {
+        if (0 == OSAL_Strcmp(g_registered_suites[i]->module_name, module_name)) {
             suites[count++] = g_registered_suites[i];
         }
     }
@@ -112,7 +112,7 @@ uint32_t test_get_layers(const str_t **layers, uint32_t max_layers)
         /* Check if already in list */
         bool found = false;
         for (uint32_t j = 0; j < count; j++) {
-            if (OSAL_Strcmp(layers[j], layer) == 0) {
+            if (0 == OSAL_Strcmp(layers[j], layer)) {
                 found = true;
                 break;
             }
@@ -141,7 +141,7 @@ uint32_t test_get_modules(const str_t **modules, uint32_t max_modules)
         /* Check if already in list */
         bool found = false;
         for (uint32_t j = 0; j < count; j++) {
-            if (OSAL_Strcmp(modules[j], module) == 0) {
+            if (0 == OSAL_Strcmp(modules[j], module)) {
                 found = true;
                 break;
             }

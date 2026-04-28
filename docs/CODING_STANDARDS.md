@@ -576,6 +576,7 @@ int32 PCL_Register(const pcl_board_config_t *config);
 - **防止赋值错误**：避免将 `==` 误写为 `=` 导致的赋值bug
 - **编译器保护**：`if (NULL = ptr)` 会产生编译错误，而 `if (ptr = NULL)` 可能通过编译
 - **代码一致性**：统一的代码风格，提高可读性
+- **航空航天标准**：符合 MISRA C 和 DO-178C 防御性编程要求
 
 **规范**：
 ```c
@@ -584,7 +585,7 @@ if (NULL == ptr) {
     return OS_ERROR;
 }
 
-if (OS_SUCCESS == status) {
+if (OSAL_SUCCESS == ret) {
     LOG_INFO("MODULE", "Operation succeeded");
 }
 
@@ -596,12 +597,16 @@ if (true == flag) {
     do_something();
 }
 
+if (ETIMEDOUT == errno) {
+    handle_timeout();
+}
+
 /* ❌ 错误：变量在左侧 */
 if (ptr == NULL) {          // ❌ 应改为 if (NULL == ptr)
     return OS_ERROR;
 }
 
-if (status == OS_SUCCESS) { // ❌ 应改为 if (OS_SUCCESS == status)
+if (ret == OSAL_SUCCESS) {  // ❌ 应改为 if (OSAL_SUCCESS == ret)
     return OS_SUCCESS;
 }
 
@@ -611,19 +616,38 @@ if (count == 0) {           // ❌ 应改为 if (0 == count)
 ```
 
 **适用范围**：
-- NULL 指针检查
-- 枚举值比较
-- 宏定义常量比较
-- 数字字面量比较
-- 布尔值比较
+- NULL 指针检查：`if (NULL == ptr)`
+- 枚举值比较：`if (OSAL_SUCCESS == ret)`
+- 宏定义常量比较：`if (OS_MAX_TASKS == count)`
+- 数字字面量比较：`if (0 == size)`, `if (1 == flag)`
+- 布尔值比较：`if (true == enabled)`, `if (false == initialized)`
+- 错误码比较：`if (ETIMEDOUT == errno)`, `if (EAGAIN == err)`
 
 **注意事项**：
-- 仅适用于 `==` 和 `!=` 运算符
-- 不适用于 `<`, `>`, `<=`, `>=` 运算符（保持自然顺序）
-- 两个变量比较时保持自然顺序
+- **仅适用于 `==` 和 `!=` 运算符**
+- **不适用于 `<`, `>`, `<=`, `>=` 运算符**（保持自然顺序）
+- **两个变量比较时保持自然顺序**
+- **字符串比较函数返回值**：`if (0 == strcmp(a, b))` 或 `if (0 == OSAL_Strcmp(a, b))`
 
-**示例**：
+**完整示例**：
 ```c
+/* ✅ 正确：等值比较，常量在左 */
+if (NULL == ptr) {
+    return OSAL_ERR_INVALID_POINTER;
+}
+
+if (OSAL_SUCCESS == OSAL_MutexCreate(&mutex_id, "mutex", 0)) {
+    LOG_INFO("MODULE", "Mutex created");
+}
+
+if (0 == g_initialized) {
+    initialize_module();
+}
+
+if (0 == strcmp(name, "default")) {
+    use_default_config();
+}
+
 /* ✅ 正确：范围比较保持自然顺序 */
 if (count > 0) {
     process_data();
@@ -633,9 +657,89 @@ if (size < MAX_SIZE) {
     allocate_buffer();
 }
 
+if (timeout >= 1000) {
+    LOG_WARN("MODULE", "Long timeout: %d ms", timeout);
+}
+
 /* ✅ 正确：两个变量比较保持自然顺序 */
 if (current_size == max_size) {
     resize_buffer();
+}
+
+if (tx_count != rx_count) {
+    LOG_ERROR("MODULE", "Count mismatch: tx=%u, rx=%u", tx_count, rx_count);
+}
+
+/* ✅ 正确：复合条件 */
+if (NULL != config && 0 == config->count) {
+    return OSAL_ERR_INVALID_SIZE;
+}
+
+if (OSAL_SUCCESS == ret && 0 < bytes_read) {
+    process_buffer(buffer, bytes_read);
+}
+```
+
+**实际代码示例**：
+```c
+/* OSAL 层 - 队列操作 */
+int32_t OSAL_QueueCreate(osal_id_t *queue_id, const char *queue_name, ...)
+{
+    if (NULL == queue_id)
+        return OSAL_ERR_INVALID_POINTER;
+    
+    if (NULL == queue_name || 0 == strlen(queue_name))
+        return OSAL_ERR_NAME_TOO_LONG;
+    
+    if (0 == queue_depth || 0 == data_size)
+        return OSAL_ERR_QUEUE_INVALID_SIZE;
+    
+    /* ... */
+}
+
+/* HAL 层 - CAN 驱动 */
+int32_t HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32_t timeout)
+{
+    if (NULL == handle || NULL == frame)
+        return OSAL_ERR_INVALID_POINTER;
+    
+    ret = OSAL_read(impl->sockfd, &can_frame, sizeof(struct can_frame));
+    if (ret < 0) {
+        int32_t err = OSAL_GetErrno();
+        if (OSAL_EAGAIN == err || OSAL_EWOULDBLOCK == err)
+            return OSAL_ERR_TIMEOUT;
+        return OSAL_ERR_GENERIC;
+    }
+    
+    /* ... */
+}
+
+/* PDL 层 - 卫星服务 */
+int32_t PDL_SatelliteInit(const satellite_service_config_t *config, ...)
+{
+    if (NULL == config || NULL == handle)
+        return OSAL_ERR_GENERIC;
+    
+    if (OSAL_SUCCESS != OSAL_MutexCreate(&ctx->mutex, "sat_mutex", 0)) {
+        LOG_ERROR("SAT", "Failed to create mutex");
+        return OSAL_ERR_GENERIC;
+    }
+    
+    /* ... */
+}
+```
+
+**编译器检查**：
+现代编译器（GCC/Clang）会对 `if (ptr = NULL)` 产生警告，但 Yoda 条件提供了额外的保护层：
+```c
+/* 编译错误：常量不能作为左值 */
+if (NULL = ptr) {  // ✅ 编译器报错：cannot assign to NULL
+    /* ... */
+}
+
+/* 可能通过编译（取决于警告级别） */
+if (ptr = NULL) {  // ⚠️ 可能只是警告，不是错误
+    /* ... */
 }
 ```
 

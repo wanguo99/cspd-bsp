@@ -42,10 +42,10 @@ int32_t HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
     int ret;
 
     /* 参数检查 */
-    if (config == NULL || handle == NULL)
+    if (NULL == config || NULL == handle)
         return OSAL_ERR_INVALID_POINTER;
 
-    if (config->interface == NULL || OSAL_Strlen(config->interface) == 0)
+    if (NULL == config->interface || 0 == OSAL_Strlen(config->interface))
         return OSAL_ERR_GENERIC;
 
     if (OSAL_Strlen(config->interface) >= IFNAMSIZ)
@@ -168,7 +168,7 @@ int32_t HAL_CAN_Send(hal_can_handle_t handle, const can_frame_t *frame)
     osal_ssize_t ret;
 
     /* 参数检查 */
-    if (impl == NULL || frame == NULL)
+    if (NULL == impl || NULL == frame)
         return OSAL_ERR_INVALID_POINTER;
 
     if (!impl->initialized || impl->sockfd < 0)
@@ -217,7 +217,7 @@ int32_t HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32_t timeou
     osal_ssize_t ret;
 
     /* 参数检查 */
-    if (impl == NULL || frame == NULL)
+    if (NULL == impl || NULL == frame)
         return OSAL_ERR_INVALID_POINTER;
 
     if (!impl->initialized || impl->sockfd < 0)

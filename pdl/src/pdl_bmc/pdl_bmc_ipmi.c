@@ -25,7 +25,7 @@ int32_t bmc_ipmi_pack_command(uint8_t cmd_code,
                            uint32_t frame_size,
                            uint32_t *actual_size)
 {
-    if (frame == NULL || actual_size == NULL)
+    if (NULL == frame || NULL == actual_size)
     {
         return OSAL_ERR_GENERIC;
     }
@@ -40,7 +40,7 @@ int32_t bmc_ipmi_pack_command(uint8_t cmd_code,
     frame[pos++] = cmd_code;
     frame[pos++] = subcmd;
 
-    if (data != NULL && data_len > 0)
+    if (NULL != data && data_len > 0)
     {
         OSAL_Memcpy(&frame[pos], data, data_len);
         pos += data_len;
@@ -60,7 +60,7 @@ int32_t bmc_ipmi_unpack_response(const uint8_t *frame,
                               uint32_t data_size,
                               uint32_t *actual_size)
 {
-    if (frame == NULL || frame_len < 1)
+    if (NULL == frame || frame_len < 1)
     {
         return OSAL_ERR_GENERIC;
     }
@@ -72,7 +72,7 @@ int32_t bmc_ipmi_unpack_response(const uint8_t *frame,
     }
 
     /* 剩余是数据 */
-    if (data != NULL && frame_len > 1)
+    if (NULL != data && frame_len > 1)
     {
         uint32_t copy_len = (frame_len - 1 < data_size) ? (frame_len - 1) : data_size;
         OSAL_Memcpy(data, &frame[1], copy_len);
@@ -157,7 +157,7 @@ int32_t bmc_ipmi_get_power_state(void *comm_handle,
     uint32_t resp_len;
 
     int32_t ret = send_recv(comm_handle, cmd, cmd_len, resp, sizeof(resp), &resp_len);
-    if (ret == OSAL_SUCCESS && resp_len >= 2)
+    if (OSAL_SUCCESS == ret && resp_len >= 2)
     {
         uint8_t status;
         uint8_t data[16];
@@ -165,7 +165,7 @@ int32_t bmc_ipmi_get_power_state(void *comm_handle,
 
         bmc_ipmi_unpack_response(resp, resp_len, &status, data, sizeof(data), &data_len);
 
-        if (status == 0 && data_len >= 1)
+        if (0 == status && data_len >= 1)
         {
             /* Bit 0: power is on */
             *state = (data[0] & 0x01) ? BMC_POWER_ON : BMC_POWER_OFF;

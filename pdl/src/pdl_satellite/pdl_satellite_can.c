@@ -16,7 +16,7 @@
  */
 int32_t satellite_can_init(const char *device, uint32_t bitrate, void **handle)
 {
-    if (device == NULL || handle == NULL)
+    if (NULL == device || NULL == handle)
     {
         return OSAL_ERR_GENERIC;
     }
@@ -30,7 +30,7 @@ int32_t satellite_can_init(const char *device, uint32_t bitrate, void **handle)
     };
 
     hal_can_handle_t can_handle;
-    if (HAL_CAN_Init(&can_config, &can_handle) != OSAL_SUCCESS)
+    if (OSAL_SUCCESS != HAL_CAN_Init(&can_config, &can_handle))
     {
         return OSAL_ERR_GENERIC;
     }
@@ -58,7 +58,7 @@ int32_t satellite_can_deinit(void *handle)
  */
 int32_t satellite_can_recv(void *handle, satellite_can_msg_t *msg, uint32_t timeout_ms)
 {
-    if (handle == NULL || msg == NULL)
+    if (NULL == handle || NULL == msg)
     {
         return OSAL_ERR_GENERIC;
     }
@@ -94,7 +94,7 @@ int32_t satellite_can_recv(void *handle, satellite_can_msg_t *msg, uint32_t time
  */
 int32_t satellite_can_send(void *handle, const satellite_can_msg_t *msg)
 {
-    if (handle == NULL || msg == NULL)
+    if (NULL == handle || NULL == msg)
     {
         return OSAL_ERR_GENERIC;
     }

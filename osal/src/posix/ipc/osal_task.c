@@ -53,7 +53,7 @@ static int32_t allocate_task_id(osal_id_t *task_id)
     for (uint32_t i = 0; i < OS_MAX_TASKS; i++)
     {
         uint64_t mask = (1ULL << i);
-        if ((g_task_id_bitmap & mask) == 0)
+        if (0 == (g_task_id_bitmap & mask))
         {
             /* 找到空闲ID，标记为已使用 */
             g_task_id_bitmap |= mask;
@@ -155,10 +155,10 @@ int32_t OSAL_TaskCreate(osal_id_t *task_id,
     pthread_attr_t attr;
     task_wrapper_arg_t *wrapper_arg = NULL;
 
-    if (task_id == NULL || function_pointer == NULL)
+    if (NULL == task_id || NULL == function_pointer)
         return OSAL_ERR_INVALID_POINTER;
 
-    if (task_name == NULL || strlen(task_name) >= OS_MAX_API_NAME)
+    if (NULL == task_name || strlen(task_name) >= OS_MAX_API_NAME)
         return OSAL_ERR_NAME_TOO_LONG;
 
     if (priority < OS_TASK_PRIORITY_MIN || priority > OS_TASK_PRIORITY_MAX)
@@ -221,8 +221,8 @@ int32_t OSAL_TaskCreate(osal_id_t *task_id,
     g_osal_task_table[slot].state = TASK_STATE_READY;
     atomic_init(&g_osal_task_table[slot].ref_count, 1);
 
-    if (pthread_create(&g_osal_task_table[slot].thread, &attr,
-                       task_wrapper, wrapper_arg) != 0)
+    if (0 != pthread_create(&g_osal_task_table[slot].thread, &attr,
+                       task_wrapper, wrapper_arg))
     {
         g_osal_task_table[slot].is_used = false;
         release_task_id(new_task_id);  /* 释放已分配的ID */
@@ -247,7 +247,7 @@ int32_t OSAL_TaskDelete(osal_id_t task_id)
     bool found = false;
     uint32_t slot_index = 0;
 
-    if (task_id == OS_OBJECT_ID_UNDEFINED)
+    if (OS_OBJECT_ID_UNDEFINED == task_id)
         return OSAL_ERR_INVALID_ID;
 
     pthread_mutex_lock(&g_task_table_mutex);
@@ -344,7 +344,7 @@ bool OSAL_TaskShouldShutdown(void)
 
 int32_t OSAL_TaskGetIdByName(osal_id_t *task_id, const char *task_name)
 {
-    if (task_id == NULL || task_name == NULL)
+    if (NULL == task_id || NULL == task_name)
         return OSAL_ERR_INVALID_POINTER;
 
     pthread_mutex_lock(&g_task_table_mutex);

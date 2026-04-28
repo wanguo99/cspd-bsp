@@ -30,7 +30,7 @@ typedef struct
  */
 int32_t PDL_MCU_Init(const mcu_config_t *config, mcu_handle_t *handle)
 {
-    if (config == NULL || handle == NULL)
+    if (NULL == config || NULL == handle)
     {
         return OSAL_ERR_GENERIC;
     }
@@ -46,7 +46,7 @@ int32_t PDL_MCU_Init(const mcu_config_t *config, mcu_handle_t *handle)
     ctx->interface = config->interface;
 
     /* 创建互斥锁 */
-    if (OSAL_MutexCreate(&ctx->mutex, "mcu_mutex", 0) != OSAL_SUCCESS)
+    if (OSAL_SUCCESS != OSAL_MutexCreate(&ctx->mutex, "mcu_mutex", 0))
     {
         OSAL_Free(ctx);
         return OSAL_ERR_GENERIC;
@@ -158,7 +158,7 @@ static int32_t mcu_send_command_internal(mcu_context_t *ctx,
  */
 int32_t PDL_MCU_GetVersion(mcu_handle_t handle, mcu_version_t *version)
 {
-    if (handle == NULL || version == NULL)
+    if (NULL == handle || NULL == version)
     {
         return OSAL_ERR_GENERIC;
     }
@@ -170,7 +170,7 @@ int32_t PDL_MCU_GetVersion(mcu_handle_t handle, mcu_version_t *version)
     int32_t ret = mcu_send_command_internal(ctx, MCU_CMD_GET_VERSION,
                                          NULL, 0, resp, sizeof(resp), &actual_size);
 
-    if (ret == OSAL_SUCCESS && actual_size >= 4)
+    if (OSAL_SUCCESS == ret && actual_size >= 4)
     {
         version->major = resp[0];
         version->minor = resp[1];
@@ -189,7 +189,7 @@ int32_t PDL_MCU_GetVersion(mcu_handle_t handle, mcu_version_t *version)
  */
 int32_t PDL_MCU_GetStatus(mcu_handle_t handle, mcu_status_t *status)
 {
-    if (handle == NULL || status == NULL)
+    if (NULL == handle || NULL == status)
     {
         return OSAL_ERR_GENERIC;
     }
@@ -201,7 +201,7 @@ int32_t PDL_MCU_GetStatus(mcu_handle_t handle, mcu_status_t *status)
     int32_t ret = mcu_send_command_internal(ctx, MCU_CMD_GET_STATUS,
                                          NULL, 0, resp, sizeof(resp), &actual_size);
 
-    if (ret == OSAL_SUCCESS && actual_size >= 8)
+    if (OSAL_SUCCESS == ret && actual_size >= 8)
     {
         status->online = true;
         status->uptime_sec = (resp[0] << 24) | (resp[1] << 16) |
@@ -241,7 +241,7 @@ int32_t PDL_MCU_Reset(mcu_handle_t handle)
  */
 int32_t PDL_MCU_ReadRegister(mcu_handle_t handle, uint8_t reg_addr, uint8_t *value)
 {
-    if (handle == NULL || value == NULL)
+    if (NULL == handle || NULL == value)
     {
         return OSAL_ERR_GENERIC;
     }
@@ -253,7 +253,7 @@ int32_t PDL_MCU_ReadRegister(mcu_handle_t handle, uint8_t reg_addr, uint8_t *val
     int32_t ret = mcu_send_command_internal(ctx, MCU_CMD_READ_REG,
                                          &reg_addr, 1, resp, sizeof(resp), &actual_size);
 
-    if (ret == OSAL_SUCCESS && actual_size >= 1)
+    if (OSAL_SUCCESS == ret && actual_size >= 1)
     {
         *value = resp[0];
     }

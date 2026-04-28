@@ -198,7 +198,7 @@ static void rotate_log_file(void)
  */
 static void check_and_rotate_log(void)
 {
-    if (g_log_file == NULL || g_log_file_path[0] == '\0')
+    if (NULL == g_log_file || g_log_file_path[0] == '\0')
         return;
 
     /* 获取文件大小 */

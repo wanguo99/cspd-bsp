@@ -47,7 +47,7 @@ int32_t HAL_Serial_Open(const char *device, const hal_serial_config_t *config, h
     osal_termios_t tty;
     uint32_t speed;
 
-    if (device == NULL || handle == NULL)
+    if (NULL == device || NULL == handle)
     {
         return OSAL_ERR_INVALID_POINTER;
     }
@@ -79,7 +79,7 @@ int32_t HAL_Serial_Open(const char *device, const hal_serial_config_t *config, h
     OSAL_fcntl(ctx->fd, OSAL_F_SETFL, 0);
 
     /* 获取当前配置 */
-    if (OSAL_tcgetattr(ctx->fd, &tty) != 0)
+    if (0 != OSAL_tcgetattr(ctx->fd, &tty))
     {
         LOG_ERROR("HAL_Serial", "Failed to get attributes: %s", OSAL_StrError(OSAL_GetErrno()));
         OSAL_close(ctx->fd);
@@ -94,7 +94,7 @@ int32_t HAL_Serial_Open(const char *device, const hal_serial_config_t *config, h
 
     /* 配置数据位 */
     tty.c_cflag &= ~OSAL_CSIZE;
-    if (config->data_bits == 7)
+    if (7 == config->data_bits)
     {
         tty.c_cflag |= OSAL_CS7;
     }
@@ -104,7 +104,7 @@ int32_t HAL_Serial_Open(const char *device, const hal_serial_config_t *config, h
     }
 
     /* 配置停止位 */
-    if (config->stop_bits == 2)
+    if (2 == config->stop_bits)
     {
         tty.c_cflag |= OSAL_CSTOPB;
     }
@@ -114,12 +114,12 @@ int32_t HAL_Serial_Open(const char *device, const hal_serial_config_t *config, h
     }
 
     /* 配置校验位 */
-    if (config->parity == 1)  /* 奇校验 */
+    if (1 == config->parity)  /* 奇校验 */
     {
         tty.c_cflag |= OSAL_PARENB;
         tty.c_cflag |= OSAL_PARODD;
     }
-    else if (config->parity == 2)  /* 偶校验 */
+    else if (2 == config->parity)  /* 偶校验 */
     {
         tty.c_cflag |= OSAL_PARENB;
         tty.c_cflag &= ~OSAL_PARODD;
@@ -148,7 +148,7 @@ int32_t HAL_Serial_Open(const char *device, const hal_serial_config_t *config, h
     tty.c_cc[OSAL_VTIME] = 0;  /* 不等待 */
 
     /* 应用配置 */
-    if (OSAL_tcsetattr(ctx->fd, OSAL_TCSANOW, &tty) != 0)
+    if (0 != OSAL_tcsetattr(ctx->fd, OSAL_TCSANOW, &tty))
     {
         LOG_ERROR("HAL_Serial", "Failed to set attributes: %s", OSAL_StrError(OSAL_GetErrno()));
         OSAL_close(ctx->fd);
@@ -205,7 +205,7 @@ int32_t HAL_Serial_Write(hal_serial_handle_t handle, const void *buffer, uint32_
     int ret;
     int32_t written;
 
-    if (ctx == NULL || buffer == NULL)
+    if (NULL == ctx || NULL == buffer)
     {
         return OSAL_ERR_INVALID_POINTER;
     }
@@ -258,7 +258,7 @@ int32_t HAL_Serial_Read(hal_serial_handle_t handle, void *buffer, uint32_t size,
     int ret;
     int32_t nread;
 
-    if (ctx == NULL || buffer == NULL)
+    if (NULL == ctx || NULL == buffer)
     {
         return OSAL_ERR_INVALID_POINTER;
     }
@@ -318,7 +318,7 @@ int32_t HAL_Serial_Flush(hal_serial_handle_t handle)
     }
 
     /* 清空输入输出缓冲区 */
-    if (OSAL_tcflush(ctx->fd, OSAL_TCIOFLUSH) != 0)
+    if (0 != OSAL_tcflush(ctx->fd, OSAL_TCIOFLUSH))
     {
         LOG_ERROR("HAL_Serial", "Flush error: %s", OSAL_StrError(OSAL_GetErrno()));
         return OSAL_ERR_GENERIC;

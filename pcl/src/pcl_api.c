@@ -77,7 +77,7 @@ int32_t PCL_Register(const pcl_board_config_t *config)
     }
 
     /* 验证配置 */
-    if (PCL_Validate(config) != OSAL_SUCCESS) {
+    if (OSAL_SUCCESS != PCL_Validate(config)) {
         LOG_ERROR("XCONFIG", "Config validation failed: %s/%s/%s",
                   config->platform, config->product, config->version);
         return OSAL_ERR_GENERIC;
@@ -86,9 +86,9 @@ int32_t PCL_Register(const pcl_board_config_t *config)
     /* 检查重复 */
     for (uint32_t i = 0; i < g_registry.count; i++) {
         const pcl_board_config_t *existing = g_registry.configs[i];
-        if (OSAL_Strcmp(existing->platform, config->platform) == 0 &&
-            OSAL_Strcmp(existing->product, config->product) == 0 &&
-            OSAL_Strcmp(existing->version, config->version) == 0) {
+        if (0 == OSAL_Strcmp(existing->platform, config->platform) &&
+            0 == OSAL_Strcmp(existing->product, config->product) &&
+            0 == OSAL_Strcmp(existing->version, config->version)) {
             LOG_WARN("XCONFIG", "Config already registered: %s/%s/%s",
                      config->platform, config->product, config->version);
             return OSAL_ERR_GENERIC;
@@ -117,23 +117,23 @@ const pcl_board_config_t* PCL_Find(const char *platform,
                                        const char *product,
                                        const char *version)
 {
-    if (!g_initialized || platform == NULL || product == NULL) {
+    if (!g_initialized || NULL == platform || NULL == product) {
         return NULL;
     }
 
     for (uint32_t i = 0; i < g_registry.count; i++) {
         const pcl_board_config_t *config = g_registry.configs[i];
 
-        if (OSAL_Strcmp(config->platform, platform) != 0) {
+        if (0 != OSAL_Strcmp(config->platform, platform)) {
             continue;
         }
 
-        if (OSAL_Strcmp(config->product, product) != 0) {
+        if (0 != OSAL_Strcmp(config->product, product)) {
             continue;
         }
 
         /* 如果指定了版本，则精确匹配；否则返回第一个匹配的 */
-        if (version == NULL || OSAL_Strcmp(config->version, version) == 0) {
+        if (NULL == version || 0 == OSAL_Strcmp(config->version, version)) {
             return config;
         }
     }
@@ -143,7 +143,7 @@ const pcl_board_config_t* PCL_Find(const char *platform,
 
 int32_t PCL_List(const pcl_board_config_t **configs, uint32_t *count)
 {
-    if (!g_initialized || configs == NULL || count == NULL) {
+    if (!g_initialized || NULL == configs || NULL == count) {
         return OSAL_ERR_GENERIC;
     }
 
@@ -165,7 +165,7 @@ int32_t PCL_List(const pcl_board_config_t **configs, uint32_t *count)
 const pcl_mcu_cfg_t* PCL_HW_FindMCU(const pcl_board_config_t *board,
                                         const char *name)
 {
-    if (board == NULL || name == NULL) {
+    if (NULL == board || NULL == name) {
         return NULL;
     }
 
@@ -181,7 +181,7 @@ const pcl_mcu_cfg_t* PCL_HW_FindMCU(const pcl_board_config_t *board,
 const pcl_mcu_cfg_t* PCL_HW_GetMCU(const pcl_board_config_t *board,
                                        uint32_t id)
 {
-    if (board == NULL || id >= board->mcu_count) {
+    if (NULL == board || id >= board->mcu_count) {
         return NULL;
     }
 
@@ -191,7 +191,7 @@ const pcl_mcu_cfg_t* PCL_HW_GetMCU(const pcl_board_config_t *board,
 const pcl_bmc_cfg_t* PCL_HW_FindBMC(const pcl_board_config_t *board,
                                         const char *name)
 {
-    if (board == NULL || name == NULL) {
+    if (NULL == board || NULL == name) {
         return NULL;
     }
 
@@ -207,7 +207,7 @@ const pcl_bmc_cfg_t* PCL_HW_FindBMC(const pcl_board_config_t *board,
 const pcl_bmc_cfg_t* PCL_HW_GetBMC(const pcl_board_config_t *board,
                                        uint32_t id)
 {
-    if (board == NULL || id >= board->bmc_count) {
+    if (NULL == board || id >= board->bmc_count) {
         return NULL;
     }
 
@@ -217,7 +217,7 @@ const pcl_bmc_cfg_t* PCL_HW_GetBMC(const pcl_board_config_t *board,
 const pcl_satellite_cfg_t* PCL_HW_FindSatellite(const pcl_board_config_t *board,
                                                      const char *name)
 {
-    if (board == NULL || name == NULL) {
+    if (NULL == board || NULL == name) {
         return NULL;
     }
 
@@ -233,7 +233,7 @@ const pcl_satellite_cfg_t* PCL_HW_FindSatellite(const pcl_board_config_t *board,
 const pcl_satellite_cfg_t* PCL_HW_GetSatellite(const pcl_board_config_t *board,
                                                     uint32_t id)
 {
-    if (board == NULL || id >= board->satellite_count) {
+    if (NULL == board || id >= board->satellite_count) {
         return NULL;
     }
 
@@ -243,7 +243,7 @@ const pcl_satellite_cfg_t* PCL_HW_GetSatellite(const pcl_board_config_t *board,
 const pcl_sensor_cfg_t* PCL_HW_FindSensor(const pcl_board_config_t *board,
                                               const char *name)
 {
-    if (board == NULL || name == NULL) {
+    if (NULL == board || NULL == name) {
         return NULL;
     }
 
@@ -259,7 +259,7 @@ const pcl_sensor_cfg_t* PCL_HW_FindSensor(const pcl_board_config_t *board,
 const pcl_sensor_cfg_t* PCL_HW_GetSensor(const pcl_board_config_t *board,
                                              uint32_t id)
 {
-    if (board == NULL || id >= board->sensor_count) {
+    if (NULL == board || id >= board->sensor_count) {
         return NULL;
     }
 
@@ -269,7 +269,7 @@ const pcl_sensor_cfg_t* PCL_HW_GetSensor(const pcl_board_config_t *board,
 const pcl_storage_cfg_t* PCL_HW_FindStorage(const pcl_board_config_t *board,
                                                  const char *name)
 {
-    if (board == NULL || name == NULL) {
+    if (NULL == board || NULL == name) {
         return NULL;
     }
 
@@ -285,7 +285,7 @@ const pcl_storage_cfg_t* PCL_HW_FindStorage(const pcl_board_config_t *board,
 const pcl_storage_cfg_t* PCL_HW_GetStorage(const pcl_board_config_t *board,
                                                 uint32_t id)
 {
-    if (board == NULL || id >= board->storage_count) {
+    if (NULL == board || id >= board->storage_count) {
         return NULL;
     }
 
@@ -295,7 +295,7 @@ const pcl_storage_cfg_t* PCL_HW_GetStorage(const pcl_board_config_t *board,
 const pcl_power_domain_t* PCL_HW_FindPowerDomain(const pcl_board_config_t *board,
                                                       const char *name)
 {
-    if (board == NULL || name == NULL) {
+    if (NULL == board || NULL == name) {
         return NULL;
     }
 
@@ -315,7 +315,7 @@ const pcl_power_domain_t* PCL_HW_FindPowerDomain(const pcl_board_config_t *board
 const pcl_app_config_t* PCL_APP_Find(const pcl_board_config_t *board,
                                          const char *app_name)
 {
-    if (board == NULL || app_name == NULL) {
+    if (NULL == board || NULL == app_name) {
         return NULL;
     }
 
@@ -331,7 +331,7 @@ const pcl_app_config_t* PCL_APP_Find(const pcl_board_config_t *board,
 const pcl_app_device_mapping_t* PCL_APP_FindDevice(const pcl_app_config_t *app,
                                                         const char *function)
 {
-    if (app == NULL || function == NULL) {
+    if (NULL == app || NULL == function) {
         return NULL;
     }
 
@@ -347,7 +347,7 @@ const pcl_app_device_mapping_t* PCL_APP_FindDevice(const pcl_app_config_t *app,
 const void* PCL_APP_GetDeviceByMapping(const pcl_board_config_t *board,
                                              const pcl_app_device_mapping_t *mapping)
 {
-    if (board == NULL || mapping == NULL) {
+    if (NULL == board || NULL == mapping) {
         return NULL;
     }
 
@@ -386,14 +386,14 @@ static int32_t validate_can_interface(const pcl_can_cfg_t *can, const char *owne
         return OSAL_ERR_GENERIC;
     }
 
-    if (can->bitrate == 0) {
+    if (0 == can->bitrate) {
         LOG_ERROR("XCONFIG", "%s: CAN bitrate is 0", owner);
         return OSAL_ERR_GENERIC;
     }
 
     /* 常见CAN波特率：125K, 250K, 500K, 1M */
-    if (can->bitrate != 125000 && can->bitrate != 250000 &&
-        can->bitrate != 500000 && can->bitrate != 1000000) {
+    if (125000 != can->bitrate && 250000 != can->bitrate &&
+        500000 != can->bitrate && 1000000 != can->bitrate) {
         LOG_WARN("XCONFIG", "%s: Unusual CAN bitrate %u", owner, can->bitrate);
     }
 
@@ -410,7 +410,7 @@ static int32_t validate_uart_interface(const pcl_uart_cfg_t *uart, const char *o
         return OSAL_ERR_GENERIC;
     }
 
-    if (uart->baudrate == 0) {
+    if (0 == uart->baudrate) {
         LOG_ERROR("XCONFIG", "%s: UART baudrate is 0", owner);
         return OSAL_ERR_GENERIC;
     }
@@ -452,7 +452,7 @@ static int32_t validate_i2c_interface(const pcl_i2c_cfg_t *i2c, const char *owne
         return OSAL_ERR_GENERIC;
     }
 
-    if (i2c->speed_hz == 0) {
+    if (0 == i2c->speed_hz) {
         LOG_ERROR("XCONFIG", "%s: I2C speed is 0", owner);
         return OSAL_ERR_GENERIC;
     }
@@ -470,7 +470,7 @@ static int32_t validate_spi_interface(const pcl_spi_cfg_t *spi, const char *owne
         return OSAL_ERR_GENERIC;
     }
 
-    if (spi->speed_hz == 0) {
+    if (0 == spi->speed_hz) {
         LOG_ERROR("XCONFIG", "%s: SPI speed is 0", owner);
         return OSAL_ERR_GENERIC;
     }
@@ -481,7 +481,7 @@ static int32_t validate_spi_interface(const pcl_spi_cfg_t *spi, const char *owne
         return OSAL_ERR_GENERIC;
     }
 
-    if (spi->bits_per_word == 0 || spi->bits_per_word > 32) {
+    if (0 == spi->bits_per_word || spi->bits_per_word > 32) {
         LOG_ERROR("XCONFIG", "%s: SPI bits_per_word %u out of range [1-32]",
                   owner, spi->bits_per_word);
         return OSAL_ERR_GENERIC;
@@ -591,7 +591,7 @@ static int32_t validate_bmc_channel(const pcl_bmc_cfg_t *bmc)
                       bmc->name);
             return OSAL_ERR_GENERIC;
         }
-        if (lan->port == 0) {
+        if (0 == lan->port) {
             LOG_ERROR("XCONFIG", "BMC '%s': Primary IPMI port is 0", bmc->name);
             return OSAL_ERR_GENERIC;
         }
@@ -611,7 +611,7 @@ static int32_t validate_bmc_channel(const pcl_bmc_cfg_t *bmc)
                       bmc->name);
             return OSAL_ERR_GENERIC;
         }
-        if (serial->baudrate == 0) {
+        if (0 == serial->baudrate) {
             LOG_ERROR("XCONFIG", "BMC '%s': Backup IPMI serial baudrate is 0",
                       bmc->name);
             return OSAL_ERR_GENERIC;
@@ -633,23 +633,23 @@ int32_t PCL_Validate(const pcl_board_config_t *config)
     }
 
     /* 验证基本字段 */
-    if (config->platform == NULL || OSAL_Strlen(config->platform) == 0) {
+    if (NULL == config->platform || 0 == OSAL_Strlen(config->platform)) {
         LOG_ERROR("XCONFIG", "Invalid platform name");
         return OSAL_ERR_GENERIC;
     }
 
-    if (config->product == NULL || OSAL_Strlen(config->product) == 0) {
+    if (NULL == config->product || 0 == OSAL_Strlen(config->product)) {
         LOG_ERROR("XCONFIG", "Invalid product name");
         return OSAL_ERR_GENERIC;
     }
 
-    if (config->version == NULL || OSAL_Strlen(config->version) == 0) {
+    if (NULL == config->version || 0 == OSAL_Strlen(config->version)) {
         LOG_ERROR("XCONFIG", "Invalid version");
         return OSAL_ERR_GENERIC;
     }
 
     /* 验证MCU配置 */
-    if (config->mcu_count > 0 && config->mcus == NULL) {
+    if (config->mcu_count > 0 && NULL == config->mcus) {
         LOG_ERROR("XCONFIG", "MCU count > 0 but mcus is NULL");
         return OSAL_ERR_GENERIC;
     }
@@ -671,7 +671,7 @@ int32_t PCL_Validate(const pcl_board_config_t *config)
     }
 
     /* 验证BMC配置 */
-    if (config->bmc_count > 0 && config->bmcs == NULL) {
+    if (config->bmc_count > 0 && NULL == config->bmcs) {
         LOG_ERROR("XCONFIG", "BMC count > 0 but bmcs is NULL");
         return OSAL_ERR_GENERIC;
     }
@@ -693,7 +693,7 @@ int32_t PCL_Validate(const pcl_board_config_t *config)
     }
 
     /* 验证卫星平台配置 */
-    if (config->satellite_count > 0 && config->satellites == NULL) {
+    if (config->satellite_count > 0 && NULL == config->satellites) {
         LOG_ERROR("XCONFIG", "Satellite count > 0 but satellites is NULL");
         return OSAL_ERR_GENERIC;
     }
@@ -715,7 +715,7 @@ int32_t PCL_Validate(const pcl_board_config_t *config)
     }
 
     /* 验证传感器配置 */
-    if (config->sensor_count > 0 && config->sensors == NULL) {
+    if (config->sensor_count > 0 && NULL == config->sensors) {
         LOG_ERROR("XCONFIG", "Sensor count > 0 but sensors is NULL");
         return OSAL_ERR_GENERIC;
     }
@@ -733,7 +733,7 @@ int32_t PCL_Validate(const pcl_board_config_t *config)
     }
 
     /* 验证存储设备配置 */
-    if (config->storage_count > 0 && config->storages == NULL) {
+    if (config->storage_count > 0 && NULL == config->storages) {
         LOG_ERROR("XCONFIG", "Storage count > 0 but storages is NULL");
         return OSAL_ERR_GENERIC;
     }
@@ -751,7 +751,7 @@ int32_t PCL_Validate(const pcl_board_config_t *config)
     }
 
     /* 验证电源域配置 */
-    if (config->power_domain_count > 0 && config->power_domains == NULL) {
+    if (config->power_domain_count > 0 && NULL == config->power_domains) {
         LOG_ERROR("XCONFIG", "Power domain count > 0 but power_domains is NULL");
         return OSAL_ERR_GENERIC;
     }
@@ -769,7 +769,7 @@ int32_t PCL_Validate(const pcl_board_config_t *config)
     }
 
     /* 验证APP配置 */
-    if (config->app_count > 0 && config->apps == NULL) {
+    if (config->app_count > 0 && NULL == config->apps) {
         LOG_ERROR("XCONFIG", "APP count > 0 but apps is NULL");
         return OSAL_ERR_GENERIC;
     }
@@ -785,7 +785,7 @@ int32_t PCL_Validate(const pcl_board_config_t *config)
             return OSAL_ERR_GENERIC;
         }
         /* 验证设备映射 */
-        if (app->mapping_count > 0 && app->device_mappings == NULL) {
+        if (app->mapping_count > 0 && NULL == app->device_mappings) {
             LOG_ERROR("XCONFIG", "APP '%s': mapping_count > 0 but device_mappings is NULL",
                       app->app_name);
             return OSAL_ERR_GENERIC;

@@ -93,7 +93,7 @@ const pcl_board_config_t* PCL_SelectDefault(void)
     product = OSAL_getenv("PCL_PRODUCT");
     version = OSAL_getenv("PCL_VERSION");
 
-    if (platform != NULL && product != NULL) {
+    if (NULL != platform && NULL != product) {
         config = PCL_Find(platform, product, version);
         if (NULL != config) {
             LOG_INFO("XCONFIG", "Selected config from environment: %s/%s/%s",

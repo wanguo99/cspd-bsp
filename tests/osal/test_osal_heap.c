@@ -41,7 +41,7 @@ TEST_CASE(test_osal_malloc_zero_size)
     /* 分配0字节（行为依赖于实现） */
     ptr = OSAL_Malloc(0);
     /* 某些实现返回NULL，某些返回有效指针 */
-    if (ptr != NULL) {
+    if (NULL != ptr) {
         OSAL_Free(ptr);
     }
 }
@@ -259,7 +259,7 @@ TEST_CASE(test_osal_malloc_large)
 
     /* 尝试分配大块内存 */
     ptr = OSAL_Malloc(large_size);
-    if (ptr != NULL) {
+    if (NULL != ptr) {
         /* 如果分配成功，验证可以写入 */
         uint8_t *byte_ptr = (uint8_t *)ptr;
         byte_ptr[0] = 0xFF;

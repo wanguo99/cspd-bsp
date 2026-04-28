@@ -47,7 +47,7 @@ static void heartbeat_task(void *arg)
     while (!OSAL_TaskShouldShutdown())
     {
         /* 发送心跳 */
-        if (satellite_can_send_heartbeat(ctx->can_handle, STATUS_OK) == OSAL_SUCCESS)
+        if (OSAL_SUCCESS == satellite_can_send_heartbeat(ctx->can_handle, STATUS_OK))
         {
             OSAL_MutexLock(ctx->mutex);
             ctx->tx_count++;
@@ -97,13 +97,13 @@ static void can_rx_task(void *arg)
                 void *user_data = ctx->user_data;
                 OSAL_MutexUnlock(ctx->mutex);
 
-                if (callback != NULL)
+                if (NULL != callback)
                 {
                     callback(msg.cmd_type, msg.data, user_data);
                 }
             }
         }
-        else if (ret != OSAL_ERR_TIMEOUT)
+        else if (OSAL_ERR_TIMEOUT != ret)
         {
             OSAL_MutexLock(ctx->mutex);
             ctx->error_count++;
@@ -121,7 +121,7 @@ static void can_rx_task(void *arg)
 int32_t PDL_Satellite_Init(const satellite_service_config_t *config,
                         satellite_service_handle_t *handle)
 {
-    if (config == NULL || handle == NULL)
+    if (NULL == config || NULL == handle)
     {
         return OSAL_ERR_GENERIC;
     }
@@ -139,7 +139,7 @@ int32_t PDL_Satellite_Init(const satellite_service_config_t *config,
     ctx->running = true;
 
     /* 创建互斥锁 */
-    if (OSAL_MutexCreate(&ctx->mutex, "sat_mutex", 0) != OSAL_SUCCESS)
+    if (OSAL_SUCCESS != OSAL_MutexCreate(&ctx->mutex, "sat_mutex", 0))
     {
         LOG_ERROR("SAT", "Failed to create mutex");
         OSAL_Free(ctx);

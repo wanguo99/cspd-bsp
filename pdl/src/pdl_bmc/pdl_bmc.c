@@ -42,7 +42,7 @@ typedef struct
 int32_t PDL_BMC_Init(const bmc_config_t *config,
                         bmc_handle_t *handle)
 {
-    if (config == NULL || handle == NULL)
+    if (NULL == config || NULL == handle)
     {
         return OSAL_ERR_GENERIC;
     }
@@ -60,7 +60,7 @@ int32_t PDL_BMC_Init(const bmc_config_t *config,
     ctx->current_channel = config->primary_channel;
 
     /* 创建互斥锁 */
-    if (OSAL_MutexCreate(&ctx->mutex, "bmc_mutex", 0) != OSAL_SUCCESS)
+    if (OSAL_SUCCESS != OSAL_MutexCreate(&ctx->mutex, "bmc_mutex", 0))
     {
         LOG_ERROR("BMC", "Failed to create mutex");
         OSAL_Free(ctx);
@@ -103,11 +103,11 @@ int32_t PDL_BMC_Init(const bmc_config_t *config,
     }
 
     /* 检查主通道是否可用 */
-    if (ctx->current_channel == BMC_CHANNEL_NETWORK && ctx->net_handle != NULL)
+    if (ctx->current_channel == BMC_CHANNEL_NETWORK && NULL != ctx->net_handle)
     {
         ctx->connected = true;
     }
-    else if (ctx->current_channel == BMC_CHANNEL_SERIAL && ctx->serial_handle != NULL)
+    else if (ctx->current_channel == BMC_CHANNEL_SERIAL && NULL != ctx->serial_handle)
     {
         ctx->connected = true;
     }
@@ -131,13 +131,13 @@ int32_t PDL_BMC_Deinit(bmc_handle_t handle)
     bmc_context_t *ctx = (bmc_context_t *)handle;
 
     /* 关闭网络 */
-    if (ctx->net_handle != NULL)
+    if (NULL != ctx->net_handle)
     {
         bmc_redfish_deinit(ctx->net_handle);
     }
 
     /* 关闭串口 */
-    if (ctx->serial_handle != NULL)
+    if (NULL != ctx->serial_handle)
     {
         bmc_serial_deinit(ctx->serial_handle);
     }
@@ -283,7 +283,7 @@ int32_t PDL_BMC_PowerReset(bmc_handle_t handle)
 int32_t PDL_BMC_GetPowerState(bmc_handle_t handle,
                                  bmc_power_state_t *state)
 {
-    if (handle == NULL || state == NULL)
+    if (NULL == handle || NULL == state)
     {
         return OSAL_ERR_GENERIC;
     }
@@ -396,14 +396,14 @@ int32_t PDL_BMC_SwitchChannel(bmc_handle_t handle,
     OSAL_MutexLock(ctx->mutex);
 
     /* 检查通道是否可用 */
-    if (channel == BMC_CHANNEL_NETWORK && ctx->net_handle == NULL)
+    if (BMC_CHANNEL_NETWORK == channel && NULL == ctx->net_handle)
     {
         LOG_ERROR("BMC", "Network channel not available");
         OSAL_MutexUnlock(ctx->mutex);
         return OSAL_ERR_GENERIC;
     }
 
-    if (channel == BMC_CHANNEL_SERIAL && ctx->serial_handle == NULL)
+    if (BMC_CHANNEL_SERIAL == channel && NULL == ctx->serial_handle)
     {
         LOG_ERROR("BMC", "Serial channel not available");
         OSAL_MutexUnlock(ctx->mutex);

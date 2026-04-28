@@ -56,7 +56,7 @@ static queue_impl_t* osal_queue_acquire(osal_id_t queue_id)
     {
         if (g_osal_queue_table[i].is_used &&
             g_osal_queue_table[i].id == queue_id &&
-            g_osal_queue_table[i].impl != NULL)
+            NULL != g_osal_queue_table[i].impl)
         {
             queue_impl_t *impl = g_osal_queue_table[i].impl;
             if (impl->valid)
@@ -79,7 +79,7 @@ static void osal_queue_release(queue_impl_t *impl)
     int old_count = atomic_fetch_sub(&impl->ref_count, 1);
 
     /* 如果引用计数降为0且对象已标记为无效，则释放资源 */
-    if (old_count == 1 && !impl->valid)
+    if (1 == old_count && !impl->valid)
     {
         pthread_mutex_destroy(&impl->mutex);
         pthread_cond_destroy(&impl->not_empty);
@@ -121,10 +121,10 @@ int32_t OSAL_QueueCreate(osal_id_t *queue_id,
     if (NULL == queue_id)
         return OSAL_ERR_INVALID_POINTER;
 
-    if (queue_name == NULL || strlen(queue_name) >= OS_MAX_API_NAME)
+    if (NULL == queue_name || strlen(queue_name) >= OS_MAX_API_NAME)
         return OSAL_ERR_NAME_TOO_LONG;
 
-    if (queue_depth == 0 || data_size == 0)
+    if (0 == queue_depth || 0 == data_size)
         return OSAL_ERR_QUEUE_INVALID_SIZE;
 
     /* 限制队列深度和消息大小，防止过度内存分配 */
@@ -149,7 +149,7 @@ int32_t OSAL_QueueCreate(osal_id_t *queue_id,
     for (uint32_t i = 0; i < OS_MAX_QUEUES; i++)
     {
         if (g_osal_queue_table[i].is_used &&
-            strcmp(g_osal_queue_table[i].name, queue_name) == 0)
+            0 == strcmp(g_osal_queue_table[i].name, queue_name))
         {
             pthread_mutex_unlock(&g_queue_table_mutex);
             return OSAL_ERR_NAME_TAKEN;
@@ -169,7 +169,7 @@ int32_t OSAL_QueueCreate(osal_id_t *queue_id,
     /* 安全的内存分配（已检查溢出） */
     size_t buffer_size = (size_t)queue_depth * (size_t)data_size;
     impl->buffer = malloc(buffer_size);
-    if (impl->buffer == NULL)
+    if (NULL == impl->buffer)
     {
         free(impl);
         pthread_mutex_unlock(&g_queue_table_mutex);
@@ -325,10 +325,10 @@ int32_t OSAL_QueueGet(osal_id_t queue_id, void *data, uint32_t size,
     }
 
     /* 处理超时 */
-    if (timeout == OS_CHECK)
+    if (OS_CHECK == timeout)
     {
         /* 非阻塞 */
-        if (impl->count == 0)
+        if (0 == impl->count)
         {
             result = OSAL_ERR_QUEUE_EMPTY;
         }
@@ -345,7 +345,7 @@ int32_t OSAL_QueueGet(osal_id_t queue_id, void *data, uint32_t size,
             ts.tv_nsec -= 1000000000;
         }
 
-        while (impl->count == 0 && impl->valid)
+        while (0 == impl->count && impl->valid)
         {
             ret = pthread_cond_timedwait(&impl->not_empty, &impl->mutex, &ts);
             if (ret == ETIMEDOUT)
@@ -361,7 +361,7 @@ int32_t OSAL_QueueGet(osal_id_t queue_id, void *data, uint32_t size,
     else
     {
         /* 永久等待 */
-        while (impl->count == 0 && impl->valid)
+        while (0 == impl->count && impl->valid)
         {
             pthread_cond_wait(&impl->not_empty, &impl->mutex);
         }
@@ -371,7 +371,7 @@ int32_t OSAL_QueueGet(osal_id_t queue_id, void *data, uint32_t size,
     }
 
     /* 读取消息 */
-    if (result == OSAL_SUCCESS && impl->count > 0)
+    if (OSAL_SUCCESS == result && impl->count > 0)
     {
         uint32_t copy_size = (size < impl->msg_size) ? size : impl->msg_size;
         memcpy(data, impl->buffer + (impl->head * impl->msg_size), copy_size);
@@ -392,7 +392,7 @@ int32_t OSAL_QueueGet(osal_id_t queue_id, void *data, uint32_t size,
 
 int32_t OSAL_QueueGetIdByName(osal_id_t *queue_id, const char *queue_name)
 {
-    if (queue_id == NULL || queue_name == NULL)
+    if (NULL == queue_id || NULL == queue_name)
         return OSAL_ERR_INVALID_POINTER;
 
     pthread_mutex_lock(&g_queue_table_mutex);
@@ -400,7 +400,7 @@ int32_t OSAL_QueueGetIdByName(osal_id_t *queue_id, const char *queue_name)
     for (uint32_t i = 0; i < OS_MAX_QUEUES; i++)
     {
         if (g_osal_queue_table[i].is_used &&
-            strcmp(g_osal_queue_table[i].name, queue_name) == 0)
+            0 == strcmp(g_osal_queue_table[i].name, queue_name))
         {
             *queue_id = g_osal_queue_table[i].id;
             pthread_mutex_unlock(&g_queue_table_mutex);

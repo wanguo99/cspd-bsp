@@ -33,7 +33,7 @@ typedef struct
  */
 int32_t bmc_redfish_init(const char *ip_addr, uint16_t port, uint32_t timeout_ms, void **handle)
 {
-    if (ip_addr == NULL || handle == NULL)
+    if (NULL == ip_addr || NULL == handle)
     {
         return OSAL_ERR_GENERIC;
     }
@@ -113,7 +113,7 @@ int32_t bmc_redfish_send_recv(void *handle,
                        uint32_t resp_size,
                        uint32_t *actual_size)
 {
-    if (handle == NULL || request == NULL)
+    if (NULL == handle || NULL == request)
     {
         return OSAL_ERR_GENERIC;
     }
@@ -128,7 +128,7 @@ int32_t bmc_redfish_send_recv(void *handle,
     }
 
     /* 接收响应 */
-    if (response != NULL && resp_size > 0)
+    if (NULL != response && resp_size > 0)
     {
         osal_ssize_t recv_len = OSAL_recv(ctx->sockfd, response, resp_size, 0);
         if (recv_len < 0)
@@ -150,7 +150,7 @@ int32_t bmc_redfish_send_recv(void *handle,
  */
 int32_t bmc_serial_init(const char *device, uint32_t baudrate, uint32_t timeout_ms, void **handle)
 {
-    if (device == NULL || handle == NULL)
+    if (NULL == device || NULL == handle)
     {
         return OSAL_ERR_GENERIC;
     }
@@ -172,7 +172,7 @@ int32_t bmc_serial_init(const char *device, uint32_t baudrate, uint32_t timeout_
         .parity = 'N'
     };
 
-    if (HAL_Serial_Open(device, &serial_config, &ctx->serial_handle) != OSAL_SUCCESS)
+    if (OSAL_SUCCESS != HAL_Serial_Open(device, &serial_config, &ctx->serial_handle))
     {
         OSAL_Free(ctx);
         return OSAL_ERR_GENERIC;
@@ -210,7 +210,7 @@ int32_t bmc_serial_send_recv(void *handle,
                           uint32_t resp_size,
                           uint32_t *actual_size)
 {
-    if (handle == NULL || request == NULL)
+    if (NULL == handle || NULL == request)
     {
         return OSAL_ERR_GENERIC;
     }
@@ -224,7 +224,7 @@ int32_t bmc_serial_send_recv(void *handle,
     }
 
     /* 接收响应 */
-    if (response != NULL && resp_size > 0)
+    if (NULL != response && resp_size > 0)
     {
         int32_t recv_len = HAL_Serial_Read(ctx->serial_handle, response, resp_size, ctx->timeout_ms);
         if (recv_len < 0)

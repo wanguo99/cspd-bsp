@@ -88,7 +88,7 @@ static void worker_task(void *arg)
             atomic_fetch_add(&g_msg_count, 1);
             LOG_INFO("Worker", "发送消息: %s", msg);
         }
-        else if (ret == OSAL_ERR_QUEUE_TIMEOUT)
+        else if (OSAL_ERR_QUEUE_TIMEOUT == ret)
         {
             LOG_WARN("Worker", "队列发送超时");
         }
@@ -129,7 +129,7 @@ static void stats_task(void *arg)
         {
             LOG_INFO("Stats", "接收消息: %s (大小: %u字节)", msg, msg_size);
         }
-        else if (ret == OSAL_ERR_QUEUE_TIMEOUT)
+        else if (OSAL_ERR_QUEUE_TIMEOUT == ret)
         {
             /* 超时是正常的，打印统计信息 */
             uint32_t count = atomic_load(&g_msg_count);

@@ -37,7 +37,7 @@ typedef struct
  */
 int32_t mcu_serial_init(const void *config, void **handle)
 {
-    if (config == NULL || handle == NULL)
+    if (NULL == config || NULL == handle)
     {
         return OSAL_ERR_GENERIC;
     }
@@ -61,14 +61,14 @@ int32_t mcu_serial_init(const void *config, void **handle)
         .flow_control = 0  /* NONE */
     };
 
-    if (HAL_Serial_Open(mcu_cfg->serial.device, &serial_config, &ctx->serial_handle) != OSAL_SUCCESS)
+    if (OSAL_SUCCESS != HAL_Serial_Open(mcu_cfg->serial.device, &serial_config, &ctx->serial_handle))
     {
         OSAL_Free(ctx);
         return OSAL_ERR_GENERIC;
     }
 
     /* 创建接收互斥锁 */
-    if (OSAL_MutexCreate(&ctx->rx_mutex, "mcu_serial_rx", 0) != OSAL_SUCCESS)
+    if (OSAL_SUCCESS != OSAL_MutexCreate(&ctx->rx_mutex, "mcu_serial_rx", 0))
     {
         HAL_Serial_Close(ctx->serial_handle);
         OSAL_Free(ctx);
@@ -126,7 +126,7 @@ static int32_t mcu_serial_pack_frame(uint8_t cmd_code,
     frame[pos++] = (uint8_t)data_len;
 
     /* 数据 */
-    if (data != NULL && data_len > 0)
+    if (NULL != data && data_len > 0)
     {
         OSAL_Memcpy(&frame[pos], data, data_len);
         pos += data_len;
@@ -187,7 +187,7 @@ static int32_t mcu_serial_unpack_frame(const uint8_t *frame,
     *status = frame[2];
     uint8_t data_len = frame[3];
 
-    if (data != NULL && data_len > 0)
+    if (NULL != data && data_len > 0)
     {
         uint32_t copy_len = (data_len < data_size) ? data_len : data_size;
         OSAL_Memcpy(data, &frame[4], copy_len);
@@ -223,8 +223,8 @@ int32_t mcu_serial_send_command(void *handle,
     uint8_t tx_frame[256];
     uint32_t tx_len;
 
-    if (mcu_serial_pack_frame(cmd_code, data, data_len, ctx->enable_crc,
-                              tx_frame, sizeof(tx_frame), &tx_len) != OSAL_SUCCESS)
+    if (OSAL_SUCCESS != mcu_serial_pack_frame(cmd_code, data, data_len, ctx->enable_crc,
+                              tx_frame, sizeof(tx_frame), &tx_len))
     {
         return OSAL_ERR_GENERIC;
     }
@@ -249,7 +249,7 @@ int32_t mcu_serial_send_command(void *handle,
 
         OSAL_MutexUnlock(ctx->rx_mutex);
 
-        if (ret != OSAL_SUCCESS || status != 0)
+        if (OSAL_SUCCESS != ret || 0 != status)
         {
             return OSAL_ERR_GENERIC;
         }
@@ -259,5 +259,5 @@ int32_t mcu_serial_send_command(void *handle,
 
     OSAL_MutexUnlock(ctx->rx_mutex);
 
-    return (rx_len == 0) ? OSAL_ERR_TIMEOUT : OSAL_ERR_GENERIC;
+    return (0 == rx_len) ? OSAL_ERR_TIMEOUT : OSAL_ERR_GENERIC;
 }

@@ -29,7 +29,7 @@ extern uint32_t test_get_suites_by_module(const str_t *module_name, const test_s
  */
 static test_result_t run_test_case(const test_case_t *test)
 {
-    if (test == NULL || test->func == NULL) {
+    if (NULL == test || NULL == test->func) {
         return TEST_RESULT_FAIL;
     }
 
@@ -39,7 +39,7 @@ static test_result_t run_test_case(const test_case_t *test)
     OSAL_Printf("[  RUN     ] %s\n", test->name);
 
     /* Run setup if provided */
-    if (test->setup != NULL) {
+    if (NULL != test->setup) {
         test->setup();
     }
 
@@ -47,7 +47,7 @@ static test_result_t run_test_case(const test_case_t *test)
     test->func();
 
     /* Run teardown if provided */
-    if (test->teardown != NULL) {
+    if (NULL != test->teardown) {
         test->teardown();
     }
 
@@ -73,7 +73,7 @@ static int32_t run_suite(const test_suite_t *suite)
     OSAL_Printf("\n[----------] Running %u tests from %s\n", suite->case_count, suite->suite_name);
 
     /* Run suite setup if provided */
-    if (suite->suite_setup != NULL) {
+    if (NULL != suite->suite_setup) {
         suite->suite_setup();
     }
 
@@ -92,7 +92,7 @@ static int32_t run_suite(const test_suite_t *suite)
     }
 
     /* Run suite teardown if provided */
-    if (suite->suite_teardown != NULL) {
+    if (NULL != suite->suite_teardown) {
         suite->suite_teardown();
     }
 
@@ -128,7 +128,7 @@ int32_t libutest_run_all(void)
         OSAL_Printf("[ SKIPPED  ] %u tests\n", g_stats.skipped);
     }
 
-    return (g_stats.failed == 0) ? OSAL_SUCCESS : OSAL_ERR_GENERIC;
+    return (0 == g_stats.failed) ? OSAL_SUCCESS : OSAL_ERR_GENERIC;
 }
 
 /**
@@ -163,7 +163,7 @@ int32_t libutest_run_layer(const str_t *layer_name)
         OSAL_Printf("[  FAILED  ] %u tests\n", g_stats.failed);
     }
 
-    return (g_stats.failed == 0) ? OSAL_SUCCESS : OSAL_ERR_GENERIC;
+    return (0 == g_stats.failed) ? OSAL_SUCCESS : OSAL_ERR_GENERIC;
 }
 
 /**
@@ -198,7 +198,7 @@ int32_t libutest_run_module(const str_t *module_name)
         OSAL_Printf("[  FAILED  ] %u tests\n", g_stats.failed);
     }
 
-    return (g_stats.failed == 0) ? OSAL_SUCCESS : OSAL_ERR_GENERIC;
+    return (0 == g_stats.failed) ? OSAL_SUCCESS : OSAL_ERR_GENERIC;
 }
 
 /**
@@ -225,7 +225,7 @@ int32_t libutest_run_suite(const str_t *suite_name)
         OSAL_Printf("[  FAILED  ] %u tests\n", g_stats.failed);
     }
 
-    return (g_stats.failed == 0) ? OSAL_SUCCESS : OSAL_ERR_GENERIC;
+    return (0 == g_stats.failed) ? OSAL_SUCCESS : OSAL_ERR_GENERIC;
 }
 
 /**
@@ -233,7 +233,7 @@ int32_t libutest_run_suite(const str_t *suite_name)
  */
 int32_t libutest_run_test(const str_t *suite_name, const str_t *test_name)
 {
-    if (suite_name == NULL || test_name == NULL) {
+    if (NULL == suite_name || NULL == test_name) {
         return OSAL_ERR_INVALID_POINTER;
     }
 
@@ -246,7 +246,7 @@ int32_t libutest_run_test(const str_t *suite_name, const str_t *test_name)
     /* Find test case */
     const test_case_t *test = NULL;
     for (uint32_t i = 0; i < suite->case_count; i++) {
-        if (OSAL_Strcmp(suite->cases[i].name, test_name) == 0) {
+        if (0 == OSAL_Strcmp(suite->cases[i].name, test_name)) {
             test = &suite->cases[i];
             break;
         }

@@ -133,7 +133,7 @@ TEST_CASE(test_task_delay_success)
 TEST_CASE(test_task_get_id_success)
 {
     osal_id_t task_id = OSAL_TaskGetId();
-    TEST_ASSERT_TRUE(task_id == OS_OBJECT_ID_UNDEFINED || task_id > 0);
+    TEST_ASSERT_TRUE(OS_OBJECT_ID_UNDEFINED == task_id || task_id > 0);
 }
 
 /* 测试用例10: 根据名称获取任务ID */

@@ -44,8 +44,8 @@ static uint32_t read_memory_from_proc(const char *field)
 
     str_t line[256];
     uint32_t value = 0;
-    while (fgets(line, sizeof(line), fp) != NULL) {
-        if (strncmp(line, field, strlen(field)) == 0) {
+    while (NULL != fgets(line, sizeof(line), fp)) {
+        if (0 == strncmp(line, field, strlen(field))) {
             sscanf(line, "%*s %u", &value);
             break;
         }
@@ -116,7 +116,7 @@ int32_t OSAL_HeapCheckThreshold(bool *exceeded)
 
 int32_t OSAL_HeapGetStats(uint32_t *current, uint32_t *peak)
 {
-    if (current == NULL || peak == NULL)
+    if (NULL == current || NULL == peak)
         return OSAL_ERR_INVALID_POINTER;
 
     pthread_mutex_lock(&g_heap_monitor.lock);

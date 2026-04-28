@@ -37,7 +37,7 @@ int32_t OSAL_MutexCreate(osal_id_t *mutex_id, const char *mutex_name,
     if (NULL == mutex_id)
         return OSAL_ERR_INVALID_POINTER;
 
-    if (mutex_name == NULL || strlen(mutex_name) >= OS_MAX_API_NAME)
+    if (NULL == mutex_name || strlen(mutex_name) >= OS_MAX_API_NAME)
         return OSAL_ERR_NAME_TOO_LONG;
 
     pthread_mutex_lock(&g_mutex_table_mutex);
@@ -61,14 +61,14 @@ int32_t OSAL_MutexCreate(osal_id_t *mutex_id, const char *mutex_name,
     for (uint32_t i = 0; i < OS_MAX_MUTEXES; i++)
     {
         if (g_osal_mutex_table[i].is_used &&
-            strcmp(g_osal_mutex_table[i].name, mutex_name) == 0)
+            0 == strcmp(g_osal_mutex_table[i].name, mutex_name))
         {
             pthread_mutex_unlock(&g_mutex_table_mutex);
             return OSAL_ERR_NAME_TAKEN;
         }
     }
 
-    if (pthread_mutex_init(&g_osal_mutex_table[slot].mutex, NULL) != 0)
+    if (0 != pthread_mutex_init(&g_osal_mutex_table[slot].mutex, NULL))
     {
         pthread_mutex_unlock(&g_mutex_table_mutex);
         return OSAL_ERR_GENERIC;
@@ -145,11 +145,11 @@ int32_t OSAL_MutexLock(osal_id_t mutex_id)
 
     pthread_mutex_unlock(&g_mutex_table_mutex);
 
-    if (!is_valid || target_mutex == NULL)
+    if (!is_valid || NULL == target_mutex)
         return OSAL_ERR_INVALID_ID;
 
     /* 在锁外获取用户互斥锁 */
-    if (pthread_mutex_lock(target_mutex) != 0)
+    if (0 != pthread_mutex_lock(target_mutex))
         return OSAL_ERR_GENERIC;
 
     return OSAL_SUCCESS;
@@ -177,11 +177,11 @@ int32_t OSAL_MutexUnlock(osal_id_t mutex_id)
 
     pthread_mutex_unlock(&g_mutex_table_mutex);
 
-    if (!is_valid || target_mutex == NULL)
+    if (!is_valid || NULL == target_mutex)
         return OSAL_ERR_INVALID_ID;
 
     /* 在锁外释放用户互斥锁 */
-    if (pthread_mutex_unlock(target_mutex) != 0)
+    if (0 != pthread_mutex_unlock(target_mutex))
         return OSAL_ERR_GENERIC;
 
     return OSAL_SUCCESS;
@@ -189,7 +189,7 @@ int32_t OSAL_MutexUnlock(osal_id_t mutex_id)
 
 int32_t OSAL_MutexGetIdByName(osal_id_t *mutex_id, const char *mutex_name)
 {
-    if (mutex_id == NULL || mutex_name == NULL)
+    if (NULL == mutex_id || NULL == mutex_name)
         return OSAL_ERR_INVALID_POINTER;
 
     pthread_mutex_lock(&g_mutex_table_mutex);
@@ -197,7 +197,7 @@ int32_t OSAL_MutexGetIdByName(osal_id_t *mutex_id, const char *mutex_name)
     for (uint32_t i = 0; i < OS_MAX_MUTEXES; i++)
     {
         if (g_osal_mutex_table[i].is_used &&
-            strcmp(g_osal_mutex_table[i].name, mutex_name) == 0)
+            0 == strcmp(g_osal_mutex_table[i].name, mutex_name))
         {
             *mutex_id = g_osal_mutex_table[i].id;
             pthread_mutex_unlock(&g_mutex_table_mutex);
@@ -234,7 +234,7 @@ int32_t OSAL_MutexLockTimeout(osal_id_t mutex_id, uint32_t timeout_msec)
 
     pthread_mutex_unlock(&g_mutex_table_mutex);
 
-    if (!is_valid || target_mutex == NULL)
+    if (!is_valid || NULL == target_mutex)
         return OSAL_ERR_INVALID_ID;
 
     clock_gettime(CLOCK_REALTIME, &start_time);
@@ -248,7 +248,7 @@ int32_t OSAL_MutexLockTimeout(osal_id_t mutex_id, uint32_t timeout_msec)
 
     ret = pthread_mutex_timedlock(target_mutex, &abs_timeout);
 
-    if (ret == ETIMEDOUT)
+    if (ETIMEDOUT == ret)
     {
         clock_gettime(CLOCK_REALTIME, &current_time);
         uint32_t wait_time = (current_time.tv_sec - start_time.tv_sec) * 1000 +

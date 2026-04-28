@@ -12,7 +12,7 @@ int32_t OSAL_pthread_create(osal_thread_t *thread,
 {
     pthread_t pt;
     int32_t ret = pthread_create(&pt, (pthread_attr_t *)attr, start_routine, arg);
-    if (ret == 0 && thread != NULL) {
+    if (0 == ret && NULL != thread) {
         *thread = (osal_thread_t)pt;
     }
     return ret;

@@ -11,20 +11,20 @@
 int main(int argc, char *argv[])
 {
     /* Parse command line arguments */
-    if (argc == 1) {
+    if (1 == argc) {
         /* No arguments - interactive menu */
         return libutest_interactive_menu();
     }
 
     /* Check for -p flag (print test names) */
     bool print_mode = false;
-    if (argc >= 2 && OSAL_Strcmp(argv[argc - 1], "-p") == 0) {
+    if (argc >= 2 && 0 == OSAL_Strcmp(argv[argc - 1], "-p")) {
         print_mode = true;
         argc--;  /* Remove -p from argument count */
     }
 
     /* Run all tests */
-    if (OSAL_Strcmp(argv[1], "-a") == 0 || OSAL_Strcmp(argv[1], "--all") == 0) {
+    if (0 == OSAL_Strcmp(argv[1], "-a") || 0 == OSAL_Strcmp(argv[1], "--all")) {
         if (print_mode) {
             libutest_print_all();
             return 0;
@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     }
 
     /* Run tests by layer */
-    if (OSAL_Strcmp(argv[1], "-L") == 0 && argc >= 3) {
+    if (0 == OSAL_Strcmp(argv[1], "-L") && argc >= 3) {
         if (print_mode) {
             libutest_print_layer(argv[2]);
             return 0;
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     }
 
     /* Run tests by module */
-    if (OSAL_Strcmp(argv[1], "-m") == 0 && argc >= 3) {
+    if (0 == OSAL_Strcmp(argv[1], "-m") && argc >= 3) {
         if (print_mode) {
             libutest_print_module(argv[2]);
             return 0;
@@ -51,23 +51,23 @@ int main(int argc, char *argv[])
     }
 
     /* Run specific test suite */
-    if (OSAL_Strcmp(argv[1], "-s") == 0 && argc >= 3) {
+    if (0 == OSAL_Strcmp(argv[1], "-s") && argc >= 3) {
         return libutest_run_suite(argv[2]);
     }
 
     /* List all tests */
-    if (OSAL_Strcmp(argv[1], "-l") == 0 || OSAL_Strcmp(argv[1], "--list") == 0) {
+    if (0 == OSAL_Strcmp(argv[1], "-l") || 0 == OSAL_Strcmp(argv[1], "--list")) {
         libutest_list_all();
         return 0;
     }
 
     /* Interactive menu (default) */
-    if (OSAL_Strcmp(argv[1], "-i") == 0 || OSAL_Strcmp(argv[1], "--interactive") == 0) {
+    if (0 == OSAL_Strcmp(argv[1], "-i") || 0 == OSAL_Strcmp(argv[1], "--interactive")) {
         return libutest_interactive_menu();
     }
 
     /* Help */
-    if (OSAL_Strcmp(argv[1], "-h") == 0 || OSAL_Strcmp(argv[1], "--help") == 0) {
+    if (0 == OSAL_Strcmp(argv[1], "-h") || 0 == OSAL_Strcmp(argv[1], "--help")) {
         OSAL_Printf("\nPMC-BSP Unit Test Runner\n");
         OSAL_Printf("========================\n\n");
         OSAL_Printf("Usage: %s [options]\n\n", argv[0]);

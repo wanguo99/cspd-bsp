@@ -28,7 +28,7 @@ typedef struct
  */
 int32_t mcu_can_init(const void *config, void **handle)
 {
-    if (config == NULL || handle == NULL)
+    if (NULL == config || NULL == handle)
     {
         return OSAL_ERR_GENERIC;
     }
@@ -52,14 +52,14 @@ int32_t mcu_can_init(const void *config, void **handle)
         .tx_timeout = 1000
     };
 
-    if (HAL_CAN_Init(&can_config, &ctx->can_handle) != OSAL_SUCCESS)
+    if (OSAL_SUCCESS != HAL_CAN_Init(&can_config, &ctx->can_handle))
     {
         OSAL_Free(ctx);
         return OSAL_ERR_GENERIC;
     }
 
     /* 创建接收互斥锁 */
-    if (OSAL_MutexCreate(&ctx->rx_mutex, "mcu_can_rx", 0) != OSAL_SUCCESS)
+    if (OSAL_SUCCESS != OSAL_MutexCreate(&ctx->rx_mutex, "mcu_can_rx", 0))
     {
         HAL_CAN_Deinit(ctx->can_handle);
         OSAL_Free(ctx);
@@ -115,7 +115,7 @@ int32_t mcu_can_send_command(void *handle,
     tx_frame[tx_len++] = cmd_code;
     tx_frame[tx_len++] = (uint8_t)data_len;
 
-    if (data != NULL && data_len > 0)
+    if (NULL != data && data_len > 0)
     {
         uint32_t copy_len = (data_len > 6) ? 6 : data_len;  /* CAN最多8字节，留2字节给头 */
         OSAL_Memcpy(&tx_frame[tx_len], data, copy_len);
@@ -128,7 +128,7 @@ int32_t mcu_can_send_command(void *handle,
     can_frame.dlc = tx_len;
     OSAL_Memcpy(can_frame.data, tx_frame, tx_len);
 
-    if (HAL_CAN_Send(ctx->can_handle, &can_frame) != OSAL_SUCCESS)
+    if (OSAL_SUCCESS != HAL_CAN_Send(ctx->can_handle, &can_frame))
     {
         return OSAL_ERR_GENERIC;
     }
@@ -160,7 +160,7 @@ int32_t mcu_can_send_command(void *handle,
                 return OSAL_ERR_GENERIC;
             }
 
-            if (response != NULL && resp_len > 0)
+            if (NULL != response && resp_len > 0)
             {
                 uint32_t copy_len = (resp_len < resp_size) ? resp_len : resp_size;
                 copy_len = (copy_len < ((uint32_t)rx_frame.dlc - 2)) ? copy_len : ((uint32_t)rx_frame.dlc - 2);
