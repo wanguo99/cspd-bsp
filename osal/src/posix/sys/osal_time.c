@@ -1,5 +1,7 @@
 /************************************************************************
  * OSAL POSIX实现 - 时间延迟操作
+ *
+ * 修复：统一错误码返回，符合 OSAL 规范
  ************************************************************************/
 
 #define _DEFAULT_SOURCE  /* 启用usleep等函数 */
@@ -10,17 +12,24 @@
 
 int32_t OSAL_msleep(uint32_t msec)
 {
-    return usleep(msec * OSAL_USEC_PER_MSEC);
+    if (usleep(msec * OSAL_USEC_PER_MSEC) == 0)
+        return OSAL_SUCCESS;
+    return OSAL_ERR_GENERIC;
 }
 
 int32_t OSAL_usleep(uint32_t usec)
 {
-    return usleep(usec);
+    if (usleep(usec) == 0)
+        return OSAL_SUCCESS;
+    return OSAL_ERR_GENERIC;
 }
 
 int32_t OSAL_sleep(uint32_t sec)
 {
-    return (int32_t)sleep(sec);
+    /* sleep() 返回剩余未睡眠的秒数，0 表示成功 */
+    if (sleep(sec) == 0)
+        return OSAL_SUCCESS;
+    return OSAL_ERR_GENERIC;
 }
 
 int32_t OSAL_nanosleep(uint64_t nsec)
@@ -28,7 +37,10 @@ int32_t OSAL_nanosleep(uint64_t nsec)
     struct timespec req;
     req.tv_sec = nsec / OSAL_NSEC_PER_SEC;
     req.tv_nsec = nsec % OSAL_NSEC_PER_SEC;
-    return nanosleep(&req, NULL);
+
+    if (nanosleep(&req, NULL) == 0)
+        return OSAL_SUCCESS;
+    return OSAL_ERR_GENERIC;
 }
 
 int32_t OSAL_TaskDelay(uint32_t millisecond)
