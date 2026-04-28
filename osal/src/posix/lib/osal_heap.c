@@ -25,7 +25,7 @@ typedef struct {
 } heap_monitor_t;
 
 static heap_monitor_t g_heap_monitor = {
-    .threshold_percent = 80,
+    .threshold_percent = OSAL_HEAP_THRESHOLD_DEFAULT,
     .peak_usage = 0,
     .current_usage = 0,
     .alert_triggered = false,
@@ -42,7 +42,7 @@ static uint32_t read_memory_from_proc(const char *field)
     if (NULL == fp)
         return 0;
 
-    str_t line[256];
+    str_t line[OSAL_HEAP_LINE_BUFFER_SIZE];
     uint32_t value = 0;
     while (NULL != fgets(line, sizeof(line), fp)) {
         if (0 == strncmp(line, field, strlen(field))) {
@@ -51,7 +51,7 @@ static uint32_t read_memory_from_proc(const char *field)
         }
     }
     fclose(fp);
-    return value * 1024;
+    return value * OSAL_BYTES_PER_KB;
 }
 
 int32_t OSAL_HeapGetInfo(uint32_t *free_bytes, uint32_t *total_bytes)
@@ -75,7 +75,7 @@ int32_t OSAL_HeapGetInfo(uint32_t *free_bytes, uint32_t *total_bytes)
 
 int32_t OSAL_HeapSetThreshold(uint32_t percent)
 {
-    if (percent > 100)
+    if (percent > OSAL_HEAP_PERCENT_MAX)
         return OSAL_ERR_INVALID_SIZE;
 
     pthread_mutex_lock(&g_heap_monitor.lock);
@@ -98,7 +98,7 @@ int32_t OSAL_HeapCheckThreshold(bool *exceeded)
         return OSAL_SUCCESS;
     }
 
-    uint32_t usage_percent = ((total_bytes - free_bytes) * 100) / total_bytes;
+    uint32_t usage_percent = ((total_bytes - free_bytes) * OSAL_HEAP_PERCENT_MULTIPLIER) / total_bytes;
 
     pthread_mutex_lock(&g_heap_monitor.lock);
     *exceeded = (usage_percent >= g_heap_monitor.threshold_percent);

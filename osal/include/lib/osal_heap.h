@@ -8,6 +8,17 @@
 #include "osal_types.h"
 #include <stdbool.h>
 
+/* 堆监控配置 */
+#define OSAL_HEAP_THRESHOLD_DEFAULT     80U     /* 默认内存使用阈值（百分比） */
+#define OSAL_HEAP_PERCENT_MAX           100U    /* 百分比最大值 */
+#define OSAL_HEAP_PERCENT_MULTIPLIER    100U    /* 百分比计算乘数 */
+
+/* 内存单位转换 */
+#define OSAL_BYTES_PER_KB               1024U   /* 每KB字节数 */
+
+/* 缓冲区大小 */
+#define OSAL_HEAP_LINE_BUFFER_SIZE      256U    /* 读取/proc行缓冲区大小 */
+
 /**
  * @brief 获取堆内存信息
  *
