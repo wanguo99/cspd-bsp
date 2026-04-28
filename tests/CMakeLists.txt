@@ -7,6 +7,8 @@ if(NOT BUILD_TESTING)
     return()
 endif()
 
+message(STATUS "Tests configured (unified test framework)")
+
 # ============================================================================
 # Unified Test Runner Executable
 # ============================================================================
