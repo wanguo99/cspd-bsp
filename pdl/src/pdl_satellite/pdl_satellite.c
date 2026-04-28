@@ -322,9 +322,12 @@ int32_t PDL_Satellite_GetStats(satellite_service_handle_t handle,
 
     satellite_service_context_t *ctx = (satellite_service_context_t *)handle;
 
+    /* 加锁保护统计计数器读取，与写入操作保持一致 */
+    OSAL_MutexLock(ctx->mutex);
     if (NULL != rx_count) *rx_count = ctx->rx_count;
     if (NULL != tx_count) *tx_count = ctx->tx_count;
     if (NULL != error_count) *error_count = ctx->error_count;
+    OSAL_MutexUnlock(ctx->mutex);
 
     return OSAL_SUCCESS;
 }
