@@ -190,7 +190,7 @@ TEST_CASE(test_atomic_multithread_increment)
 
         OSAL_Snprintf(task_name, sizeof(task_name), "atomic_test_%d", i);
         int32_t ret = OSAL_TaskCreate(&threads[i], task_name,
-                                     atomic_increment_thread, (uint32_t *)&thread_data[i],
+                                     atomic_increment_thread, &thread_data[i],
                                      32 * 1024, 100, 0);
         TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
     }
@@ -243,7 +243,7 @@ TEST_CASE(test_atomic_multithread_cas)
 
         OSAL_Snprintf(task_name, sizeof(task_name), "cas_test_%d", i);
         int32_t ret = OSAL_TaskCreate(&threads[i], task_name,
-                                     atomic_cas_thread, (uint32_t *)&thread_data[i],
+                                     atomic_cas_thread, &thread_data[i],
                                      32 * 1024, 100, 0);
         TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
     }

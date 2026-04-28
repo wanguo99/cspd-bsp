@@ -31,7 +31,7 @@ TEST_CASE(test_task_create_success)
     int32_t counter = 0;
 
     int32_t ret = OSAL_TaskCreate(&task_id, "TEST_TASK",
-                                 test_task_func, (uint32_t *)&counter,
+                                 test_task_func, &counter,
                                  32 * 1024, 100, 0);
 
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
@@ -103,7 +103,7 @@ TEST_CASE(test_task_delete_success)
     int32_t counter = 0;
 
     OSAL_TaskCreate(&task_id, "TEST", test_task_func,
-                    (uint32_t *)&counter, 4096, 100, 0);
+                    &counter, 4096, 100, 0);
 
     int32_t ret = OSAL_TaskDelete(task_id);
     TEST_ASSERT_EQUAL(OS_SUCCESS, ret);

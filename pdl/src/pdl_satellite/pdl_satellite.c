@@ -158,7 +158,7 @@ int32_t PDL_Satellite_Init(const satellite_service_config_t *config,
 
     /* 创建CAN接收任务 */
     ret = OSAL_TaskCreate(&ctx->rx_task_id, "SAT_RX",
-                        can_rx_task, (uint32_t *)ctx,
+                        can_rx_task, ctx,
                         OSAL_TASK_STACK_SIZE_MEDIUM,
                         OSAL_TASK_PRIORITY_HIGH, 0);
     if (OS_SUCCESS != ret)
@@ -172,7 +172,7 @@ int32_t PDL_Satellite_Init(const satellite_service_config_t *config,
 
     /* 创建心跳任务 */
     ret = OSAL_TaskCreate(&ctx->heartbeat_task_id, "SAT_HB",
-                        heartbeat_task, (uint32_t *)ctx,
+                        heartbeat_task, ctx,
                         OSAL_TASK_STACK_SIZE_SMALL,
                         OSAL_TASK_PRIORITY_LOW, 0);
     if (OS_SUCCESS != ret)

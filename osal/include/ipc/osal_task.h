@@ -34,7 +34,7 @@ typedef struct
  * @param[out] task_id      任务ID
  * @param[in]  task_name    任务名称(最大OS_MAX_API_NAME字符)
  * @param[in]  function_pointer 任务入口函数
- * @param[in]  stack_pointer    栈指针(可为NULL,由系统分配)
+ * @param[in]  user_arg         用户参数(传递给任务入口函数)
  * @param[in]  stack_size       栈大小(字节)
  * @param[in]  priority         优先级(1-255, 数字越小优先级越高)
  * @param[in]  flags            保留,传0
@@ -50,7 +50,7 @@ typedef struct
 int32_t OSAL_TaskCreate(osal_id_t *task_id,
                     const str_t *task_name,
                     osal_task_entry function_pointer,
-                    uint32_t *stack_pointer,
+                    void *user_arg,
                     uint32_t stack_size,
                     uint32_t priority,
                     uint32_t flags);

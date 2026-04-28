@@ -145,7 +145,7 @@ static int32_t osal_task_find_free_slot(uint32_t *slot)
 int32_t OSAL_TaskCreate(osal_id_t *task_id,
                     const char *task_name,
                     osal_task_entry function_pointer,
-                    uint32_t *stack_pointer,
+                    void *user_arg,
                     uint32_t stack_size,
                     uint32_t priority,
                     uint32_t flags __attribute__((unused)))
@@ -197,7 +197,7 @@ int32_t OSAL_TaskCreate(osal_id_t *task_id,
     }
 
     wrapper_arg->entry_func = function_pointer;
-    wrapper_arg->user_arg = (void *)stack_pointer;
+    wrapper_arg->user_arg = user_arg;
     wrapper_arg->task_id = new_task_id;
 
     pthread_attr_init(&attr);
