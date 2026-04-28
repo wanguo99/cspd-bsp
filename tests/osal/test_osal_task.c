@@ -34,7 +34,7 @@ TEST_CASE(test_task_create_success)
                                  test_task_func, &counter,
                                  32 * 1024, 100, 0);
 
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     TEST_ASSERT_NOT_EQUAL(OS_OBJECT_ID_UNDEFINED, task_id);
 
     /* 等待任务执行 */
@@ -49,7 +49,7 @@ TEST_CASE(test_task_create_null_pointer)
 {
     int32_t ret = OSAL_TaskCreate(NULL, "TEST", test_task_func,
                                  NULL, 4096, 100, 0);
-    TEST_ASSERT_EQUAL(OS_INVALID_POINTER, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_INVALID_POINTER, ret);
 }
 
 /* 测试用例3: 任务创建失败 - 名称过长 */
@@ -63,7 +63,7 @@ TEST_CASE(test_task_create_name_too_long)
     int32_t ret = OSAL_TaskCreate(&task_id, long_name,
                                  test_task_func, NULL,
                                  4096, 100, 0);
-    TEST_ASSERT_EQUAL(OS_ERR_NAME_TOO_LONG, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_NAME_TOO_LONG, ret);
 }
 
 /* 测试用例4: 任务创建失败 - 无效优先级 */
@@ -73,11 +73,11 @@ TEST_CASE(test_task_create_invalid_priority)
 
     int32_t ret = OSAL_TaskCreate(&task_id, "TEST", test_task_func,
                                  NULL, 4096, 0, 0);
-    TEST_ASSERT_EQUAL(OS_ERR_INVALID_PRIORITY, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_INVALID_PRIORITY, ret);
 
     ret = OSAL_TaskCreate(&task_id, "TEST2", test_task_func,
                           NULL, 4096, 300, 0);
-    TEST_ASSERT_EQUAL(OS_ERR_INVALID_PRIORITY, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_INVALID_PRIORITY, ret);
 }
 
 /* 测试用例5: 任务创建失败 - 名称重复 */
@@ -87,11 +87,11 @@ TEST_CASE(test_task_create_name_taken)
 
     int32_t ret = OSAL_TaskCreate(&task_id1, "DUPLICATE", test_task_func,
                                  NULL, 4096, 100, 0);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     ret = OSAL_TaskCreate(&task_id2, "DUPLICATE", test_task_func,
                           NULL, 4096, 100, 0);
-    TEST_ASSERT_EQUAL(OS_ERR_NAME_TAKEN, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_NAME_TAKEN, ret);
 
     OSAL_TaskDelete(task_id1);
 }
@@ -106,14 +106,14 @@ TEST_CASE(test_task_delete_success)
                     &counter, 4096, 100, 0);
 
     int32_t ret = OSAL_TaskDelete(task_id);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例7: 任务删除失败 - 无效ID */
 TEST_CASE(test_task_delete_invalid_id)
 {
     int32_t ret = OSAL_TaskDelete(9999);
-    TEST_ASSERT_EQUAL(OS_ERR_INVALID_ID, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_INVALID_ID, ret);
 }
 
 /* 测试用例8: 任务延时 */
@@ -125,7 +125,7 @@ TEST_CASE(test_task_delay_success)
 
     uint32_t elapsed = OSAL_GetTickCount() - start;
 
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     TEST_ASSERT_GREATER_OR_EQUAL(450, elapsed);
 }
 
@@ -146,7 +146,7 @@ TEST_CASE(test_task_get_id_by_name_success)
 
     int32_t ret = OSAL_TaskGetIdByName(&task_id2, "NAMED_TASK");
 
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     TEST_ASSERT_EQUAL(task_id1, task_id2);
 
     OSAL_TaskDelete(task_id1);
@@ -158,7 +158,7 @@ TEST_CASE(test_task_get_id_by_name_not_found)
     osal_id_t task_id;
 
     int32_t ret = OSAL_TaskGetIdByName(&task_id, "NONEXISTENT");
-    TEST_ASSERT_EQUAL(OS_ERR_NAME_NOT_FOUND, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_NAME_NOT_FOUND, ret);
 }
 
 /* 测试用例12: 设置任务优先级 */
@@ -170,7 +170,7 @@ TEST_CASE(test_task_set_priority_success)
                     NULL, 4096, 100, 0);
 
     int32_t ret = OSAL_TaskSetPriority(task_id, 150);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     OSAL_TaskDelete(task_id);
 }
@@ -186,7 +186,7 @@ TEST_CASE(test_task_get_info_success)
 
     int32_t ret = OSAL_TaskGetInfo(task_id, &task_prop);
 
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     TEST_ASSERT_EQUAL(120, task_prop.priority);
     TEST_ASSERT_EQUAL(65536, task_prop.stack_size);
 

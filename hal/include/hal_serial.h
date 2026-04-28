@@ -35,8 +35,8 @@ typedef struct
  * @param[in]  config 串口配置
  * @param[out] handle 串口句柄
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERROR 失败
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_GENERIC 失败
  */
 int32_t HAL_Serial_Open(const char *device, const hal_serial_config_t *config,
                       hal_serial_handle_t *handle);

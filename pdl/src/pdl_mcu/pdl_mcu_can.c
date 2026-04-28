@@ -30,14 +30,14 @@ int32_t mcu_can_init(const void *config, void **handle)
 {
     if (config == NULL || handle == NULL)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     const mcu_config_t *mcu_cfg = (const mcu_config_t *)config;
     mcu_can_context_t *ctx = (mcu_can_context_t *)OSAL_Malloc(sizeof(mcu_can_context_t));
     if (NULL == ctx)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     OSAL_Memset(ctx, 0, sizeof(mcu_can_context_t));
@@ -52,22 +52,22 @@ int32_t mcu_can_init(const void *config, void **handle)
         .tx_timeout = 1000
     };
 
-    if (HAL_CAN_Init(&can_config, &ctx->can_handle) != OS_SUCCESS)
+    if (HAL_CAN_Init(&can_config, &ctx->can_handle) != OSAL_SUCCESS)
     {
         OSAL_Free(ctx);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 创建接收互斥锁 */
-    if (OSAL_MutexCreate(&ctx->rx_mutex, "mcu_can_rx", 0) != OS_SUCCESS)
+    if (OSAL_MutexCreate(&ctx->rx_mutex, "mcu_can_rx", 0) != OSAL_SUCCESS)
     {
         HAL_CAN_Deinit(ctx->can_handle);
         OSAL_Free(ctx);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     *handle = ctx;
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -77,7 +77,7 @@ int32_t mcu_can_deinit(void *handle)
 {
     if (NULL == handle)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     mcu_can_context_t *ctx = (mcu_can_context_t *)handle;
@@ -86,7 +86,7 @@ int32_t mcu_can_deinit(void *handle)
     OSAL_MutexDelete(ctx->rx_mutex);
     OSAL_Free(ctx);
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -103,7 +103,7 @@ int32_t mcu_can_send_command(void *handle,
 {
     if (NULL == handle)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     mcu_can_context_t *ctx = (mcu_can_context_t *)handle;
@@ -128,9 +128,9 @@ int32_t mcu_can_send_command(void *handle,
     can_frame.dlc = tx_len;
     OSAL_Memcpy(can_frame.data, tx_frame, tx_len);
 
-    if (HAL_CAN_Send(ctx->can_handle, &can_frame) != OS_SUCCESS)
+    if (HAL_CAN_Send(ctx->can_handle, &can_frame) != OSAL_SUCCESS)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 接收响应 */
@@ -139,13 +139,13 @@ int32_t mcu_can_send_command(void *handle,
     can_frame_t rx_frame;
     int32_t ret = HAL_CAN_Recv(ctx->can_handle, &rx_frame, timeout_ms);
 
-    if (OS_SUCCESS == ret)
+    if (OSAL_SUCCESS == ret)
     {
         /* 检查CAN ID */
         if (rx_frame.can_id != ctx->rx_id)
         {
             OSAL_MutexUnlock(ctx->rx_mutex);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
 
         /* 解析响应：[status][data_len][data...] */
@@ -157,7 +157,7 @@ int32_t mcu_can_send_command(void *handle,
             if (0 != status)
             {
                 OSAL_MutexUnlock(ctx->rx_mutex);
-                return OS_ERROR;
+                return OSAL_ERR_GENERIC;
             }
 
             if (response != NULL && resp_len > 0)

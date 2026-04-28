@@ -49,8 +49,8 @@ typedef void (*satellite_cmd_callback_t)(uint8_t cmd_type, uint32_t param, void 
  * @param[in] config 配置参数
  * @param[out] handle 服务句柄
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERROR 失败
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_GENERIC 失败
  */
 int32_t PDL_Satellite_Init(const satellite_service_config_t *config,
                          satellite_service_handle_t *handle);
@@ -60,7 +60,7 @@ int32_t PDL_Satellite_Init(const satellite_service_config_t *config,
  *
  * @param[in] handle 服务句柄
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t PDL_Satellite_Deinit(satellite_service_handle_t handle);
 
@@ -71,7 +71,7 @@ int32_t PDL_Satellite_Deinit(satellite_service_handle_t handle);
  * @param[in] callback 回调函数
  * @param[in] user_data 用户数据
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t PDL_Satellite_RegisterCallback(satellite_service_handle_t handle,
                                      satellite_cmd_callback_t callback,
@@ -85,7 +85,7 @@ int32_t PDL_Satellite_RegisterCallback(satellite_service_handle_t handle,
  * @param[in] status 状态码
  * @param[in] result 结果数据
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t PDL_Satellite_SendResponse(satellite_service_handle_t handle,
                                  uint32_t seq_num,
@@ -98,7 +98,7 @@ int32_t PDL_Satellite_SendResponse(satellite_service_handle_t handle,
  * @param[in] handle 服务句柄
  * @param[in] status 当前状态
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t PDL_Satellite_SendHeartbeat(satellite_service_handle_t handle,
                                   can_status_t status);
@@ -111,7 +111,7 @@ int32_t PDL_Satellite_SendHeartbeat(satellite_service_handle_t handle,
  * @param[out] tx_count 发送计数
  * @param[out] error_count 错误计数
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t PDL_Satellite_GetStats(satellite_service_handle_t handle,
                              uint32_t *rx_count,

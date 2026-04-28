@@ -94,8 +94,8 @@ typedef struct
  * @param[in] config 配置参数
  * @param[out] handle MCU句柄
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERROR 失败
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_GENERIC 失败
  */
 int32_t PDL_MCU_Init(const mcu_config_t *config, mcu_handle_t *handle);
 
@@ -104,7 +104,7 @@ int32_t PDL_MCU_Init(const mcu_config_t *config, mcu_handle_t *handle);
  *
  * @param[in] handle MCU句柄
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t PDL_MCU_Deinit(mcu_handle_t handle);
 
@@ -114,7 +114,7 @@ int32_t PDL_MCU_Deinit(mcu_handle_t handle);
  * @param[in] handle MCU句柄
  * @param[out] version 版本信息
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t PDL_MCU_GetVersion(mcu_handle_t handle, mcu_version_t *version);
 
@@ -124,7 +124,7 @@ int32_t PDL_MCU_GetVersion(mcu_handle_t handle, mcu_version_t *version);
  * @param[in] handle MCU句柄
  * @param[out] status 状态信息
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t PDL_MCU_GetStatus(mcu_handle_t handle, mcu_status_t *status);
 
@@ -133,7 +133,7 @@ int32_t PDL_MCU_GetStatus(mcu_handle_t handle, mcu_status_t *status);
  *
  * @param[in] handle MCU句柄
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t PDL_MCU_Reset(mcu_handle_t handle);
 
@@ -144,7 +144,7 @@ int32_t PDL_MCU_Reset(mcu_handle_t handle);
  * @param[in] reg_addr 寄存器地址
  * @param[out] value 读取值
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t PDL_MCU_ReadRegister(mcu_handle_t handle, uint8_t reg_addr, uint8_t *value);
 
@@ -155,7 +155,7 @@ int32_t PDL_MCU_ReadRegister(mcu_handle_t handle, uint8_t reg_addr, uint8_t *val
  * @param[in] reg_addr 寄存器地址
  * @param[in] value 写入值
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t PDL_MCU_WriteRegister(mcu_handle_t handle, uint8_t reg_addr, uint8_t value);
 
@@ -170,9 +170,9 @@ int32_t PDL_MCU_WriteRegister(mcu_handle_t handle, uint8_t reg_addr, uint8_t val
  * @param[in] resp_size 缓冲区大小
  * @param[out] actual_size 实际响应长度
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERROR_TIMEOUT 超时
- * @return OS_ERROR 失败
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_TIMEOUT 超时
+ * @return OSAL_ERR_GENERIC 失败
  */
 int32_t PDL_MCU_SendCommand(mcu_handle_t handle,
                           uint8_t cmd_code,
@@ -189,8 +189,8 @@ int32_t PDL_MCU_SendCommand(mcu_handle_t handle,
  * @param[in] firmware_path 固件文件路径
  * @param[in] progress_callback 进度回调（可选）
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERROR 失败
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_GENERIC 失败
  */
 int32_t PDL_MCU_FirmwareUpdate(mcu_handle_t handle,
                              const char *firmware_path,

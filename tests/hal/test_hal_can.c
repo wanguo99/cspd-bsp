@@ -26,11 +26,11 @@ TEST_CASE(test_hal_can_init_success)
 
     int32_t ret = HAL_CAN_Init(&config, &handle);
 
-    if (OS_SUCCESS != ret) {
+    if (OSAL_SUCCESS != ret) {
         TEST_SKIP_IF(true, "vcan0 not available");
     }
 
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     TEST_ASSERT_NOT_NULL(handle);
 
     HAL_CAN_Deinit(handle);
@@ -42,7 +42,7 @@ TEST_CASE(test_hal_can_init_null_config)
     hal_can_handle_t handle = NULL;
 
     int32_t ret = HAL_CAN_Init(NULL, &handle);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: CAN初始化 - 空句柄 */
@@ -56,7 +56,7 @@ TEST_CASE(test_hal_can_init_null_handle)
     };
 
     int32_t ret = HAL_CAN_Init(&config, NULL);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: CAN初始化 - 无效接口 */
@@ -71,7 +71,7 @@ TEST_CASE(test_hal_can_init_invalid_interface)
     };
 
     int32_t ret = HAL_CAN_Init(&config, &handle);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: CAN清理 */
@@ -86,19 +86,19 @@ TEST_CASE(test_hal_can_deinit)
     };
 
     int32_t ret = HAL_CAN_Init(&config, &handle);
-    if (OS_SUCCESS != ret) {
+    if (OSAL_SUCCESS != ret) {
         TEST_SKIP_IF(true, "vcan0 not available");
     }
 
     ret = HAL_CAN_Deinit(handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: CAN清理 - 空句柄 */
 TEST_CASE(test_hal_can_deinit_null_handle)
 {
     int32_t ret = HAL_CAN_Deinit(NULL);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /*===========================================================================
@@ -122,12 +122,12 @@ TEST_CASE(test_hal_can_send_success)
     };
 
     int32_t ret = HAL_CAN_Init(&config, &handle);
-    if (OS_SUCCESS != ret) {
+    if (OSAL_SUCCESS != ret) {
         TEST_SKIP_IF(true, "vcan0 not available");
     }
 
     ret = HAL_CAN_Send(handle, &frame);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     HAL_CAN_Deinit(handle);
 }
@@ -142,7 +142,7 @@ TEST_CASE(test_hal_can_send_null_handle)
     };
 
     int32_t ret = HAL_CAN_Send(NULL, &frame);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: CAN发送 - 空帧 */
@@ -157,12 +157,12 @@ TEST_CASE(test_hal_can_send_null_frame)
     };
 
     int32_t ret = HAL_CAN_Init(&config, &handle);
-    if (OS_SUCCESS != ret) {
+    if (OSAL_SUCCESS != ret) {
         TEST_SKIP_IF(true, "vcan0 not available");
     }
 
     ret = HAL_CAN_Send(handle, NULL);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 
     HAL_CAN_Deinit(handle);
 }
@@ -180,12 +180,12 @@ TEST_CASE(test_hal_can_recv_timeout)
     can_frame_t frame;
 
     int32_t ret = HAL_CAN_Init(&config, &handle);
-    if (OS_SUCCESS != ret) {
+    if (OSAL_SUCCESS != ret) {
         TEST_SKIP_IF(true, "vcan0 not available");
     }
 
     ret = HAL_CAN_Recv(handle, &frame, 100);
-    TEST_ASSERT_EQUAL(OS_ERROR_TIMEOUT, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_TIMEOUT, ret);
 
     HAL_CAN_Deinit(handle);
 }
@@ -196,7 +196,7 @@ TEST_CASE(test_hal_can_recv_null_handle)
     can_frame_t frame;
 
     int32_t ret = HAL_CAN_Recv(NULL, &frame, 100);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: CAN接收 - 空帧 */
@@ -211,12 +211,12 @@ TEST_CASE(test_hal_can_recv_null_frame)
     };
 
     int32_t ret = HAL_CAN_Init(&config, &handle);
-    if (OS_SUCCESS != ret) {
+    if (OSAL_SUCCESS != ret) {
         TEST_SKIP_IF(true, "vcan0 not available");
     }
 
     ret = HAL_CAN_Recv(handle, NULL, 100);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 
     HAL_CAN_Deinit(handle);
 }
@@ -239,17 +239,17 @@ TEST_CASE(test_hal_can_loopback)
     can_frame_t rx_frame;
 
     int32_t ret = HAL_CAN_Init(&config, &handle);
-    if (OS_SUCCESS != ret) {
+    if (OSAL_SUCCESS != ret) {
         TEST_SKIP_IF(true, "vcan0 not available");
     }
 
     /* 发送帧 */
     ret = HAL_CAN_Send(handle, &tx_frame);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 接收帧（vcan0支持回环） */
     ret = HAL_CAN_Recv(handle, &rx_frame, 1000);
-    if (OS_SUCCESS == ret) {
+    if (OSAL_SUCCESS == ret) {
         TEST_ASSERT_EQUAL(tx_frame.can_id, rx_frame.can_id);
         TEST_ASSERT_EQUAL(tx_frame.dlc, rx_frame.dlc);
         for (int i = 0; i < tx_frame.dlc; i++) {
@@ -276,12 +276,12 @@ TEST_CASE(test_hal_can_set_filter_success)
     };
 
     int32_t ret = HAL_CAN_Init(&config, &handle);
-    if (OS_SUCCESS != ret) {
+    if (OSAL_SUCCESS != ret) {
         TEST_SKIP_IF(true, "vcan0 not available");
     }
 
     ret = HAL_CAN_SetFilter(handle, 0x100, 0x7FF);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     HAL_CAN_Deinit(handle);
 }
@@ -290,7 +290,7 @@ TEST_CASE(test_hal_can_set_filter_success)
 TEST_CASE(test_hal_can_set_filter_null_handle)
 {
     int32_t ret = HAL_CAN_SetFilter(NULL, 0x100, 0x7FF);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /*===========================================================================
@@ -310,12 +310,12 @@ TEST_CASE(test_hal_can_get_stats_success)
     uint32_t tx_count, rx_count, err_count;
 
     int32_t ret = HAL_CAN_Init(&config, &handle);
-    if (OS_SUCCESS != ret) {
+    if (OSAL_SUCCESS != ret) {
         TEST_SKIP_IF(true, "vcan0 not available");
     }
 
     ret = HAL_CAN_GetStats(handle, &tx_count, &rx_count, &err_count);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     HAL_CAN_Deinit(handle);
 }
@@ -326,7 +326,7 @@ TEST_CASE(test_hal_can_get_stats_null_handle)
     uint32_t tx_count, rx_count, err_count;
 
     int32_t ret = HAL_CAN_GetStats(NULL, &tx_count, &rx_count, &err_count);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: 获取统计信息 - 空指针 */
@@ -342,18 +342,18 @@ TEST_CASE(test_hal_can_get_stats_null_pointer)
     uint32_t count;
 
     int32_t ret = HAL_CAN_Init(&config, &handle);
-    if (OS_SUCCESS != ret) {
+    if (OSAL_SUCCESS != ret) {
         TEST_SKIP_IF(true, "vcan0 not available");
     }
 
     ret = HAL_CAN_GetStats(handle, NULL, &count, &count);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 
     ret = HAL_CAN_GetStats(handle, &count, NULL, &count);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 
     ret = HAL_CAN_GetStats(handle, &count, &count, NULL);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 
     HAL_CAN_Deinit(handle);
 }
@@ -376,13 +376,13 @@ TEST_CASE(test_hal_can_stats_accumulation)
     };
 
     int32_t ret = HAL_CAN_Init(&config, &handle);
-    if (OS_SUCCESS != ret) {
+    if (OSAL_SUCCESS != ret) {
         TEST_SKIP_IF(true, "vcan0 not available");
     }
 
     /* 获取初始统计 */
     ret = HAL_CAN_GetStats(handle, &tx1, &rx1, &err1);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 发送一些帧 */
     for (int i = 0; i < 5; i++) {
@@ -391,7 +391,7 @@ TEST_CASE(test_hal_can_stats_accumulation)
 
     /* 获取新统计 */
     ret = HAL_CAN_GetStats(handle, &tx2, &rx2, &err2);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 验证统计增加 */
     TEST_ASSERT_TRUE(tx2 >= tx1);
@@ -415,11 +415,11 @@ TEST_CASE(test_hal_can_different_baudrate)
     };
 
     int32_t ret = HAL_CAN_Init(&config, &handle);
-    if (OS_SUCCESS != ret) {
+    if (OSAL_SUCCESS != ret) {
         TEST_SKIP_IF(true, "vcan0 not available");
     }
 
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     HAL_CAN_Deinit(handle);
 }
 

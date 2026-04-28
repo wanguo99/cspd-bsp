@@ -36,9 +36,9 @@ typedef void (*os_signal_handler_t)(int32_t signum);
  * @param[in] signum  信号编号 (OS_SIGNAL_*)
  * @param[in] handler 信号处理函数，NULL表示使用默认处理
  *
- * @return OS_SUCCESS 成功
- * @return OS_INVALID_POINTER handler为NULL
- * @return OS_ERROR 注册失败
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_INVALID_POINTER handler为NULL
+ * @return OSAL_ERR_GENERIC 注册失败
  */
 int32_t OSAL_SignalRegister(int32_t signum, os_signal_handler_t handler);
 
@@ -47,8 +47,8 @@ int32_t OSAL_SignalRegister(int32_t signum, os_signal_handler_t handler);
  *
  * @param[in] signum 信号编号 (OS_SIGNAL_*)
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERROR 设置失败
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_GENERIC 设置失败
  */
 int32_t OSAL_SignalIgnore(int32_t signum);
 
@@ -57,8 +57,8 @@ int32_t OSAL_SignalIgnore(int32_t signum);
  *
  * @param[in] signum 信号编号 (OS_SIGNAL_*)
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERROR 恢复失败
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_GENERIC 恢复失败
  */
 int32_t OSAL_SignalDefault(int32_t signum);
 
@@ -67,8 +67,8 @@ int32_t OSAL_SignalDefault(int32_t signum);
  *
  * @param[in] signum 信号编号 (OS_SIGNAL_*)
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERROR 阻塞失败
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_GENERIC 阻塞失败
  */
 int32_t OSAL_SignalBlock(int32_t signum);
 
@@ -77,8 +77,8 @@ int32_t OSAL_SignalBlock(int32_t signum);
  *
  * @param[in] signum 信号编号 (OS_SIGNAL_*)
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERROR 解除失败
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_GENERIC 解除失败
  */
 int32_t OSAL_SignalUnblock(int32_t signum);
 

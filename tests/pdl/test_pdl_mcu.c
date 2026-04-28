@@ -67,7 +67,7 @@ TEST_CASE(test_pdl_mcu_init_null_config)
     mcu_handle_t handle = NULL;
 
     int32_t ret = PDL_MCU_Init(NULL, &handle);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: MCU驱动初始化 - 空句柄指针 */
@@ -77,7 +77,7 @@ TEST_CASE(test_pdl_mcu_init_null_handle)
     create_can_config(&config);
 
     int32_t ret = PDL_MCU_Init(&config, NULL);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: MCU驱动清理 */
@@ -91,7 +91,7 @@ TEST_CASE(test_pdl_mcu_deinit)
 TEST_CASE(test_pdl_mcu_deinit_null_handle)
 {
     int32_t ret = PDL_MCU_Deinit(NULL);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /*===========================================================================
@@ -111,7 +111,7 @@ TEST_CASE(test_pdl_mcu_get_version_null_handle)
     mcu_version_t version;
 
     int32_t ret = PDL_MCU_GetVersion(NULL, &version);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: 获取版本信息 - 空指针 */
@@ -138,7 +138,7 @@ TEST_CASE(test_pdl_mcu_get_status_null_handle)
     mcu_status_t status;
 
     int32_t ret = PDL_MCU_GetStatus(NULL, &status);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: 获取状态 - 空指针 */
@@ -163,7 +163,7 @@ TEST_CASE(test_pdl_mcu_reset_success)
 TEST_CASE(test_pdl_mcu_reset_null_handle)
 {
     int32_t ret = PDL_MCU_Reset(NULL);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /*===========================================================================
@@ -183,7 +183,7 @@ TEST_CASE(test_pdl_mcu_read_register_null_handle)
     uint8_t value;
 
     int32_t ret = PDL_MCU_ReadRegister(NULL, 0x10, &value);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: 读寄存器 - 空指针 */
@@ -204,7 +204,7 @@ TEST_CASE(test_pdl_mcu_write_register_success)
 TEST_CASE(test_pdl_mcu_write_register_null_handle)
 {
     int32_t ret = PDL_MCU_WriteRegister(NULL, 0x20, 0xAB);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: 读写寄存器验证 */
@@ -234,7 +234,7 @@ TEST_CASE(test_pdl_mcu_send_command_null_handle)
 
     int32_t ret = PDL_MCU_SendCommand(NULL, 0x10, cmd_data, sizeof(cmd_data),
                                       resp_data, sizeof(resp_data), &actual_size);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: 发送命令 - 空命令数据 */
@@ -266,7 +266,7 @@ TEST_CASE(test_pdl_mcu_firmware_update_success)
 TEST_CASE(test_pdl_mcu_firmware_update_null_handle)
 {
     int32_t ret = PDL_MCU_FirmwareUpdate(NULL, "/tmp/test_firmware.bin", NULL);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: 固件更新 - 空路径 */

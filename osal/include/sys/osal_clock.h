@@ -21,8 +21,8 @@ typedef struct
  *
  * @param[out] time_struct 时间结构
  *
- * @return OS_SUCCESS 成功
- * @return OS_INVALID_POINTER time_struct为NULL
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_INVALID_POINTER time_struct为NULL
  */
 int32_t OSAL_GetLocalTime(OS_time_t *time_struct);
 
@@ -31,8 +31,8 @@ int32_t OSAL_GetLocalTime(OS_time_t *time_struct);
  *
  * @param[in] time_struct 时间结构
  *
- * @return OS_SUCCESS 成功
- * @return OS_INVALID_POINTER time_struct为NULL
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_INVALID_POINTER time_struct为NULL
  */
 int32_t OSAL_SetLocalTime(const OS_time_t *time_struct);
 
@@ -48,7 +48,7 @@ uint32_t OSAL_GetTickCount(void);
  *
  * @param[in] milliseconds 延时时间(毫秒)
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t OSAL_Milli2Ticks(uint32_t milliseconds, uint32_t *ticks);
 

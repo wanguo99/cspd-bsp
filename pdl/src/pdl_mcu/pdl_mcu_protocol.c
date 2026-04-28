@@ -56,7 +56,7 @@ int32_t mcu_protocol_pack_frame(uint8_t cmd_code,
     (void)frame_size;
     (void)actual_size;
     /* 预留接口 */
-    return OS_ERROR;
+    return OSAL_ERR_GENERIC;
 }
 
 /**
@@ -78,5 +78,5 @@ int32_t mcu_protocol_unpack_frame(const uint8_t *frame,
     (void)data_size;
     (void)actual_size;
     /* 预留接口 */
-    return OS_ERROR;
+    return OSAL_ERR_GENERIC;
 }

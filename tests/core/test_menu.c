@@ -180,7 +180,7 @@ static int32_t menu_select_test(const test_suite_t *suite)
         } else if (choice > 0 && choice <= (int32_t)suite->case_count) {
             return libutest_run_test(suite->suite_name, suite->cases[choice - 1].name);
         } else if (choice == (int32_t)(suite->case_count + 1)) {
-            return OS_SUCCESS;
+            return OSAL_SUCCESS;
         } else {
             OSAL_Printf("Invalid choice. Please try again.\n");
         }
@@ -211,11 +211,11 @@ static int32_t menu_select_suite(const test_suite_t **suites, uint32_t count, co
             for (uint32_t i = 0; i < count; i++) {
                 libutest_run_suite(suites[i]->suite_name);
             }
-            return OS_SUCCESS;
+            return OSAL_SUCCESS;
         } else if (choice > 0 && choice <= (int32_t)count) {
             menu_select_test(suites[choice - 1]);
         } else if (choice == (int32_t)(count + 1)) {
-            return OS_SUCCESS;
+            return OSAL_SUCCESS;
         } else {
             OSAL_Printf("Invalid choice. Please try again.\n");
         }
@@ -250,7 +250,7 @@ static int32_t menu_select_module(void)
             OSAL_Snprintf(context, sizeof(context), "in module %s", modules[choice - 1]);
             menu_select_suite(suites, count, context);
         } else if (choice == (int32_t)(module_count + 1)) {
-            return OS_SUCCESS;
+            return OSAL_SUCCESS;
         } else {
             OSAL_Printf("Invalid choice. Please try again.\n");
         }
@@ -285,7 +285,7 @@ static int32_t menu_select_layer(void)
             OSAL_Snprintf(context, sizeof(context), "in layer %s", layers[choice - 1]);
             menu_select_suite(suites, count, context);
         } else if (choice == (int32_t)(layer_count + 1)) {
-            return OS_SUCCESS;
+            return OSAL_SUCCESS;
         } else {
             OSAL_Printf("Invalid choice. Please try again.\n");
         }
@@ -335,7 +335,7 @@ int32_t libutest_interactive_menu(void)
 
             case 5:
                 OSAL_Printf("\nExiting...\n");
-                return OS_SUCCESS;
+                return OSAL_SUCCESS;
 
             default:
                 OSAL_Printf("Invalid choice. Please try again.\n");
@@ -343,5 +343,5 @@ int32_t libutest_interactive_menu(void)
         }
     }
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }

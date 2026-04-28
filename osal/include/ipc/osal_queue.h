@@ -21,13 +21,13 @@
  * @param[in]  data_size   每条消息的最大字节数
  * @param[in]  flags       保留,传0
  *
- * @return OS_SUCCESS 成功
- * @return OS_INVALID_POINTER queue_id为NULL
- * @return OS_ERR_NAME_TOO_LONG 名称过长
- * @return OS_ERR_NO_FREE_IDS 无可用队列ID
- * @return OS_ERR_NAME_TAKEN 名称已被使用
- * @return OS_QUEUE_INVALID_SIZE 队列大小无效
- * @return OS_ERROR 其他错误
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_INVALID_POINTER queue_id为NULL
+ * @return OSAL_ERR_NAME_TOO_LONG 名称过长
+ * @return OSAL_ERR_NO_FREE_IDS 无可用队列ID
+ * @return OSAL_ERR_NAME_TAKEN 名称已被使用
+ * @return OSAL_ERR_QUEUE_INVALID_SIZE 队列大小无效
+ * @return OSAL_ERR_GENERIC 其他错误
  */
 int32_t OSAL_QueueCreate(osal_id_t *queue_id,
                      const str_t *queue_name,
@@ -40,9 +40,9 @@ int32_t OSAL_QueueCreate(osal_id_t *queue_id,
  *
  * @param[in] queue_id 队列ID
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERR_INVALID_ID 无效的队列ID
- * @return OS_ERROR 删除失败
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_INVALID_ID 无效的队列ID
+ * @return OSAL_ERR_GENERIC 删除失败
  */
 int32_t OSAL_QueueDelete(osal_id_t queue_id);
 
@@ -54,11 +54,11 @@ int32_t OSAL_QueueDelete(osal_id_t queue_id);
  * @param[in] size     消息大小(字节)
  * @param[in] flags    保留,传0
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERR_INVALID_ID 无效的队列ID
- * @return OS_INVALID_POINTER data为NULL
- * @return OS_QUEUE_FULL 队列已满
- * @return OS_ERROR 其他错误
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_INVALID_ID 无效的队列ID
+ * @return OSAL_ERR_INVALID_POINTER data为NULL
+ * @return OSAL_ERR_QUEUE_FULL 队列已满
+ * @return OSAL_ERR_GENERIC 其他错误
  */
 int32_t OSAL_QueuePut(osal_id_t queue_id, const void *data, uint32_t size, uint32_t flags);
 
@@ -71,12 +71,12 @@ int32_t OSAL_QueuePut(osal_id_t queue_id, const void *data, uint32_t size, uint3
  * @param[out] size_copied 实际接收的字节数(可为NULL)
  * @param[in]  timeout  超时时间(毫秒), OS_PEND表示永久等待, OS_CHECK表示非阻塞
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERR_INVALID_ID 无效的队列ID
- * @return OS_INVALID_POINTER data为NULL
- * @return OS_QUEUE_EMPTY 队列为空(仅非阻塞模式)
- * @return OS_QUEUE_TIMEOUT 超时
- * @return OS_ERROR 其他错误
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_INVALID_ID 无效的队列ID
+ * @return OSAL_ERR_INVALID_POINTER data为NULL
+ * @return OSAL_ERR_QUEUE_EMPTY 队列为空(仅非阻塞模式)
+ * @return OSAL_ERR_QUEUE_TIMEOUT 超时
+ * @return OSAL_ERR_GENERIC 其他错误
  */
 int32_t OSAL_QueueGet(osal_id_t queue_id, void *data, uint32_t size,
                   uint32_t *size_copied, int32_t timeout);
@@ -87,9 +87,9 @@ int32_t OSAL_QueueGet(osal_id_t queue_id, void *data, uint32_t size,
  * @param[out] queue_id   返回的队列ID
  * @param[in]  queue_name 队列名称
  *
- * @return OS_SUCCESS 成功
- * @return OS_INVALID_POINTER queue_id为NULL
- * @return OS_ERR_NAME_NOT_FOUND 未找到队列
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_INVALID_POINTER queue_id为NULL
+ * @return OSAL_ERR_NAME_NOT_FOUND 未找到队列
  */
 int32_t OSAL_QueueGetIdByName(osal_id_t *queue_id, const str_t *queue_name);
 

@@ -33,14 +33,14 @@ static bool g_initialized = false;
 int32_t PCL_Init(void)
 {
     if (g_initialized) {
-        return OS_SUCCESS;
+        return OSAL_SUCCESS;
     }
 
     OSAL_Memset(&g_registry, 0, sizeof(g_registry));
     g_initialized = true;
 
     LOG_INFO("XCONFIG", "Hardware configuration library initialized");
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 void PCL_Cleanup(void)
@@ -63,24 +63,24 @@ int32_t PCL_Register(const pcl_board_config_t *config)
 {
     if (!g_initialized) {
         LOG_ERROR("XCONFIG", "Library not initialized");
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     if (NULL == config) {
         LOG_ERROR("XCONFIG", "Invalid config pointer");
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     if (g_registry.count >= MAX_BOARD_CONFIGS) {
         LOG_ERROR("XCONFIG", "Registry full (max %d configs)", MAX_BOARD_CONFIGS);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 验证配置 */
-    if (PCL_Validate(config) != OS_SUCCESS) {
+    if (PCL_Validate(config) != OSAL_SUCCESS) {
         LOG_ERROR("XCONFIG", "Config validation failed: %s/%s/%s",
                   config->platform, config->product, config->version);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 检查重复 */
@@ -91,7 +91,7 @@ int32_t PCL_Register(const pcl_board_config_t *config)
             OSAL_Strcmp(existing->version, config->version) == 0) {
             LOG_WARN("XCONFIG", "Config already registered: %s/%s/%s",
                      config->platform, config->product, config->version);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
     }
 
@@ -102,7 +102,7 @@ int32_t PCL_Register(const pcl_board_config_t *config)
              config->platform, config->product, config->version,
              config->description);
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 const pcl_board_config_t* PCL_GetBoard(void)
@@ -144,7 +144,7 @@ const pcl_board_config_t* PCL_Find(const char *platform,
 int32_t PCL_List(const pcl_board_config_t **configs, uint32_t *count)
 {
     if (!g_initialized || configs == NULL || count == NULL) {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     uint32_t max_count = *count;
@@ -155,7 +155,7 @@ int32_t PCL_List(const pcl_board_config_t **configs, uint32_t *count)
     }
 
     *count = actual_count;
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /*===========================================================================
@@ -383,12 +383,12 @@ static int32_t validate_can_interface(const pcl_can_cfg_t *can, const char *owne
 {
     if (NULL == can->device || OSAL_Strlen(can->device) == 0) {
         LOG_ERROR("XCONFIG", "%s: CAN device name is empty", owner);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     if (can->bitrate == 0) {
         LOG_ERROR("XCONFIG", "%s: CAN bitrate is 0", owner);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 常见CAN波特率：125K, 250K, 500K, 1M */
@@ -397,7 +397,7 @@ static int32_t validate_can_interface(const pcl_can_cfg_t *can, const char *owne
         LOG_WARN("XCONFIG", "%s: Unusual CAN bitrate %u", owner, can->bitrate);
     }
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -407,33 +407,33 @@ static int32_t validate_uart_interface(const pcl_uart_cfg_t *uart, const char *o
 {
     if (NULL == uart->device || OSAL_Strlen(uart->device) == 0) {
         LOG_ERROR("XCONFIG", "%s: UART device name is empty", owner);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     if (uart->baudrate == 0) {
         LOG_ERROR("XCONFIG", "%s: UART baudrate is 0", owner);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     if (uart->data_bits < 5 || uart->data_bits > 8) {
         LOG_ERROR("XCONFIG", "%s: UART data_bits %u out of range [5-8]",
                   owner, uart->data_bits);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     if (uart->stop_bits < 1 || uart->stop_bits > 2) {
         LOG_ERROR("XCONFIG", "%s: UART stop_bits %u out of range [1-2]",
                   owner, uart->stop_bits);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     if (uart->parity != 'N' && uart->parity != 'E' && uart->parity != 'O') {
         LOG_ERROR("XCONFIG", "%s: UART parity '%c' invalid (must be N/E/O)",
                   owner, uart->parity);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -443,21 +443,21 @@ static int32_t validate_i2c_interface(const pcl_i2c_cfg_t *i2c, const char *owne
 {
     if (NULL == i2c->device || OSAL_Strlen(i2c->device) == 0) {
         LOG_ERROR("XCONFIG", "%s: I2C device name is empty", owner);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     if (i2c->slave_addr > 0x7F) {
         LOG_ERROR("XCONFIG", "%s: I2C slave_addr 0x%02X exceeds 7-bit range",
                   owner, i2c->slave_addr);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     if (i2c->speed_hz == 0) {
         LOG_ERROR("XCONFIG", "%s: I2C speed is 0", owner);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -467,27 +467,27 @@ static int32_t validate_spi_interface(const pcl_spi_cfg_t *spi, const char *owne
 {
     if (NULL == spi->device || OSAL_Strlen(spi->device) == 0) {
         LOG_ERROR("XCONFIG", "%s: SPI device name is empty", owner);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     if (spi->speed_hz == 0) {
         LOG_ERROR("XCONFIG", "%s: SPI speed is 0", owner);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     if (spi->mode > 3) {
         LOG_ERROR("XCONFIG", "%s: SPI mode %u out of range [0-3]",
                   owner, spi->mode);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     if (spi->bits_per_word == 0 || spi->bits_per_word > 32) {
         LOG_ERROR("XCONFIG", "%s: SPI bits_per_word %u out of range [1-32]",
                   owner, spi->bits_per_word);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -499,7 +499,7 @@ static int32_t validate_mcu_interface(const pcl_mcu_cfg_t *mcu)
         mcu->interface_type >= PCL_HW_INTERFACE_MAX) {
         LOG_ERROR("XCONFIG", "MCU '%s': Invalid interface type %d",
                   mcu->name, mcu->interface_type);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     switch (mcu->interface_type) {
@@ -518,7 +518,7 @@ static int32_t validate_mcu_interface(const pcl_mcu_cfg_t *mcu)
         default:
             LOG_ERROR("XCONFIG", "MCU '%s': Unsupported interface type %d",
                       mcu->name, mcu->interface_type);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
     }
 }
 
@@ -531,7 +531,7 @@ static int32_t validate_satellite_interface(const pcl_satellite_cfg_t *sat)
         sat->interface_type >= PCL_HW_INTERFACE_MAX) {
         LOG_ERROR("XCONFIG", "Satellite '%s': Invalid interface type %d",
                   sat->name, sat->interface_type);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     switch (sat->interface_type) {
@@ -546,7 +546,7 @@ static int32_t validate_satellite_interface(const pcl_satellite_cfg_t *sat)
                 OSAL_Strlen(sat->interface_cfg.spacewire.device) == 0) {
                 LOG_ERROR("XCONFIG", "Satellite '%s': SpaceWire device name is empty",
                           sat->name);
-                return OS_ERROR;
+                return OSAL_ERR_GENERIC;
             }
             break;
 
@@ -555,22 +555,22 @@ static int32_t validate_satellite_interface(const pcl_satellite_cfg_t *sat)
                 OSAL_Strlen(sat->interface_cfg.mil1553b.device) == 0) {
                 LOG_ERROR("XCONFIG", "Satellite '%s': 1553B device name is empty",
                           sat->name);
-                return OS_ERROR;
+                return OSAL_ERR_GENERIC;
             }
             if (sat->interface_cfg.mil1553b.rt_address > 31) {
                 LOG_ERROR("XCONFIG", "Satellite '%s': 1553B RT address %u exceeds 31",
                           sat->name, sat->interface_cfg.mil1553b.rt_address);
-                return OS_ERROR;
+                return OSAL_ERR_GENERIC;
             }
             break;
 
         default:
             LOG_ERROR("XCONFIG", "Satellite '%s': Unsupported interface type %d",
                       sat->name, sat->interface_type);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
     }
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -584,22 +584,22 @@ static int32_t validate_bmc_channel(const pcl_bmc_cfg_t *bmc)
         if (NULL == lan->interface || OSAL_Strlen(lan->interface) == 0) {
             LOG_ERROR("XCONFIG", "BMC '%s': Primary IPMI interface name is empty",
                       bmc->name);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
         if (NULL == lan->ip_addr || OSAL_Strlen(lan->ip_addr) == 0) {
             LOG_ERROR("XCONFIG", "BMC '%s': Primary IPMI IP address is empty",
                       bmc->name);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
         if (lan->port == 0) {
             LOG_ERROR("XCONFIG", "BMC '%s': Primary IPMI port is 0", bmc->name);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
     } else if (bmc->primary_channel.protocol == PCL_BMC_PROTOCOL_REDFISH) {
         const pcl_bmc_redfish_cfg_t *redfish = &bmc->primary_channel.cfg.redfish;
         if (NULL == redfish->base_url || OSAL_Strlen(redfish->base_url) == 0) {
             LOG_ERROR("XCONFIG", "BMC '%s': Redfish base URL is empty", bmc->name);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
     }
 
@@ -609,16 +609,16 @@ static int32_t validate_bmc_channel(const pcl_bmc_cfg_t *bmc)
         if (NULL == serial->device || OSAL_Strlen(serial->device) == 0) {
             LOG_ERROR("XCONFIG", "BMC '%s': Backup IPMI serial device is empty",
                       bmc->name);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
         if (serial->baudrate == 0) {
             LOG_ERROR("XCONFIG", "BMC '%s': Backup IPMI serial baudrate is 0",
                       bmc->name);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
     }
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /*===========================================================================
@@ -629,170 +629,170 @@ int32_t PCL_Validate(const pcl_board_config_t *config)
 {
     if (NULL == config) {
         LOG_ERROR("XCONFIG", "Config is NULL");
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 验证基本字段 */
     if (config->platform == NULL || OSAL_Strlen(config->platform) == 0) {
         LOG_ERROR("XCONFIG", "Invalid platform name");
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     if (config->product == NULL || OSAL_Strlen(config->product) == 0) {
         LOG_ERROR("XCONFIG", "Invalid product name");
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     if (config->version == NULL || OSAL_Strlen(config->version) == 0) {
         LOG_ERROR("XCONFIG", "Invalid version");
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 验证MCU配置 */
     if (config->mcu_count > 0 && config->mcus == NULL) {
         LOG_ERROR("XCONFIG", "MCU count > 0 but mcus is NULL");
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     for (uint32_t i = 0; i < config->mcu_count; i++) {
         const pcl_mcu_cfg_t *mcu = config->mcus[i];
         if (NULL == mcu) {
             LOG_ERROR("XCONFIG", "MCU[%d] is NULL", i);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
         if (NULL == mcu->name || OSAL_Strlen(mcu->name) == 0) {
             LOG_ERROR("XCONFIG", "MCU[%d] name is empty", i);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
         /* 验证MCU硬件接口配置 */
-        if (mcu->enabled && validate_mcu_interface(mcu) != OS_SUCCESS) {
-            return OS_ERROR;
+        if (mcu->enabled && validate_mcu_interface(mcu) != OSAL_SUCCESS) {
+            return OSAL_ERR_GENERIC;
         }
     }
 
     /* 验证BMC配置 */
     if (config->bmc_count > 0 && config->bmcs == NULL) {
         LOG_ERROR("XCONFIG", "BMC count > 0 but bmcs is NULL");
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     for (uint32_t i = 0; i < config->bmc_count; i++) {
         const pcl_bmc_cfg_t *bmc = config->bmcs[i];
         if (NULL == bmc) {
             LOG_ERROR("XCONFIG", "BMC[%d] is NULL", i);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
         if (NULL == bmc->name || OSAL_Strlen(bmc->name) == 0) {
             LOG_ERROR("XCONFIG", "BMC[%d] name is empty", i);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
         /* 验证BMC通道配置 */
-        if (bmc->enabled && validate_bmc_channel(bmc) != OS_SUCCESS) {
-            return OS_ERROR;
+        if (bmc->enabled && validate_bmc_channel(bmc) != OSAL_SUCCESS) {
+            return OSAL_ERR_GENERIC;
         }
     }
 
     /* 验证卫星平台配置 */
     if (config->satellite_count > 0 && config->satellites == NULL) {
         LOG_ERROR("XCONFIG", "Satellite count > 0 but satellites is NULL");
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     for (uint32_t i = 0; i < config->satellite_count; i++) {
         const pcl_satellite_cfg_t *sat = config->satellites[i];
         if (NULL == sat) {
             LOG_ERROR("XCONFIG", "Satellite[%d] is NULL", i);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
         if (NULL == sat->name || OSAL_Strlen(sat->name) == 0) {
             LOG_ERROR("XCONFIG", "Satellite[%d] name is empty", i);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
         /* 验证卫星平台硬件接口配置 */
-        if (sat->enabled && validate_satellite_interface(sat) != OS_SUCCESS) {
-            return OS_ERROR;
+        if (sat->enabled && validate_satellite_interface(sat) != OSAL_SUCCESS) {
+            return OSAL_ERR_GENERIC;
         }
     }
 
     /* 验证传感器配置 */
     if (config->sensor_count > 0 && config->sensors == NULL) {
         LOG_ERROR("XCONFIG", "Sensor count > 0 but sensors is NULL");
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     for (uint32_t i = 0; i < config->sensor_count; i++) {
         if (NULL == config->sensors[i]) {
             LOG_ERROR("XCONFIG", "Sensor[%d] is NULL", i);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
         if (NULL == config->sensors[i]->name ||
             OSAL_Strlen(config->sensors[i]->name) == 0) {
             LOG_ERROR("XCONFIG", "Sensor[%d] name is empty", i);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
     }
 
     /* 验证存储设备配置 */
     if (config->storage_count > 0 && config->storages == NULL) {
         LOG_ERROR("XCONFIG", "Storage count > 0 but storages is NULL");
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     for (uint32_t i = 0; i < config->storage_count; i++) {
         if (NULL == config->storages[i]) {
             LOG_ERROR("XCONFIG", "Storage[%d] is NULL", i);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
         if (NULL == config->storages[i]->name ||
             OSAL_Strlen(config->storages[i]->name) == 0) {
             LOG_ERROR("XCONFIG", "Storage[%d] name is empty", i);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
     }
 
     /* 验证电源域配置 */
     if (config->power_domain_count > 0 && config->power_domains == NULL) {
         LOG_ERROR("XCONFIG", "Power domain count > 0 but power_domains is NULL");
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     for (uint32_t i = 0; i < config->power_domain_count; i++) {
         if (NULL == config->power_domains[i]) {
             LOG_ERROR("XCONFIG", "Power domain[%d] is NULL", i);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
         if (NULL == config->power_domains[i]->name ||
             OSAL_Strlen(config->power_domains[i]->name) == 0) {
             LOG_ERROR("XCONFIG", "Power domain[%d] name is empty", i);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
     }
 
     /* 验证APP配置 */
     if (config->app_count > 0 && config->apps == NULL) {
         LOG_ERROR("XCONFIG", "APP count > 0 but apps is NULL");
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     for (uint32_t i = 0; i < config->app_count; i++) {
         const pcl_app_config_t *app = config->apps[i];
         if (NULL == app) {
             LOG_ERROR("XCONFIG", "APP[%d] is NULL", i);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
         if (NULL == app->app_name || OSAL_Strlen(app->app_name) == 0) {
             LOG_ERROR("XCONFIG", "APP[%d] name is empty", i);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
         /* 验证设备映射 */
         if (app->mapping_count > 0 && app->device_mappings == NULL) {
             LOG_ERROR("XCONFIG", "APP '%s': mapping_count > 0 but device_mappings is NULL",
                       app->app_name);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
     }
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 void PCL_Print(const pcl_board_config_t *config)

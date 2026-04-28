@@ -43,20 +43,20 @@ int32_t HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
 
     /* 参数检查 */
     if (config == NULL || handle == NULL)
-        return OS_INVALID_POINTER;
+        return OSAL_ERR_INVALID_POINTER;
 
     if (config->interface == NULL || OSAL_Strlen(config->interface) == 0)
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
 
     if (OSAL_Strlen(config->interface) >= IFNAMSIZ)
-        return OS_ERR_NAME_TOO_LONG;
+        return OSAL_ERR_NAME_TOO_LONG;
 
     /* 分配句柄 */
     impl = (hal_can_context_t *)OSAL_Malloc(sizeof(hal_can_context_t));
     if (NULL == impl)
     {
         LOG_ERROR("HAL_CAN", "Failed to allocate memory");
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     OSAL_Memset(impl, 0, sizeof(hal_can_context_t));
@@ -71,7 +71,7 @@ int32_t HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
     {
         LOG_ERROR("HAL_CAN", "Failed to create socket: %s", OSAL_StrError(OSAL_GetErrno()));
         OSAL_Free(impl);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 获取接口索引 */
@@ -85,7 +85,7 @@ int32_t HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
         /* 提示: CAN接口必须先启动 (sudo ip link set can0 up) */
         OSAL_close(impl->sockfd);
         OSAL_Free(impl);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 绑定到CAN接口 */
@@ -99,7 +99,7 @@ int32_t HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
         LOG_ERROR("HAL_CAN", "Failed to bind interface: %s", OSAL_StrError(OSAL_GetErrno()));
         OSAL_close(impl->sockfd);
         OSAL_Free(impl);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 设置接收超时 */
@@ -132,7 +132,7 @@ int32_t HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
 
     LOG_INFO("HAL_CAN", "Initialized successfully: %s @ %u bps",
               config->interface, config->baudrate);
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -143,7 +143,7 @@ int32_t HAL_CAN_Deinit(hal_can_handle_t handle)
     hal_can_context_t *impl = (hal_can_context_t *)handle;
 
     if (NULL == impl)
-        return OS_ERR_INVALID_ID;
+        return OSAL_ERR_INVALID_ID;
 
     if (impl->initialized && impl->sockfd >= 0)
     {
@@ -155,7 +155,7 @@ int32_t HAL_CAN_Deinit(hal_can_handle_t handle)
     OSAL_Free(impl);
 
     LOG_INFO("HAL_CAN", "Deinitialized successfully");
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -169,15 +169,15 @@ int32_t HAL_CAN_Send(hal_can_handle_t handle, const can_frame_t *frame)
 
     /* 参数检查 */
     if (impl == NULL || frame == NULL)
-        return OS_INVALID_POINTER;
+        return OSAL_ERR_INVALID_POINTER;
 
     if (!impl->initialized || impl->sockfd < 0)
-        return OS_ERR_INVALID_ID;
+        return OSAL_ERR_INVALID_ID;
 
     if (frame->dlc > 8)
     {
         LOG_ERROR("HAL_CAN", "Invalid DLC: %u", frame->dlc);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 转换为SocketCAN格式 */
@@ -200,11 +200,11 @@ int32_t HAL_CAN_Send(hal_can_handle_t handle, const can_frame_t *frame)
                        (int32_t)ret, (uint32_t)sizeof(struct can_frame));
         }
         atomic_fetch_add(&impl->err_count, 1);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     atomic_fetch_add(&impl->tx_count, 1);
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -218,10 +218,10 @@ int32_t HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32_t timeou
 
     /* 参数检查 */
     if (impl == NULL || frame == NULL)
-        return OS_INVALID_POINTER;
+        return OSAL_ERR_INVALID_POINTER;
 
     if (!impl->initialized || impl->sockfd < 0)
-        return OS_ERR_INVALID_ID;
+        return OSAL_ERR_INVALID_ID;
 
     /* 临时设置超时 */
     if (timeout >= 0)
@@ -242,11 +242,11 @@ int32_t HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32_t timeou
     {
         int32_t err = OSAL_GetErrno();
         if (err == OSAL_EAGAIN || err == OSAL_EWOULDBLOCK)
-            return OS_ERROR_TIMEOUT;
+            return OSAL_ERR_TIMEOUT;
 
         LOG_ERROR("HAL_CAN", "Receive failed: %s", OSAL_StrError(err));
         atomic_fetch_add(&impl->err_count, 1);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     if (ret != sizeof(struct can_frame))
@@ -254,7 +254,7 @@ int32_t HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32_t timeou
         LOG_ERROR("HAL_CAN", "Incomplete receive: %d/%u bytes",
                    (int32_t)ret, (uint32_t)sizeof(struct can_frame));
         atomic_fetch_add(&impl->err_count, 1);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 转换为内部格式 */
@@ -270,7 +270,7 @@ int32_t HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32_t timeou
     frame->timestamp = OSAL_GetTickCount();
 
     atomic_fetch_add(&impl->rx_count, 1);
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -282,10 +282,10 @@ int32_t HAL_CAN_SetFilter(hal_can_handle_t handle, uint32_t filter_id, uint32_t 
     struct can_filter rfilter[1];
 
     if (NULL == impl)
-        return OS_ERR_INVALID_ID;
+        return OSAL_ERR_INVALID_ID;
 
     if (!impl->initialized || impl->sockfd < 0)
-        return OS_ERR_INVALID_ID;
+        return OSAL_ERR_INVALID_ID;
 
     rfilter[0].can_id = filter_id;
     rfilter[0].can_mask = filter_mask;
@@ -294,12 +294,12 @@ int32_t HAL_CAN_SetFilter(hal_can_handle_t handle, uint32_t filter_id, uint32_t 
                    &rfilter, sizeof(rfilter)) < 0)
     {
         LOG_ERROR("HAL_CAN", "Failed to set filter: %s", OSAL_StrError(OSAL_GetErrno()));
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     LOG_INFO("HAL_CAN", "Filter set: ID=0x%X, Mask=0x%X",
               filter_id, filter_mask);
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -313,15 +313,15 @@ int32_t HAL_CAN_GetStats(hal_can_handle_t handle,
     hal_can_context_t *impl = (hal_can_context_t *)handle;
 
     if (NULL == impl)
-        return OS_ERR_INVALID_ID;
+        return OSAL_ERR_INVALID_ID;
 
     if (!impl->initialized)
-        return OS_ERR_INVALID_ID;
+        return OSAL_ERR_INVALID_ID;
 
     /* 原子读取统计信息 */
     if (tx_count)  *tx_count = atomic_load(&impl->tx_count);
     if (rx_count)  *rx_count = atomic_load(&impl->rx_count);
     if (err_count) *err_count = atomic_load(&impl->err_count);
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }

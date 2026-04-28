@@ -50,7 +50,7 @@ TEST_CASE(test_pdl_satellite_init_null_config)
     satellite_service_handle_t handle = NULL;
 
     int32_t ret = PDL_Satellite_Init(NULL, &handle);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: 卫星服务初始化 - 空句柄指针 */
@@ -64,7 +64,7 @@ TEST_CASE(test_pdl_satellite_init_null_handle)
     config.cmd_timeout_ms = 5000;
 
     int32_t ret = PDL_Satellite_Init(&config, NULL);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: 卫星服务清理 */
@@ -78,7 +78,7 @@ TEST_CASE(test_pdl_satellite_deinit)
 TEST_CASE(test_pdl_satellite_deinit_null_handle)
 {
     int32_t ret = PDL_Satellite_Deinit(NULL);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /*===========================================================================
@@ -96,7 +96,7 @@ TEST_CASE(test_pdl_satellite_register_callback_success)
 TEST_CASE(test_pdl_satellite_register_callback_null_handle)
 {
     int32_t ret = PDL_Satellite_RegisterCallback(NULL, test_satellite_callback, NULL);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: 注册回调 - 空函数指针 */
@@ -121,7 +121,7 @@ TEST_CASE(test_pdl_satellite_send_response_success)
 TEST_CASE(test_pdl_satellite_send_response_null_handle)
 {
     int32_t ret = PDL_Satellite_SendResponse(NULL, 0x01, STATUS_OK, 0);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: 发送响应 - 不同状态码 */
@@ -146,7 +146,7 @@ TEST_CASE(test_pdl_satellite_send_heartbeat_success)
 TEST_CASE(test_pdl_satellite_send_heartbeat_null_handle)
 {
     int32_t ret = PDL_Satellite_SendHeartbeat(NULL, STATUS_OK);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: 连续发送心跳 */
@@ -173,7 +173,7 @@ TEST_CASE(test_pdl_satellite_get_stats_null_handle)
     uint32_t rx_count, tx_count, error_count;
 
     int32_t ret = PDL_Satellite_GetStats(NULL, &rx_count, &tx_count, &error_count);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: 获取统计信息 - 空指针 */

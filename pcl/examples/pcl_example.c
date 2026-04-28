@@ -24,14 +24,14 @@ static void example_basic_usage(void)
 
     /* 初始化配置库 */
     ret = PCL_Init();
-    if (OS_SUCCESS != ret) {
+    if (OSAL_SUCCESS != ret) {
         OSAL_Printf("Failed to initialize config library\n");
         return;
     }
 
     /* 注册所有配置 */
     ret = PCL_RegisterAll();
-    if (OS_SUCCESS != ret) {
+    if (OSAL_SUCCESS != ret) {
         OSAL_Printf("Failed to register configurations\n");
         return;
     }
@@ -163,7 +163,7 @@ static void example_list_configs(void)
     OSAL_Printf("\n=== Example 4: List All Configs ===\n");
 
     ret = PCL_List(configs, &count);
-    if (OS_SUCCESS != ret) {
+    if (OSAL_SUCCESS != ret) {
         OSAL_Printf("Failed to list configurations\n");
         return;
     }

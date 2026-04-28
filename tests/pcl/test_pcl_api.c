@@ -141,11 +141,11 @@ static const pcl_board_config_t test_board_v2 = {
 TEST_CASE(test_pcl_init_success)
 {
     int32_t ret = PCL_Init();
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 重复初始化应该成功 */
     ret = PCL_Init();
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     PCL_Cleanup();
 }
@@ -166,7 +166,7 @@ TEST_CASE(test_pcl_register_success)
     PCL_Init();
 
     int32_t ret = PCL_Register(&test_board_v1);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     PCL_Cleanup();
 }
@@ -176,7 +176,7 @@ TEST_CASE(test_pcl_register_null_pointer)
     PCL_Init();
 
     int32_t ret = PCL_Register(NULL);
-    TEST_ASSERT_EQUAL(OS_ERROR, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_GENERIC, ret);
 
     PCL_Cleanup();
 }
@@ -185,7 +185,7 @@ TEST_CASE(test_pcl_register_not_initialized)
 {
     /* 未初始化时注册应该失败 */
     int32_t ret = PCL_Register(&test_board_v1);
-    TEST_ASSERT_EQUAL(OS_ERROR, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_GENERIC, ret);
 }
 
 TEST_CASE(test_pcl_register_duplicate)
@@ -193,11 +193,11 @@ TEST_CASE(test_pcl_register_duplicate)
     PCL_Init();
 
     int32_t ret = PCL_Register(&test_board_v1);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 重复注册相同配置应该失败 */
     ret = PCL_Register(&test_board_v1);
-    TEST_ASSERT_EQUAL(OS_ERROR, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_GENERIC, ret);
 
     PCL_Cleanup();
 }
@@ -207,11 +207,11 @@ TEST_CASE(test_pcl_register_multiple_versions)
     PCL_Init();
 
     int32_t ret = PCL_Register(&test_board_v1);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 注册不同版本应该成功 */
     ret = PCL_Register(&test_board_v2);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     PCL_Cleanup();
 }
@@ -282,7 +282,7 @@ TEST_CASE(test_pcl_list_success)
     uint32_t count = 10;
 
     int32_t ret = PCL_List(configs, &count);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     TEST_ASSERT_EQUAL(2, count);
     TEST_ASSERT_NOT_NULL(configs[0]);
     TEST_ASSERT_NOT_NULL(configs[1]);
@@ -298,10 +298,10 @@ TEST_CASE(test_pcl_list_null_parameters)
     uint32_t count = 10;
 
     int32_t ret = PCL_List(NULL, &count);
-    TEST_ASSERT_EQUAL(OS_ERROR, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_GENERIC, ret);
 
     ret = PCL_List(configs, NULL);
-    TEST_ASSERT_EQUAL(OS_ERROR, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_GENERIC, ret);
 
     PCL_Cleanup();
 }
@@ -400,13 +400,13 @@ TEST_CASE(test_pcl_hw_find_satellite_success)
 TEST_CASE(test_pcl_validate_success)
 {
     int32_t ret = PCL_Validate(&test_board_v1);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 TEST_CASE(test_pcl_validate_null_pointer)
 {
     int32_t ret = PCL_Validate(NULL);
-    TEST_ASSERT_EQUAL(OS_ERROR, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_GENERIC, ret);
 }
 
 /* ========== 测试套件注册 ========== */

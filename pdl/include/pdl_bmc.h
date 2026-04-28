@@ -117,8 +117,8 @@ typedef struct
  * @param[in] config 配置参数
  * @param[out] handle 服务句柄
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERROR 失败
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_GENERIC 失败
  */
 int32_t PDL_BMC_Init(const bmc_config_t *config,
                    bmc_handle_t *handle);
@@ -128,7 +128,7 @@ int32_t PDL_BMC_Init(const bmc_config_t *config,
  *
  * @param[in] handle 服务句柄
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t PDL_BMC_Deinit(bmc_handle_t handle);
 
@@ -137,9 +137,9 @@ int32_t PDL_BMC_Deinit(bmc_handle_t handle);
  *
  * @param[in] handle 服务句柄
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERROR_TIMEOUT 超时
- * @return OS_ERROR 失败
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_TIMEOUT 超时
+ * @return OSAL_ERR_GENERIC 失败
  */
 int32_t PDL_BMC_PowerOn(bmc_handle_t handle);
 
@@ -148,7 +148,7 @@ int32_t PDL_BMC_PowerOn(bmc_handle_t handle);
  *
  * @param[in] handle 服务句柄
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t PDL_BMC_PowerOff(bmc_handle_t handle);
 
@@ -157,7 +157,7 @@ int32_t PDL_BMC_PowerOff(bmc_handle_t handle);
  *
  * @param[in] handle 服务句柄
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t PDL_BMC_PowerReset(bmc_handle_t handle);
 
@@ -167,7 +167,7 @@ int32_t PDL_BMC_PowerReset(bmc_handle_t handle);
  * @param[in] handle 服务句柄
  * @param[out] state 电源状态
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t PDL_BMC_GetPowerState(bmc_handle_t handle,
                             bmc_power_state_t *state);
@@ -181,7 +181,7 @@ int32_t PDL_BMC_GetPowerState(bmc_handle_t handle,
  * @param[in] max_count 数组大小
  * @param[out] actual_count 实际读取数量
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t PDL_BMC_ReadSensors(bmc_handle_t handle,
                           bmc_sensor_type_t type,
@@ -211,7 +211,7 @@ int32_t PDL_BMC_ExecuteCommand(bmc_handle_t handle,
  * @param[in] handle 服务句柄
  * @param[in] channel 目标通道
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t PDL_BMC_SwitchChannel(bmc_handle_t handle,
                             bmc_channel_t channel);
@@ -244,7 +244,7 @@ bool PDL_BMC_IsConnected(bmc_handle_t handle);
  * @param[out] fail_count 失败数
  * @param[out] switch_count 通道切换次数
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t PDL_BMC_GetStats(bmc_handle_t handle,
                        uint32_t *cmd_count,

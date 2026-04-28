@@ -18,7 +18,7 @@ int32_t satellite_can_init(const char *device, uint32_t bitrate, void **handle)
 {
     if (device == NULL || handle == NULL)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 打开CAN设备 */
@@ -30,13 +30,13 @@ int32_t satellite_can_init(const char *device, uint32_t bitrate, void **handle)
     };
 
     hal_can_handle_t can_handle;
-    if (HAL_CAN_Init(&can_config, &can_handle) != OS_SUCCESS)
+    if (HAL_CAN_Init(&can_config, &can_handle) != OSAL_SUCCESS)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     *handle = can_handle;
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -46,7 +46,7 @@ int32_t satellite_can_deinit(void *handle)
 {
     if (NULL == handle)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     hal_can_handle_t can_handle = (hal_can_handle_t)handle;
@@ -60,14 +60,14 @@ int32_t satellite_can_recv(void *handle, satellite_can_msg_t *msg, uint32_t time
 {
     if (handle == NULL || msg == NULL)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     hal_can_handle_t can_handle = (hal_can_handle_t)handle;
     can_frame_t frame;
 
     int32_t ret = HAL_CAN_Recv(can_handle, &frame, timeout_ms);
-    if (OS_SUCCESS != ret)
+    if (OSAL_SUCCESS != ret)
     {
         return ret;
     }
@@ -83,10 +83,10 @@ int32_t satellite_can_recv(void *handle, satellite_can_msg_t *msg, uint32_t time
     }
     else
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -96,7 +96,7 @@ int32_t satellite_can_send(void *handle, const satellite_can_msg_t *msg)
 {
     if (handle == NULL || msg == NULL)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     hal_can_handle_t can_handle = (hal_can_handle_t)handle;

@@ -39,13 +39,13 @@ typedef struct
  * @param[in]  priority         优先级(1-255, 数字越小优先级越高)
  * @param[in]  flags            保留,传0
  *
- * @return OS_SUCCESS 成功
- * @return OS_INVALID_POINTER task_id或function_pointer为NULL
- * @return OS_ERR_NAME_TOO_LONG 名称过长
- * @return OS_ERR_INVALID_PRIORITY 优先级无效
- * @return OS_ERR_NO_FREE_IDS 无可用任务ID
- * @return OS_ERR_NAME_TAKEN 名称已被使用
- * @return OS_ERROR 其他错误
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_INVALID_POINTER task_id或function_pointer为NULL
+ * @return OSAL_ERR_NAME_TOO_LONG 名称过长
+ * @return OSAL_ERR_INVALID_PRIORITY 优先级无效
+ * @return OSAL_ERR_NO_FREE_IDS 无可用任务ID
+ * @return OSAL_ERR_NAME_TAKEN 名称已被使用
+ * @return OSAL_ERR_GENERIC 其他错误
  */
 int32_t OSAL_TaskCreate(osal_id_t *task_id,
                     const str_t *task_name,
@@ -58,17 +58,17 @@ int32_t OSAL_TaskCreate(osal_id_t *task_id,
 /**
  * @brief 删除任务
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERR_INVALID_ID 无效的任务ID
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_INVALID_ID 无效的任务ID
  */
 int32_t OSAL_TaskDelete(osal_id_t task_id);
 
 /**
  * @brief 设置任务优先级
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERR_INVALID_ID 无效的任务ID
- * @return OS_ERR_INVALID_PRIORITY 无效的优先级
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_INVALID_ID 无效的任务ID
+ * @return OSAL_ERR_INVALID_PRIORITY 无效的优先级
  */
 int32_t OSAL_TaskSetPriority(osal_id_t task_id, uint32_t priority);
 
@@ -87,18 +87,18 @@ bool OSAL_TaskShouldShutdown(void);
 /**
  * @brief 根据名称获取任务ID
  *
- * @return OS_SUCCESS 成功
- * @return OS_INVALID_POINTER task_id为NULL
- * @return OS_ERR_NAME_NOT_FOUND 未找到任务
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_INVALID_POINTER task_id为NULL
+ * @return OSAL_ERR_NAME_NOT_FOUND 未找到任务
  */
 int32_t OSAL_TaskGetIdByName(osal_id_t *task_id, const str_t *task_name);
 
 /**
  * @brief 获取任务信息
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERR_INVALID_ID 无效的任务ID
- * @return OS_INVALID_POINTER task_prop为NULL
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_INVALID_ID 无效的任务ID
+ * @return OSAL_ERR_INVALID_POINTER task_prop为NULL
  */
 int32_t OSAL_TaskGetInfo(osal_id_t task_id, OS_TaskProp_t *task_prop);
 

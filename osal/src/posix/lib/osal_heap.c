@@ -70,32 +70,32 @@ int32_t OSAL_HeapGetInfo(uint32_t *free_bytes, uint32_t *total_bytes)
     if (NULL != total_bytes)
         *total_bytes = vm_peak;
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 int32_t OSAL_HeapSetThreshold(uint32_t percent)
 {
     if (percent > 100)
-        return OS_ERR_INVALID_SIZE;
+        return OSAL_ERR_INVALID_SIZE;
 
     pthread_mutex_lock(&g_heap_monitor.lock);
     g_heap_monitor.threshold_percent = percent;
     pthread_mutex_unlock(&g_heap_monitor.lock);
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 int32_t OSAL_HeapCheckThreshold(bool *exceeded)
 {
     if (NULL == exceeded)
-        return OS_INVALID_POINTER;
+        return OSAL_ERR_INVALID_POINTER;
 
     uint32_t free_bytes, total_bytes;
     OSAL_HeapGetInfo(&free_bytes, &total_bytes);
 
     if (0 == total_bytes) {
         *exceeded = false;
-        return OS_SUCCESS;
+        return OSAL_SUCCESS;
     }
 
     uint32_t usage_percent = ((total_bytes - free_bytes) * 100) / total_bytes;
@@ -111,20 +111,20 @@ int32_t OSAL_HeapCheckThreshold(bool *exceeded)
     }
     pthread_mutex_unlock(&g_heap_monitor.lock);
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 int32_t OSAL_HeapGetStats(uint32_t *current, uint32_t *peak)
 {
     if (current == NULL || peak == NULL)
-        return OS_INVALID_POINTER;
+        return OSAL_ERR_INVALID_POINTER;
 
     pthread_mutex_lock(&g_heap_monitor.lock);
     *current = g_heap_monitor.current_usage;
     *peak = g_heap_monitor.peak_usage;
     pthread_mutex_unlock(&g_heap_monitor.lock);
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 void *OSAL_Malloc(size_t size)

@@ -24,7 +24,7 @@
 /**
  * @brief 初始化硬件配置库
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t PCL_Init(void);
 
@@ -42,8 +42,8 @@ void PCL_Cleanup(void);
  *
  * @param[in] config 板级配置指针
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERROR 失败
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_GENERIC 失败
  */
 int32_t PCL_Register(const pcl_board_config_t *config);
 
@@ -73,7 +73,7 @@ const pcl_board_config_t* PCL_Find(const char *platform,
  * @param[out] configs 配置列表
  * @param[in,out] count 输入：缓冲区大小，输出：实际数量
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t PCL_List(const pcl_board_config_t **configs, uint32_t *count);
 
@@ -248,8 +248,8 @@ const void* PCL_APP_GetDeviceByMapping(const pcl_board_config_t *board,
  *
  * @param[in] config 板级配置
  *
- * @return OS_SUCCESS 验证通过
- * @return OS_ERROR 验证失败
+ * @return OSAL_SUCCESS 验证通过
+ * @return OSAL_ERR_GENERIC 验证失败
  */
 int32_t PCL_Validate(const pcl_board_config_t *config);
 

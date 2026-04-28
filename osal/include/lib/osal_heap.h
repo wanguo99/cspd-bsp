@@ -14,7 +14,7 @@
  * @param[out] free_bytes  可用内存(字节)
  * @param[out] total_bytes 总内存(字节)
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t OSAL_HeapGetInfo(uint32_t *free_bytes, uint32_t *total_bytes);
 
@@ -23,8 +23,8 @@ int32_t OSAL_HeapGetInfo(uint32_t *free_bytes, uint32_t *total_bytes);
  *
  * @param[in] percent 阈值百分比(0-100)
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERR_INVALID_PARAM 参数无效
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_INVALID_PARAM 参数无效
  */
 int32_t OSAL_HeapSetThreshold(uint32_t percent);
 
@@ -33,8 +33,8 @@ int32_t OSAL_HeapSetThreshold(uint32_t percent);
  *
  * @param[out] exceeded 是否超过阈值
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERR_INVALID_PARAM 参数无效
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_INVALID_PARAM 参数无效
  */
 int32_t OSAL_HeapCheckThreshold(bool *exceeded);
 
@@ -44,8 +44,8 @@ int32_t OSAL_HeapCheckThreshold(bool *exceeded);
  * @param[out] current 当前使用内存(字节)
  * @param[out] peak 峰值使用内存(字节)
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERR_INVALID_PARAM 参数无效
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_INVALID_PARAM 参数无效
  */
 int32_t OSAL_HeapGetStats(uint32_t *current, uint32_t *peak);
 

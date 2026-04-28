@@ -35,13 +35,13 @@ int32_t bmc_redfish_init(const char *ip_addr, uint16_t port, uint32_t timeout_ms
 {
     if (ip_addr == NULL || handle == NULL)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     bmc_redfish_context_t *ctx = (bmc_redfish_context_t *)OSAL_Malloc(sizeof(bmc_redfish_context_t));
     if (NULL == ctx)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     OSAL_Memset(ctx, 0, sizeof(bmc_redfish_context_t));
@@ -52,7 +52,7 @@ int32_t bmc_redfish_init(const char *ip_addr, uint16_t port, uint32_t timeout_ms
     if (ctx->sockfd < 0)
     {
         OSAL_Free(ctx);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 设置超时 */
@@ -71,18 +71,18 @@ int32_t bmc_redfish_init(const char *ip_addr, uint16_t port, uint32_t timeout_ms
     {
         OSAL_close(ctx->sockfd);
         OSAL_Free(ctx);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     if (OSAL_connect(ctx->sockfd, (osal_sockaddr_t *)&server_addr, sizeof(server_addr)) < 0)
     {
         OSAL_close(ctx->sockfd);
         OSAL_Free(ctx);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     *handle = ctx;
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -92,7 +92,7 @@ int32_t bmc_redfish_deinit(void *handle)
 {
     if (NULL == handle)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     bmc_redfish_context_t *ctx = (bmc_redfish_context_t *)handle;
@@ -100,7 +100,7 @@ int32_t bmc_redfish_deinit(void *handle)
     OSAL_close(ctx->sockfd);
     OSAL_Free(ctx);
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -115,7 +115,7 @@ int32_t bmc_redfish_send_recv(void *handle,
 {
     if (handle == NULL || request == NULL)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     bmc_redfish_context_t *ctx = (bmc_redfish_context_t *)handle;
@@ -124,7 +124,7 @@ int32_t bmc_redfish_send_recv(void *handle,
     osal_ssize_t sent = OSAL_send(ctx->sockfd, request, req_size, 0);
     if (sent != (osal_ssize_t)req_size)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 接收响应 */
@@ -133,7 +133,7 @@ int32_t bmc_redfish_send_recv(void *handle,
         osal_ssize_t recv_len = OSAL_recv(ctx->sockfd, response, resp_size, 0);
         if (recv_len < 0)
         {
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
 
         if (NULL != actual_size)
@@ -142,7 +142,7 @@ int32_t bmc_redfish_send_recv(void *handle,
         }
     }
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -152,13 +152,13 @@ int32_t bmc_serial_init(const char *device, uint32_t baudrate, uint32_t timeout_
 {
     if (device == NULL || handle == NULL)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     bmc_serial_context_t *ctx = (bmc_serial_context_t *)OSAL_Malloc(sizeof(bmc_serial_context_t));
     if (NULL == ctx)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     OSAL_Memset(ctx, 0, sizeof(bmc_serial_context_t));
@@ -172,14 +172,14 @@ int32_t bmc_serial_init(const char *device, uint32_t baudrate, uint32_t timeout_
         .parity = 'N'
     };
 
-    if (HAL_Serial_Open(device, &serial_config, &ctx->serial_handle) != OS_SUCCESS)
+    if (HAL_Serial_Open(device, &serial_config, &ctx->serial_handle) != OSAL_SUCCESS)
     {
         OSAL_Free(ctx);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     *handle = ctx;
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -189,7 +189,7 @@ int32_t bmc_serial_deinit(void *handle)
 {
     if (NULL == handle)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     bmc_serial_context_t *ctx = (bmc_serial_context_t *)handle;
@@ -197,7 +197,7 @@ int32_t bmc_serial_deinit(void *handle)
     HAL_Serial_Close(ctx->serial_handle);
     OSAL_Free(ctx);
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -212,7 +212,7 @@ int32_t bmc_serial_send_recv(void *handle,
 {
     if (handle == NULL || request == NULL)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     bmc_serial_context_t *ctx = (bmc_serial_context_t *)handle;
@@ -220,7 +220,7 @@ int32_t bmc_serial_send_recv(void *handle,
     /* 发送请求 */
     if (HAL_Serial_Write(ctx->serial_handle, request, req_size, ctx->timeout_ms) != (int32_t)req_size)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 接收响应 */
@@ -229,7 +229,7 @@ int32_t bmc_serial_send_recv(void *handle,
         int32_t recv_len = HAL_Serial_Read(ctx->serial_handle, response, resp_size, ctx->timeout_ms);
         if (recv_len < 0)
         {
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
 
         if (NULL != actual_size)
@@ -238,5 +238,5 @@ int32_t bmc_serial_send_recv(void *handle,
         }
     }
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }

@@ -47,7 +47,7 @@ static void heartbeat_task(void *arg)
     while (!OSAL_TaskShouldShutdown())
     {
         /* 发送心跳 */
-        if (satellite_can_send_heartbeat(ctx->can_handle, STATUS_OK) == OS_SUCCESS)
+        if (satellite_can_send_heartbeat(ctx->can_handle, STATUS_OK) == OSAL_SUCCESS)
         {
             OSAL_MutexLock(ctx->mutex);
             ctx->tx_count++;
@@ -83,7 +83,7 @@ static void can_rx_task(void *arg)
         /* 接收CAN消息 */
         ret = satellite_can_recv(ctx->can_handle, &msg, ctx->config.cmd_timeout_ms);
 
-        if (OS_SUCCESS == ret)
+        if (OSAL_SUCCESS == ret)
         {
             OSAL_MutexLock(ctx->mutex);
             ctx->rx_count++;
@@ -103,7 +103,7 @@ static void can_rx_task(void *arg)
                 }
             }
         }
-        else if (ret != OS_ERROR_TIMEOUT)
+        else if (ret != OSAL_ERR_TIMEOUT)
         {
             OSAL_MutexLock(ctx->mutex);
             ctx->error_count++;
@@ -123,7 +123,7 @@ int32_t PDL_Satellite_Init(const satellite_service_config_t *config,
 {
     if (config == NULL || handle == NULL)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 分配上下文 */
@@ -131,7 +131,7 @@ int32_t PDL_Satellite_Init(const satellite_service_config_t *config,
     if (NULL == ctx)
     {
         LOG_ERROR("SAT", "Failed to allocate context");
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     OSAL_Memset(ctx, 0, sizeof(satellite_service_context_t));
@@ -139,16 +139,16 @@ int32_t PDL_Satellite_Init(const satellite_service_config_t *config,
     ctx->running = true;
 
     /* 创建互斥锁 */
-    if (OSAL_MutexCreate(&ctx->mutex, "sat_mutex", 0) != OS_SUCCESS)
+    if (OSAL_MutexCreate(&ctx->mutex, "sat_mutex", 0) != OSAL_SUCCESS)
     {
         LOG_ERROR("SAT", "Failed to create mutex");
         OSAL_Free(ctx);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 初始化CAN通信 */
     int32_t ret = satellite_can_init(config->can_device, config->can_bitrate, &ctx->can_handle);
-    if (OS_SUCCESS != ret)
+    if (OSAL_SUCCESS != ret)
     {
         LOG_ERROR("SAT", "Failed to initialize CAN");
         OSAL_MutexDelete(ctx->mutex);
@@ -161,7 +161,7 @@ int32_t PDL_Satellite_Init(const satellite_service_config_t *config,
                         can_rx_task, ctx,
                         OSAL_TASK_STACK_SIZE_MEDIUM,
                         OSAL_TASK_PRIORITY_HIGH, 0);
-    if (OS_SUCCESS != ret)
+    if (OSAL_SUCCESS != ret)
     {
         LOG_ERROR("SAT", "Failed to create RX task");
         satellite_can_deinit(ctx->can_handle);
@@ -175,7 +175,7 @@ int32_t PDL_Satellite_Init(const satellite_service_config_t *config,
                         heartbeat_task, ctx,
                         OSAL_TASK_STACK_SIZE_SMALL,
                         OSAL_TASK_PRIORITY_LOW, 0);
-    if (OS_SUCCESS != ret)
+    if (OSAL_SUCCESS != ret)
     {
         LOG_ERROR("SAT", "Failed to create heartbeat task");
         OSAL_TaskDelete(ctx->rx_task_id);
@@ -188,7 +188,7 @@ int32_t PDL_Satellite_Init(const satellite_service_config_t *config,
     *handle = (satellite_service_handle_t)ctx;
     LOG_INFO("SAT", "Satellite service initialized");
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -198,7 +198,7 @@ int32_t PDL_Satellite_Deinit(satellite_service_handle_t handle)
 {
     if (NULL == handle)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     satellite_service_context_t *ctx = (satellite_service_context_t *)handle;
@@ -217,7 +217,7 @@ int32_t PDL_Satellite_Deinit(satellite_service_handle_t handle)
     OSAL_Free(ctx);
     LOG_INFO("SAT", "Satellite service deinitialized");
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -229,7 +229,7 @@ int32_t PDL_Satellite_RegisterCallback(satellite_service_handle_t handle,
 {
     if (NULL == handle)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     satellite_service_context_t *ctx = (satellite_service_context_t *)handle;
@@ -239,7 +239,7 @@ int32_t PDL_Satellite_RegisterCallback(satellite_service_handle_t handle,
     ctx->user_data = user_data;
     OSAL_MutexUnlock(ctx->mutex);
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -252,13 +252,13 @@ int32_t PDL_Satellite_SendResponse(satellite_service_handle_t handle,
 {
     if (NULL == handle)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     satellite_service_context_t *ctx = (satellite_service_context_t *)handle;
 
     int32_t ret = satellite_can_send_response(ctx->can_handle, seq_num, status, result);
-    if (OS_SUCCESS == ret)
+    if (OSAL_SUCCESS == ret)
     {
         OSAL_MutexLock(ctx->mutex);
         ctx->tx_count++;
@@ -283,7 +283,7 @@ int32_t PDL_Satellite_SendHeartbeat(satellite_service_handle_t handle,
 {
     if (NULL == handle)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     satellite_service_context_t *ctx = (satellite_service_context_t *)handle;
@@ -291,7 +291,7 @@ int32_t PDL_Satellite_SendHeartbeat(satellite_service_handle_t handle,
     int32_t ret = satellite_can_send_heartbeat(ctx->can_handle, status);
 
     /* 加锁保护统计计数器，与其他函数保持一致 */
-    if (OS_SUCCESS == ret)
+    if (OSAL_SUCCESS == ret)
     {
         OSAL_MutexLock(ctx->mutex);
         ctx->tx_count++;
@@ -317,7 +317,7 @@ int32_t PDL_Satellite_GetStats(satellite_service_handle_t handle,
 {
     if (NULL == handle)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     satellite_service_context_t *ctx = (satellite_service_context_t *)handle;
@@ -326,5 +326,5 @@ int32_t PDL_Satellite_GetStats(satellite_service_handle_t handle,
     if (NULL != tx_count) *tx_count = ctx->tx_count;
     if (NULL != error_count) *error_count = ctx->error_count;
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }

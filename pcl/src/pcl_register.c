@@ -42,8 +42,8 @@ static const pcl_board_config_t* g_all_configs[] = {
 /**
  * @brief 注册所有硬件配置
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERROR 失败
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_GENERIC 失败
  */
 int32_t PCL_RegisterAll(void)
 {
@@ -54,7 +54,7 @@ int32_t PCL_RegisterAll(void)
 
     for (uint32_t i = 0; i < CONFIG_COUNT; i++) {
         ret = PCL_Register(g_all_configs[i]);
-        if (OS_SUCCESS == ret) {
+        if (OSAL_SUCCESS == ret) {
             success_count++;
         } else {
             LOG_ERROR("XCONFIG", "Failed to register config[%d]: %s/%s/%s",
@@ -68,7 +68,7 @@ int32_t PCL_RegisterAll(void)
     LOG_INFO("XCONFIG", "Registered %d/%d configurations successfully",
              success_count, CONFIG_COUNT);
 
-    return (success_count > 0) ? OS_SUCCESS : OS_ERROR;
+    return (success_count > 0) ? OSAL_SUCCESS : OSAL_ERR_GENERIC;
 }
 
 /**

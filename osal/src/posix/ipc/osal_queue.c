@@ -99,12 +99,12 @@ static int32_t osal_queue_find_free_slot(uint32_t *slot)
         {
             *slot = i;
             pthread_mutex_unlock(&g_queue_table_mutex);
-            return OS_SUCCESS;
+            return OSAL_SUCCESS;
         }
     }
 
     pthread_mutex_unlock(&g_queue_table_mutex);
-    return OS_ERR_NO_FREE_IDS;
+    return OSAL_ERR_NO_FREE_IDS;
 }
 
 int32_t OSAL_QueueCreate(osal_id_t *queue_id,
@@ -119,29 +119,29 @@ int32_t OSAL_QueueCreate(osal_id_t *queue_id,
 
     /* 参数检查 */
     if (NULL == queue_id)
-        return OS_INVALID_POINTER;
+        return OSAL_ERR_INVALID_POINTER;
 
     if (queue_name == NULL || strlen(queue_name) >= OS_MAX_API_NAME)
-        return OS_ERR_NAME_TOO_LONG;
+        return OSAL_ERR_NAME_TOO_LONG;
 
     if (queue_depth == 0 || data_size == 0)
-        return OS_QUEUE_INVALID_SIZE;
+        return OSAL_ERR_QUEUE_INVALID_SIZE;
 
     /* 限制队列深度和消息大小，防止过度内存分配 */
     if (queue_depth > 10000 || data_size > 65536)
-        return OS_QUEUE_INVALID_SIZE;
+        return OSAL_ERR_QUEUE_INVALID_SIZE;
 
     /* 检查乘法溢出 */
     if (queue_depth > 0 && data_size > 0)
     {
         if (queue_depth > UINT32_MAX / data_size)
         {
-            return OS_QUEUE_INVALID_SIZE;  /* 溢出风险 */
+            return OSAL_ERR_QUEUE_INVALID_SIZE;  /* 溢出风险 */
         }
     }
 
     ret = osal_queue_find_free_slot(&slot);
-    if (OS_SUCCESS != ret)
+    if (OSAL_SUCCESS != ret)
         return ret;
 
     /* 检查名称冲突 */
@@ -152,7 +152,7 @@ int32_t OSAL_QueueCreate(osal_id_t *queue_id,
             strcmp(g_osal_queue_table[i].name, queue_name) == 0)
         {
             pthread_mutex_unlock(&g_queue_table_mutex);
-            return OS_ERR_NAME_TAKEN;
+            return OSAL_ERR_NAME_TAKEN;
         }
     }
 
@@ -161,7 +161,7 @@ int32_t OSAL_QueueCreate(osal_id_t *queue_id,
     if (NULL == impl)
     {
         pthread_mutex_unlock(&g_queue_table_mutex);
-        return OS_ERR_NO_MEMORY;
+        return OSAL_ERR_NO_MEMORY;
     }
 
     memset(impl, 0, sizeof(queue_impl_t));
@@ -173,7 +173,7 @@ int32_t OSAL_QueueCreate(osal_id_t *queue_id,
     {
         free(impl);
         pthread_mutex_unlock(&g_queue_table_mutex);
-        return OS_ERR_NO_MEMORY;
+        return OSAL_ERR_NO_MEMORY;
     }
 
     impl->head = 0;
@@ -199,7 +199,7 @@ int32_t OSAL_QueueCreate(osal_id_t *queue_id,
 
     pthread_mutex_unlock(&g_queue_table_mutex);
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 int32_t OSAL_QueueDelete(osal_id_t queue_id)
@@ -222,7 +222,7 @@ int32_t OSAL_QueueDelete(osal_id_t queue_id)
     pthread_mutex_unlock(&g_queue_table_mutex);
 
     if (NULL == impl)
-        return OS_ERR_INVALID_ID;
+        return OSAL_ERR_INVALID_ID;
 
     /* 标记为无效并唤醒所有等待线程 */
     pthread_mutex_lock(&impl->mutex);
@@ -234,16 +234,16 @@ int32_t OSAL_QueueDelete(osal_id_t queue_id)
     /* 释放初始引用 */
     osal_queue_release(impl);
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 int32_t OSAL_QueuePut(osal_id_t queue_id, const void *data, uint32_t size, uint32_t flags __attribute__((unused)))
 {
     queue_impl_t *impl = NULL;
-    int32_t result = OS_SUCCESS;
+    int32_t result = OSAL_SUCCESS;
 
     if (NULL == data)
-        return OS_INVALID_POINTER;
+        return OSAL_ERR_INVALID_POINTER;
 
     /* 获取队列并增加引用计数 */
     pthread_mutex_lock(&g_queue_table_mutex);
@@ -251,12 +251,12 @@ int32_t OSAL_QueuePut(osal_id_t queue_id, const void *data, uint32_t size, uint3
     pthread_mutex_unlock(&g_queue_table_mutex);
 
     if (NULL == impl)
-        return OS_ERR_INVALID_ID;
+        return OSAL_ERR_INVALID_ID;
 
     if (size > impl->msg_size)
     {
         osal_queue_release(impl);
-        return OS_QUEUE_INVALID_SIZE;
+        return OSAL_ERR_QUEUE_INVALID_SIZE;
     }
 
     pthread_mutex_lock(&impl->mutex);
@@ -266,7 +266,7 @@ int32_t OSAL_QueuePut(osal_id_t queue_id, const void *data, uint32_t size, uint3
     {
         pthread_mutex_unlock(&impl->mutex);
         osal_queue_release(impl);
-        return OS_ERR_INVALID_ID;
+        return OSAL_ERR_INVALID_ID;
     }
 
     /* 等待队列非满 */
@@ -278,7 +278,7 @@ int32_t OSAL_QueuePut(osal_id_t queue_id, const void *data, uint32_t size, uint3
     /* 再次检查有效性 */
     if (!impl->valid)
     {
-        result = OS_ERR_INVALID_ID;
+        result = OSAL_ERR_INVALID_ID;
     }
     else
     {
@@ -301,10 +301,10 @@ int32_t OSAL_QueueGet(osal_id_t queue_id, void *data, uint32_t size,
     queue_impl_t *impl = NULL;
     struct timespec ts;
     int ret;
-    int32_t result = OS_SUCCESS;
+    int32_t result = OSAL_SUCCESS;
 
     if (NULL == data)
-        return OS_INVALID_POINTER;
+        return OSAL_ERR_INVALID_POINTER;
 
     /* 获取队列并增加引用计数 */
     pthread_mutex_lock(&g_queue_table_mutex);
@@ -312,7 +312,7 @@ int32_t OSAL_QueueGet(osal_id_t queue_id, void *data, uint32_t size,
     pthread_mutex_unlock(&g_queue_table_mutex);
 
     if (NULL == impl)
-        return OS_ERR_INVALID_ID;
+        return OSAL_ERR_INVALID_ID;
 
     pthread_mutex_lock(&impl->mutex);
 
@@ -321,7 +321,7 @@ int32_t OSAL_QueueGet(osal_id_t queue_id, void *data, uint32_t size,
     {
         pthread_mutex_unlock(&impl->mutex);
         osal_queue_release(impl);
-        return OS_ERR_INVALID_ID;
+        return OSAL_ERR_INVALID_ID;
     }
 
     /* 处理超时 */
@@ -330,7 +330,7 @@ int32_t OSAL_QueueGet(osal_id_t queue_id, void *data, uint32_t size,
         /* 非阻塞 */
         if (impl->count == 0)
         {
-            result = OS_QUEUE_EMPTY;
+            result = OSAL_ERR_QUEUE_EMPTY;
         }
     }
     else if (timeout > 0)
@@ -350,13 +350,13 @@ int32_t OSAL_QueueGet(osal_id_t queue_id, void *data, uint32_t size,
             ret = pthread_cond_timedwait(&impl->not_empty, &impl->mutex, &ts);
             if (ret == ETIMEDOUT)
             {
-                result = OS_QUEUE_TIMEOUT;
+                result = OSAL_ERR_QUEUE_TIMEOUT;
                 break;
             }
         }
 
         if (!impl->valid)
-            result = OS_ERR_INVALID_ID;
+            result = OSAL_ERR_INVALID_ID;
     }
     else
     {
@@ -367,11 +367,11 @@ int32_t OSAL_QueueGet(osal_id_t queue_id, void *data, uint32_t size,
         }
 
         if (!impl->valid)
-            result = OS_ERR_INVALID_ID;
+            result = OSAL_ERR_INVALID_ID;
     }
 
     /* 读取消息 */
-    if (result == OS_SUCCESS && impl->count > 0)
+    if (result == OSAL_SUCCESS && impl->count > 0)
     {
         uint32_t copy_size = (size < impl->msg_size) ? size : impl->msg_size;
         memcpy(data, impl->buffer + (impl->head * impl->msg_size), copy_size);
@@ -393,7 +393,7 @@ int32_t OSAL_QueueGet(osal_id_t queue_id, void *data, uint32_t size,
 int32_t OSAL_QueueGetIdByName(osal_id_t *queue_id, const char *queue_name)
 {
     if (queue_id == NULL || queue_name == NULL)
-        return OS_INVALID_POINTER;
+        return OSAL_ERR_INVALID_POINTER;
 
     pthread_mutex_lock(&g_queue_table_mutex);
 
@@ -404,10 +404,10 @@ int32_t OSAL_QueueGetIdByName(osal_id_t *queue_id, const char *queue_name)
         {
             *queue_id = g_osal_queue_table[i].id;
             pthread_mutex_unlock(&g_queue_table_mutex);
-            return OS_SUCCESS;
+            return OSAL_SUCCESS;
         }
     }
 
     pthread_mutex_unlock(&g_queue_table_mutex);
-    return OS_ERR_NAME_NOT_FOUND;
+    return OSAL_ERR_NAME_NOT_FOUND;
 }

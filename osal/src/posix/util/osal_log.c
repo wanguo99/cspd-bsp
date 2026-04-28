@@ -64,7 +64,7 @@ static const str_t *color_reset = "\033[0m";
  * @param[in] log_file_path 日志文件路径，NULL表示只输出到终端
  * @param[in] level 日志级别
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t OSAL_LogInit(const str_t *log_file_path, int32_t level)
 {
@@ -81,11 +81,11 @@ int32_t OSAL_LogInit(const str_t *log_file_path, int32_t level)
         if (NULL == g_log_file)
         {
             fprintf(stderr, "无法打开日志文件: %s\n", log_file_path);
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
     }
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**

@@ -28,8 +28,8 @@
  * @param[in] log_file_path 日志文件路径，NULL表示只输出到终端
  * @param[in] level 日志级别
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERROR 失败
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_GENERIC 失败
  */
 int32_t OSAL_LogInit(const str_t *log_file_path, int32_t level);
 

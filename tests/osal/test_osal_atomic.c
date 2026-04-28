@@ -192,7 +192,7 @@ TEST_CASE(test_atomic_multithread_increment)
         int32_t ret = OSAL_TaskCreate(&threads[i], task_name,
                                      atomic_increment_thread, &thread_data[i],
                                      32 * 1024, 100, 0);
-        TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+        TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     }
 
     /* 等待所有线程完成 */
@@ -245,7 +245,7 @@ TEST_CASE(test_atomic_multithread_cas)
         int32_t ret = OSAL_TaskCreate(&threads[i], task_name,
                                      atomic_cas_thread, &thread_data[i],
                                      32 * 1024, 100, 0);
-        TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+        TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     }
 
     /* 等待所有线程完成 */

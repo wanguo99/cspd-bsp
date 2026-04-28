@@ -32,13 +32,13 @@ int32_t PDL_MCU_Init(const mcu_config_t *config, mcu_handle_t *handle)
 {
     if (config == NULL || handle == NULL)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     mcu_context_t *ctx = (mcu_context_t *)OSAL_Malloc(sizeof(mcu_context_t));
     if (NULL == ctx)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     OSAL_Memset(ctx, 0, sizeof(mcu_context_t));
@@ -46,14 +46,14 @@ int32_t PDL_MCU_Init(const mcu_config_t *config, mcu_handle_t *handle)
     ctx->interface = config->interface;
 
     /* 创建互斥锁 */
-    if (OSAL_MutexCreate(&ctx->mutex, "mcu_mutex", 0) != OS_SUCCESS)
+    if (OSAL_MutexCreate(&ctx->mutex, "mcu_mutex", 0) != OSAL_SUCCESS)
     {
         OSAL_Free(ctx);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 初始化通信接口 */
-    int32_t ret = OS_ERROR;
+    int32_t ret = OSAL_ERR_GENERIC;
     switch (config->interface)
     {
         case MCU_INTERFACE_CAN:
@@ -65,14 +65,14 @@ int32_t PDL_MCU_Init(const mcu_config_t *config, mcu_handle_t *handle)
         case MCU_INTERFACE_I2C:
         case MCU_INTERFACE_SPI:
             /* TODO: 实现I2C/SPI接口 */
-            ret = OS_ERROR;
+            ret = OSAL_ERR_GENERIC;
             break;
         default:
-            ret = OS_ERROR;
+            ret = OSAL_ERR_GENERIC;
             break;
     }
 
-    if (OS_SUCCESS != ret)
+    if (OSAL_SUCCESS != ret)
     {
         OSAL_MutexDelete(ctx->mutex);
         OSAL_Free(ctx);
@@ -82,7 +82,7 @@ int32_t PDL_MCU_Init(const mcu_config_t *config, mcu_handle_t *handle)
     ctx->initialized = true;
     *handle = (mcu_handle_t)ctx;
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -92,7 +92,7 @@ int32_t PDL_MCU_Deinit(mcu_handle_t handle)
 {
     if (NULL == handle)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     mcu_context_t *ctx = (mcu_context_t *)handle;
@@ -113,7 +113,7 @@ int32_t PDL_MCU_Deinit(mcu_handle_t handle)
     OSAL_MutexDelete(ctx->mutex);
     OSAL_Free(ctx);
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -127,7 +127,7 @@ static int32_t mcu_send_command_internal(mcu_context_t *ctx,
                                       uint32_t resp_size,
                                       uint32_t *actual_size)
 {
-    int32_t ret = OS_ERROR;
+    int32_t ret = OSAL_ERR_GENERIC;
 
     OSAL_MutexLock(ctx->mutex);
 
@@ -144,7 +144,7 @@ static int32_t mcu_send_command_internal(mcu_context_t *ctx,
                                          ctx->config.cmd_timeout_ms);
             break;
         default:
-            ret = OS_ERROR;
+            ret = OSAL_ERR_GENERIC;
             break;
     }
 
@@ -160,7 +160,7 @@ int32_t PDL_MCU_GetVersion(mcu_handle_t handle, mcu_version_t *version)
 {
     if (handle == NULL || version == NULL)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     mcu_context_t *ctx = (mcu_context_t *)handle;
@@ -170,7 +170,7 @@ int32_t PDL_MCU_GetVersion(mcu_handle_t handle, mcu_version_t *version)
     int32_t ret = mcu_send_command_internal(ctx, MCU_CMD_GET_VERSION,
                                          NULL, 0, resp, sizeof(resp), &actual_size);
 
-    if (ret == OS_SUCCESS && actual_size >= 4)
+    if (ret == OSAL_SUCCESS && actual_size >= 4)
     {
         version->major = resp[0];
         version->minor = resp[1];
@@ -191,7 +191,7 @@ int32_t PDL_MCU_GetStatus(mcu_handle_t handle, mcu_status_t *status)
 {
     if (handle == NULL || status == NULL)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     mcu_context_t *ctx = (mcu_context_t *)handle;
@@ -201,7 +201,7 @@ int32_t PDL_MCU_GetStatus(mcu_handle_t handle, mcu_status_t *status)
     int32_t ret = mcu_send_command_internal(ctx, MCU_CMD_GET_STATUS,
                                          NULL, 0, resp, sizeof(resp), &actual_size);
 
-    if (ret == OS_SUCCESS && actual_size >= 8)
+    if (ret == OSAL_SUCCESS && actual_size >= 8)
     {
         status->online = true;
         status->uptime_sec = (resp[0] << 24) | (resp[1] << 16) |
@@ -225,7 +225,7 @@ int32_t PDL_MCU_Reset(mcu_handle_t handle)
 {
     if (NULL == handle)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     mcu_context_t *ctx = (mcu_context_t *)handle;
@@ -243,7 +243,7 @@ int32_t PDL_MCU_ReadRegister(mcu_handle_t handle, uint8_t reg_addr, uint8_t *val
 {
     if (handle == NULL || value == NULL)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     mcu_context_t *ctx = (mcu_context_t *)handle;
@@ -253,7 +253,7 @@ int32_t PDL_MCU_ReadRegister(mcu_handle_t handle, uint8_t reg_addr, uint8_t *val
     int32_t ret = mcu_send_command_internal(ctx, MCU_CMD_READ_REG,
                                          &reg_addr, 1, resp, sizeof(resp), &actual_size);
 
-    if (ret == OS_SUCCESS && actual_size >= 1)
+    if (ret == OSAL_SUCCESS && actual_size >= 1)
     {
         *value = resp[0];
     }
@@ -268,7 +268,7 @@ int32_t PDL_MCU_WriteRegister(mcu_handle_t handle, uint8_t reg_addr, uint8_t val
 {
     if (NULL == handle)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     mcu_context_t *ctx = (mcu_context_t *)handle;
@@ -293,7 +293,7 @@ int32_t PDL_MCU_SendCommand(mcu_handle_t handle,
 {
     if (NULL == handle)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     mcu_context_t *ctx = (mcu_context_t *)handle;
@@ -313,5 +313,5 @@ int32_t PDL_MCU_FirmwareUpdate(mcu_handle_t handle,
     (void)firmware_path;
     (void)progress_callback;
     /* TODO: 实现固件升级逻辑 */
-    return OS_ERROR;
+    return OSAL_ERR_GENERIC;
 }

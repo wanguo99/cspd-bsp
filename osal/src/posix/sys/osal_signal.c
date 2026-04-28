@@ -12,7 +12,7 @@ int32_t OSAL_SignalRegister(int32_t signum, os_signal_handler_t handler)
     struct sigaction sa;
 
     if (NULL == handler)
-        return OS_INVALID_POINTER;
+        return OSAL_ERR_INVALID_POINTER;
 
     memset(&sa, 0, sizeof(sa));
     sa.sa_handler = (void (*)(int))handler;
@@ -22,10 +22,10 @@ int32_t OSAL_SignalRegister(int32_t signum, os_signal_handler_t handler)
     if (sigaction(signum, &sa, NULL) < 0)
     {
         OSAL_Printf("[OSAL] sigaction失败, signum=%d, errno=%d\n", signum, errno);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 int32_t OSAL_SignalIgnore(int32_t signum)
@@ -40,10 +40,10 @@ int32_t OSAL_SignalIgnore(int32_t signum)
     if (sigaction(signum, &sa, NULL) < 0)
     {
         OSAL_Printf("[OSAL] sigaction(SIG_IGN)失败, signum=%d, errno=%d\n", signum, errno);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 int32_t OSAL_SignalDefault(int32_t signum)
@@ -58,10 +58,10 @@ int32_t OSAL_SignalDefault(int32_t signum)
     if (sigaction(signum, &sa, NULL) < 0)
     {
         OSAL_Printf("[OSAL] sigaction(SIG_DFL)失败, signum=%d, errno=%d\n", signum, errno);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 int32_t OSAL_SignalBlock(int32_t signum)
@@ -74,10 +74,10 @@ int32_t OSAL_SignalBlock(int32_t signum)
     if (sigprocmask(SIG_BLOCK, &set, NULL) < 0)
     {
         OSAL_Printf("[OSAL] sigprocmask(SIG_BLOCK)失败, signum=%d, errno=%d\n", signum, errno);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 int32_t OSAL_SignalUnblock(int32_t signum)
@@ -90,8 +90,8 @@ int32_t OSAL_SignalUnblock(int32_t signum)
     if (sigprocmask(SIG_UNBLOCK, &set, NULL) < 0)
     {
         OSAL_Printf("[OSAL] sigprocmask(SIG_UNBLOCK)失败, signum=%d, errno=%d\n", signum, errno);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }

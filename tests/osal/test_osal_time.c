@@ -111,7 +111,7 @@ TEST_CASE(test_osal_task_delay_success)
 
     /* 延时200毫秒 */
     int32_t ret = OSAL_TaskDelay(200);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 获取结束时间 */
     end_time = get_time_in_micros();
@@ -133,7 +133,7 @@ TEST_CASE(test_osal_get_local_time_success)
 
     /* 获取第一次时间 */
     ret = OSAL_GetLocalTime(&time1);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     TEST_ASSERT_TRUE(time1.seconds > 0);
 
     /* 短暂延时 */
@@ -141,7 +141,7 @@ TEST_CASE(test_osal_get_local_time_success)
 
     /* 获取第二次时间 */
     ret = OSAL_GetLocalTime(&time2);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 验证时间递增 */
     TEST_ASSERT_TRUE(time2.seconds >= time1.seconds);
@@ -154,7 +154,7 @@ TEST_CASE(test_osal_get_local_time_success)
 TEST_CASE(test_osal_get_local_time_null_pointer)
 {
     int32_t ret = OSAL_GetLocalTime(NULL);
-    TEST_ASSERT_EQUAL(OS_INVALID_POINTER, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_INVALID_POINTER, ret);
 }
 
 /* 测试用例: GetTickCount - 获取系统滴答 */
@@ -228,7 +228,7 @@ TEST_CASE(test_osal_sleep_zero)
 TEST_CASE(test_osal_task_delay_zero)
 {
     int32_t ret = OSAL_TaskDelay(0);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: 短延时精度 */

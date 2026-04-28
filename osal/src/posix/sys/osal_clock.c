@@ -13,19 +13,19 @@ int32_t OSAL_GetLocalTime(OS_time_t *time_struct)
     struct timeval tv;
 
     if (NULL == time_struct)
-        return OS_INVALID_POINTER;
+        return OSAL_ERR_INVALID_POINTER;
 
     gettimeofday(&tv, NULL);
     time_struct->seconds = tv.tv_sec;
     time_struct->microsecs = tv.tv_usec;
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 int32_t OSAL_SetLocalTime(const OS_time_t *time_struct __attribute__((unused)))
 {
     /* Linux用户空间通常无权设置系统时间 */
-    return OS_ERR_NOT_IMPLEMENTED;
+    return OSAL_ERR_NOT_IMPLEMENTED;
 }
 
 uint32_t OSAL_GetTickCount(void)
@@ -43,8 +43,8 @@ uint32_t OSAL_GetTickCount(void)
 int32_t OSAL_Milli2Ticks(uint32_t milliseconds, uint32_t *ticks)
 {
     if (NULL == ticks)
-        return OS_INVALID_POINTER;
+        return OSAL_ERR_INVALID_POINTER;
 
     *ticks = milliseconds;
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }

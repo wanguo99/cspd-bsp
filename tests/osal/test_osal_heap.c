@@ -76,7 +76,7 @@ TEST_CASE(test_osal_heap_get_info_success)
     int32_t ret;
 
     ret = OSAL_HeapGetInfo(&free_bytes, &total_bytes);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     TEST_ASSERT_TRUE(total_bytes > 0);
     TEST_ASSERT_TRUE(free_bytes <= total_bytes);
 }
@@ -89,15 +89,15 @@ TEST_CASE(test_osal_heap_get_info_null_pointer)
 
     /* 第一个参数为NULL */
     ret = OSAL_HeapGetInfo(NULL, &total_bytes);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 第二个参数为NULL */
     ret = OSAL_HeapGetInfo(&free_bytes, NULL);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 两个参数都为NULL */
     ret = OSAL_HeapGetInfo(NULL, NULL);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: HeapGetStats - 成功 */
@@ -107,7 +107,7 @@ TEST_CASE(test_osal_heap_get_stats_success)
     int32_t ret;
 
     ret = OSAL_HeapGetStats(&current, &peak);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     TEST_ASSERT_TRUE(peak >= current);
 }
 
@@ -119,11 +119,11 @@ TEST_CASE(test_osal_heap_get_stats_null_pointer)
 
     /* 第一个参数为NULL */
     ret = OSAL_HeapGetStats(NULL, &peak);
-    TEST_ASSERT_EQUAL(OS_INVALID_POINTER, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_INVALID_POINTER, ret);
 
     /* 第二个参数为NULL */
     ret = OSAL_HeapGetStats(&current, NULL);
-    TEST_ASSERT_EQUAL(OS_INVALID_POINTER, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_INVALID_POINTER, ret);
 }
 
 /* 测试用例: HeapSetThreshold - 成功 */
@@ -133,19 +133,19 @@ TEST_CASE(test_osal_heap_set_threshold_success)
 
     /* 设置50%阈值 */
     ret = OSAL_HeapSetThreshold(50);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 设置80%阈值 */
     ret = OSAL_HeapSetThreshold(80);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 设置0%阈值 */
     ret = OSAL_HeapSetThreshold(0);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 设置100%阈值 */
     ret = OSAL_HeapSetThreshold(100);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: HeapSetThreshold - 无效参数 */
@@ -155,11 +155,11 @@ TEST_CASE(test_osal_heap_set_threshold_invalid)
 
     /* 超过100% */
     ret = OSAL_HeapSetThreshold(101);
-    TEST_ASSERT_EQUAL(OS_INVALID_POINTER, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_INVALID_POINTER, ret);
 
     /* 负数（会被转换为大数） */
     ret = OSAL_HeapSetThreshold((uint32_t)-1);
-    TEST_ASSERT_EQUAL(OS_INVALID_POINTER, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_INVALID_POINTER, ret);
 }
 
 /* 测试用例: HeapCheckThreshold - 成功 */
@@ -173,7 +173,7 @@ TEST_CASE(test_osal_heap_check_threshold_success)
 
     /* 检查阈值 */
     ret = OSAL_HeapCheckThreshold(&exceeded);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: HeapCheckThreshold - 空指针 */
@@ -182,7 +182,7 @@ TEST_CASE(test_osal_heap_check_threshold_null_pointer)
     int32_t ret;
 
     ret = OSAL_HeapCheckThreshold(NULL);
-    TEST_ASSERT_EQUAL(OS_INVALID_POINTER, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_INVALID_POINTER, ret);
 }
 
 /*===========================================================================

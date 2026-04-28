@@ -184,7 +184,7 @@ const str_t *OSAL_StrError(int32_t errnum);
 
 /**
  * @brief 获取OSAL状态码对应的名称字符串
- * @param status_code OSAL状态码（OS_SUCCESS、OS_ERROR等）
+ * @param status_code OSAL状态码（OSAL_SUCCESS、OS_ERROR等）
  * @return 状态码名称字符串
  */
 const str_t *OSAL_GetStatusName(int32_t status_code);

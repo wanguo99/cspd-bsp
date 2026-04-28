@@ -39,14 +39,14 @@ int32_t mcu_serial_init(const void *config, void **handle)
 {
     if (config == NULL || handle == NULL)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     const mcu_config_t *mcu_cfg = (const mcu_config_t *)config;
     mcu_serial_context_t *ctx = (mcu_serial_context_t *)OSAL_Malloc(sizeof(mcu_serial_context_t));
     if (NULL == ctx)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     OSAL_Memset(ctx, 0, sizeof(mcu_serial_context_t));
@@ -61,22 +61,22 @@ int32_t mcu_serial_init(const void *config, void **handle)
         .flow_control = 0  /* NONE */
     };
 
-    if (HAL_Serial_Open(mcu_cfg->serial.device, &serial_config, &ctx->serial_handle) != OS_SUCCESS)
+    if (HAL_Serial_Open(mcu_cfg->serial.device, &serial_config, &ctx->serial_handle) != OSAL_SUCCESS)
     {
         OSAL_Free(ctx);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 创建接收互斥锁 */
-    if (OSAL_MutexCreate(&ctx->rx_mutex, "mcu_serial_rx", 0) != OS_SUCCESS)
+    if (OSAL_MutexCreate(&ctx->rx_mutex, "mcu_serial_rx", 0) != OSAL_SUCCESS)
     {
         HAL_Serial_Close(ctx->serial_handle);
         OSAL_Free(ctx);
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     *handle = ctx;
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -86,7 +86,7 @@ int32_t mcu_serial_deinit(void *handle)
 {
     if (NULL == handle)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     mcu_serial_context_t *ctx = (mcu_serial_context_t *)handle;
@@ -95,7 +95,7 @@ int32_t mcu_serial_deinit(void *handle)
     OSAL_MutexDelete(ctx->rx_mutex);
     OSAL_Free(ctx);
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -112,7 +112,7 @@ static int32_t mcu_serial_pack_frame(uint8_t cmd_code,
     uint32_t required_size = FRAME_OVERHEAD + data_len;
     if (frame_size < required_size)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     uint32_t pos = 0;
@@ -146,7 +146,7 @@ static int32_t mcu_serial_pack_frame(uint8_t cmd_code,
     }
 
     *actual_size = pos;
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -163,13 +163,13 @@ static int32_t mcu_serial_unpack_frame(const uint8_t *frame,
     /* 最小帧长度检查 */
     if (frame_len < FRAME_OVERHEAD)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 帧头检查 */
     if (frame[0] != FRAME_HEADER_0 || frame[1] != FRAME_HEADER_1)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* CRC校验 */
@@ -179,7 +179,7 @@ static int32_t mcu_serial_unpack_frame(const uint8_t *frame,
         uint16_t crc_calc = mcu_protocol_calc_crc16(&frame[FRAME_HEADER_SIZE], frame_len - FRAME_OVERHEAD);
         if (crc_recv != crc_calc)
         {
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
     }
 
@@ -197,7 +197,7 @@ static int32_t mcu_serial_unpack_frame(const uint8_t *frame,
         }
     }
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -214,7 +214,7 @@ int32_t mcu_serial_send_command(void *handle,
 {
     if (NULL == handle)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     mcu_serial_context_t *ctx = (mcu_serial_context_t *)handle;
@@ -224,15 +224,15 @@ int32_t mcu_serial_send_command(void *handle,
     uint32_t tx_len;
 
     if (mcu_serial_pack_frame(cmd_code, data, data_len, ctx->enable_crc,
-                              tx_frame, sizeof(tx_frame), &tx_len) != OS_SUCCESS)
+                              tx_frame, sizeof(tx_frame), &tx_len) != OSAL_SUCCESS)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 发送 */
     if (HAL_Serial_Write(ctx->serial_handle, tx_frame, tx_len, timeout_ms) != (int32_t)tx_len)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 接收响应 */
@@ -249,15 +249,15 @@ int32_t mcu_serial_send_command(void *handle,
 
         OSAL_MutexUnlock(ctx->rx_mutex);
 
-        if (ret != OS_SUCCESS || status != 0)
+        if (ret != OSAL_SUCCESS || status != 0)
         {
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
         }
 
-        return OS_SUCCESS;
+        return OSAL_SUCCESS;
     }
 
     OSAL_MutexUnlock(ctx->rx_mutex);
 
-    return (rx_len == 0) ? OS_ERROR_TIMEOUT : OS_ERROR;
+    return (rx_len == 0) ? OSAL_ERR_TIMEOUT : OSAL_ERR_GENERIC;
 }

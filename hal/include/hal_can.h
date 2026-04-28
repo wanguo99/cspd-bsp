@@ -26,8 +26,8 @@ typedef struct
  * @param[in] config CAN配置
  * @param[out] handle 返回的CAN句柄
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERROR 失败
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_GENERIC 失败
  */
 int32_t HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle);
 
@@ -36,7 +36,7 @@ int32_t HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle);
  *
  * @param[in] handle CAN句柄
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t HAL_CAN_Deinit(hal_can_handle_t handle);
 
@@ -46,9 +46,9 @@ int32_t HAL_CAN_Deinit(hal_can_handle_t handle);
  * @param[in] handle CAN句柄
  * @param[in] frame CAN帧
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERROR_TIMEOUT 超时
- * @return OS_ERROR 其他错误
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_TIMEOUT 超时
+ * @return OSAL_ERR_GENERIC 其他错误
  */
 int32_t HAL_CAN_Send(hal_can_handle_t handle, const can_frame_t *frame);
 
@@ -59,9 +59,9 @@ int32_t HAL_CAN_Send(hal_can_handle_t handle, const can_frame_t *frame);
  * @param[out] frame 接收到的CAN帧
  * @param[in] timeout 超时时间(ms), OS_PEND表示永久等待
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERROR_TIMEOUT 超时
- * @return OS_ERROR 其他错误
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_TIMEOUT 超时
+ * @return OSAL_ERR_GENERIC 其他错误
  */
 int32_t HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32_t timeout);
 
@@ -72,8 +72,8 @@ int32_t HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32_t timeou
  * @param[in] filter_id 过滤ID
  * @param[in] filter_mask 过滤掩码
  *
- * @return OS_SUCCESS 成功
- * @return OS_ERROR 失败
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_GENERIC 失败
  */
 int32_t HAL_CAN_SetFilter(hal_can_handle_t handle, uint32_t filter_id, uint32_t filter_mask);
 
@@ -85,7 +85,7 @@ int32_t HAL_CAN_SetFilter(hal_can_handle_t handle, uint32_t filter_id, uint32_t 
  * @param[out] rx_count 接收计数
  * @param[out] err_count 错误计数
  *
- * @return OS_SUCCESS 成功
+ * @return OSAL_SUCCESS 成功
  */
 int32_t HAL_CAN_GetStats(hal_can_handle_t handle,
                        uint32_t *tx_count,

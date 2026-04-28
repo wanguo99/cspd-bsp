@@ -27,13 +27,13 @@ int32_t bmc_ipmi_pack_command(uint8_t cmd_code,
 {
     if (frame == NULL || actual_size == NULL)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     uint32_t required_size = 2 + data_len;  /* cmd + subcmd + data */
     if (frame_size < required_size)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     uint32_t pos = 0;
@@ -47,7 +47,7 @@ int32_t bmc_ipmi_pack_command(uint8_t cmd_code,
     }
 
     *actual_size = pos;
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -62,7 +62,7 @@ int32_t bmc_ipmi_unpack_response(const uint8_t *frame,
 {
     if (frame == NULL || frame_len < 1)
     {
-        return OS_ERROR;
+        return OSAL_ERR_GENERIC;
     }
 
     /* 第一个字节是状态码 */
@@ -83,7 +83,7 @@ int32_t bmc_ipmi_unpack_response(const uint8_t *frame,
         }
     }
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }
 
 /**
@@ -157,7 +157,7 @@ int32_t bmc_ipmi_get_power_state(void *comm_handle,
     uint32_t resp_len;
 
     int32_t ret = send_recv(comm_handle, cmd, cmd_len, resp, sizeof(resp), &resp_len);
-    if (ret == OS_SUCCESS && resp_len >= 2)
+    if (ret == OSAL_SUCCESS && resp_len >= 2)
     {
         uint8_t status;
         uint8_t data[16];
@@ -205,5 +205,5 @@ int32_t bmc_ipmi_read_sensors(void *comm_handle,
         *actual_count = 0;
     }
 
-    return OS_ERROR;
+    return OSAL_ERR_GENERIC;
 }

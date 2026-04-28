@@ -36,7 +36,7 @@ TEST_CASE(test_pdl_bmc_init_network_success)
     };
 
     int32_t ret = PDL_BMC_Init(&config, &handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     TEST_ASSERT_NOT_NULL(handle);
 
     PDL_BMC_Deinit(handle);
@@ -63,7 +63,7 @@ TEST_CASE(test_pdl_bmc_init_serial_success)
     };
 
     int32_t ret = PDL_BMC_Init(&config, &handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     TEST_ASSERT_NOT_NULL(handle);
 
     PDL_BMC_Deinit(handle);
@@ -75,7 +75,7 @@ TEST_CASE(test_pdl_bmc_init_null_config)
     bmc_handle_t handle = NULL;
 
     int32_t ret = PDL_BMC_Init(NULL, &handle);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: BMC服务初始化 - 空句柄指针 */
@@ -97,7 +97,7 @@ TEST_CASE(test_pdl_bmc_init_null_handle)
     };
 
     int32_t ret = PDL_BMC_Init(&config, NULL);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: BMC服务清理 */
@@ -120,17 +120,17 @@ TEST_CASE(test_pdl_bmc_deinit)
     };
 
     int32_t ret = PDL_BMC_Init(&config, &handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     ret = PDL_BMC_Deinit(handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: 清理空句柄 */
 TEST_CASE(test_pdl_bmc_deinit_null_handle)
 {
     int32_t ret = PDL_BMC_Deinit(NULL);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /*===========================================================================
@@ -158,10 +158,10 @@ TEST_CASE(test_pdl_bmc_power_on_success)
     };
 
     int32_t ret = PDL_BMC_Init(&config, &handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     ret = PDL_BMC_PowerOn(handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     PDL_BMC_Deinit(handle);
 }
@@ -170,7 +170,7 @@ TEST_CASE(test_pdl_bmc_power_on_success)
 TEST_CASE(test_pdl_bmc_power_on_null_handle)
 {
     int32_t ret = PDL_BMC_PowerOn(NULL);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: 电源关闭 - 成功 */
@@ -194,10 +194,10 @@ TEST_CASE(test_pdl_bmc_power_off_success)
     };
 
     int32_t ret = PDL_BMC_Init(&config, &handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     ret = PDL_BMC_PowerOff(handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     PDL_BMC_Deinit(handle);
 }
@@ -223,10 +223,10 @@ TEST_CASE(test_pdl_bmc_power_reset_success)
     };
 
     int32_t ret = PDL_BMC_Init(&config, &handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     ret = PDL_BMC_PowerReset(handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     OSAL_TaskDelay(100);
 
@@ -255,10 +255,10 @@ TEST_CASE(test_pdl_bmc_get_power_state_success)
     bmc_power_state_t state;
 
     int32_t ret = PDL_BMC_Init(&config, &handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     ret = PDL_BMC_GetPowerState(handle, &state);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     TEST_ASSERT_TRUE(state >= BMC_POWER_OFF && state <= BMC_POWER_UNKNOWN);
 
@@ -271,7 +271,7 @@ TEST_CASE(test_pdl_bmc_get_power_state_null_handle)
     bmc_power_state_t state;
 
     int32_t ret = PDL_BMC_GetPowerState(NULL, &state);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: 获取电源状态 - 空指针 */
@@ -294,10 +294,10 @@ TEST_CASE(test_pdl_bmc_get_power_state_null_pointer)
     };
 
     int32_t ret = PDL_BMC_Init(&config, &handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     ret = PDL_BMC_GetPowerState(handle, NULL);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 
     PDL_BMC_Deinit(handle);
 }
@@ -329,11 +329,11 @@ TEST_CASE(test_pdl_bmc_read_sensors_success)
     uint32_t actual_count;
 
     int32_t ret = PDL_BMC_Init(&config, &handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     OSAL_Memset(readings, 0, sizeof(readings));
     ret = PDL_BMC_ReadSensors(handle, BMC_SENSOR_TEMP, readings, 16, &actual_count);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     TEST_ASSERT_TRUE(actual_count <= 16);
 
@@ -347,7 +347,7 @@ TEST_CASE(test_pdl_bmc_read_sensors_null_handle)
     uint32_t actual_count;
 
     int32_t ret = PDL_BMC_ReadSensors(NULL, BMC_SENSOR_TEMP, readings, 16, &actual_count);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: 读取传感器 - 空指针 */
@@ -371,10 +371,10 @@ TEST_CASE(test_pdl_bmc_read_sensors_null_pointer)
     uint32_t actual_count;
 
     int32_t ret = PDL_BMC_Init(&config, &handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     ret = PDL_BMC_ReadSensors(handle, BMC_SENSOR_TEMP, NULL, 16, &actual_count);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 
     PDL_BMC_Deinit(handle);
 }
@@ -405,7 +405,7 @@ TEST_CASE(test_pdl_bmc_execute_command_success)
     str_t response[256];
 
     int32_t ret = PDL_BMC_Init(&config, &handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     ret = PDL_BMC_ExecuteCommand(handle, "chassis status", response, sizeof(response));
     TEST_ASSERT_TRUE(ret >= 0);
@@ -443,7 +443,7 @@ TEST_CASE(test_pdl_bmc_execute_command_null_cmd)
     str_t response[256];
 
     int32_t ret = PDL_BMC_Init(&config, &handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     ret = PDL_BMC_ExecuteCommand(handle, NULL, response, sizeof(response));
     TEST_ASSERT_TRUE(ret < 0);
@@ -482,13 +482,13 @@ TEST_CASE(test_pdl_bmc_switch_channel_success)
     };
 
     int32_t ret = PDL_BMC_Init(&config, &handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     ret = PDL_BMC_SwitchChannel(handle, BMC_CHANNEL_SERIAL);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     ret = PDL_BMC_SwitchChannel(handle, BMC_CHANNEL_NETWORK);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     PDL_BMC_Deinit(handle);
 }
@@ -497,7 +497,7 @@ TEST_CASE(test_pdl_bmc_switch_channel_success)
 TEST_CASE(test_pdl_bmc_switch_channel_null_handle)
 {
     int32_t ret = PDL_BMC_SwitchChannel(NULL, BMC_CHANNEL_NETWORK);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: 获取当前通道 - 成功 */
@@ -521,7 +521,7 @@ TEST_CASE(test_pdl_bmc_get_channel_success)
     };
 
     int32_t ret = PDL_BMC_Init(&config, &handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     bmc_channel_t channel = PDL_BMC_GetChannel(handle);
     TEST_ASSERT_TRUE(channel == BMC_CHANNEL_NETWORK || channel == BMC_CHANNEL_SERIAL);
@@ -554,7 +554,7 @@ TEST_CASE(test_pdl_bmc_is_connected_success)
     };
 
     int32_t ret = PDL_BMC_Init(&config, &handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     (void)PDL_BMC_IsConnected(handle);
     /* 连接状态取决于实际硬件，只验证调用不崩溃 */
@@ -588,10 +588,10 @@ TEST_CASE(test_pdl_bmc_get_stats_success)
     uint32_t cmd_count, success_count, fail_count, switch_count;
 
     int32_t ret = PDL_BMC_Init(&config, &handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     ret = PDL_BMC_GetStats(handle, &cmd_count, &success_count, &fail_count, &switch_count);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* uint32_t类型总是>=0，只需验证调用成功 */
 
@@ -604,7 +604,7 @@ TEST_CASE(test_pdl_bmc_get_stats_null_handle)
     uint32_t cmd_count, success_count, fail_count, switch_count;
 
     int32_t ret = PDL_BMC_GetStats(NULL, &cmd_count, &success_count, &fail_count, &switch_count);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: 获取统计信息 - 空指针 */
@@ -628,10 +628,10 @@ TEST_CASE(test_pdl_bmc_get_stats_null_pointer)
     uint32_t count;
 
     int32_t ret = PDL_BMC_Init(&config, &handle);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     ret = PDL_BMC_GetStats(handle, NULL, &count, &count, &count);
-    TEST_ASSERT_NOT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 
     PDL_BMC_Deinit(handle);
 }

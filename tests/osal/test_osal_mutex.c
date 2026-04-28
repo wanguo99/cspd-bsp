@@ -19,7 +19,7 @@ TEST_CASE(test_mutex_create_success)
 
     int32_t ret = OSAL_MutexCreate(&mutex_id, "TEST_MUTEX", 0);
 
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     TEST_ASSERT_NOT_EQUAL(OS_OBJECT_ID_UNDEFINED, mutex_id);
 
     OSAL_MutexDelete(mutex_id);
@@ -29,7 +29,7 @@ TEST_CASE(test_mutex_create_success)
 TEST_CASE(test_mutex_create_nullpointer)
 {
     int32_t ret = OSAL_MutexCreate(NULL, "TEST", 0);
-    TEST_ASSERT_EQUAL(OS_INVALID_POINTER, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_INVALID_POINTER, ret);
 }
 
 /* 测试用例3: 互斥锁创建失败 - 名称重复 */
@@ -38,10 +38,10 @@ TEST_CASE(test_mutex_create_nametaken)
     osal_id_t mutex_id1, mutex_id2;
 
     int32_t ret = OSAL_MutexCreate(&mutex_id1, "DUP_MUTEX", 0);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     ret = OSAL_MutexCreate(&mutex_id2, "DUP_MUTEX", 0);
-    TEST_ASSERT_EQUAL(OS_ERR_NAME_TAKEN, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_NAME_TAKEN, ret);
 
     OSAL_MutexDelete(mutex_id1);
 }
@@ -53,10 +53,10 @@ TEST_CASE(test_mutex_lockunlock_success)
     OSAL_MutexCreate(&mutex_id, "TEST_MTX", 0);
 
     int32_t ret = OSAL_MutexLock(mutex_id);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     ret = OSAL_MutexUnlock(mutex_id);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     OSAL_MutexDelete(mutex_id);
 }
@@ -65,14 +65,14 @@ TEST_CASE(test_mutex_lockunlock_success)
 TEST_CASE(test_mutex_lock_invalidid)
 {
     int32_t ret = OSAL_MutexLock(9999);
-    TEST_ASSERT_EQUAL(OS_ERR_INVALID_ID, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_INVALID_ID, ret);
 }
 
 /* 测试用例6: 互斥锁解锁失败 - 无效ID */
 TEST_CASE(test_mutex_unlock_invalidid)
 {
     int32_t ret = OSAL_MutexUnlock(9999);
-    TEST_ASSERT_EQUAL(OS_ERR_INVALID_ID, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_INVALID_ID, ret);
 }
 
 /* 测试用例7: 根据名称获取互斥锁ID */
@@ -84,7 +84,7 @@ TEST_CASE(test_mutex_getid_by_name_success)
 
     int32_t ret = OSAL_MutexGetIdByName(&mutex_id2, "NAMED_MTX");
 
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     TEST_ASSERT_EQUAL(mutex_id1, mutex_id2);
 
     OSAL_MutexDelete(mutex_id1);
@@ -96,7 +96,7 @@ TEST_CASE(test_mutex_getid_by_name_not_found)
     osal_id_t mutex_id;
 
     int32_t ret = OSAL_MutexGetIdByName(&mutex_id, "NONEXISTENT");
-    TEST_ASSERT_EQUAL(OS_ERR_NAME_NOT_FOUND, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_NAME_NOT_FOUND, ret);
 }
 
 /* 测试用例9: 互斥锁删除 */
@@ -106,14 +106,14 @@ TEST_CASE(test_mutex_delete_success)
     OSAL_MutexCreate(&mutex_id, "TEST_MTX", 0);
 
     int32_t ret = OSAL_MutexDelete(mutex_id);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例10: 互斥锁删除失败 - 无效ID */
 TEST_CASE(test_mutex_delete_invalidid)
 {
     int32_t ret = OSAL_MutexDelete(9999);
-    TEST_ASSERT_EQUAL(OS_ERR_INVALID_ID, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_INVALID_ID, ret);
 }
 
 /* 线程函数 - 用于测试互斥锁保护 */

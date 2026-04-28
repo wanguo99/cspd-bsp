@@ -30,7 +30,7 @@ TEST_CASE(test_signal_register_success)
 
     /* 注册SIGUSR1处理函数（使用用户信号避免中断程序） */
     int32_t ret = OSAL_SignalRegister(OS_SIGNAL_USR1, test_signal_handler);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 发送信号给自己 */
     OSAL_Kill(OSAL_Getpid(), SIGUSR1);
@@ -53,11 +53,11 @@ TEST_CASE(test_signal_ignore_success)
 
     /* 先注册处理函数 */
     int32_t ret = OSAL_SignalRegister(OS_SIGNAL_USR2, test_signal_handler);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 然后忽略信号 */
     ret = OSAL_SignalIgnore(OS_SIGNAL_USR2);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 发送信号 */
     OSAL_Kill(OSAL_Getpid(), SIGUSR2);
@@ -75,11 +75,11 @@ TEST_CASE(test_signal_block_success)
 
     /* 阻塞SIGUSR1 */
     int32_t ret = OSAL_SignalBlock(OS_SIGNAL_USR1);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 注册处理函数 */
     ret = OSAL_SignalRegister(OS_SIGNAL_USR1, test_signal_handler);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 发送信号 */
     OSAL_Kill(OSAL_Getpid(), SIGUSR1);
@@ -90,7 +90,7 @@ TEST_CASE(test_signal_block_success)
 
     /* 解除阻塞 */
     ret = OSAL_SignalUnblock(OS_SIGNAL_USR1);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 等待信号处理 */
     OSAL_usleep(100000);
@@ -110,11 +110,11 @@ TEST_CASE(test_signal_default_success)
 
     /* 先注册处理函数 */
     int32_t ret = OSAL_SignalRegister(OS_SIGNAL_USR1, test_signal_handler);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 恢复默认处理 */
     ret = OSAL_SignalDefault(OS_SIGNAL_USR1);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* SIGUSR1的默认行为是终止进程，但我们只验证API调用成功 */
     /* 不实际发送信号以避免终止测试进程 */
@@ -128,10 +128,10 @@ TEST_CASE(test_signal_register_multiple)
 
     /* 注册多个信号（都使用用户信号） */
     int32_t ret = OSAL_SignalRegister(OS_SIGNAL_USR1, test_signal_handler);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     ret = OSAL_SignalRegister(OS_SIGNAL_USR2, test_signal_handler);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 发送SIGUSR1 */
     OSAL_Kill(OSAL_Getpid(), SIGUSR1);
@@ -150,7 +150,7 @@ TEST_CASE(test_signal_register_invalidparams)
 {
     /* NULL处理函数 */
     int32_t ret = OSAL_SignalRegister(OS_SIGNAL_USR1, NULL);
-    TEST_ASSERT_EQUAL(OS_INVALID_POINTER, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_INVALID_POINTER, ret);
 }
 
 /* 注册测试套件 - 自动注册 */

@@ -23,7 +23,7 @@ TEST_CASE(test_osal_log_init_success)
 
     /* 初始化日志系统 */
     ret = OSAL_LogInit(TEST_LOG_FILE, OS_LOG_LEVEL_DEBUG);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 设置文件大小和备份数 */
     OSAL_LogSetMaxFileSize(1024 * 1024);  /* 1MB */
@@ -41,7 +41,7 @@ TEST_CASE(test_osal_log_init_null_path)
 
     /* NULL路径表示只输出到终端 */
     ret = OSAL_LogInit(NULL, OS_LOG_LEVEL_INFO);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 清理 */
     OSAL_LogShutdown();
@@ -54,17 +54,17 @@ TEST_CASE(test_osal_log_init_different_levels)
 
     /* DEBUG级别 */
     ret = OSAL_LogInit(TEST_LOG_FILE, OS_LOG_LEVEL_DEBUG);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     OSAL_LogShutdown();
 
     /* INFO级别 */
     ret = OSAL_LogInit(TEST_LOG_FILE, OS_LOG_LEVEL_INFO);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     OSAL_LogShutdown();
 
     /* ERROR级别 */
     ret = OSAL_LogInit(TEST_LOG_FILE, OS_LOG_LEVEL_ERROR);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     OSAL_LogShutdown();
 
     unlink(TEST_LOG_FILE);
@@ -81,7 +81,7 @@ TEST_CASE(test_osal_log_write_basic)
 
     /* 初始化日志 */
     ret = OSAL_LogInit(TEST_LOG_FILE, OS_LOG_LEVEL_DEBUG);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 写入不同级别的日志 */
     LOG_DEBUG("TEST", "This is a debug message");
@@ -102,7 +102,7 @@ TEST_CASE(test_osal_log_write_formatted)
 
     /* 初始化日志 */
     ret = OSAL_LogInit(TEST_LOG_FILE, OS_LOG_LEVEL_INFO);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 写入格式化日志 */
     LOG_INFO("TEST", "Integer: %d, String: %s, Hex: 0x%X", 42, "Hello", 0xFF);
@@ -121,7 +121,7 @@ TEST_CASE(test_osal_log_write_long_message)
 
     /* 初始化日志 */
     ret = OSAL_LogInit(TEST_LOG_FILE, OS_LOG_LEVEL_INFO);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 构造长消息 */
     OSAL_Memset(long_msg, 'A', sizeof(long_msg) - 1);
@@ -146,7 +146,7 @@ TEST_CASE(test_osal_log_set_level)
 
     /* 初始化日志 */
     ret = OSAL_LogInit(TEST_LOG_FILE, OS_LOG_LEVEL_DEBUG);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 设置为ERROR级别 */
     OSAL_LogSetLevel(OS_LOG_LEVEL_ERROR);
@@ -182,7 +182,7 @@ TEST_CASE(test_osal_log_rotation_basic)
 
     /* 初始化日志 */
     ret = OSAL_LogInit(TEST_LOG_FILE, OS_LOG_LEVEL_INFO);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 设置小文件大小，便于触发轮转 */
     OSAL_LogSetMaxFileSize(1024);  /* 1KB */
@@ -211,7 +211,7 @@ TEST_CASE(test_osal_printf)
 
     /* 初始化日志 */
     ret = OSAL_LogInit(TEST_LOG_FILE, OS_LOG_LEVEL_INFO);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 使用Printf（不带日志级别） */
     OSAL_Printf("Simple message\n");
@@ -246,14 +246,14 @@ TEST_CASE(test_osal_log_multithread)
 
     /* 初始化日志 */
     ret = OSAL_LogInit(TEST_LOG_FILE, OS_LOG_LEVEL_INFO);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     /* 创建多个任务 */
     for (int32_t i = 0; i < 3; i++) {
         ret = OSAL_TaskCreate(&task_ids[i], "LOG_TEST",
                              log_test_task, &task_args[i],
                              32 * 1024, 100, 0);
-        TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+        TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     }
 
     /* 等待任务完成 */
@@ -316,7 +316,7 @@ TEST_CASE(test_osal_log_performance)
 
     /* 初始化日志 */
     ret = OSAL_LogInit(TEST_LOG_FILE, OS_LOG_LEVEL_INFO);
-    TEST_ASSERT_EQUAL(OS_SUCCESS, ret);
+    TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     OSAL_LogSetMaxFileSize(10 * 1024 * 1024);  /* 10MB */
 
     /* 测试写入性能 */

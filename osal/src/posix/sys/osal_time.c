@@ -41,8 +41,8 @@ int32_t OSAL_TaskDelay(uint32_t millisecond)
     while (nanosleep(&ts, &ts) == -1)
     {
         if (errno != EINTR)
-            return OS_ERROR;
+            return OSAL_ERR_GENERIC;
     }
 
-    return OS_SUCCESS;
+    return OSAL_SUCCESS;
 }

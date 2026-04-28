@@ -56,7 +56,7 @@ int32_t OSAL_nanosleep(uint64_t nsec);
 /**
  * @brief 任务延迟（兼容接口）
  * @param millisecond 延迟时间（毫秒）
- * @return OS_SUCCESS成功，OS_ERROR失败
+ * @return OSAL_SUCCESS成功，OSAL_ERR_GENERIC失败
  * @note 这是为了兼容旧代码，推荐使用OSAL_msleep()
  */
 int32_t OSAL_TaskDelay(uint32_t millisecond);
