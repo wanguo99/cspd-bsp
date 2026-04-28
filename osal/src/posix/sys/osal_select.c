@@ -18,21 +18,21 @@ void OSAL_FD_ZERO(osal_fd_set_t *set)
 void OSAL_FD_SET(int32_t fd, osal_fd_set_t *set)
 {
     if (fd >= 0 && fd < OSAL_FD_SETSIZE) {
-        set->fds_bits[fd / 32] |= (1U << (fd % 32));
+        set->fds_bits[fd / OSAL_FD_BITS_PER_WORD] |= (1U << (fd % OSAL_FD_BITS_PER_WORD));
     }
 }
 
 void OSAL_FD_CLR(int32_t fd, osal_fd_set_t *set)
 {
     if (fd >= 0 && fd < OSAL_FD_SETSIZE) {
-        set->fds_bits[fd / 32] &= ~(1U << (fd % 32));
+        set->fds_bits[fd / OSAL_FD_BITS_PER_WORD] &= ~(1U << (fd % OSAL_FD_BITS_PER_WORD));
     }
 }
 
 int32_t OSAL_FD_ISSET(int32_t fd, const osal_fd_set_t *set)
 {
     if (fd >= 0 && fd < OSAL_FD_SETSIZE) {
-        return (set->fds_bits[fd / 32] & (1U << (fd % 32))) ? 1 : 0;
+        return (set->fds_bits[fd / OSAL_FD_BITS_PER_WORD] & (1U << (fd % OSAL_FD_BITS_PER_WORD))) ? 1 : 0;
     }
     return 0;
 }
