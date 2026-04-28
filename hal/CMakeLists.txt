@@ -25,6 +25,8 @@ if(PLATFORM STREQUAL "native" OR PLATFORM STREQUAL "generic-linux")
     set(HAL_SOURCES
         ${HAL_SRC_DIR}/linux/hal_can.c
         ${HAL_SRC_DIR}/linux/hal_serial.c
+        ${HAL_SRC_DIR}/linux/hal_i2c.c
+        ${HAL_SRC_DIR}/linux/hal_spi.c
     )
 elseif(PLATFORM STREQUAL "rtems")
     # RTEMS平台实现（预留）

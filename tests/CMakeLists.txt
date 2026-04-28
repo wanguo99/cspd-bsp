@@ -34,6 +34,8 @@ add_executable(unit-test
     # HAL tests
     hal/test_hal_can.c
     hal/test_hal_serial.c
+    hal/test_hal_i2c.c
+    hal/test_hal_spi.c
 
     # PCL tests
     pcl/test_pcl_api.c
