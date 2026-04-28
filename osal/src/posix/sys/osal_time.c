@@ -10,7 +10,7 @@
 
 int32_t OSAL_msleep(uint32_t msec)
 {
-    return usleep(msec * 1000);
+    return usleep(msec * OSAL_USEC_PER_MSEC);
 }
 
 int32_t OSAL_usleep(uint32_t usec)
@@ -26,16 +26,16 @@ int32_t OSAL_sleep(uint32_t sec)
 int32_t OSAL_nanosleep(uint64_t nsec)
 {
     struct timespec req;
-    req.tv_sec = nsec / 1000000000ULL;
-    req.tv_nsec = nsec % 1000000000ULL;
+    req.tv_sec = nsec / OSAL_NSEC_PER_SEC;
+    req.tv_nsec = nsec % OSAL_NSEC_PER_SEC;
     return nanosleep(&req, NULL);
 }
 
 int32_t OSAL_TaskDelay(uint32_t millisecond)
 {
     struct timespec ts;
-    ts.tv_sec = millisecond / 1000;
-    ts.tv_nsec = (millisecond % 1000) * 1000000;
+    ts.tv_sec = millisecond / OSAL_MSEC_PER_SEC;
+    ts.tv_nsec = (millisecond % OSAL_MSEC_PER_SEC) * OSAL_NSEC_PER_MSEC;
 
     /* 使用nanosleep并处理中断 */
     while (nanosleep(&ts, &ts) == -1)
