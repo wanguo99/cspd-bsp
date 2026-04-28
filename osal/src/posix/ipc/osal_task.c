@@ -269,23 +269,29 @@ int32_t OSAL_TaskDelete(osal_id_t task_id)
     if (!found)
         return OSAL_ERR_INVALID_ID;
 
-    /* 等待线程优雅退出，超时时间为5秒 */
-    struct timespec timeout;
-    clock_gettime(CLOCK_REALTIME, &timeout);
-    timeout.tv_sec += OSAL_TASK_DELETE_TIMEOUT_SEC;
+    /*
+     * 等待线程优雅退出
+     * 注意：使用标准 pthread_join 而非 GNU 扩展 pthread_timedjoin_np
+     *
+     * 策略：
+     * 1. 已设置 shutdown_requested 标志
+     * 2. 任务应在合理时间内检查标志并退出
+     * 3. 如果任务不响应，join 会阻塞（这是设计问题，应在任务代码中修复）
+     *
+     * 对于需要强制超时的场景，可以：
+     * - 在任务中正确实现 OSAL_TaskShouldShutdown() 检查
+     * - 使用看门狗机制
+     * - 在 RTOS 移植时使用平台特定的超时机制
+     */
+    int ret = pthread_join(thread_to_delete, NULL);
 
-    int ret = pthread_timedjoin_np(thread_to_delete, NULL, &timeout);
-
-    if (ETIMEDOUT == ret)
+    if (0 != ret)
     {
-        /* 超时后强制分离线程，允许其自然退出 */
-        OSAL_Printf("[OS_Task] 任务 %u 优雅关闭超时，分离线程\n", task_id);
-        pthread_detach(thread_to_delete);
-    }
-    else if (0 != ret)
-    {
-        /* join失败，记录错误但继续清理 */
+        /* join 失败，记录错误 */
         OSAL_Printf("[OS_Task] 等待任务 %u 退出失败: %d\n", task_id, ret);
+
+        /* 尝试分离线程，避免资源泄漏 */
+        pthread_detach(thread_to_delete);
     }
 
     /* 从任务表中移除 */
