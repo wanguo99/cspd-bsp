@@ -128,7 +128,7 @@ int32_t OSAL_QueueCreate(osal_id_t *queue_id,
         return OSAL_ERR_QUEUE_INVALID_SIZE;
 
     /* 限制队列深度和消息大小，防止过度内存分配 */
-    if (queue_depth > 10000 || data_size > 65536)
+    if (queue_depth > OSAL_QUEUE_DEPTH_LIMIT || data_size > OSAL_QUEUE_DATA_SIZE_LIMIT)
         return OSAL_ERR_QUEUE_INVALID_SIZE;
 
     /* 检查乘法溢出 */
@@ -337,12 +337,12 @@ int32_t OSAL_QueueGet(osal_id_t queue_id, void *data, uint32_t size,
     {
         /* 超时等待 */
         clock_gettime(CLOCK_REALTIME, &ts);
-        ts.tv_sec += timeout / 1000;
-        ts.tv_nsec += (timeout % 1000) * 1000000;
-        if (ts.tv_nsec >= 1000000000)
+        ts.tv_sec += timeout / OSAL_MSEC_PER_SEC;
+        ts.tv_nsec += (timeout % OSAL_MSEC_PER_SEC) * OSAL_NSEC_PER_MSEC;
+        if (ts.tv_nsec >= OSAL_NSEC_PER_SEC)
         {
             ts.tv_sec++;
-            ts.tv_nsec -= 1000000000;
+            ts.tv_nsec -= OSAL_NSEC_PER_SEC;
         }
 
         while (0 == impl->count && impl->valid)

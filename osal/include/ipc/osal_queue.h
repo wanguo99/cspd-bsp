@@ -12,6 +12,10 @@
 #define OSAL_QUEUE_MAX_MESSAGE_SIZE 512     /* 默认消息最大字节数 */
 #define OSAL_QUEUE_MAX_COMMAND_SIZE 100     /* 命令缓存大小 */
 
+/* 队列限制 */
+#define OSAL_QUEUE_DEPTH_LIMIT      10000U  /* 队列深度上限 */
+#define OSAL_QUEUE_DATA_SIZE_LIMIT  65536U  /* 消息大小上限（64KB） */
+
 /**
  * @brief 创建消息队列
  *
