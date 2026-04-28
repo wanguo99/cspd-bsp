@@ -1,0 +1,504 @@
+========================================
+魔鬼数字和代码规范问题扫描报告
+生成时间: Tue Apr 28 08:44:32 PM CST 2026
+========================================
+
+【问题1】函数返回值使用裸数字 (应使用 OS_SUCCESS/OS_ERROR)
+----------------------------------------
+./osal/src/posix/net/osal_termios.c:93:    return 0;
+./osal/src/posix/net/osal_termios.c:99:    return 0;
+./osal/src/posix/sys/osal_select.c:37:    return 0;
+./osal/src/posix/sys/osal_termios.c:32:    return 0;
+./osal/src/posix/lib/osal_heap.c:43:        return 0;
+./apps/sample_app/src/main.c:270:    return 0;
+./pcl/examples/pcl_example.c:211:    return 0;
+./tests/core/main.c:30:            return 0;
+./tests/core/main.c:39:            return 0;
+./tests/core/main.c:48:            return 0;
+./tests/core/main.c:61:        return 0;
+./tests/core/main.c:93:        return 0;
+./tests/core/main.c:99:    return 1;
+./tests/core/test_registry.c:69:        return 0;
+./tests/core/test_registry.c:87:        return 0;
+./tests/core/test_registry.c:105:        return 0;
+./tests/core/test_registry.c:134:        return 0;
+./tests/core/test_menu.c:30:        return -1;
+./tests/core/test_menu.c:35:        return -1;
+
+【问题2】条件判断使用裸数字 (应使用 OS_SUCCESS/OS_ERROR)
+----------------------------------------
+./osal/src/posix/ipc/osal_task.c:175:            strcmp(g_osal_task_table[i].name, task_name) == 0)
+./osal/src/posix/ipc/osal_task.c:355:            strcmp(g_osal_task_table[i].name, task_name) == 0)
+./osal/src/posix/sys/osal_time.c:41:    while (nanosleep(&ts, &ts) == -1)
+./tests/osal/test_osal_file.c:304:    TEST_ASSERT_TRUE((flags & OSAL_O_NONBLOCK) != 0);
+
+【问题3】循环初始化使用裸数字 (应使用宏定义)
+----------------------------------------
+./osal/src/posix/ipc/osal_mutex.c:45:    for (uint32_t i = 0; i < OS_MAX_MUTEXES; i++)
+./osal/src/posix/ipc/osal_mutex.c:61:    for (uint32_t i = 0; i < OS_MAX_MUTEXES; i++)
+./osal/src/posix/ipc/osal_mutex.c:96:    for (uint32_t i = 0; i < OS_MAX_MUTEXES; i++)
+./osal/src/posix/ipc/osal_mutex.c:134:    for (uint32_t i = 0; i < OS_MAX_MUTEXES; i++)
+./osal/src/posix/ipc/osal_mutex.c:166:    for (uint32_t i = 0; i < OS_MAX_MUTEXES; i++)
+./osal/src/posix/ipc/osal_mutex.c:197:    for (uint32_t i = 0; i < OS_MAX_MUTEXES; i++)
+./osal/src/posix/ipc/osal_mutex.c:222:    for (uint32_t i = 0; i < OS_MAX_MUTEXES; i++)
+./osal/src/posix/ipc/osal_queue.c:55:    for (uint32_t i = 0; i < OS_MAX_QUEUES; i++)
+./osal/src/posix/ipc/osal_queue.c:96:    for (uint32_t i = 0; i < OS_MAX_QUEUES; i++)
+./osal/src/posix/ipc/osal_queue.c:149:    for (uint32_t i = 0; i < OS_MAX_QUEUES; i++)
+./osal/src/posix/ipc/osal_queue.c:211:    for (uint32_t i = 0; i < OS_MAX_QUEUES; i++)
+./osal/src/posix/ipc/osal_queue.c:400:    for (uint32_t i = 0; i < OS_MAX_QUEUES; i++)
+./osal/src/posix/ipc/osal_task.c:53:    for (uint32_t i = 0; i < OS_MAX_TASKS; i++)
+./osal/src/posix/ipc/osal_task.c:101:    for (uint32_t i = 0; i < OS_MAX_TASKS; i++)
+./osal/src/posix/ipc/osal_task.c:114:    for (uint32_t i = 0; i < OS_MAX_TASKS; i++)
+./osal/src/posix/ipc/osal_task.c:131:    for (uint32_t i = 0; i < OS_MAX_TASKS; i++)
+./osal/src/posix/ipc/osal_task.c:172:    for (uint32_t i = 0; i < OS_MAX_TASKS; i++)
+./osal/src/posix/ipc/osal_task.c:255:    for (uint32_t i = 0; i < OS_MAX_TASKS; i++)
+./osal/src/posix/ipc/osal_task.c:309:    for (uint32_t i = 0; i < OS_MAX_TASKS; i++)
+./osal/src/posix/ipc/osal_task.c:330:    for (uint32_t i = 0; i < OS_MAX_TASKS; i++)
+./osal/src/posix/ipc/osal_task.c:352:    for (uint32_t i = 0; i < OS_MAX_TASKS; i++)
+./osal/src/posix/ipc/osal_task.c:374:    for (uint32_t i = 0; i < OS_MAX_TASKS; i++)
+./osal/src/posix/ipc/osal_task.c:396:    for (uint32_t i = 0; i < OS_MAX_TASKS; i++)
+./pdl/src/pdl_mcu/pdl_mcu_protocol.c:21:    for (uint32_t i = 0; i < len; i++)
+./pdl/src/pdl_mcu/pdl_mcu_protocol.c:24:        for (int j = 0; j < 8; j++)
+./pcl/src/pcl_api.c:87:    for (uint32_t i = 0; i < g_registry.count; i++) {
+./pcl/src/pcl_api.c:124:    for (uint32_t i = 0; i < g_registry.count; i++) {
+./pcl/src/pcl_api.c:153:    for (uint32_t i = 0; i < actual_count; i++) {
+./pcl/src/pcl_api.c:172:    for (uint32_t i = 0; i < board->mcu_count; i++) {
+./pcl/src/pcl_api.c:198:    for (uint32_t i = 0; i < board->bmc_count; i++) {
+./pcl/src/pcl_api.c:224:    for (uint32_t i = 0; i < board->satellite_count; i++) {
+./pcl/src/pcl_api.c:250:    for (uint32_t i = 0; i < board->sensor_count; i++) {
+./pcl/src/pcl_api.c:276:    for (uint32_t i = 0; i < board->storage_count; i++) {
+./pcl/src/pcl_api.c:302:    for (uint32_t i = 0; i < board->power_domain_count; i++) {
+./pcl/src/pcl_api.c:322:    for (uint32_t i = 0; i < board->app_count; i++) {
+./pcl/src/pcl_api.c:338:    for (uint32_t i = 0; i < app->mapping_count; i++) {
+./pcl/src/pcl_api.c:657:    for (uint32_t i = 0; i < config->mcu_count; i++) {
+./pcl/src/pcl_api.c:679:    for (uint32_t i = 0; i < config->bmc_count; i++) {
+./pcl/src/pcl_api.c:701:    for (uint32_t i = 0; i < config->satellite_count; i++) {
+./pcl/src/pcl_api.c:723:    for (uint32_t i = 0; i < config->sensor_count; i++) {
+./pcl/src/pcl_api.c:741:    for (uint32_t i = 0; i < config->storage_count; i++) {
+./pcl/src/pcl_api.c:759:    for (uint32_t i = 0; i < config->power_domain_count; i++) {
+./pcl/src/pcl_api.c:777:    for (uint32_t i = 0; i < config->app_count; i++) {
+./pcl/src/pcl_api.c:816:    for (uint32_t i = 0; i < config->mcu_count; i++) {
+./pcl/src/pcl_api.c:830:    for (uint32_t i = 0; i < config->bmc_count; i++) {
+./pcl/src/pcl_api.c:839:    for (uint32_t i = 0; i < config->satellite_count; i++) {
+./pcl/src/pcl_api.c:848:    for (uint32_t i = 0; i < config->sensor_count; i++) {
+./pcl/src/pcl_api.c:857:    for (uint32_t i = 0; i < config->storage_count; i++) {
+./pcl/src/pcl_api.c:866:    for (uint32_t i = 0; i < config->app_count; i++) {
+./pcl/src/pcl_api.c:870:        for (uint32_t j = 0; j < app->mapping_count; j++) {
+./pcl/src/pcl_register.c:55:    for (uint32_t i = 0; i < CONFIG_COUNT; i++) {
+./pcl/examples/pcl_example.c:173:    for (uint32_t i = 0; i < count; i++) {
+./tests/hal/test_hal_can.c:255:        for (int i = 0; i < tx_frame.dlc; i++) {
+./tests/hal/test_hal_can.c:388:    for (int i = 0; i < 5; i++) {
+./tests/osal/test_osal_time.c:187:    for (int32_t i = 0; i < 10; i++) {
+./tests/osal/test_osal_time.c:277:    for (int32_t i = 0; i < iterations; i++) {
+./tests/osal/test_osal_heap.c:219:    for (int32_t i = 0; i < iterations; i++) {
+./tests/osal/test_osal_heap.c:225:    for (int32_t i = 0; i < iterations; i++) {
+./tests/osal/test_osal_heap.c:285:    for (osal_size_t i = 0; i < size; i++) {
+./tests/osal/test_osal_heap.c:290:    for (osal_size_t i = 0; i < size; i++) {
+./tests/osal/test_osal_heap.c:334:    for (int32_t i = 0; i < iterations; i++) {
+./tests/osal/test_osal_heap.c:340:    for (int32_t i = 0; i < iterations; i++) {
+./tests/osal/test_osal_heap.c:349:    for (int32_t i = 0; i < iterations; i++) {
+./tests/osal/test_osal_mutex.c:124:    for (int32_t i = 0; i < 1000; i++) {
+./tests/osal/test_osal_log.c:192:    for (int32_t i = 0; i < 100; i++) {
+./tests/osal/test_osal_log.c:234:    for (int32_t i = 0; i < 10 && !OSAL_TaskShouldShutdown(); i++) {
+./tests/osal/test_osal_log.c:252:    for (int32_t i = 0; i < 3; i++) {
+./tests/osal/test_osal_log.c:263:    for (int32_t i = 0; i < 3; i++) {
+./tests/osal/test_osal_log.c:324:    for (int32_t i = 0; i < iterations; i++) {
+./tests/osal/test_osal_string.c:26:    for (uint32_t i = 0; i < sizeof(buffer); i++) {
+./tests/osal/test_osal_string.c:34:    for (uint32_t i = 0; i < sizeof(buffer); i++) {
+./tests/osal/test_osal_string.c:52:    for (uint32_t i = 0; i < 8; i++) {
+./tests/osal/test_osal_atomic.c:172:    for (uint32_t i = 0; i < data->iterations; i++) {
+./tests/osal/test_osal_atomic.c:187:    for (int i = 0; i < THREAD_COUNT; i++) {
+./tests/osal/test_osal_atomic.c:207:    for (int i = 0; i < THREAD_COUNT; i++) {
+./tests/osal/test_osal_atomic.c:218:    for (uint32_t i = 0; i < data->iterations; i++) {
+./tests/osal/test_osal_atomic.c:240:    for (int i = 0; i < THREAD_COUNT; i++) {
+./tests/osal/test_osal_atomic.c:260:    for (int i = 0; i < THREAD_COUNT; i++) {
+./tests/osal/test_osal_queue.c:148:    for (int32_t i = 0; i < 5; i++) {
+./tests/osal/test_osal_queue.c:155:    for (int32_t i = 0; i < 5; i++) {
+./tests/core/test_runner.c:81:    for (uint32_t i = 0; i < suite->case_count; i++) {
+./tests/core/test_runner.c:116:    for (uint32_t i = 0; i < suite_count; i++) {
+./tests/core/test_runner.c:155:    for (uint32_t i = 0; i < count; i++) {
+./tests/core/test_runner.c:190:    for (uint32_t i = 0; i < count; i++) {
+./tests/core/test_runner.c:248:    for (uint32_t i = 0; i < suite->case_count; i++) {
+./tests/core/test_registry.c:55:    for (uint32_t i = 0; i < g_suite_count; i++) {
+./tests/core/test_registry.c:73:    for (uint32_t i = 0; i < g_suite_count && count < max_suites; i++) {
+./tests/core/test_registry.c:91:    for (uint32_t i = 0; i < g_suite_count && count < max_suites; i++) {
+./tests/core/test_registry.c:109:    for (uint32_t i = 0; i < g_suite_count && count < max_layers; i++) {
+./tests/core/test_registry.c:114:        for (uint32_t j = 0; j < count; j++) {
+./tests/core/test_registry.c:138:    for (uint32_t i = 0; i < g_suite_count && count < max_modules; i++) {
+./tests/core/test_registry.c:143:        for (uint32_t j = 0; j < count; j++) {
+./tests/core/test_menu.c:52:    for (uint32_t i = 0; i < suite_count; i++) {
+./tests/core/test_menu.c:57:        for (uint32_t j = 0; j < suite->case_count; j++) {
+./tests/core/test_menu.c:76:    for (uint32_t i = 0; i < count; i++) {
+./tests/core/test_menu.c:81:        for (uint32_t j = 0; j < suite->case_count; j++) {
+./tests/core/test_menu.c:100:    for (uint32_t i = 0; i < count; i++) {
+./tests/core/test_menu.c:104:        for (uint32_t j = 0; j < suite->case_count; j++) {
+./tests/core/test_menu.c:120:    for (uint32_t i = 0; i < suite_count; i++) {
+./tests/core/test_menu.c:122:        for (uint32_t j = 0; j < suite->case_count; j++) {
+./tests/core/test_menu.c:136:    for (uint32_t i = 0; i < count; i++) {
+./tests/core/test_menu.c:138:        for (uint32_t j = 0; j < suite->case_count; j++) {
+./tests/core/test_menu.c:152:    for (uint32_t i = 0; i < count; i++) {
+./tests/core/test_menu.c:154:        for (uint32_t j = 0; j < suite->case_count; j++) {
+./tests/core/test_menu.c:169:        for (uint32_t i = 0; i < suite->case_count; i++) {
+./tests/core/test_menu.c:199:        for (uint32_t i = 0; i < count; i++) {
+./tests/core/test_menu.c:211:            for (uint32_t i = 0; i < count; i++) {
+./tests/core/test_menu.c:236:        for (uint32_t i = 0; i < module_count; i++) {
+./tests/core/test_menu.c:271:        for (uint32_t i = 0; i < layer_count; i++) {
+
+【问题4】数字比较使用魔鬼数字 (应使用宏定义)
+----------------------------------------
+./hal/src/linux/hal_serial.c:71:    if (ctx->fd < 0)
+./hal/src/linux/hal_serial.c:187:    if (ctx->fd >= 0)
+./hal/src/linux/hal_serial.c:213:    if (ctx->fd < 0)
+./hal/src/linux/hal_serial.c:219:    if (timeout > 0)
+./hal/src/linux/hal_serial.c:232:        else if (ret < 0)
+./hal/src/linux/hal_serial.c:241:    if (written < 0)
+./hal/src/linux/hal_serial.c:266:    if (ctx->fd < 0)
+./hal/src/linux/hal_serial.c:272:    if (timeout > 0)
+./hal/src/linux/hal_serial.c:285:        else if (ret < 0)
+./hal/src/linux/hal_serial.c:294:    if (nread < 0)
+./hal/src/linux/hal_serial.c:315:    if (ctx->fd < 0)
+./hal/src/linux/hal_can.c:70:    if (impl->sockfd < 0)
+./hal/src/linux/hal_can.c:81:    if (ret < 0)
+./hal/src/linux/hal_can.c:97:    if (ret < 0)
+./hal/src/linux/hal_can.c:106:    if (config->rx_timeout > 0)
+./hal/src/linux/hal_can.c:112:        if (OSAL_setsockopt(impl->sockfd, OSAL_SOL_SOCKET, OSAL_SO_RCVTIMEO, &tv, sizeof(tv)) < 0)
+./hal/src/linux/hal_can.c:118:    if (config->tx_timeout > 0)
+./hal/src/linux/hal_can.c:124:        if (OSAL_setsockopt(impl->sockfd, OSAL_SOL_SOCKET, OSAL_SO_SNDTIMEO, &tv, sizeof(tv)) < 0)
+./hal/src/linux/hal_can.c:148:    if (impl->initialized && impl->sockfd >= 0)
+./hal/src/linux/hal_can.c:174:    if (!impl->initialized || impl->sockfd < 0)
+./hal/src/linux/hal_can.c:177:    if (frame->dlc > 8)
+./hal/src/linux/hal_can.c:193:        if (ret < 0)
+./hal/src/linux/hal_can.c:223:    if (!impl->initialized || impl->sockfd < 0)
+./hal/src/linux/hal_can.c:227:    if (timeout >= 0)
+./hal/src/linux/hal_can.c:233:        if (OSAL_setsockopt(impl->sockfd, OSAL_SOL_SOCKET, OSAL_SO_RCVTIMEO, &tv, sizeof(tv)) < 0)
+./hal/src/linux/hal_can.c:241:    if (ret < 0)
+./hal/src/linux/hal_can.c:266:    if (can_frame.can_dlc > 8)
+./hal/src/linux/hal_can.c:287:    if (!impl->initialized || impl->sockfd < 0)
+./hal/src/linux/hal_can.c:294:                   &rfilter, sizeof(rfilter)) < 0)
+./hal/include/hal_serial.h:52: * @param[in] timeout -1=阻塞, 0=非阻塞, >0=超时(ms)
+./hal/include/hal_serial.h:62: * @param[in] timeout -1=阻塞, 0=非阻塞, >0=超时(ms)
+./osal/src/posix/ipc/osal_mutex.c:243:    if (abs_timeout.tv_nsec >= 1000000000)
+./osal/src/posix/ipc/osal_queue.c:131:    if (queue_depth > 10000 || data_size > 65536)
+./osal/src/posix/ipc/osal_queue.c:135:    if (queue_depth > 0 && data_size > 0)
+./osal/src/posix/ipc/osal_queue.c:336:    else if (timeout > 0)
+./osal/src/posix/ipc/osal_queue.c:342:        if (ts.tv_nsec >= 1000000000)
+./osal/src/posix/ipc/osal_queue.c:374:    if (OSAL_SUCCESS == result && impl->count > 0)
+./osal/src/posix/ipc/osal_task.c:75:    if (task_id >= 1 && task_id <= OS_MAX_TASKS)
+./osal/src/posix/ipc/osal_task.c:207:    if (stack_size > 0)
+./osal/src/posix/util/osal_log.c:119:    if (size_bytes > 0)
+./osal/src/posix/util/osal_log.c:128:    if (max_files > 0)
+./osal/src/posix/util/osal_log.c:174:    for (uint32_t i = g_max_log_files - 1; i > 0; i--)
+./osal/src/posix/sys/osal_signal.c:22:    if (sigaction(signum, &sa, NULL) < 0)
+./osal/src/posix/sys/osal_signal.c:40:    if (sigaction(signum, &sa, NULL) < 0)
+./osal/src/posix/sys/osal_signal.c:58:    if (sigaction(signum, &sa, NULL) < 0)
+./osal/src/posix/sys/osal_signal.c:74:    if (sigprocmask(SIG_BLOCK, &set, NULL) < 0)
+./osal/src/posix/sys/osal_signal.c:90:    if (sigprocmask(SIG_UNBLOCK, &set, NULL) < 0)
+./osal/src/posix/sys/osal_select.c:20:    if (fd >= 0 && fd < OSAL_FD_SETSIZE) {
+./osal/src/posix/sys/osal_select.c:27:    if (fd >= 0 && fd < OSAL_FD_SETSIZE) {
+./osal/src/posix/sys/osal_select.c:34:    if (fd >= 0 && fd < OSAL_FD_SETSIZE) {
+./osal/src/posix/lib/osal_heap.c:78:    if (percent > 100)
+./osal/include/net/osal_socket.h:135: * @return socket描述符(>=0)，失败返回-1
+./osal/include/net/osal_socket.h:161: * @return 新socket描述符(>=0)，失败返回-1
+./osal/include/net/osal_socket.h:180: * @return 实际发送字节数(>=0)，-1失败
+./osal/include/net/osal_socket.h:190: * @return 实际接收字节数(>=0)，0表示连接关闭，-1失败
+./osal/include/net/osal_socket.h:202: * @return 实际发送字节数(>=0)，-1失败
+./osal/include/net/osal_socket.h:215: * @return 实际接收字节数(>=0)，-1失败
+./osal/include/net/osal_socket.h:263: * @return 接口索引(>0)，失败返回0
+./osal/include/sys/osal_select.h:92: * @return 就绪的文件描述符数量(>0)，0表示超时，-1表示失败
+./osal/include/sys/osal_select.h:111: * @return 就绪的文件描述符数量(>0)，0表示超时，-1表示失败
+./osal/include/sys/osal_file.h:64: * @return 文件描述符(>=0)，失败返回-1
+./osal/include/sys/osal_file.h:80: * @return 实际读取字节数(>=0)，0表示EOF，-1失败
+./osal/include/sys/osal_file.h:89: * @return 实际写入字节数(>=0)，-1失败
+./osal/include/sys/osal_file.h:98: * @return 新的文件位置(>=0)，-1失败
+./pdl/src/pdl_satellite/pdl_satellite_can.c:76:    if (frame.dlc >= 8)
+./pdl/src/pdl_satellite/pdl_satellite_can.c:81:        msg->data = (frame.data[4] << 24) | (frame.data[5] << 16) |
+./pdl/src/pdl_satellite/pdl_satellite_can.c:82:                    (frame.data[6] << 8) | frame.data[7];
+./pdl/src/pdl_satellite/pdl_satellite_can.c:113:    frame.data[4] = (uint8_t)(msg->data >> 24);
+./pdl/src/pdl_satellite/pdl_satellite_can.c:114:    frame.data[5] = (uint8_t)(msg->data >> 16);
+./pdl/src/pdl_satellite/pdl_satellite_can.c:115:    frame.data[6] = (uint8_t)(msg->data >> 8);
+./pdl/src/pdl_mcu/pdl_mcu_can.c:118:    if (NULL != data && data_len > 0)
+./pdl/src/pdl_mcu/pdl_mcu_can.c:120:        uint32_t copy_len = (data_len > 6) ? 6 : data_len;  /* CAN最多8字节，留2字节给头 */
+./pdl/src/pdl_mcu/pdl_mcu_can.c:152:        if (rx_frame.dlc >= 2)
+./pdl/src/pdl_mcu/pdl_mcu_can.c:163:            if (NULL != response && resp_len > 0)
+./pdl/src/pdl_mcu/pdl_mcu_protocol.c:24:        for (int j = 0; j < 8; j++)
+./pdl/src/pdl_mcu/pdl_mcu_protocol.c:28:                crc = (crc >> 1) ^ 0xA001;
+./pdl/src/pdl_mcu/pdl_mcu_protocol.c:32:                crc >>= 1;
+./pdl/src/pdl_mcu/pdl_mcu_serial.c:129:    if (NULL != data && data_len > 0)
+./pdl/src/pdl_mcu/pdl_mcu_serial.c:139:        frame[pos++] = (uint8_t)(crc >> 8);
+./pdl/src/pdl_mcu/pdl_mcu_serial.c:178:        uint16_t crc_recv = (frame[frame_len - 2] << 8) | frame[frame_len - 1];
+./pdl/src/pdl_mcu/pdl_mcu_serial.c:190:    if (NULL != data && data_len > 0)
+./pdl/src/pdl_mcu/pdl_mcu_serial.c:244:    if (rx_len > 0)
+./pdl/src/pdl_mcu/pdl_mcu.c:173:    if (OSAL_SUCCESS == ret && actual_size >= 4)
+./pdl/src/pdl_mcu/pdl_mcu.c:204:    if (OSAL_SUCCESS == ret && actual_size >= 8)
+./pdl/src/pdl_mcu/pdl_mcu.c:207:        status->uptime_sec = (resp[0] << 24) | (resp[1] << 16) |
+./pdl/src/pdl_mcu/pdl_mcu.c:208:                            (resp[2] << 8) | resp[3];
+./pdl/src/pdl_mcu/pdl_mcu.c:211:        status->voltage_mv = (resp[6] << 8) | resp[7];
+./pdl/src/pdl_mcu/pdl_mcu.c:256:    if (OSAL_SUCCESS == ret && actual_size >= 1)
+./pdl/src/pdl_bmc/pdl_bmc_ipmi.c:43:    if (NULL != data && data_len > 0)
+./pdl/src/pdl_bmc/pdl_bmc_ipmi.c:63:    if (NULL == frame || frame_len < 1)
+./pdl/src/pdl_bmc/pdl_bmc_ipmi.c:75:    if (NULL != data && frame_len > 1)
+./pdl/src/pdl_bmc/pdl_bmc_ipmi.c:160:    if (OSAL_SUCCESS == ret && resp_len >= 2)
+./pdl/src/pdl_bmc/pdl_bmc_ipmi.c:168:        if (0 == status && data_len >= 1)
+./pdl/src/pdl_bmc/pdl_bmc_redfish.c:52:    if (ctx->sockfd < 0)
+./pdl/src/pdl_bmc/pdl_bmc_redfish.c:70:    if (OSAL_inet_pton(OSAL_AF_INET, ip_addr, &server_addr.sin_addr) <= 0)
+./pdl/src/pdl_bmc/pdl_bmc_redfish.c:77:    if (OSAL_connect(ctx->sockfd, (osal_sockaddr_t *)&server_addr, sizeof(server_addr)) < 0)
+./pdl/src/pdl_bmc/pdl_bmc_redfish.c:131:    if (NULL != response && resp_size > 0)
+./pdl/src/pdl_bmc/pdl_bmc_redfish.c:134:        if (recv_len < 0)
+./pdl/src/pdl_bmc/pdl_bmc_redfish.c:227:    if (NULL != response && resp_size > 0)
+./pdl/src/pdl_bmc/pdl_bmc_redfish.c:230:        if (recv_len < 0)
+./pdl/include/pdl_bmc.h:201: * @return <0 错误码
+./pcl/src/pcl_api.c:418:    if (uart->data_bits < 5 || uart->data_bits > 8) {
+./pcl/src/pcl_api.c:424:    if (uart->stop_bits < 1 || uart->stop_bits > 2) {
+./pcl/src/pcl_api.c:449:    if (i2c->slave_addr > 0x7F) {
+./pcl/src/pcl_api.c:478:    if (spi->mode > 3) {
+./pcl/src/pcl_api.c:484:    if (0 == spi->bits_per_word || spi->bits_per_word > 32) {
+./pcl/src/pcl_api.c:560:            if (sat->interface_cfg.mil1553b.rt_address > 31) {
+./pcl/src/pcl_api.c:652:    if (config->mcu_count > 0 && NULL == config->mcus) {
+./pcl/src/pcl_api.c:653:        LOG_ERROR("XCONFIG", "MCU count > 0 but mcus is NULL");
+./pcl/src/pcl_api.c:674:    if (config->bmc_count > 0 && NULL == config->bmcs) {
+./pcl/src/pcl_api.c:675:        LOG_ERROR("XCONFIG", "BMC count > 0 but bmcs is NULL");
+./pcl/src/pcl_api.c:696:    if (config->satellite_count > 0 && NULL == config->satellites) {
+./pcl/src/pcl_api.c:697:        LOG_ERROR("XCONFIG", "Satellite count > 0 but satellites is NULL");
+./pcl/src/pcl_api.c:718:    if (config->sensor_count > 0 && NULL == config->sensors) {
+./pcl/src/pcl_api.c:719:        LOG_ERROR("XCONFIG", "Sensor count > 0 but sensors is NULL");
+./pcl/src/pcl_api.c:736:    if (config->storage_count > 0 && NULL == config->storages) {
+./pcl/src/pcl_api.c:737:        LOG_ERROR("XCONFIG", "Storage count > 0 but storages is NULL");
+./pcl/src/pcl_api.c:754:    if (config->power_domain_count > 0 && NULL == config->power_domains) {
+./pcl/src/pcl_api.c:755:        LOG_ERROR("XCONFIG", "Power domain count > 0 but power_domains is NULL");
+./pcl/src/pcl_api.c:772:    if (config->app_count > 0 && NULL == config->apps) {
+./pcl/src/pcl_api.c:773:        LOG_ERROR("XCONFIG", "APP count > 0 but apps is NULL");
+./pcl/src/pcl_api.c:788:        if (app->mapping_count > 0 && NULL == app->device_mappings) {
+./pcl/src/pcl_api.c:789:            LOG_ERROR("XCONFIG", "APP '%s': mapping_count > 0 but device_mappings is NULL",
+./pcl/src/pcl_register.c:71:    return (success_count > 0) ? OSAL_SUCCESS : OSAL_ERR_GENERIC;
+./pcl/src/pcl_register.c:124:    if (CONFIG_COUNT > 0) {
+./tests/hal/test_hal_serial.c:146:    TEST_ASSERT_TRUE(ret > 0);
+./tests/hal/test_hal_serial.c:157:    TEST_ASSERT_TRUE(ret < 0);
+./tests/hal/test_hal_serial.c:178:    TEST_ASSERT_TRUE(ret < 0);
+./tests/hal/test_hal_serial.c:237:    TEST_ASSERT_TRUE(ret < 0);
+./tests/hal/test_hal_serial.c:258:    TEST_ASSERT_TRUE(ret < 0);
+./tests/hal/test_hal_can.c:388:    for (int i = 0; i < 5; i++) {
+./tests/osal/test_osal_time.c:41:    TEST_ASSERT_TRUE(elapsed_ms >= 80 && elapsed_ms <= 120);
+./tests/osal/test_osal_time.c:61:    TEST_ASSERT_TRUE(elapsed_us >= 40000 && elapsed_us <= 60000);
+./tests/osal/test_osal_time.c:81:    TEST_ASSERT_TRUE(elapsed_ms >= 950 && elapsed_ms <= 1050);
+./tests/osal/test_osal_time.c:101:    TEST_ASSERT_TRUE(elapsed_us >= 5000 && elapsed_us <= 15000);
+./tests/osal/test_osal_time.c:121:    TEST_ASSERT_TRUE(elapsed_ms >= 170 && elapsed_ms <= 230);
+./tests/osal/test_osal_time.c:137:    TEST_ASSERT_TRUE(time1.seconds > 0);
+./tests/osal/test_osal_time.c:176:    TEST_ASSERT_TRUE(diff >= 30 && diff <= 70);
+./tests/osal/test_osal_time.c:187:    for (int32_t i = 0; i < 10; i++) {
+./tests/osal/test_osal_time.c:246:    TEST_ASSERT_TRUE(elapsed_us >= 500 && elapsed_us <= 5000);
+./tests/osal/test_osal_time.c:261:    TEST_ASSERT_TRUE(elapsed_ms >= 450 && elapsed_ms <= 550);
+./tests/osal/test_osal_time.c:284:    TEST_ASSERT_TRUE(avg_time < 10);
+./tests/osal/test_osal_heap.c:80:    TEST_ASSERT_TRUE(total_bytes > 0);
+./tests/osal/test_osal_mutex.c:124:    for (int32_t i = 0; i < 1000; i++) {
+./tests/osal/test_osal_log.c:192:    for (int32_t i = 0; i < 100; i++) {
+./tests/osal/test_osal_log.c:234:    for (int32_t i = 0; i < 10 && !OSAL_TaskShouldShutdown(); i++) {
+./tests/osal/test_osal_log.c:252:    for (int32_t i = 0; i < 3; i++) {
+./tests/osal/test_osal_log.c:263:    for (int32_t i = 0; i < 3; i++) {
+./tests/osal/test_osal_file.c:28:    TEST_ASSERT_TRUE(fd >= 0);
+./tests/osal/test_osal_file.c:46:    TEST_ASSERT_TRUE(fd >= 0);
+./tests/osal/test_osal_file.c:51:    TEST_ASSERT_TRUE(fd >= 0);
+./tests/osal/test_osal_file.c:67:    TEST_ASSERT_TRUE(fd < 0);
+./tests/osal/test_osal_file.c:81:    TEST_ASSERT_TRUE(fd1 >= 0);
+./tests/osal/test_osal_file.c:87:    TEST_ASSERT_TRUE(fd2 < 0);
+./tests/osal/test_osal_file.c:107:    TEST_ASSERT_TRUE(fd >= 0);
+./tests/osal/test_osal_file.c:138:    TEST_ASSERT_TRUE(fd >= 0);
+./tests/osal/test_osal_file.c:145:    TEST_ASSERT_TRUE(fd >= 0);
+./tests/osal/test_osal_file.c:152:    TEST_ASSERT_TRUE(fd >= 0);
+./tests/osal/test_osal_file.c:172:    TEST_ASSERT_TRUE(fd >= 0);
+./tests/osal/test_osal_file.c:203:    TEST_ASSERT_TRUE(fd >= 0);
+./tests/osal/test_osal_file.c:230:    TEST_ASSERT_TRUE(fd >= 0);
+./tests/osal/test_osal_file.c:264:    TEST_ASSERT_TRUE(fd >= 0);
+./tests/osal/test_osal_file.c:292:    TEST_ASSERT_TRUE(fd >= 0);
+./tests/osal/test_osal_file.c:296:    TEST_ASSERT_TRUE(flags >= 0);
+./tests/osal/test_osal_file.c:322:    TEST_ASSERT_TRUE(fd >= 0);
+./tests/osal/test_osal_file.c:341:    TEST_ASSERT_TRUE(fd >= 0);
+./tests/osal/test_osal_file.c:360:    TEST_ASSERT_TRUE(ret < 0);
+./tests/osal/test_osal_file.c:363:    TEST_ASSERT_TRUE(ret < 0);
+./tests/osal/test_osal_string.c:52:    for (uint32_t i = 0; i < 8; i++) {
+./tests/osal/test_osal_string.c:92:    TEST_ASSERT_TRUE(ret < 0);  /* buf1[3] < buf2[3] */
+./tests/osal/test_osal_string.c:129:    TEST_ASSERT_TRUE(ret < 0);  /* "Hello" < "World" */
+./tests/osal/test_osal_string.c:132:    TEST_ASSERT_TRUE(ret > 0);  /* "World" > "Hello" */
+./tests/osal/test_osal_string.c:257:    TEST_ASSERT_TRUE(ret > 0);
+./tests/osal/test_osal_string.c:269:    TEST_ASSERT_TRUE(ret > 0);
+./tests/osal/test_osal_string.c:274:    TEST_ASSERT_TRUE(ret > 0);
+./tests/osal/test_osal_queue.c:148:    for (int32_t i = 0; i < 5; i++) {
+./tests/osal/test_osal_queue.c:155:    for (int32_t i = 0; i < 5; i++) {
+./tests/osal/test_osal_task.c:21:    while (*counter < 10 && !OSAL_TaskShouldShutdown()) {
+./tests/osal/test_osal_task.c:136:    TEST_ASSERT_TRUE(OS_OBJECT_ID_UNDEFINED == task_id || task_id > 0);
+./tests/pdl/test_pdl_bmc.c:338:    TEST_ASSERT_TRUE(actual_count <= 16);
+./tests/pdl/test_pdl_bmc.c:411:    TEST_ASSERT_TRUE(ret >= 0);
+./tests/pdl/test_pdl_bmc.c:422:    TEST_ASSERT_TRUE(ret < 0);
+./tests/pdl/test_pdl_bmc.c:449:    TEST_ASSERT_TRUE(ret < 0);
+./tests/pdl/test_pdl_bmc.c:596:    /* uint32_t类型总是>=0，只需验证调用成功 */
+./tests/core/test_runner.c:123:    if (g_stats.failed > 0) {
+./tests/core/test_runner.c:127:    if (g_stats.skipped > 0) {
+./tests/core/test_runner.c:162:    if (g_stats.failed > 0) {
+./tests/core/test_runner.c:197:    if (g_stats.failed > 0) {
+./tests/core/test_runner.c:224:    if (g_stats.failed > 0) {
+./tests/core/main.c:21:    if (argc >= 2 && 0 == OSAL_Strcmp(argv[argc - 1], "-p")) {
+./tests/core/main.c:36:    if (0 == OSAL_Strcmp(argv[1], "-L") && argc >= 3) {
+./tests/core/main.c:45:    if (0 == OSAL_Strcmp(argv[1], "-m") && argc >= 3) {
+./tests/core/main.c:54:    if (0 == OSAL_Strcmp(argv[1], "-s") && argc >= 3) {
+./tests/core/test_menu.c:180:        } else if (choice > 0 && choice <= (int32_t)suite->case_count) {
+./tests/core/test_menu.c:215:        } else if (choice > 0 && choice <= (int32_t)count) {
+./tests/core/test_menu.c:245:        if (choice > 0 && choice <= (int32_t)module_count) {
+./tests/core/test_menu.c:280:        if (choice > 0 && choice <= (int32_t)layer_count) {
+
+【问题5】延迟/超时使用魔鬼数字 (应使用宏定义)
+----------------------------------------
+./osal/src/posix/sys/osal_time.c:5:#define _DEFAULT_SOURCE  /* 启用usleep等函数 */
+./osal/src/posix/sys/osal_time.c:11:int32_t OSAL_msleep(uint32_t msec)
+./osal/src/posix/sys/osal_time.c:13:    return usleep(msec * 1000);
+./osal/src/posix/sys/osal_time.c:16:int32_t OSAL_usleep(uint32_t usec)
+./osal/src/posix/sys/osal_time.c:18:    return usleep(usec);
+./osal/src/posix/sys/osal_time.c:21:int32_t OSAL_sleep(uint32_t sec)
+./osal/src/posix/sys/osal_time.c:23:    return (int32_t)sleep(sec);
+./osal/src/posix/sys/osal_time.c:26:int32_t OSAL_nanosleep(uint64_t nsec)
+./osal/src/posix/sys/osal_time.c:31:    return nanosleep(&req, NULL);
+./osal/src/posix/sys/osal_time.c:34:int32_t OSAL_TaskDelay(uint32_t millisecond)
+./osal/src/posix/sys/osal_time.c:40:    /* 使用nanosleep并处理中断 */
+./osal/src/posix/sys/osal_time.c:41:    while (nanosleep(&ts, &ts) == -1)
+./osal/include/sys/osal_time.h:5: * - 封装sleep/usleep/nanosleep等延迟函数
+./osal/include/sys/osal_time.h:30:int32_t OSAL_msleep(uint32_t msec);
+./osal/include/sys/osal_time.h:38:int32_t OSAL_usleep(uint32_t usec);
+./osal/include/sys/osal_time.h:46:int32_t OSAL_sleep(uint32_t sec);
+./osal/include/sys/osal_time.h:54:int32_t OSAL_nanosleep(uint64_t nsec);
+./osal/include/sys/osal_time.h:60: * @note 这是为了兼容旧代码，推荐使用OSAL_msleep()
+./osal/include/sys/osal_time.h:62:int32_t OSAL_TaskDelay(uint32_t millisecond);
+./apps/sample_app/src/main.c:101:        OSAL_TaskDelay(HEARTBEAT_INTERVAL_MS);
+./apps/sample_app/src/main.c:221:        OSAL_TaskDelay(1000);  /* 1秒检查一次 */
+./pdl/src/pdl_satellite/pdl_satellite.c:64:        OSAL_TaskDelay(ctx->config.heartbeat_interval_ms);
+./tests/osal/test_osal_time.c:24:/* 测试用例: msleep - 毫秒延时 */
+./tests/osal/test_osal_time.c:25:TEST_CASE(test_osal_msleep_success)
+./tests/osal/test_osal_time.c:33:    int32_t ret = OSAL_msleep(100);
+./tests/osal/test_osal_time.c:44:/* 测试用例: usleep - 微秒延时 */
+./tests/osal/test_osal_time.c:45:TEST_CASE(test_osal_usleep_success)
+./tests/osal/test_osal_time.c:53:    int32_t ret = OSAL_usleep(50000);
+./tests/osal/test_osal_time.c:64:/* 测试用例: sleep - 秒延时 */
+./tests/osal/test_osal_time.c:65:TEST_CASE(test_osal_sleep_success)
+./tests/osal/test_osal_time.c:73:    int32_t ret = OSAL_sleep(1);
+./tests/osal/test_osal_time.c:84:/* 测试用例: nanosleep - 纳秒延时 */
+./tests/osal/test_osal_time.c:85:TEST_CASE(test_osal_nanosleep_success)
+./tests/osal/test_osal_time.c:93:    int32_t ret = OSAL_nanosleep(10000000);
+./tests/osal/test_osal_time.c:113:    int32_t ret = OSAL_TaskDelay(200);
+./tests/osal/test_osal_time.c:140:    OSAL_msleep(10);
+./tests/osal/test_osal_time.c:169:    OSAL_msleep(50);
+./tests/osal/test_osal_time.c:188:        OSAL_usleep(1000);  /* 1毫秒 */
+./tests/osal/test_osal_time.c:206:/* 测试用例: msleep - 零延时 */
+./tests/osal/test_osal_time.c:207:TEST_CASE(test_osal_msleep_zero)
+./tests/osal/test_osal_time.c:209:    int32_t ret = OSAL_msleep(0);
+./tests/osal/test_osal_time.c:213:/* 测试用例: usleep - 零延时 */
+./tests/osal/test_osal_time.c:214:TEST_CASE(test_osal_usleep_zero)
+./tests/osal/test_osal_time.c:216:    int32_t ret = OSAL_usleep(0);
+./tests/osal/test_osal_time.c:220:/* 测试用例: sleep - 零延时 */
+./tests/osal/test_osal_time.c:221:TEST_CASE(test_osal_sleep_zero)
+./tests/osal/test_osal_time.c:223:    int32_t ret = OSAL_sleep(0);
+./tests/osal/test_osal_time.c:230:    int32_t ret = OSAL_TaskDelay(0);
+./tests/osal/test_osal_time.c:241:    OSAL_msleep(1);
+./tests/osal/test_osal_time.c:256:    OSAL_msleep(500);
+./tests/osal/test_osal_time.c:294:    TEST_CASE_REF(test_osal_msleep_success)
+./tests/osal/test_osal_time.c:295:    TEST_CASE_REF(test_osal_usleep_success)
+./tests/osal/test_osal_time.c:296:    TEST_CASE_REF(test_osal_sleep_success)
+./tests/osal/test_osal_time.c:297:    TEST_CASE_REF(test_osal_nanosleep_success)
+./tests/osal/test_osal_time.c:307:    TEST_CASE_REF(test_osal_msleep_zero)
+./tests/osal/test_osal_time.c:308:    TEST_CASE_REF(test_osal_usleep_zero)
+./tests/osal/test_osal_time.c:309:    TEST_CASE_REF(test_osal_sleep_zero)
+./tests/osal/test_osal_log.c:236:        OSAL_TaskDelay(10);
+./tests/osal/test_osal_log.c:260:    OSAL_TaskDelay(500);
+./tests/osal/test_osal_atomic.c:199:    OSAL_TaskDelay(1000);  /* 确保所有线程完成 */
+./tests/osal/test_osal_atomic.c:252:    OSAL_TaskDelay(1000);
+./tests/osal/test_osal_task.c:18:        OSAL_TaskDelay(100);
+./tests/osal/test_osal_task.c:23:        OSAL_TaskDelay(100);
+./tests/osal/test_osal_task.c:41:    OSAL_TaskDelay(1500);
+./tests/osal/test_osal_task.c:124:    int32_t ret = OSAL_TaskDelay(500);
+./tests/osal/test_osal_signal.c:39:    OSAL_TaskDelay(100);
+./tests/osal/test_osal_signal.c:64:    OSAL_usleep(100000);
+./tests/osal/test_osal_signal.c:86:    OSAL_usleep(100000);
+./tests/osal/test_osal_signal.c:96:    OSAL_usleep(100000);
+./tests/osal/test_osal_signal.c:138:    OSAL_usleep(100000);
+./tests/pdl/test_pdl_bmc.c:231:    OSAL_TaskDelay(100);
+
+【问题6】数组大小使用魔鬼数字 (应使用宏定义)
+----------------------------------------
+./hal/src/linux/hal_serial.c:15:    str_t device[64];
+./hal/src/linux/hal_can.c:282:    struct can_filter rfilter[1];
+./hal/src/linux/hal_can.c:290:    rfilter[0].can_id = filter_id;
+./hal/src/linux/hal_can.c:291:    rfilter[0].can_mask = filter_mask;
+./hal/include/config/can_types.h:22:    uint8_t      data[8];     /* 数据字节 */
+./osal/src/posix/util/osal_log.c:33:static str_t g_log_file_path[256] = {0};
+./osal/src/posix/util/osal_log.c:158:    if (g_log_file_path[0] == '\0')
+./osal/src/posix/util/osal_log.c:169:    str_t old_file[512];
+./osal/src/posix/util/osal_log.c:176:        str_t from[512], to[512];
+./osal/src/posix/util/osal_log.c:183:    str_t current_backup[512];
+./osal/src/posix/util/osal_log.c:201:    if (NULL == g_log_file || g_log_file_path[0] == '\0')
+./osal/src/posix/util/osal_log.c:231:    str_t timestamp[64];
+./osal/src/posix/util/osal_log.c:232:    str_t message[1024];
+./osal/src/posix/util/osal_log.c:287:    str_t timestamp[64];
+./osal/src/posix/util/osal_log.c:288:    str_t message[1024];
+./osal/src/posix/lib/osal_heap.c:45:    str_t line[256];
+./osal/include/net/osal_socket.h:100:    uint8_t  sa_data[126];   /* 地址数据 */
+./osal/include/net/osal_socket.h:108:    uint8_t  sin_zero[8];    /* 填充 */
+./osal/include/net/osal_socket.h:116:    uint8_t  sin6_addr[16];  /* IPv6地址 */
+./pdl/src/pdl_satellite/pdl_satellite_can.c:78:        msg->msg_type = frame.data[0];
+./pdl/src/pdl_satellite/pdl_satellite_can.c:79:        msg->seq_num = frame.data[1];
+./pdl/src/pdl_satellite/pdl_satellite_can.c:80:        msg->cmd_type = frame.data[2];
+./pdl/src/pdl_satellite/pdl_satellite_can.c:81:        msg->data = (frame.data[4] << 24) | (frame.data[5] << 16) |
+./pdl/src/pdl_satellite/pdl_satellite_can.c:82:                    (frame.data[6] << 8) | frame.data[7];
+./pdl/src/pdl_satellite/pdl_satellite_can.c:109:    frame.data[0] = msg->msg_type;
+./pdl/src/pdl_satellite/pdl_satellite_can.c:110:    frame.data[1] = msg->seq_num;
+./pdl/src/pdl_satellite/pdl_satellite_can.c:111:    frame.data[2] = msg->cmd_type;
+./pdl/src/pdl_satellite/pdl_satellite_can.c:112:    frame.data[3] = 0;  /* 预留 */
+./pdl/src/pdl_satellite/pdl_satellite_can.c:113:    frame.data[4] = (uint8_t)(msg->data >> 24);
+./pdl/src/pdl_satellite/pdl_satellite_can.c:114:    frame.data[5] = (uint8_t)(msg->data >> 16);
+./pdl/src/pdl_satellite/pdl_satellite_can.c:115:    frame.data[6] = (uint8_t)(msg->data >> 8);
+./pdl/src/pdl_satellite/pdl_satellite_can.c:116:    frame.data[7] = (uint8_t)(msg->data & 0xFF);
+./pdl/src/pdl_mcu/pdl_mcu_can.c:112:    uint8_t tx_frame[8];
+./pdl/src/pdl_mcu/pdl_mcu_can.c:154:            uint8_t status = rx_frame.data[0];
+./pdl/src/pdl_mcu/pdl_mcu_can.c:155:            uint8_t resp_len = rx_frame.data[1];
+./pdl/src/pdl_mcu/pdl_mcu_can.c:167:                OSAL_Memcpy(response, &rx_frame.data[2], copy_len);
+./pdl/src/pdl_mcu/pdl_mcu_serial.c:170:    if (frame[0] != FRAME_HEADER_0 || frame[1] != FRAME_HEADER_1)
+./pdl/src/pdl_mcu/pdl_mcu_serial.c:187:    *status = frame[2];
+./pdl/src/pdl_mcu/pdl_mcu_serial.c:188:    uint8_t data_len = frame[3];
+./pdl/src/pdl_mcu/pdl_mcu_serial.c:193:        OSAL_Memcpy(data, &frame[4], copy_len);
+./pdl/src/pdl_mcu/pdl_mcu_serial.c:223:    uint8_t tx_frame[256];
+./pdl/src/pdl_mcu/pdl_mcu_serial.c:241:    uint8_t rx_frame[256];
+./pdl/src/pdl_mcu/pdl_mcu.c:167:    uint8_t resp[4];
+./pdl/src/pdl_mcu/pdl_mcu.c:175:        version->major = resp[0];
+./pdl/src/pdl_mcu/pdl_mcu.c:176:        version->minor = resp[1];
+./pdl/src/pdl_mcu/pdl_mcu.c:177:        version->patch = resp[2];
+./pdl/src/pdl_mcu/pdl_mcu.c:178:        version->build = resp[3];
+./pdl/src/pdl_mcu/pdl_mcu.c:198:    uint8_t resp[16];
+./pdl/src/pdl_mcu/pdl_mcu.c:207:        status->uptime_sec = (resp[0] << 24) | (resp[1] << 16) |
+./pdl/src/pdl_mcu/pdl_mcu.c:208:                            (resp[2] << 8) | resp[3];
+
+【问题7】非Yoda风格条件判断 (常量应在前)
+----------------------------------------
+./osal/src/posix/ipc/osal_queue.c:351:            if (ret == ETIMEDOUT)
+./tests/core/test_runner.c:85:        if (result == TEST_RESULT_PASS) {
+./tests/core/test_runner.c:87:        } else if (result == TEST_RESULT_FAIL) {
+./tests/core/test_runner.c:265:    if (result == TEST_RESULT_PASS) {
+./tests/core/test_runner.c:271:    return (result == TEST_RESULT_PASS) ? OSAL_SUCCESS : OSAL_ERR_GENERIC;
+
+【问题8】位操作使用魔鬼数字 (应使用宏定义)
+----------------------------------------
+./pdl/src/pdl_satellite/pdl_satellite_can.c:81:        msg->data = (frame.data[4] << 24) | (frame.data[5] << 16) |
+./pdl/src/pdl_satellite/pdl_satellite_can.c:82:                    (frame.data[6] << 8) | frame.data[7];
+./pdl/src/pdl_satellite/pdl_satellite_can.c:113:    frame.data[4] = (uint8_t)(msg->data >> 24);
+./pdl/src/pdl_satellite/pdl_satellite_can.c:114:    frame.data[5] = (uint8_t)(msg->data >> 16);
+./pdl/src/pdl_satellite/pdl_satellite_can.c:115:    frame.data[6] = (uint8_t)(msg->data >> 8);
+./pdl/src/pdl_satellite/pdl_satellite_can.c:116:    frame.data[7] = (uint8_t)(msg->data & 0xFF);
+./pdl/src/pdl_mcu/pdl_mcu_protocol.c:26:            if (crc & 0x0001)
+./pdl/src/pdl_mcu/pdl_mcu_protocol.c:28:                crc = (crc >> 1) ^ 0xA001;
+./pdl/src/pdl_mcu/pdl_mcu_serial.c:139:        frame[pos++] = (uint8_t)(crc >> 8);
+./pdl/src/pdl_mcu/pdl_mcu_serial.c:140:        frame[pos++] = (uint8_t)(crc & 0xFF);
+./pdl/src/pdl_mcu/pdl_mcu_serial.c:178:        uint16_t crc_recv = (frame[frame_len - 2] << 8) | frame[frame_len - 1];
+./pdl/src/pdl_mcu/pdl_mcu.c:207:        status->uptime_sec = (resp[0] << 24) | (resp[1] << 16) |
+./pdl/src/pdl_mcu/pdl_mcu.c:208:                            (resp[2] << 8) | resp[3];
+./pdl/src/pdl_mcu/pdl_mcu.c:211:        status->voltage_mv = (resp[6] << 8) | resp[7];
+./pdl/src/pdl_bmc/pdl_bmc_ipmi.c:171:            *state = (data[0] & 0x01) ? BMC_POWER_ON : BMC_POWER_OFF;
+./tests/osal/test_osal_heap.c:286:        ptr[i] = (uint8_t)(i & 0xFF);
+./tests/osal/test_osal_heap.c:291:        TEST_ASSERT_EQUAL((uint8_t)(i & 0xFF), ptr[i]);
+
+========================================
+扫描完成！报告已保存到: magic_numbers_report.txt
+========================================
