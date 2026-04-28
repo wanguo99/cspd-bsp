@@ -5,6 +5,7 @@
  * 1. 修复线程安全问题：使用引用计数保护对象
  * 2. 添加对象生命周期管理
  * 3. 改进错误处理
+ * 4. 修复整数溢出检查（使用 SIZE_MAX 而非 UINT32_MAX）
  ************************************************************************/
 
 #include "osal.h"
@@ -14,6 +15,7 @@
 #include <errno.h>
 #include <time.h>
 #include <stdatomic.h>
+#include <stdint.h>  /* SIZE_MAX */
 
 /*
  * 环形缓冲区消息队列实现
@@ -131,13 +133,10 @@ int32_t OSAL_QueueCreate(osal_id_t *queue_id,
     if (queue_depth > OSAL_QUEUE_DEPTH_LIMIT || data_size > OSAL_QUEUE_DATA_SIZE_LIMIT)
         return OSAL_ERR_QUEUE_INVALID_SIZE;
 
-    /* 检查乘法溢出 */
-    if (queue_depth > 0 && data_size > 0)
+    /* 检查乘法溢出（使用 SIZE_MAX 确保在 64 位系统上也正确）*/
+    if (queue_depth > SIZE_MAX / data_size)
     {
-        if (queue_depth > UINT32_MAX / data_size)
-        {
-            return OSAL_ERR_QUEUE_INVALID_SIZE;  /* 溢出风险 */
-        }
+        return OSAL_ERR_QUEUE_INVALID_SIZE;  /* 溢出风险 */
     }
 
     ret = osal_queue_find_free_slot(&slot);
@@ -166,6 +165,10 @@ int32_t OSAL_QueueCreate(osal_id_t *queue_id,
 
     memset(impl, 0, sizeof(queue_impl_t));
 
+    /* 尽早初始化引用计数，避免竞态条件 */
+    atomic_init(&impl->ref_count, 1);
+    impl->valid = true;
+
     /* 安全的内存分配（已检查溢出） */
     size_t buffer_size = (size_t)queue_depth * (size_t)data_size;
     impl->buffer = malloc(buffer_size);
@@ -181,8 +184,6 @@ int32_t OSAL_QueueCreate(osal_id_t *queue_id,
     impl->count = 0;
     impl->depth = queue_depth;
     impl->msg_size = data_size;
-    atomic_init(&impl->ref_count, 1);  /* 初始引用计数为1 */
-    impl->valid = true;
 
     pthread_mutex_init(&impl->mutex, NULL);
     pthread_cond_init(&impl->not_empty, NULL);
