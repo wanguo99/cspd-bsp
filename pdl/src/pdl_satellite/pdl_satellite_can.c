@@ -78,8 +78,11 @@ int32_t satellite_can_recv(void *handle, satellite_can_msg_t *msg, uint32_t time
         msg->msg_type = frame.data[0];
         msg->seq_num = frame.data[1];
         msg->cmd_type = frame.data[2];
-        msg->data = (frame.data[4] << 24) | (frame.data[5] << 16) |
-                    (frame.data[6] << 8) | frame.data[7];
+
+        /* 使用字节序转换宏确保跨平台兼容性（网络序->主机序） */
+        uint32_t data_be = (frame.data[4] << 24) | (frame.data[5] << 16) |
+                           (frame.data[6] << 8) | frame.data[7];
+        msg->data = OSAL_NTOHL(data_be);
     }
     else
     {
@@ -111,10 +114,13 @@ int32_t satellite_can_send(void *handle, const satellite_can_msg_t *msg)
     frame.data[1] = msg->seq_num;
     frame.data[2] = msg->cmd_type;
     frame.data[3] = 0;  /* 预留 */
-    frame.data[4] = (uint8_t)(msg->data >> 24);
-    frame.data[5] = (uint8_t)(msg->data >> 16);
-    frame.data[6] = (uint8_t)(msg->data >> 8);
-    frame.data[7] = (uint8_t)(msg->data & 0xFF);
+
+    /* 使用字节序转换宏确保跨平台兼容性（主机序->网络序） */
+    uint32_t data_be = OSAL_HTONL(msg->data);
+    frame.data[4] = (uint8_t)(data_be >> 24);
+    frame.data[5] = (uint8_t)(data_be >> 16);
+    frame.data[6] = (uint8_t)(data_be >> 8);
+    frame.data[7] = (uint8_t)(data_be & 0xFF);
 
     return HAL_CAN_Send(can_handle, &frame);
 }
