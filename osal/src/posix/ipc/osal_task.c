@@ -237,9 +237,28 @@ int32_t OSAL_TaskCreate(osal_id_t *task_id,
     g_osal_task_table[slot].state = TASK_STATE_READY;
     atomic_init(&g_osal_task_table[slot].ref_count, 1);
 
-    /* 初始化退出同步机制 */
-    pthread_cond_init(&g_osal_task_table[slot].exit_cond, NULL);
-    pthread_mutex_init(&g_osal_task_table[slot].exit_mutex, NULL);
+    /* 初始化退出同步机制，检查返回值 */
+    if (0 != pthread_cond_init(&g_osal_task_table[slot].exit_cond, NULL))
+    {
+        g_osal_task_table[slot].is_used = false;
+        release_task_id(new_task_id);
+        pthread_attr_destroy(&attr);
+        free(wrapper_arg);
+        pthread_mutex_unlock(&g_task_table_mutex);
+        return OSAL_ERR_GENERIC;
+    }
+
+    if (0 != pthread_mutex_init(&g_osal_task_table[slot].exit_mutex, NULL))
+    {
+        pthread_cond_destroy(&g_osal_task_table[slot].exit_cond);
+        g_osal_task_table[slot].is_used = false;
+        release_task_id(new_task_id);
+        pthread_attr_destroy(&attr);
+        free(wrapper_arg);
+        pthread_mutex_unlock(&g_task_table_mutex);
+        return OSAL_ERR_GENERIC;
+    }
+
     g_osal_task_table[slot].exited = false;
 
     if (0 != pthread_create(&g_osal_task_table[slot].thread, &attr,

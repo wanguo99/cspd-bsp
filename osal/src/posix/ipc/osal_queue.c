@@ -86,8 +86,8 @@ static void osal_queue_release(queue_impl_t *impl)
         pthread_mutex_destroy(&impl->mutex);
         pthread_cond_destroy(&impl->not_empty);
         pthread_cond_destroy(&impl->not_full);
-        free(impl->buffer);
-        free(impl);
+        OSAL_Free(impl->buffer);
+        OSAL_Free(impl);
     }
 }
 
@@ -156,14 +156,14 @@ int32_t OSAL_QueueCreate(osal_id_t *queue_id,
     }
 
     /* 分配队列实现 */
-    impl = malloc(sizeof(queue_impl_t));
+    impl = OSAL_Malloc(sizeof(queue_impl_t));
     if (NULL == impl)
     {
         pthread_mutex_unlock(&g_queue_table_mutex);
         return OSAL_ERR_NO_MEMORY;
     }
 
-    memset(impl, 0, sizeof(queue_impl_t));
+    OSAL_Memset(impl, 0, sizeof(queue_impl_t));
 
     /* 尽早初始化引用计数，避免竞态条件 */
     atomic_init(&impl->ref_count, 1);
@@ -172,10 +172,10 @@ int32_t OSAL_QueueCreate(osal_id_t *queue_id,
     /* 安全的内存分配（已检查溢出） */
     osal_size_t buffer_size = queue_depth;
     buffer_size *= data_size;
-    impl->buffer = malloc(buffer_size);
+    impl->buffer = OSAL_Malloc(buffer_size);
     if (NULL == impl->buffer)
     {
-        free(impl);
+        OSAL_Free(impl);
         pthread_mutex_unlock(&g_queue_table_mutex);
         return OSAL_ERR_NO_MEMORY;
     }
@@ -186,9 +186,33 @@ int32_t OSAL_QueueCreate(osal_id_t *queue_id,
     impl->depth = queue_depth;
     impl->msg_size = data_size;
 
-    pthread_mutex_init(&impl->mutex, NULL);
-    pthread_cond_init(&impl->not_empty, NULL);
-    pthread_cond_init(&impl->not_full, NULL);
+    /* 初始化同步原语，检查返回值 */
+    if (0 != pthread_mutex_init(&impl->mutex, NULL))
+    {
+        OSAL_Free(impl->buffer);
+        OSAL_Free(impl);
+        pthread_mutex_unlock(&g_queue_table_mutex);
+        return OSAL_ERR_GENERIC;
+    }
+
+    if (0 != pthread_cond_init(&impl->not_empty, NULL))
+    {
+        pthread_mutex_destroy(&impl->mutex);
+        OSAL_Free(impl->buffer);
+        OSAL_Free(impl);
+        pthread_mutex_unlock(&g_queue_table_mutex);
+        return OSAL_ERR_GENERIC;
+    }
+
+    if (0 != pthread_cond_init(&impl->not_full, NULL))
+    {
+        pthread_cond_destroy(&impl->not_empty);
+        pthread_mutex_destroy(&impl->mutex);
+        OSAL_Free(impl->buffer);
+        OSAL_Free(impl);
+        pthread_mutex_unlock(&g_queue_table_mutex);
+        return OSAL_ERR_GENERIC;
+    }
 
     /* 填充队列表 */
     g_osal_queue_table[slot].is_used = true;
@@ -290,7 +314,7 @@ int32_t OSAL_QueuePut(osal_id_t queue_id, const void *data, uint32_t size, uint3
     else
     {
         /* 写入消息 */
-        memcpy(impl->buffer + (impl->tail * impl->msg_size), data, size);
+        OSAL_Memcpy(impl->buffer + (impl->tail * impl->msg_size), data, size);
         impl->tail = (impl->tail + 1) % impl->depth;
         impl->count++;
         pthread_cond_signal(&impl->not_empty);
@@ -381,7 +405,7 @@ int32_t OSAL_QueueGet(osal_id_t queue_id, void *data, uint32_t size,
     if (OSAL_SUCCESS == result && impl->count > 0)
     {
         uint32_t copy_size = (size < impl->msg_size) ? size : impl->msg_size;
-        memcpy(data, impl->buffer + (impl->head * impl->msg_size), copy_size);
+        OSAL_Memcpy(data, impl->buffer + (impl->head * impl->msg_size), copy_size);
         impl->head = (impl->head + 1) % impl->depth;
         impl->count--;
 

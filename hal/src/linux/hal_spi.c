@@ -57,8 +57,13 @@ int32_t HAL_SPI_Open(const hal_spi_config_t *config, hal_spi_handle_t *handle)
     impl->timeout = config->timeout;
     impl->initialized = false;
 
-    /* 初始化互斥锁 */
-    pthread_mutex_init(&impl->lock, NULL);
+    /* 初始化互斥锁，检查返回值 */
+    if (0 != pthread_mutex_init(&impl->lock, NULL))
+    {
+        LOG_ERROR("HAL_SPI", "Failed to initialize mutex");
+        OSAL_Free(impl);
+        return OSAL_ERR_GENERIC;
+    }
 
     /* 打开SPI设备（O_EXCL 保证独占访问，防止多进程竞争） */
     impl->fd = OSAL_open(config->device, OSAL_O_RDWR | OSAL_O_EXCL, 0);
