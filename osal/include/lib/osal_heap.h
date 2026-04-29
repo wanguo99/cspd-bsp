@@ -67,7 +67,7 @@ int32_t OSAL_HeapGetStats(uint32_t *current, uint32_t *peak);
  *
  * @return 成功返回内存指针，失败返回NULL
  */
-void *OSAL_Malloc(size_t size);
+void *OSAL_Malloc(osal_size_t size);
 
 /**
  * @brief 释放内存

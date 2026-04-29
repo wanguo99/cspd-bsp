@@ -127,7 +127,7 @@ int32_t OSAL_HeapGetStats(uint32_t *current, uint32_t *peak)
     return OSAL_SUCCESS;
 }
 
-void *OSAL_Malloc(size_t size)
+void *OSAL_Malloc(osal_size_t size)
 {
     /* 分配额外空间存储块头 */
     osal_size_t total_size = size + sizeof(mem_block_header_t);
