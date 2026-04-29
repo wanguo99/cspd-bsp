@@ -33,6 +33,9 @@ typedef struct
     _Atomic int32_t  ref_count;  /* 使用 C11 原子类型，固定大小 */
     task_state_t state;
     volatile bool shutdown_requested;
+    pthread_cond_t exit_cond;    /* 退出条件变量 */
+    pthread_mutex_t exit_mutex;  /* 退出互斥锁 */
+    bool exited;                 /* 退出标志 */
 } osal_task_record_t;
 
 static osal_task_record_t g_osal_task_table[OS_MAX_TASKS] = {0};  /* 静态变量自动初始化为0 */
@@ -117,12 +120,18 @@ static void *task_wrapper(void *arg)
 
     entry_func(user_arg);
 
+    /* 标记任务已退出并通知等待者 */
     pthread_mutex_lock(&g_task_table_mutex);
     for (uint32_t i = 0; i < OS_MAX_TASKS; i++)
     {
         if (g_osal_task_table[i].is_used && g_osal_task_table[i].id == task_id)
         {
             g_osal_task_table[i].state = TASK_STATE_TERMINATED;
+
+            pthread_mutex_lock(&g_osal_task_table[i].exit_mutex);
+            g_osal_task_table[i].exited = true;
+            pthread_cond_signal(&g_osal_task_table[i].exit_cond);
+            pthread_mutex_unlock(&g_osal_task_table[i].exit_mutex);
             break;
         }
     }
@@ -228,11 +237,18 @@ int32_t OSAL_TaskCreate(osal_id_t *task_id,
     g_osal_task_table[slot].state = TASK_STATE_READY;
     atomic_init(&g_osal_task_table[slot].ref_count, 1);
 
+    /* 初始化退出同步机制 */
+    pthread_cond_init(&g_osal_task_table[slot].exit_cond, NULL);
+    pthread_mutex_init(&g_osal_task_table[slot].exit_mutex, NULL);
+    g_osal_task_table[slot].exited = false;
+
     if (0 != pthread_create(&g_osal_task_table[slot].thread, &attr,
                        task_wrapper, wrapper_arg))
     {
         g_osal_task_table[slot].is_used = false;
         release_task_id(new_task_id);  /* 释放已分配的ID */
+        pthread_cond_destroy(&g_osal_task_table[slot].exit_cond);
+        pthread_mutex_destroy(&g_osal_task_table[slot].exit_mutex);
         pthread_attr_destroy(&attr);
         free(wrapper_arg);
         pthread_mutex_unlock(&g_task_table_mutex);
@@ -277,19 +293,39 @@ int32_t OSAL_TaskDelete(osal_id_t task_id)
         return OSAL_ERR_INVALID_ID;
 
     /*
-     * 等待线程优雅退出
-     * 注意：使用标准 pthread_join 而非 GNU 扩展 pthread_timedjoin_np
+     * 等待线程优雅退出（带超时机制）
      *
      * 策略：
      * 1. 已设置 shutdown_requested 标志
-     * 2. 任务应在合理时间内检查标志并退出
-     * 3. 如果任务不响应，join 会阻塞（这是设计问题，应在任务代码中修复）
-     *
-     * 对于需要强制超时的场景，可以：
-     * - 在任务中正确实现 OSAL_TaskShouldShutdown() 检查
-     * - 使用看门狗机制
-     * - 在 RTOS 移植时使用平台特定的超时机制
+     * 2. 使用条件变量等待任务退出，超时时间 5 秒
+     * 3. 如果任务不响应，返回超时错误
      */
+    struct timespec timeout;
+    clock_gettime(CLOCK_REALTIME, &timeout);
+    timeout.tv_sec += 5;  /* 5秒超时 */
+
+    pthread_mutex_lock(&g_osal_task_table[slot_index].exit_mutex);
+    while (!g_osal_task_table[slot_index].exited)
+    {
+        int32_t ret = pthread_cond_timedwait(&g_osal_task_table[slot_index].exit_cond,
+                                             &g_osal_task_table[slot_index].exit_mutex,
+                                             &timeout);
+        if (ret == ETIMEDOUT)
+        {
+            LOG_ERROR("OSAL_Task", "Task '%s' did not exit within 5 seconds",
+                     g_osal_task_table[slot_index].name);
+            pthread_mutex_unlock(&g_osal_task_table[slot_index].exit_mutex);
+            return OSAL_ERR_TIMEOUT;
+        }
+        else if (ret != 0 && ret != EINTR)
+        {
+            pthread_mutex_unlock(&g_osal_task_table[slot_index].exit_mutex);
+            return OSAL_ERR_GENERIC;
+        }
+    }
+    pthread_mutex_unlock(&g_osal_task_table[slot_index].exit_mutex);
+
+    /* 任务已退出，执行 join 回收资源 */
     int32_t ret = pthread_join(thread_to_delete, NULL);
 
     if (0 != ret)
@@ -307,6 +343,8 @@ int32_t OSAL_TaskDelete(osal_id_t task_id)
     {
         g_osal_task_table[slot_index].is_used = false;
         release_task_id(task_id);  /* 释放任务ID，允许重用 */
+        pthread_cond_destroy(&g_osal_task_table[slot_index].exit_cond);
+        pthread_mutex_destroy(&g_osal_task_table[slot_index].exit_mutex);
     }
     pthread_mutex_unlock(&g_task_table_mutex);
 

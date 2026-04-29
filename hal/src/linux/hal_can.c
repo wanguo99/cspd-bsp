@@ -11,6 +11,7 @@
 #include <linux/can.h>
 #include <linux/can/raw.h>
 #include <sys/ioctl.h>        /* SIOCGIFINDEX 宏定义 */
+#include <poll.h>             /* poll() 函数 */
 #include <stdatomic.h>        /* C11 原子操作 */
 #include "hal_can.h"
 #include "osal.h"
@@ -29,7 +30,69 @@ typedef struct
     str_t interface[IFNAMSIZ];
     uint32_t baudrate;
     bool initialized;
+    uint32_t consecutive_errors;
+    uint32_t error_threshold;
+    void (*error_callback)(hal_can_handle_t handle, int32_t error_code);
 } hal_can_context_t;
+
+/**
+ * @brief CAN总线错误恢复
+ */
+static int32_t hal_can_recover(hal_can_handle_t handle)
+{
+    hal_can_context_t *impl = (hal_can_context_t *)handle;
+    struct sockaddr_can addr;
+    struct ifreq ifr;
+
+    LOG_INFO("HAL_CAN", "Attempting CAN bus recovery on %s...", impl->interface);
+
+    /* 关闭旧连接 */
+    if (impl->sockfd >= 0)
+    {
+        OSAL_close(impl->sockfd);
+    }
+
+    /* 重新创建socket */
+    impl->sockfd = OSAL_socket(OSAL_PF_CAN, OSAL_SOCK_RAW, OSAL_CAN_RAW);
+    if (impl->sockfd < 0)
+    {
+        LOG_ERROR("HAL_CAN", "Recovery failed: cannot create socket");
+        atomic_fetch_add(&impl->err_count, 1);
+        return OSAL_ERR_GENERIC;
+    }
+
+    /* 获取接口索引 */
+    OSAL_Memset(&ifr, 0, sizeof(ifr));
+    OSAL_Strncpy(ifr.ifr_name, impl->interface, IFNAMSIZ - 1);
+    if (OSAL_ioctl(impl->sockfd, SIOCGIFINDEX, &ifr) < 0)
+    {
+        LOG_ERROR("HAL_CAN", "Recovery failed: interface %s not found", impl->interface);
+        OSAL_close(impl->sockfd);
+        impl->sockfd = -1;
+        atomic_fetch_add(&impl->err_count, 1);
+        return OSAL_ERR_GENERIC;
+    }
+
+    /* 绑定到CAN接口 */
+    OSAL_Memset(&addr, 0, sizeof(addr));
+    addr.can_family = OSAL_AF_CAN;
+    addr.can_ifindex = ifr.ifr_ifindex;
+
+    if (OSAL_bind(impl->sockfd, (const osal_sockaddr_t *)&addr, sizeof(addr)) < 0)
+    {
+        LOG_ERROR("HAL_CAN", "Recovery failed: cannot bind to %s", impl->interface);
+        OSAL_close(impl->sockfd);
+        impl->sockfd = -1;
+        atomic_fetch_add(&impl->err_count, 1);
+        return OSAL_ERR_GENERIC;
+    }
+
+    /* 重置错误计数 */
+    impl->consecutive_errors = 0;
+    LOG_INFO("HAL_CAN", "CAN bus recovery successful on %s", impl->interface);
+
+    return OSAL_SUCCESS;
+}
 
 /**
  * @brief 初始化CAN驱动
@@ -64,6 +127,9 @@ int32_t HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
     impl->interface[IFNAMSIZ - 1] = '\0';
     impl->baudrate = config->baudrate;
     impl->initialized = false;
+    impl->consecutive_errors = 0;
+    impl->error_threshold = 10;  /* 默认连续10次错误触发恢复 */
+    impl->error_callback = NULL;
 
     /* 创建SocketCAN */
     impl->sockfd = OSAL_socket(OSAL_PF_CAN, OSAL_SOCK_RAW, OSAL_CAN_RAW);
@@ -215,9 +281,25 @@ int32_t HAL_CAN_Send(hal_can_handle_t handle, const can_frame_t *frame)
                        (int32_t)ret, (uint32_t)sizeof(struct can_frame));
         }
         atomic_fetch_add(&impl->err_count, 1);
+
+        /* 错误恢复机制 */
+        impl->consecutive_errors++;
+        if (impl->consecutive_errors >= impl->error_threshold)
+        {
+            LOG_WARN("HAL_CAN", "Consecutive errors (%u) reached threshold, attempting recovery",
+                     impl->consecutive_errors);
+            if (impl->error_callback)
+            {
+                impl->error_callback(handle, OSAL_ERR_GENERIC);
+            }
+            hal_can_recover(handle);
+        }
+
         return OSAL_ERR_GENERIC;
     }
 
+    /* 成功时重置错误计数 */
+    impl->consecutive_errors = 0;
     atomic_fetch_add(&impl->tx_count, 1);
     return OSAL_SUCCESS;
 }
@@ -238,16 +320,38 @@ int32_t HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32_t timeou
     if (!impl->initialized || impl->sockfd < 0)
         return OSAL_ERR_INVALID_ID;
 
-    /* 临时设置超时 */
+    /* 使用 poll() 实现超时，避免修改 socket 属性导致的并发问题 */
     if (timeout >= 0)
     {
-        struct timeval tv;
-        tv.tv_sec = timeout / 1000;
-        tv.tv_usec = (timeout % 1000) * 1000;
+        struct pollfd pfd = {
+            .fd = impl->sockfd,
+            .events = POLLIN,
+        };
 
-        if (OSAL_setsockopt(impl->sockfd, OSAL_SOL_SOCKET, OSAL_SO_RCVTIMEO, &tv, sizeof(tv)) < 0)
+        int32_t poll_ret = poll(&pfd, 1, timeout);
+        if (poll_ret == 0)
         {
-            LOG_WARN("HAL_CAN", "Failed to set temporary receive timeout: %s", OSAL_StrError(OSAL_GetErrno()));
+            return OSAL_ERR_TIMEOUT;
+        }
+        else if (poll_ret < 0)
+        {
+            LOG_ERROR("HAL_CAN", "Poll failed: %s", OSAL_StrError(OSAL_GetErrno()));
+            atomic_fetch_add(&impl->err_count, 1);
+
+            /* 错误恢复机制 */
+            impl->consecutive_errors++;
+            if (impl->consecutive_errors >= impl->error_threshold)
+            {
+                LOG_WARN("HAL_CAN", "Consecutive errors (%u) reached threshold, attempting recovery",
+                         impl->consecutive_errors);
+                if (impl->error_callback)
+                {
+                    impl->error_callback(handle, OSAL_ERR_GENERIC);
+                }
+                hal_can_recover(handle);
+            }
+
+            return OSAL_ERR_GENERIC;
         }
     }
 
@@ -261,6 +365,20 @@ int32_t HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32_t timeou
 
         LOG_ERROR("HAL_CAN", "Receive failed: %s", OSAL_StrError(err));
         atomic_fetch_add(&impl->err_count, 1);
+
+        /* 错误恢复机制 */
+        impl->consecutive_errors++;
+        if (impl->consecutive_errors >= impl->error_threshold)
+        {
+            LOG_WARN("HAL_CAN", "Consecutive errors (%u) reached threshold, attempting recovery",
+                     impl->consecutive_errors);
+            if (impl->error_callback)
+            {
+                impl->error_callback(handle, OSAL_ERR_GENERIC);
+            }
+            hal_can_recover(handle);
+        }
+
         return OSAL_ERR_GENERIC;
     }
 
@@ -269,21 +387,40 @@ int32_t HAL_CAN_Recv(hal_can_handle_t handle, can_frame_t *frame, int32_t timeou
         LOG_ERROR("HAL_CAN", "Incomplete receive: %d/%u bytes",
                    (int32_t)ret, (uint32_t)sizeof(struct can_frame));
         atomic_fetch_add(&impl->err_count, 1);
+
+        /* 错误恢复机制 */
+        impl->consecutive_errors++;
+        if (impl->consecutive_errors >= impl->error_threshold)
+        {
+            LOG_WARN("HAL_CAN", "Consecutive errors (%u) reached threshold, attempting recovery",
+                     impl->consecutive_errors);
+            if (impl->error_callback)
+            {
+                impl->error_callback(handle, OSAL_ERR_GENERIC);
+            }
+            hal_can_recover(handle);
+        }
+
         return OSAL_ERR_GENERIC;
     }
 
     /* 转换为内部格式 */
     OSAL_Memset(frame, 0, sizeof(can_frame_t));
     frame->can_id = can_frame.can_id;
-    frame->dlc = can_frame.can_dlc;
 
-    /* 防止越界 */
-    if (can_frame.can_dlc > 8)
-        can_frame.can_dlc = 8;
+    /* 先校验 DLC，再赋值和拷贝数据 */
+    uint8_t dlc = can_frame.can_dlc;
+    if (dlc > 8) {
+        LOG_WARN("HAL_CAN", "Invalid DLC %u, clamping to 8", dlc);
+        dlc = 8;
+    }
 
-    OSAL_Memcpy(frame->data, can_frame.data, can_frame.can_dlc);
+    frame->dlc = dlc;
+    OSAL_Memcpy(frame->data, can_frame.data, dlc);
     frame->timestamp = OSAL_GetTickCount();
 
+    /* 成功时重置错误计数 */
+    impl->consecutive_errors = 0;
     atomic_fetch_add(&impl->rx_count, 1);
     return OSAL_SUCCESS;
 }
@@ -337,6 +474,45 @@ int32_t HAL_CAN_GetStats(hal_can_handle_t handle,
     if (tx_count)  *tx_count = atomic_load(&impl->tx_count);
     if (rx_count)  *rx_count = atomic_load(&impl->rx_count);
     if (err_count) *err_count = atomic_load(&impl->err_count);
+
+    return OSAL_SUCCESS;
+}
+
+/**
+ * @brief 设置CAN错误回调函数
+ */
+int32_t HAL_CAN_SetErrorCallback(hal_can_handle_t handle,
+                                  void (*callback)(hal_can_handle_t handle, int32_t error_code))
+{
+    hal_can_context_t *impl = (hal_can_context_t *)handle;
+
+    if (NULL == impl)
+        return OSAL_ERR_INVALID_POINTER;
+
+    if (!impl->initialized)
+        return OSAL_ERR_INVALID_ID;
+
+    impl->error_callback = callback;
+    LOG_INFO("HAL_CAN", "Error callback %s", callback ? "set" : "cleared");
+
+    return OSAL_SUCCESS;
+}
+
+/**
+ * @brief 设置CAN错误恢复阈值
+ */
+int32_t HAL_CAN_SetErrorThreshold(hal_can_handle_t handle, uint32_t threshold)
+{
+    hal_can_context_t *impl = (hal_can_context_t *)handle;
+
+    if (NULL == impl)
+        return OSAL_ERR_INVALID_POINTER;
+
+    if (!impl->initialized)
+        return OSAL_ERR_INVALID_ID;
+
+    impl->error_threshold = threshold;
+    LOG_INFO("HAL_CAN", "Error threshold set to %u", threshold);
 
     return OSAL_SUCCESS;
 }

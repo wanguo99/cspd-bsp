@@ -129,6 +129,12 @@ int32_t OSAL_HeapGetStats(uint32_t *current, uint32_t *peak)
 
 void *OSAL_Malloc(osal_size_t size)
 {
+    /* 防止整数溢出 */
+    if (size > SIZE_MAX - sizeof(mem_block_header_t)) {
+        LOG_ERROR("OSAL_Heap", "Allocation size too large: %zu", (size_t)size);
+        return NULL;
+    }
+
     /* 分配额外空间存储块头 */
     osal_size_t total_size = size + sizeof(mem_block_header_t);
     void *raw_ptr = malloc(total_size);

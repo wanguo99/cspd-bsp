@@ -10,6 +10,7 @@
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
+#include <pthread.h>
 #include "hal_i2c.h"
 #include "osal.h"
 
@@ -19,6 +20,7 @@ typedef struct
     str_t device[64];
     uint32_t timeout;
     bool initialized;
+    pthread_mutex_t lock;  /* 操作级别互斥锁 */
 } hal_i2c_context_t;
 
 /**
@@ -48,6 +50,9 @@ int32_t HAL_I2C_Open(const hal_i2c_config_t *config, hal_i2c_handle_t *handle)
     impl->device[sizeof(impl->device) - 1] = '\0';
     impl->timeout = config->timeout;
     impl->initialized = false;
+
+    /* 初始化互斥锁 */
+    pthread_mutex_init(&impl->lock, NULL);
 
     /* 打开I2C设备（O_EXCL 保证独占访问，防止多进程竞争） */
     impl->fd = OSAL_open(config->device, OSAL_O_RDWR | OSAL_O_EXCL, 0);
@@ -93,6 +98,7 @@ int32_t HAL_I2C_Close(hal_i2c_handle_t handle)
     }
 
     impl->initialized = false;
+    pthread_mutex_destroy(&impl->lock);
     OSAL_Free(impl);
 
     LOG_INFO("HAL_I2C", "Device closed");
@@ -114,12 +120,15 @@ int32_t HAL_I2C_Write(hal_i2c_handle_t handle, uint16_t slave_addr,
     if (!impl->initialized || size == 0)
         return OSAL_ERR_GENERIC;
 
+    pthread_mutex_lock(&impl->lock);
+
     /* 设置从设备地址 (参考: Linux内核文档 i2c-dev.txt) */
     ret = OSAL_ioctl(impl->fd, I2C_SLAVE, (void *)(uintptr_t)slave_addr);
     if (ret < 0)
     {
         LOG_ERROR("HAL_I2C", "Failed to set slave address 0x%02X: %s",
                   slave_addr, OSAL_StrError(OSAL_GetErrno()));
+        pthread_mutex_unlock(&impl->lock);
         return OSAL_ERR_GENERIC;
     }
 
@@ -128,15 +137,18 @@ int32_t HAL_I2C_Write(hal_i2c_handle_t handle, uint16_t slave_addr,
     if (ret < 0)
     {
         LOG_ERROR("HAL_I2C", "Write failed: %s", OSAL_StrError(OSAL_GetErrno()));
+        pthread_mutex_unlock(&impl->lock);
         return OSAL_ERR_GENERIC;
     }
 
     if ((uint32_t)ret != size)
     {
         LOG_ERROR("HAL_I2C", "Partial write: %d/%u bytes", ret, size);
+        pthread_mutex_unlock(&impl->lock);
         return OSAL_ERR_GENERIC;
     }
 
+    pthread_mutex_unlock(&impl->lock);
     return OSAL_SUCCESS;
 }
 
@@ -155,12 +167,15 @@ int32_t HAL_I2C_Read(hal_i2c_handle_t handle, uint16_t slave_addr,
     if (!impl->initialized || size == 0)
         return OSAL_ERR_GENERIC;
 
+    pthread_mutex_lock(&impl->lock);
+
     /* 设置从设备地址 */
     ret = OSAL_ioctl(impl->fd, I2C_SLAVE, (void *)(uintptr_t)slave_addr);
     if (ret < 0)
     {
         LOG_ERROR("HAL_I2C", "Failed to set slave address 0x%02X: %s",
                   slave_addr, OSAL_StrError(OSAL_GetErrno()));
+        pthread_mutex_unlock(&impl->lock);
         return OSAL_ERR_GENERIC;
     }
 
@@ -169,15 +184,18 @@ int32_t HAL_I2C_Read(hal_i2c_handle_t handle, uint16_t slave_addr,
     if (ret < 0)
     {
         LOG_ERROR("HAL_I2C", "Read failed: %s", OSAL_StrError(OSAL_GetErrno()));
+        pthread_mutex_unlock(&impl->lock);
         return OSAL_ERR_GENERIC;
     }
 
     if ((uint32_t)ret != size)
     {
         LOG_ERROR("HAL_I2C", "Partial read: %d/%u bytes", ret, size);
+        pthread_mutex_unlock(&impl->lock);
         return OSAL_ERR_GENERIC;
     }
 
+    pthread_mutex_unlock(&impl->lock);
     return OSAL_SUCCESS;
 }
 

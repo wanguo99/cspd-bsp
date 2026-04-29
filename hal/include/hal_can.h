@@ -92,4 +92,27 @@ int32_t HAL_CAN_GetStats(hal_can_handle_t handle,
                        uint32_t *rx_count,
                        uint32_t *err_count);
 
+/**
+ * @brief 设置CAN错误回调函数
+ *
+ * @param[in] handle CAN句柄
+ * @param[in] callback 错误回调函数
+ *
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_INVALID_POINTER 参数无效
+ */
+int32_t HAL_CAN_SetErrorCallback(hal_can_handle_t handle,
+                                  void (*callback)(hal_can_handle_t handle, int32_t error_code));
+
+/**
+ * @brief 设置CAN错误恢复阈值
+ *
+ * @param[in] handle CAN句柄
+ * @param[in] threshold 连续错误次数阈值
+ *
+ * @return OSAL_SUCCESS 成功
+ * @return OSAL_ERR_INVALID_POINTER 参数无效
+ */
+int32_t HAL_CAN_SetErrorThreshold(hal_can_handle_t handle, uint32_t threshold);
+
 #endif /* HAL_CAN_H */

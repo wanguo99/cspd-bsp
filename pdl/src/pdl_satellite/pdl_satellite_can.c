@@ -73,7 +73,7 @@ int32_t satellite_can_recv(void *handle, satellite_can_msg_t *msg, uint32_t time
     }
 
     /* 解析CAN帧：[msg_type][seq_num][cmd_type][data] */
-    if (frame.dlc >= 8)
+    if (frame.dlc == 8)
     {
         msg->msg_type = frame.data[0];
         msg->seq_num = frame.data[1];
@@ -83,6 +83,7 @@ int32_t satellite_can_recv(void *handle, satellite_can_msg_t *msg, uint32_t time
     }
     else
     {
+        LOG_WARN("PDL_Satellite", "Invalid telemetry frame DLC: %u", frame.dlc);
         return OSAL_ERR_GENERIC;
     }
 
