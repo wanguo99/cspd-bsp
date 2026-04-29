@@ -282,6 +282,11 @@ int32_t OSAL_QueuePut(osal_id_t queue_id, const void *data, uint32_t size, uint3
     {
         result = OSAL_ERR_INVALID_ID;
     }
+    else if (size > impl->msg_size)
+    {
+        /* 防御性检查：消息大小不能超过队列配置的最大消息大小 */
+        result = OSAL_ERR_INVALID_SIZE;
+    }
     else
     {
         /* 写入消息 */

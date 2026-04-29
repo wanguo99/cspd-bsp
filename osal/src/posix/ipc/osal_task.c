@@ -279,6 +279,16 @@ int32_t OSAL_TaskDelete(osal_id_t task_id)
     {
         if (g_osal_task_table[i].is_used && g_osal_task_table[i].id == task_id)
         {
+            /* 检查引用计数：如果有其他模块持有引用，拒绝删除 */
+            int32_t ref_count = atomic_load(&g_osal_task_table[i].ref_count);
+            if (ref_count > 1)
+            {
+                pthread_mutex_unlock(&g_task_table_mutex);
+                LOG_ERROR("OSAL_Task", "Task '%s' still has %d references, cannot delete",
+                         g_osal_task_table[i].name, ref_count);
+                return OSAL_ERR_BUSY;
+            }
+
             thread_to_delete = g_osal_task_table[i].thread;
             g_osal_task_table[i].shutdown_requested = true;
             slot_index = i;

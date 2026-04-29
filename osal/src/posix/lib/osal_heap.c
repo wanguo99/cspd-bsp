@@ -194,12 +194,13 @@ void OSAL_Free(void *ptr)
 
     /* 更新统计信息 */
     pthread_mutex_lock(&g_heap_monitor.lock);
-    if (g_heap_monitor.current_usage >= header->size) {
-        g_heap_monitor.current_usage -= header->size;
-    } else {
-        /* 统计异常，重置为0 */
-        OSAL_Printf("[HEAP] Warning: current_usage underflow, resetting to 0\n");
+    if (header->size > g_heap_monitor.current_usage) {
+        /* 统计下溢：记录详细错误信息 */
+        OSAL_Printf("[HEAP] ERROR: Heap usage underflow - freeing %zu bytes but current usage is %zu\n",
+                    header->size, g_heap_monitor.current_usage);
         g_heap_monitor.current_usage = 0;
+    } else {
+        g_heap_monitor.current_usage -= header->size;
     }
     pthread_mutex_unlock(&g_heap_monitor.lock);
 

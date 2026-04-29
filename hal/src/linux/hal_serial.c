@@ -362,3 +362,94 @@ int32_t HAL_Serial_Flush(hal_serial_handle_t handle)
     pthread_mutex_unlock(&ctx->lock);
     return OSAL_SUCCESS;
 }
+
+/************************************************************************
+ * HAL_Serial_SetConfig - 动态设置串口配置
+ ************************************************************************/
+int32_t HAL_Serial_SetConfig(hal_serial_handle_t handle,
+                            const hal_serial_config_t *config)
+{
+    hal_serial_context_t *ctx = (hal_serial_context_t *)handle;
+    osal_termios_t tty;
+    uint32_t speed;
+
+    if (NULL == ctx || NULL == config)
+    {
+        return OSAL_ERR_INVALID_POINTER;
+    }
+
+    if (ctx->fd < 0)
+    {
+        return OSAL_ERR_INVALID_ID;
+    }
+
+    pthread_mutex_lock(&ctx->lock);
+
+    /* 获取当前配置 */
+    if (0 != OSAL_tcgetattr(ctx->fd, &tty))
+    {
+        LOG_ERROR("HAL_Serial", "Failed to get attributes: %s", OSAL_StrError(OSAL_GetErrno()));
+        pthread_mutex_unlock(&ctx->lock);
+        return OSAL_ERR_GENERIC;
+    }
+
+    /* 配置波特率 */
+    speed = hal_serial_get_baudrate(config->baud_rate);
+    OSAL_cfsetispeed(&tty, speed);
+    OSAL_cfsetospeed(&tty, speed);
+
+    /* 配置数据位 */
+    tty.c_cflag &= ~OSAL_CSIZE;
+    if (7 == config->data_bits)
+    {
+        tty.c_cflag |= OSAL_CS7;
+    }
+    else
+    {
+        tty.c_cflag |= OSAL_CS8;  /* 默认8位 */
+    }
+
+    /* 配置停止位 */
+    if (2 == config->stop_bits)
+    {
+        tty.c_cflag |= OSAL_CSTOPB;
+    }
+    else
+    {
+        tty.c_cflag &= ~OSAL_CSTOPB;  /* 默认1位 */
+    }
+
+    /* 配置校验位 */
+    if (1 == config->parity)  /* 奇校验 */
+    {
+        tty.c_cflag |= OSAL_PARENB;
+        tty.c_cflag |= OSAL_PARODD;
+    }
+    else if (2 == config->parity)  /* 偶校验 */
+    {
+        tty.c_cflag |= OSAL_PARENB;
+        tty.c_cflag &= ~OSAL_PARODD;
+    }
+    else  /* 无校验 */
+    {
+        tty.c_cflag &= ~OSAL_PARENB;
+    }
+
+    /* 应用配置 */
+    if (0 != OSAL_tcsetattr(ctx->fd, OSAL_TCSANOW, &tty))
+    {
+        LOG_ERROR("HAL_Serial", "Failed to set attributes: %s", OSAL_StrError(OSAL_GetErrno()));
+        pthread_mutex_unlock(&ctx->lock);
+        return OSAL_ERR_GENERIC;
+    }
+
+    /* 更新内部配置 */
+    OSAL_Memcpy(&ctx->config, config, sizeof(hal_serial_config_t));
+
+    pthread_mutex_unlock(&ctx->lock);
+
+    LOG_INFO("HAL_Serial", "Config updated: baudrate=%u, databits=%u, stopbits=%u, parity=%u",
+             config->baud_rate, config->data_bits, config->stop_bits, config->parity);
+
+    return OSAL_SUCCESS;
+}
