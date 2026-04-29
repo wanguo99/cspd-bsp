@@ -213,7 +213,7 @@ int32_t OSAL_TaskCreate(osal_id_t *task_id,
 
     if (stack_size > 0)
     {
-        size_t min_stack = PTHREAD_STACK_MIN;
+        osal_size_t min_stack = PTHREAD_STACK_MIN;
         if (stack_size < min_stack)
             stack_size = min_stack;
         pthread_attr_setstacksize(&attr, stack_size);

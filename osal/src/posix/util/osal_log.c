@@ -133,7 +133,7 @@ void OSAL_LogSetMaxFiles(uint32_t max_files)
 /**
  * @brief 获取当前时间字符串
  */
-static void get_timestamp(str_t *buffer, size_t size)
+static void get_timestamp(str_t *buffer, osal_size_t size)
 {
     struct timeval tv;
     struct tm tm_info;

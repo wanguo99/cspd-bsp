@@ -10,7 +10,7 @@
 
 /* 内存块头部，用于追踪分配大小 */
 typedef struct {
-    size_t size;
+    osal_size_t size;
     uint32_t magic;
 } mem_block_header_t;
 
@@ -130,7 +130,7 @@ int32_t OSAL_HeapGetStats(uint32_t *current, uint32_t *peak)
 void *OSAL_Malloc(size_t size)
 {
     /* 分配额外空间存储块头 */
-    size_t total_size = size + sizeof(mem_block_header_t);
+    osal_size_t total_size = size + sizeof(mem_block_header_t);
     void *raw_ptr = malloc(total_size);
 
     if (NULL == raw_ptr) {
