@@ -170,7 +170,8 @@ int32_t OSAL_QueueCreate(osal_id_t *queue_id,
     impl->valid = true;
 
     /* 安全的内存分配（已检查溢出） */
-    size_t buffer_size = (size_t)queue_depth * (size_t)data_size;
+    size_t buffer_size = queue_depth;
+    buffer_size *= data_size;
     impl->buffer = malloc(buffer_size);
     if (NULL == impl->buffer)
     {

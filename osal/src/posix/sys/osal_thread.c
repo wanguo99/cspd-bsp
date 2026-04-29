@@ -11,15 +11,33 @@ int32_t OSAL_pthread_create(osal_thread_t *thread,
                             void *arg)
 {
     pthread_t pt;
-    int32_t ret = pthread_create(&pt, (pthread_attr_t *)attr, start_routine, arg);
+
+    union {
+        void *osal_attr;
+        pthread_attr_t *posix_attr;
+    } attr_union;
+
+    attr_union.osal_attr = attr;
+
+    int ret = pthread_create(&pt, attr_union.posix_attr, start_routine, arg);
     if (0 == ret && NULL != thread) {
-        *thread = (osal_thread_t)pt;
+        union {
+            pthread_t posix_thread;
+            osal_thread_t osal_thread;
+        } thread_union;
+        thread_union.posix_thread = pt;
+        *thread = thread_union.osal_thread;
     }
     return ret;
 }
 
 int32_t OSAL_pthread_join(osal_thread_t thread, void **retval)
 {
-    pthread_t pt = (pthread_t)thread;
-    return pthread_join(pt, retval);
+    union {
+        osal_thread_t osal_thread;
+        pthread_t posix_thread;
+    } thread_union;
+
+    thread_union.osal_thread = thread;
+    return pthread_join(thread_union.posix_thread, retval);
 }

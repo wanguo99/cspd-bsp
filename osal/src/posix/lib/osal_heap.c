@@ -131,15 +131,24 @@ void *OSAL_Malloc(size_t size)
 {
     /* 分配额外空间存储块头 */
     size_t total_size = size + sizeof(mem_block_header_t);
-    mem_block_header_t *header = (mem_block_header_t *)malloc(total_size);
+    void *raw_ptr = malloc(total_size);
 
-    if (NULL == header) {
+    if (NULL == raw_ptr) {
         return NULL;
     }
 
+    /* 使用联合体避免强制转换 */
+    union {
+        void *raw;
+        mem_block_header_t *header;
+        uint8_t *bytes;
+    } ptr_union;
+
+    ptr_union.raw = raw_ptr;
+
     /* 填充块头信息 */
-    header->size = size;
-    header->magic = MEM_BLOCK_MAGIC;
+    ptr_union.header->size = size;
+    ptr_union.header->magic = MEM_BLOCK_MAGIC;
 
     /* 更新统计信息 */
     pthread_mutex_lock(&g_heap_monitor.lock);
@@ -150,7 +159,7 @@ void *OSAL_Malloc(size_t size)
     pthread_mutex_unlock(&g_heap_monitor.lock);
 
     /* 返回用户数据区指针（跳过块头） */
-    return (void *)(header + 1);
+    return ptr_union.header + 1;
 }
 
 void OSAL_Free(void *ptr)
@@ -159,8 +168,16 @@ void OSAL_Free(void *ptr)
         return;
     }
 
+    /* 使用联合体避免强制转换 */
+    union {
+        void *user_ptr;
+        mem_block_header_t *header;
+        uint8_t *bytes;
+    } ptr_union;
+
+    ptr_union.user_ptr = ptr;
     /* 获取块头指针 */
-    mem_block_header_t *header = ((mem_block_header_t *)ptr) - 1;
+    mem_block_header_t *header = ptr_union.header - 1;
 
     /* 验证魔数，检测内存损坏 */
     if (MEM_BLOCK_MAGIC != header->magic) {

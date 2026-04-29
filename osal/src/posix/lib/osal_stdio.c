@@ -34,10 +34,22 @@ int32_t OSAL_Getchar(void)
 
 str_t* OSAL_Fgets(str_t *str, int32_t size, void *stream)
 {
-    return fgets(str, size, (FILE *)stream);
+    union {
+        void *osal_stream;
+        FILE *posix_stream;
+    } stream_union;
+
+    stream_union.osal_stream = stream;
+    return fgets(str, size, stream_union.posix_stream);
 }
 
 int32_t OSAL_Fflush(void *stream)
 {
-    return fflush((FILE *)stream);
+    union {
+        void *osal_stream;
+        FILE *posix_stream;
+    } stream_union;
+
+    stream_union.osal_stream = stream;
+    return fflush(stream_union.posix_stream);
 }

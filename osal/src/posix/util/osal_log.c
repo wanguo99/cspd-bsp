@@ -377,7 +377,7 @@ void OSAL_Log(int32_t level, const str_t *module, const str_t *format, ...)
         return;
 
     va_start(args, format);
-    log_internal((log_level_t)level, module, format, args);
+    log_internal(level, module, format, args);
     va_end(args);
 }
 

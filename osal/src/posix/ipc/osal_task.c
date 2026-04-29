@@ -90,7 +90,14 @@ typedef struct
 
 static void *task_wrapper(void *arg)
 {
-    task_wrapper_arg_t *wrapper_arg = (task_wrapper_arg_t *)arg;
+    union {
+        void *raw_ptr;
+        task_wrapper_arg_t *typed_ptr;
+    } arg_union;
+
+    arg_union.raw_ptr = arg;
+    task_wrapper_arg_t *wrapper_arg = arg_union.typed_ptr;
+
     osal_task_entry entry_func = wrapper_arg->entry_func;
     void *user_arg = wrapper_arg->user_arg;
     osal_id_t task_id = wrapper_arg->task_id;

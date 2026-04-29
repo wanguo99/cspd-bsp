@@ -55,10 +55,22 @@ int32_t OSAL_tcflush(int32_t fd, int32_t queue_selector)
 
 int32_t OSAL_cfsetispeed(osal_termios_t *termios_p, uint32_t speed)
 {
-    return cfsetispeed((struct termios *)termios_p, speed);
+    union {
+        osal_termios_t *osal_termios;
+        struct termios *posix_termios;
+    } termios_union;
+
+    termios_union.osal_termios = termios_p;
+    return cfsetispeed(termios_union.posix_termios, speed);
 }
 
 int32_t OSAL_cfsetospeed(osal_termios_t *termios_p, uint32_t speed)
 {
-    return cfsetospeed((struct termios *)termios_p, speed);
+    union {
+        osal_termios_t *osal_termios;
+        struct termios *posix_termios;
+    } termios_union;
+
+    termios_union.osal_termios = termios_p;
+    return cfsetospeed(termios_union.posix_termios, speed);
 }

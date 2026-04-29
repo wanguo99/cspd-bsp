@@ -33,11 +33,15 @@ uint32_t OSAL_GetTickCount(void)
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
 
-    /* 防止溢出：使用64位计算后再转换 */
-    uint64_t ms = ((uint64_t)ts.tv_sec * OSAL_MS_PER_SEC) + (ts.tv_nsec / OSAL_NS_PER_MS);
+    /* 防止溢出：使用64位计算 */
+    uint64_t sec_ms = ts.tv_sec;
+    sec_ms *= OSAL_MS_PER_SEC;
+    uint64_t nsec_ms = ts.tv_nsec / OSAL_NS_PER_MS;
+    uint64_t total_ms = sec_ms + nsec_ms;
 
     /* 返回低32位（约49.7天后会回绕） */
-    return (uint32_t)ms;
+    uint32_t result = total_ms;
+    return result;
 }
 
 int32_t OSAL_Milli2Ticks(uint32_t milliseconds, uint32_t *ticks)
