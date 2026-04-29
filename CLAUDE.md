@@ -134,6 +134,8 @@ OSAL_bind(sockfd, ...);  // CORRECT
 
 ### Data Types (from osal/include/osal_types.h)
 
+**CRITICAL: This project strictly prohibits using C native data types. You MUST use OSAL-wrapped types.**
+
 ```c
 /* String type */
 str_t                           // For strings (compatible with standard C library)
@@ -145,6 +147,10 @@ uint8, uint16, uint32, uint64   // Unsigned integers
 /* Boolean */
 bool                            // true/false
 
+/* Platform-dependent size types */
+osal_size_t                     // Unsigned size (uint32 on 32-bit, uint64 on 64-bit)
+osal_ssize_t                    // Signed size (int32 on 32-bit, int64 on 64-bit)
+
 /* OSAL types */
 osal_id_t                       // Object ID (uint32)
 ```
@@ -153,7 +159,50 @@ osal_id_t                       // Object ID (uint32)
 - `str_t` for strings and text data
 - `uint8`/`int8` for binary data and bytes
 - Fixed-size types for numeric data
-- ❌ Never use: `char` (for strings), `int`, `unsigned int`
+- `osal_size_t`/`osal_ssize_t` for memory sizes and array indices
+- ❌ **STRICTLY FORBIDDEN**: `char`, `int`, `unsigned int`, `short`, `long`, `long long`, `size_t`, `ssize_t`
+
+**Prohibited Native Types**:
+```c
+/* ❌ NEVER USE THESE */
+char                // Use str_t (strings) or int8/uint8 (bytes)
+int                 // Use int32 or int16
+unsigned int        // Use uint32 or uint16
+short               // Use int16
+unsigned short      // Use uint16
+long                // Use int32 or int64
+unsigned long       // Use uint32 or uint64
+long long           // Use int64
+unsigned long long  // Use uint64
+size_t              // Use osal_size_t
+ssize_t             // Use osal_ssize_t
+```
+
+**Correct Examples**:
+```c
+/* ✅ CORRECT: Using OSAL types */
+int32 HAL_CAN_Init(const str_t *device, hal_can_handle_t *handle)
+{
+    uint32 filter_id = 0x100;
+    uint8 dlc = 8;
+    osal_size_t buffer_size = 1024;
+    bool is_initialized = false;
+    return OSAL_SUCCESS;
+}
+
+/* ❌ WRONG: Using native types */
+int HAL_CAN_Init(const char *device, void *handle)  // ❌ int, char
+{
+    unsigned int filter_id = 0x100;  // ❌ unsigned int
+    size_t buffer_size = 1024;       // ❌ size_t
+    return 0;
+}
+```
+
+**Exceptions** (only in these cases):
+1. **OSAL layer internal implementation** - when wrapping system calls
+2. **Third-party library interaction** - when calling external library APIs
+3. **Must document the reason in comments**
 
 ### Naming Conventions
 
