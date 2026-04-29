@@ -221,9 +221,9 @@ static void check_and_rotate_log(void)
 
     /* 获取文件大小 */
     fseek(g_log_file, 0, SEEK_END);
-    long file_size = ftell(g_log_file);
+    int64_t file_size = (int64_t)ftell(g_log_file);
 
-    if (file_size > (long)g_max_log_size)
+    if (file_size > (int64_t)g_max_log_size)
     {
         rotate_log_file();
     }

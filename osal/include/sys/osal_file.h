@@ -125,10 +125,10 @@ int32_t OSAL_fcntl(int32_t fd, int32_t cmd, int32_t arg);
 /**
  * @brief 设备I/O控制
  * @param fd 文件描述符
- * @param request 请求码
+ * @param request 请求码（使用osal_size_t以匹配系统调用的unsigned long）
  * @param argp 参数指针
  * @return 0成功，-1失败
  */
-int32_t OSAL_ioctl(int32_t fd, uint32_t request, void *argp);
+int32_t OSAL_ioctl(int32_t fd, osal_size_t request, void *argp);
 
 #endif /* OSAL_FILE_H */

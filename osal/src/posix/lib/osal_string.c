@@ -148,12 +148,12 @@ int32_t OSAL_Atoi(const char *str)
 
 int64_t OSAL_Atol(const char *str)
 {
-    long result = atol(str);
+    int64_t result = (int64_t)atol(str);
     return result;
 }
 
 int64_t OSAL_Strtol(const char *str, char **endptr, int32_t base)
 {
-    long result = strtol(str, endptr, base);
+    int64_t result = (int64_t)strtol(str, endptr, base);
     return result;
 }

@@ -58,9 +58,9 @@ int32_t OSAL_fcntl(int32_t fd, int32_t cmd, int32_t arg)
  * 设备控制操作
  *===========================================================================*/
 
-int32_t OSAL_ioctl(int32_t fd, uint32_t request, void *argp)
+int32_t OSAL_ioctl(int32_t fd, osal_size_t request, void *argp)
 {
-    unsigned long ioctl_request = request;
-    int32_t result = ioctl(fd, ioctl_request, argp);
+    /* osal_size_t在32位系统是uint32，64位系统是uint64，匹配系统调用的unsigned long */
+    int32_t result = ioctl(fd, (unsigned long)request, argp);
     return result;
 }
