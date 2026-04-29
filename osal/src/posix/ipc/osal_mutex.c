@@ -215,7 +215,7 @@ int32_t OSAL_MutexLockTimeout(osal_id_t mutex_id, uint32_t timeout_msec)
     bool is_valid = false;
     str_t mutex_name[OS_MAX_API_NAME] = {0};
     struct timespec start_time, current_time, abs_timeout;
-    int ret;
+    int32_t ret;
 
     pthread_mutex_lock(&g_mutex_table_mutex);
 

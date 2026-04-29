@@ -10,7 +10,7 @@
 
 typedef struct
 {
-    int fd;
+    int32_t fd;
     hal_serial_config_t config;
     str_t device[64];
 } hal_serial_context_t;
@@ -209,7 +209,7 @@ int32_t HAL_Serial_Write(hal_serial_handle_t handle, const void *buffer, uint32_
     hal_serial_context_t *ctx = (hal_serial_context_t *)handle;
     osal_fd_set_t writefds;
     osal_timeval_t tv;
-    int ret;
+    int32_t ret;
     int32_t written;
 
     if (NULL == ctx || NULL == buffer)
@@ -262,7 +262,7 @@ int32_t HAL_Serial_Read(hal_serial_handle_t handle, void *buffer, uint32_t size,
     hal_serial_context_t *ctx = (hal_serial_context_t *)handle;
     osal_fd_set_t readfds;
     osal_timeval_t tv;
-    int ret;
+    int32_t ret;
     int32_t nread;
 
     if (NULL == ctx || NULL == buffer)

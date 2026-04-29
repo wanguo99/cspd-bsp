@@ -19,7 +19,7 @@ int32_t OSAL_pthread_create(osal_thread_t *thread,
 
     attr_union.osal_attr = attr;
 
-    int ret = pthread_create(&pt, attr_union.posix_attr, start_routine, arg);
+    int32_t ret = pthread_create(&pt, attr_union.posix_attr, start_routine, arg);
     if (0 == ret && NULL != thread) {
         union {
             pthread_t posix_thread;

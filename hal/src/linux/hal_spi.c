@@ -14,7 +14,7 @@
 
 typedef struct
 {
-    int fd;
+    int32_t fd;
     str_t device[64];
     uint8_t mode;
     uint8_t bits_per_word;

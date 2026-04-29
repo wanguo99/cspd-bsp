@@ -290,7 +290,7 @@ int32_t OSAL_TaskDelete(osal_id_t task_id)
      * - 使用看门狗机制
      * - 在 RTOS 移植时使用平台特定的超时机制
      */
-    int ret = pthread_join(thread_to_delete, NULL);
+    int32_t ret = pthread_join(thread_to_delete, NULL);
 
     if (0 != ret)
     {

@@ -15,7 +15,7 @@
 
 typedef struct
 {
-    int fd;
+    int32_t fd;
     str_t device[64];
     uint32_t timeout;
     bool initialized;

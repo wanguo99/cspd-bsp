@@ -13,13 +13,13 @@
 
 int32_t OSAL_open(const char *pathname, int32_t flags, uint32_t mode)
 {
-    int result = open(pathname, flags, mode);
+    int32_t result = open(pathname, flags, mode);
     return result;
 }
 
 int32_t OSAL_close(int32_t fd)
 {
-    int result = close(fd);
+    int32_t result = close(fd);
     return result;
 }
 
@@ -50,7 +50,7 @@ osal_ssize_t OSAL_lseek(int32_t fd, osal_ssize_t offset, int32_t whence)
 
 int32_t OSAL_fcntl(int32_t fd, int32_t cmd, int32_t arg)
 {
-    int result = fcntl(fd, cmd, arg);
+    int32_t result = fcntl(fd, cmd, arg);
     return result;
 }
 
@@ -61,6 +61,6 @@ int32_t OSAL_fcntl(int32_t fd, int32_t cmd, int32_t arg)
 int32_t OSAL_ioctl(int32_t fd, uint32_t request, void *argp)
 {
     unsigned long ioctl_request = request;
-    int result = ioctl(fd, ioctl_request, argp);
+    int32_t result = ioctl(fd, ioctl_request, argp);
     return result;
 }

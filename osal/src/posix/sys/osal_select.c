@@ -62,8 +62,8 @@ int32_t OSAL_select(int32_t nfds, osal_fd_set_t *readfds, osal_fd_set_t *writefd
     write_union.osal_set = writefds;
     except_union.osal_set = exceptfds;
 
-    int result = select(nfds, read_union.posix_set, write_union.posix_set,
-                       except_union.posix_set, ptv);
+    int32_t result = select(nfds, read_union.posix_set, write_union.posix_set,
+                           except_union.posix_set, ptv);
 
     if (timeout && ptv) {
         timeout->tv_sec = tv.tv_sec;
@@ -101,8 +101,8 @@ int32_t OSAL_pselect(int32_t nfds, osal_fd_set_t *readfds, osal_fd_set_t *writef
     except_union.osal_set = exceptfds;
     sigmask_union.osal_mask = sigmask;
 
-    int result = pselect(nfds, read_union.posix_set, write_union.posix_set,
-                        except_union.posix_set, pts, sigmask_union.posix_mask);
+    int32_t result = pselect(nfds, read_union.posix_set, write_union.posix_set,
+                            except_union.posix_set, pts, sigmask_union.posix_mask);
 
     return result;
 }

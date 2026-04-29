@@ -13,7 +13,7 @@
 int32_t OSAL_tcgetattr(int32_t fd, osal_termios_t *termios_p)
 {
     struct termios native_termios;
-    int ret;
+    int32_t ret;
 
     ret = tcgetattr(fd, &native_termios);
     if (0 != ret) {

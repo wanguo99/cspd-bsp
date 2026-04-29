@@ -78,7 +78,7 @@ static void osal_queue_release(queue_impl_t *impl)
 {
     if (NULL == impl) return;
 
-    int old_count = atomic_fetch_sub(&impl->ref_count, 1);
+    int32_t old_count = atomic_fetch_sub(&impl->ref_count, 1);
 
     /* 如果引用计数降为0且对象已标记为无效，则释放资源 */
     if (1 == old_count && !impl->valid)
@@ -302,7 +302,7 @@ int32_t OSAL_QueueGet(osal_id_t queue_id, void *data, uint32_t size,
 {
     queue_impl_t *impl = NULL;
     struct timespec ts;
-    int ret;
+    int32_t ret;
     int32_t result = OSAL_SUCCESS;
 
     if (NULL == data)

@@ -22,7 +22,7 @@
 
 typedef struct
 {
-    int sockfd;
+    int32_t sockfd;
     _Atomic uint32_t tx_count;      /* 使用 C11 原子操作，固定大小类型 */
     _Atomic uint32_t rx_count;      /* 使用 C11 原子操作，固定大小类型 */
     _Atomic uint32_t err_count;     /* 使用 C11 原子操作，固定大小类型 */
@@ -39,7 +39,7 @@ int32_t HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
     hal_can_context_t *impl;
     struct sockaddr_can addr;
     struct ifreq ifr;
-    int ret;
+    int32_t ret;
 
     /* 参数检查 */
     if (NULL == config || NULL == handle)
@@ -75,7 +75,7 @@ int32_t HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
     }
 
     /* 禁用 SO_REUSEADDR，防止多进程绑定同一CAN接口 */
-    int reuse = 0;
+    int32_t reuse = 0;
     if (OSAL_setsockopt(impl->sockfd, OSAL_SOL_SOCKET, OSAL_SO_REUSEADDR, &reuse, sizeof(reuse)) < 0)
     {
         LOG_WARN("HAL_CAN", "Failed to disable SO_REUSEADDR: %s", OSAL_StrError(OSAL_GetErrno()));
