@@ -43,6 +43,7 @@
 
 /* UTIL - 工具类 */
 #include "util/osal_log.h"
+#include "util/osal_resource_tracker.h"
 
 /*
  * OSAL版本信息

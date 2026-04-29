@@ -223,6 +223,9 @@ int32_t OSAL_QueueCreate(osal_id_t *queue_id,
 
     *queue_id = g_osal_queue_table[slot].id;
 
+    /* 注册资源到泄漏检测系统 */
+    OSAL_ResourceRegister(*queue_id, OSAL_RESOURCE_TYPE_QUEUE, queue_name, __FILE__, __LINE__);
+
     pthread_mutex_unlock(&g_queue_table_mutex);
 
     return OSAL_SUCCESS;
@@ -259,6 +262,9 @@ int32_t OSAL_QueueDelete(osal_id_t queue_id)
 
     /* 释放初始引用 */
     osal_queue_release(impl);
+
+    /* 注销资源 */
+    OSAL_ResourceUnregister(queue_id, OSAL_RESOURCE_TYPE_QUEUE);
 
     return OSAL_SUCCESS;
 }

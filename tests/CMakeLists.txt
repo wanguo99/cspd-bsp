@@ -30,6 +30,7 @@ add_executable(unit-test
     osal/test_osal_time.c
     osal/test_osal_heap.c
     osal/test_osal_log.c
+    osal/test_osal_resource_tracker.c
 
     # HAL tests
     hal/test_hal_can.c
@@ -55,6 +56,10 @@ target_include_directories(unit-test PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../pcl/include/internal
     ${CMAKE_CURRENT_SOURCE_DIR}/../pcl/include/peripheral
     ${CMAKE_CURRENT_SOURCE_DIR}/../pdl/include
+)
+
+target_compile_definitions(unit-test PRIVATE
+    OSAL_ENABLE_RESOURCE_TRACKING
 )
 
 target_link_libraries(unit-test

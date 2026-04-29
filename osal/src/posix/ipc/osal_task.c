@@ -280,6 +280,9 @@ int32_t OSAL_TaskCreate(osal_id_t *task_id,
 
     pthread_mutex_unlock(&g_task_table_mutex);
 
+    /* 注册资源到泄漏检测系统 */
+    OSAL_ResourceRegister(new_task_id, OSAL_RESOURCE_TYPE_TASK, task_name, __FILE__, __LINE__);
+
     return OSAL_SUCCESS;
 }
 
@@ -376,6 +379,9 @@ int32_t OSAL_TaskDelete(osal_id_t task_id)
         pthread_mutex_destroy(&g_osal_task_table[slot_index].exit_mutex);
     }
     pthread_mutex_unlock(&g_task_table_mutex);
+
+    /* 从资源跟踪器中注销 */
+    OSAL_ResourceUnregister(task_id, OSAL_RESOURCE_TYPE_TASK);
 
     return OSAL_SUCCESS;
 }
