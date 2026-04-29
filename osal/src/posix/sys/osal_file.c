@@ -26,14 +26,14 @@ int32_t OSAL_close(int32_t fd)
 osal_ssize_t OSAL_read(int32_t fd, void *buf, osal_size_t count)
 {
     size_t read_count = count;
-    ssize_t result = read(fd, buf, read_count);
+    osal_ssize_t result = read(fd, buf, read_count);
     return result;
 }
 
 osal_ssize_t OSAL_write(int32_t fd, const void *buf, osal_size_t count)
 {
     size_t write_count = count;
-    ssize_t result = write(fd, buf, write_count);
+    osal_ssize_t result = write(fd, buf, write_count);
     return result;
 }
 

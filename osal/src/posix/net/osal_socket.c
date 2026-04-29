@@ -71,14 +71,14 @@ int32_t OSAL_connect(int32_t sockfd, const osal_sockaddr_t *addr, osal_size_t ad
 osal_ssize_t OSAL_send(int32_t sockfd, const void *buf, osal_size_t len, int32_t flags)
 {
     size_t send_len = len;
-    ssize_t result = send(sockfd, buf, send_len, flags);
+    osal_ssize_t result = send(sockfd, buf, send_len, flags);
     return result;
 }
 
 osal_ssize_t OSAL_recv(int32_t sockfd, void *buf, osal_size_t len, int32_t flags)
 {
     size_t recv_len = len;
-    ssize_t result = recv(sockfd, buf, recv_len, flags);
+    osal_ssize_t result = recv(sockfd, buf, recv_len, flags);
     return result;
 }
 
@@ -93,7 +93,7 @@ osal_ssize_t OSAL_sendto(int32_t sockfd, const void *buf, osal_size_t len, int32
     addr_union.osal_addr = dest_addr;
     size_t send_len = len;
     socklen_t addr_len = addrlen;
-    ssize_t result = sendto(sockfd, buf, send_len, flags, addr_union.posix_addr, addr_len);
+    osal_ssize_t result = sendto(sockfd, buf, send_len, flags, addr_union.posix_addr, addr_len);
     return result;
 }
 
@@ -109,7 +109,7 @@ osal_ssize_t OSAL_recvfrom(int32_t sockfd, void *buf, osal_size_t len, int32_t f
 
     addr_union.osal_addr = src_addr;
     size_t recv_len = len;
-    ssize_t result = recvfrom(sockfd, buf, recv_len, flags,
+    osal_ssize_t result = recvfrom(sockfd, buf, recv_len, flags,
                              addr_union.posix_addr, addrlen ? &slen : NULL);
     if (addrlen) {
         *addrlen = slen;
