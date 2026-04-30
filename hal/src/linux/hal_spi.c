@@ -16,7 +16,7 @@
 typedef struct
 {
     int32_t fd;
-    str_t device[64];
+    int8_t device[64];
     uint8_t mode;
     uint8_t bits_per_word;
     uint32_t max_speed_hz;
@@ -49,7 +49,7 @@ int32_t HAL_SPI_Open(const hal_spi_config_t *config, hal_spi_handle_t *handle)
     }
 
     OSAL_Memset(impl, 0, sizeof(hal_spi_context_t));
-    OSAL_Strncpy(impl->device, config->device, sizeof(impl->device) - 1);
+    OSAL_Strncpy((str_t *)impl->device, config->device, sizeof(impl->device) - 1);
     impl->device[sizeof(impl->device) - 1] = '\0';
     impl->mode = config->mode;
     impl->bits_per_word = config->bits_per_word;

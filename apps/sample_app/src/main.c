@@ -78,15 +78,15 @@ static void worker_task(void *arg)
     while (!OSAL_TaskShouldShutdown())
     {
         /* 构造消息 */
-        str_t msg[QUEUE_MSG_SIZE];
-        OSAL_Snprintf(msg, sizeof(msg), "Message #%u", counter++);
+        int8_t msg[QUEUE_MSG_SIZE];
+        OSAL_Snprintf((str_t *)msg, sizeof(msg), "Message #%u", counter++);
 
         /* 发送消息到队列 */
         ret = OSAL_QueuePut(g_msg_queue_id, msg, sizeof(msg), 1000);
         if (OSAL_SUCCESS == ret)
         {
             atomic_fetch_add(&g_msg_count, 1);
-            LOG_INFO("Worker", "发送消息: %s", msg);
+            LOG_INFO("Worker", "发送消息: %s", (str_t *)msg);
         }
         else if (OSAL_ERR_QUEUE_TIMEOUT == ret)
         {
@@ -116,7 +116,7 @@ static void stats_task(void *arg)
     (void)arg;  /* 未使用的参数 */
 
     int32_t ret;
-    str_t msg[QUEUE_MSG_SIZE];
+    int8_t msg[QUEUE_MSG_SIZE];
     uint32_t msg_size;
 
     LOG_INFO("Stats", "统计任务启动");
@@ -127,7 +127,7 @@ static void stats_task(void *arg)
         ret = OSAL_QueueGet(g_msg_queue_id, msg, sizeof(msg), &msg_size, 5000);
         if (OSAL_SUCCESS == ret)
         {
-            LOG_INFO("Stats", "接收消息: %s (大小: %u字节)", msg, msg_size);
+            LOG_INFO("Stats", "接收消息: %s (大小: %u字节)", (str_t *)msg, msg_size);
         }
         else if (OSAL_ERR_QUEUE_TIMEOUT == ret)
         {
@@ -150,7 +150,7 @@ static void stats_task(void *arg)
 /**
  * @brief 主函数
  */
-int main(int argc, char *argv[])
+int main(int32_t argc, char *argv[])
 {
     int32_t ret;
 
