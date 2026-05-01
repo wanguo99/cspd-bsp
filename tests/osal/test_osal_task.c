@@ -56,7 +56,7 @@ TEST_CASE(test_task_create_null_pointer)
 TEST_CASE(test_task_create_name_too_long)
 {
     osal_id_t task_id;
-    str_t long_name[OS_MAX_API_NAME + 10];
+    char long_name[OS_MAX_API_NAME + 10];
     OSAL_Memset(long_name, 'A', sizeof(long_name));
     long_name[sizeof(long_name) - 1] = '\0';
 

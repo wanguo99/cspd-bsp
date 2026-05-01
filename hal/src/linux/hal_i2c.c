@@ -17,7 +17,7 @@
 typedef struct
 {
     int32_t fd;
-    int8_t device[64];
+    char device[64];
     uint32_t timeout;
     bool initialized;
     pthread_mutex_t lock;  /* 操作级别互斥锁 */
@@ -46,7 +46,7 @@ int32_t HAL_I2C_Open(const hal_i2c_config_t *config, hal_i2c_handle_t *handle)
     }
 
     OSAL_Memset(impl, 0, sizeof(hal_i2c_context_t));
-    OSAL_Strncpy((str_t *)impl->device, config->device, sizeof(impl->device) - 1);
+    OSAL_Strncpy(impl->device, config->device, sizeof(impl->device) - 1);
     impl->device[sizeof(impl->device) - 1] = '\0';
     impl->timeout = config->timeout;
     impl->initialized = false;

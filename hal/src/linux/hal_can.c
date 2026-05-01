@@ -27,7 +27,7 @@ typedef struct
     _Atomic uint32_t tx_count;      /* 使用 C11 原子操作，固定大小类型 */
     _Atomic uint32_t rx_count;      /* 使用 C11 原子操作，固定大小类型 */
     _Atomic uint32_t err_count;     /* 使用 C11 原子操作，固定大小类型 */
-    int8_t interface[IFNAMSIZ];
+    char interface[IFNAMSIZ];
     uint32_t baudrate;
     bool initialized;
     uint32_t consecutive_errors;
@@ -63,7 +63,7 @@ static int32_t hal_can_recover(hal_can_handle_t handle)
 
     /* 获取接口索引 */
     OSAL_Memset(&ifr, 0, sizeof(ifr));
-    OSAL_Strncpy(ifr.ifr_name, (const str_t *)impl->interface, IFNAMSIZ - 1);
+    OSAL_Strncpy(ifr.ifr_name, (const char *)impl->interface, IFNAMSIZ - 1);
     if (OSAL_ioctl(impl->sockfd, SIOCGIFINDEX, &ifr) < 0)
     {
         LOG_ERROR("HAL_CAN", "Recovery failed: interface %s not found", impl->interface);
@@ -123,7 +123,7 @@ int32_t HAL_CAN_Init(const hal_can_config_t *config, hal_can_handle_t *handle)
     }
 
     OSAL_Memset(impl, 0, sizeof(hal_can_context_t));
-    OSAL_Strncpy((str_t *)impl->interface, config->interface, IFNAMSIZ - 1);
+    OSAL_Strncpy(impl->interface, config->interface, IFNAMSIZ - 1);
     impl->interface[IFNAMSIZ - 1] = '\0';
     impl->baudrate = config->baudrate;
     impl->initialized = false;

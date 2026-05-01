@@ -176,7 +176,7 @@ void OSAL_SetErrno(int32_t err);
  * @param errnum 错误码
  * @return 错误描述字符串
  */
-const str_t *OSAL_StrError(int32_t errnum);
+const char *OSAL_StrError(int32_t errnum);
 
 /*===========================================================================
  * OSAL状态码转字符串
@@ -187,6 +187,6 @@ const str_t *OSAL_StrError(int32_t errnum);
  * @param status_code OSAL状态码（OSAL_SUCCESS、OS_ERROR等）
  * @return 状态码名称字符串
  */
-const str_t *OSAL_GetStatusName(int32_t status_code);
+const char *OSAL_GetStatusName(int32_t status_code);
 
 #endif /* OSAL_ERRNO_H */

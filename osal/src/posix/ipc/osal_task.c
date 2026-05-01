@@ -26,7 +26,7 @@ typedef struct
 {
     bool        is_used;
     osal_id_t   id;
-    str_t       name[OS_MAX_API_NAME];
+    char        name[OS_MAX_API_NAME];
     pthread_t   thread;
     uint32_t      priority;
     uint32_t      stack_size;

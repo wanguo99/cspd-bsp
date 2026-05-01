@@ -14,7 +14,7 @@
 
 /* Internal state tracking */
 extern bool g_test_failed;
-extern const str_t *g_current_test;
+extern const char *g_current_test;
 
 /* Core assertion - fails test but continues */
 #define TEST_EXPECT(condition) \

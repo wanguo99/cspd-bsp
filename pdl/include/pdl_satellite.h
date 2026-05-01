@@ -32,7 +32,7 @@ typedef void* satellite_service_handle_t;
  */
 typedef struct
 {
-    const str_t *can_device;        /* CAN设备名 */
+    const char *can_device;        /* CAN设备名 */
     uint32_t can_bitrate;            /* CAN波特率 */
     uint32_t heartbeat_interval_ms;  /* 心跳间隔(ms) */
     uint32_t cmd_timeout_ms;         /* 命令超时(ms) */

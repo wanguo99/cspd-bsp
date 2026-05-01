@@ -105,9 +105,9 @@ typedef enum
 typedef struct
 {
     bmc_sensor_type_t type;
-    str_t name[64];
+    char name[64];
     float value;
-    str_t unit[16];
+    char unit[16];
     bool valid;
 } bmc_sensor_reading_t;
 
@@ -202,7 +202,7 @@ int32_t PDL_BMC_ReadSensors(bmc_handle_t handle,
  */
 int32_t PDL_BMC_ExecuteCommand(bmc_handle_t handle,
                              const char *cmd,
-                             str_t *response,
+                             char *response,
                              uint32_t resp_size);
 
 /**

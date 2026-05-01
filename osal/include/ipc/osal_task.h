@@ -51,7 +51,7 @@ typedef struct
  * @return OSAL_ERR_GENERIC 其他错误
  */
 int32_t OSAL_TaskCreate(osal_id_t *task_id,
-                    const str_t *task_name,
+                    const char *task_name,
                     osal_task_entry function_pointer,
                     void *user_arg,
                     uint32_t stack_size,
@@ -94,7 +94,7 @@ bool OSAL_TaskShouldShutdown(void);
  * @return OSAL_ERR_INVALID_POINTER task_id为NULL
  * @return OSAL_ERR_NAME_NOT_FOUND 未找到任务
  */
-int32_t OSAL_TaskGetIdByName(osal_id_t *task_id, const str_t *task_name);
+int32_t OSAL_TaskGetIdByName(osal_id_t *task_id, const char *task_name);
 
 /**
  * @brief 获取任务信息

@@ -30,7 +30,7 @@ const char *OSAL_StrError(int32_t errnum)
  * OSAL状态码转字符串实现
  *===========================================================================*/
 
-const str_t *OSAL_GetStatusName(int32_t status_code)
+const char *OSAL_GetStatusName(int32_t status_code)
 {
     switch (status_code)
     {

@@ -117,7 +117,7 @@ TEST_CASE(test_osal_log_write_formatted)
 TEST_CASE(test_osal_log_write_long_message)
 {
     int32_t ret;
-    str_t long_msg[512];
+    char long_msg[512];
 
     /* 初始化日志 */
     ret = OSAL_LogInit(TEST_LOG_FILE, OS_LOG_LEVEL_INFO);

@@ -32,7 +32,7 @@ int32_t OSAL_Getchar(void)
     return getchar();
 }
 
-str_t* OSAL_Fgets(str_t *str, int32_t size, void *stream)
+char* OSAL_Fgets(char *str, int32_t size, void *stream)
 {
     union {
         void *osal_stream;

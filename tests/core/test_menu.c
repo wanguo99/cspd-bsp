@@ -15,17 +15,17 @@
 
 /* External registry functions */
 extern const test_suite_t** test_get_all_suites(uint32_t *count);
-extern uint32_t test_get_layers(const str_t **layers, uint32_t max_layers);
-extern uint32_t test_get_modules(const str_t **modules, uint32_t max_modules);
-extern uint32_t test_get_suites_by_layer(const str_t *layer_name, const test_suite_t **suites, uint32_t max_suites);
-extern uint32_t test_get_suites_by_module(const str_t *module_name, const test_suite_t **suites, uint32_t max_suites);
+extern uint32_t test_get_layers(const char **layers, uint32_t max_layers);
+extern uint32_t test_get_modules(const char **modules, uint32_t max_modules);
+extern uint32_t test_get_suites_by_layer(const char *layer_name, const test_suite_t **suites, uint32_t max_suites);
+extern uint32_t test_get_suites_by_module(const char *module_name, const test_suite_t **suites, uint32_t max_suites);
 
 /**
  * Read user input
  */
 static int32_t read_choice(void)
 {
-    str_t buffer[16];
+    char buffer[16];
     if (OSAL_Fgets(buffer, sizeof(buffer), OSAL_stdin) == NULL) {
         return -1;
     }
@@ -65,7 +65,7 @@ void libutest_list_all(void)
 /**
  * List tests from a specific layer
  */
-void libutest_list_layer(const str_t *layer_name)
+void libutest_list_layer(const char *layer_name)
 {
     const test_suite_t *suites[MAX_SUITES];
     uint32_t count = test_get_suites_by_layer(layer_name, suites, MAX_SUITES);
@@ -89,7 +89,7 @@ void libutest_list_layer(const str_t *layer_name)
 /**
  * List tests from a specific module
  */
-void libutest_list_module(const str_t *module_name)
+void libutest_list_module(const char *module_name)
 {
     const test_suite_t *suites[MAX_SUITES];
     uint32_t count = test_get_suites_by_module(module_name, suites, MAX_SUITES);
@@ -128,7 +128,7 @@ void libutest_print_all(void)
 /**
  * Print test case names from a specific layer
  */
-void libutest_print_layer(const str_t *layer_name)
+void libutest_print_layer(const char *layer_name)
 {
     const test_suite_t *suites[MAX_SUITES];
     uint32_t count = test_get_suites_by_layer(layer_name, suites, MAX_SUITES);
@@ -144,7 +144,7 @@ void libutest_print_layer(const str_t *layer_name)
 /**
  * Print test case names from a specific module
  */
-void libutest_print_module(const str_t *module_name)
+void libutest_print_module(const char *module_name)
 {
     const test_suite_t *suites[MAX_SUITES];
     uint32_t count = test_get_suites_by_module(module_name, suites, MAX_SUITES);
@@ -190,7 +190,7 @@ static int32_t menu_select_test(const test_suite_t *suite)
 /**
  * Interactive menu - select suite
  */
-static int32_t menu_select_suite(const test_suite_t **suites, uint32_t count, const str_t *context)
+static int32_t menu_select_suite(const test_suite_t **suites, uint32_t count, const char *context)
 {
     while (1) {
         OSAL_Printf("\n=== Test Suites %s ===\n", context);
@@ -227,7 +227,7 @@ static int32_t menu_select_suite(const test_suite_t **suites, uint32_t count, co
  */
 static int32_t menu_select_module(void)
 {
-    const str_t *modules[MAX_MODULES];
+    const char *modules[MAX_MODULES];
     uint32_t module_count = test_get_modules(modules, MAX_MODULES);
 
     while (1) {
@@ -246,7 +246,7 @@ static int32_t menu_select_module(void)
             const test_suite_t *suites[MAX_SUITES];
             uint32_t count = test_get_suites_by_module(modules[choice - 1], suites, MAX_SUITES);
 
-            str_t context[128];
+            char context[128];
             OSAL_Snprintf(context, sizeof(context), "in module %s", modules[choice - 1]);
             menu_select_suite(suites, count, context);
         } else if (choice == (int32_t)(module_count + 1)) {
@@ -262,7 +262,7 @@ static int32_t menu_select_module(void)
  */
 static int32_t menu_select_layer(void)
 {
-    const str_t *layers[MAX_LAYERS];
+    const char *layers[MAX_LAYERS];
     uint32_t layer_count = test_get_layers(layers, MAX_LAYERS);
 
     while (1) {
@@ -281,7 +281,7 @@ static int32_t menu_select_layer(void)
             const test_suite_t *suites[MAX_SUITES];
             uint32_t count = test_get_suites_by_layer(layers[choice - 1], suites, MAX_SUITES);
 
-            str_t context[128];
+            char context[128];
             OSAL_Snprintf(context, sizeof(context), "in layer %s", layers[choice - 1]);
             menu_select_suite(suites, count, context);
         } else if (choice == (int32_t)(layer_count + 1)) {

@@ -13,16 +13,16 @@
 
 /* Global state for assertions */
 bool g_test_failed = false;
-const str_t *g_current_test = NULL;
+const char *g_current_test = NULL;
 
 /* Global statistics */
 static test_stats_t g_stats = {0};
 
 /* External registry functions */
 extern const test_suite_t** test_get_all_suites(uint32_t *count);
-extern const test_suite_t* test_find_suite(const str_t *name);
-extern uint32_t test_get_suites_by_layer(const str_t *layer_name, const test_suite_t **suites, uint32_t max_suites);
-extern uint32_t test_get_suites_by_module(const str_t *module_name, const test_suite_t **suites, uint32_t max_suites);
+extern const test_suite_t* test_find_suite(const char *name);
+extern uint32_t test_get_suites_by_layer(const char *layer_name, const test_suite_t **suites, uint32_t max_suites);
+extern uint32_t test_get_suites_by_module(const char *module_name, const test_suite_t **suites, uint32_t max_suites);
 
 /**
  * Run a single test case
@@ -134,7 +134,7 @@ int32_t libutest_run_all(void)
 /**
  * Run tests from a specific layer
  */
-int32_t libutest_run_layer(const str_t *layer_name)
+int32_t libutest_run_layer(const char *layer_name)
 {
     if (NULL == layer_name) {
         return OSAL_ERR_INVALID_POINTER;
@@ -169,7 +169,7 @@ int32_t libutest_run_layer(const str_t *layer_name)
 /**
  * Run tests from a specific module
  */
-int32_t libutest_run_module(const str_t *module_name)
+int32_t libutest_run_module(const char *module_name)
 {
     if (NULL == module_name) {
         return OSAL_ERR_INVALID_POINTER;
@@ -204,7 +204,7 @@ int32_t libutest_run_module(const str_t *module_name)
 /**
  * Run a specific test suite
  */
-int32_t libutest_run_suite(const str_t *suite_name)
+int32_t libutest_run_suite(const char *suite_name)
 {
     if (NULL == suite_name) {
         return OSAL_ERR_INVALID_POINTER;
@@ -231,7 +231,7 @@ int32_t libutest_run_suite(const str_t *suite_name)
 /**
  * Run a specific test case
  */
-int32_t libutest_run_test(const str_t *suite_name, const str_t *test_name)
+int32_t libutest_run_test(const char *suite_name, const char *test_name)
 {
     if (NULL == suite_name || NULL == test_name) {
         return OSAL_ERR_INVALID_POINTER;

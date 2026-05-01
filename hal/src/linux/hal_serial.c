@@ -13,7 +13,7 @@ typedef struct
 {
     int32_t fd;
     hal_serial_config_t config;
-    int8_t device[64];
+    char device[64];
     pthread_mutex_t lock;
 } hal_serial_context_t;
 
@@ -179,7 +179,7 @@ int32_t HAL_Serial_Open(const char *device, const hal_serial_config_t *config, h
 
     /* 保存配置 */
     OSAL_Memcpy(&ctx->config, config, sizeof(hal_serial_config_t));
-    OSAL_Strncpy((str_t *)ctx->device, device, sizeof(ctx->device) - 1);
+    OSAL_Strncpy(ctx->device, device, sizeof(ctx->device) - 1);
     ctx->device[sizeof(ctx->device) - 1] = '\0';
 
     *handle = (hal_serial_handle_t)ctx;

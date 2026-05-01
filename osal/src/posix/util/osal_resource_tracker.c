@@ -18,8 +18,8 @@ typedef struct
     bool in_use;
     osal_id_t id;
     osal_resource_type_t type;
-    str_t name[OS_MAX_API_NAME];
-    str_t file[128];
+    char name[OS_MAX_API_NAME];
+    char file[128];
     int32_t line;
 } osal_resource_entry_t;
 
@@ -31,7 +31,7 @@ static pthread_mutex_t g_resource_mutex = PTHREAD_MUTEX_INITIALIZER;
 static osal_resource_stats_t g_resource_stats[OSAL_RESOURCE_TYPE_MAX];
 
 /* 资源类型名称 */
-static const str_t *g_resource_type_names[] = {
+static const char *g_resource_type_names[] = {
     "Task",
     "Queue",
     "Mutex"
@@ -70,7 +70,7 @@ static int32_t find_resource(osal_id_t id, osal_resource_type_t type)
 }
 
 void OSAL_ResourceRegister(osal_id_t id, osal_resource_type_t type,
-                           const str_t *name, const str_t *file, int32_t line)
+                           const char *name, const char *file, int32_t line)
 {
     if (type >= OSAL_RESOURCE_TYPE_MAX)
     {

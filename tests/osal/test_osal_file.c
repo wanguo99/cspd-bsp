@@ -98,8 +98,8 @@ TEST_CASE(test_osal_file_write_read_success)
 {
     int32_t fd;
     osal_ssize_t ret;
-    const str_t *write_data = "Hello, OSAL!";
-    str_t read_buffer[64];
+    const char *write_data = "Hello, OSAL!";
+    char read_buffer[64];
 
     /* 创建并写入文件 */
     fd = OSAL_open(TEST_FILE_PATH, OSAL_O_RDWR | OSAL_O_CREAT | OSAL_O_TRUNC,
@@ -128,9 +128,9 @@ TEST_CASE(test_osal_file_write_append)
 {
     int32_t fd;
     osal_ssize_t ret;
-    const str_t *data1 = "First line\n";
-    const str_t *data2 = "Second line\n";
-    str_t read_buffer[128];
+    const char *data1 = "First line\n";
+    const char *data2 = "Second line\n";
+    char read_buffer[128];
 
     /* 创建文件并写入第一行 */
     fd = OSAL_open(TEST_FILE_PATH, OSAL_O_RDWR | OSAL_O_CREAT | OSAL_O_TRUNC,
@@ -163,8 +163,8 @@ TEST_CASE(test_osal_file_read_eof)
 {
     int32_t fd;
     osal_ssize_t ret;
-    const str_t *data = "Test";
-    str_t buffer[64];
+    const char *data = "Test";
+    char buffer[64];
 
     /* 创建文件 */
     fd = OSAL_open(TEST_FILE_PATH, OSAL_O_RDWR | OSAL_O_CREAT | OSAL_O_TRUNC,
@@ -194,8 +194,8 @@ TEST_CASE(test_osal_file_lseek_set)
 {
     int32_t fd;
     osal_ssize_t pos;
-    const str_t *data = "0123456789";
-    str_t buffer[2];
+    const char *data = "0123456789";
+    char buffer[2];
 
     /* 创建文件 */
     fd = OSAL_open(TEST_FILE_PATH, OSAL_O_RDWR | OSAL_O_CREAT | OSAL_O_TRUNC,
@@ -221,8 +221,8 @@ TEST_CASE(test_osal_file_lseek_cur)
 {
     int32_t fd;
     osal_ssize_t pos;
-    const str_t *data = "0123456789";
-    str_t buffer[2];
+    const char *data = "0123456789";
+    char buffer[2];
 
     /* 创建文件 */
     fd = OSAL_open(TEST_FILE_PATH, OSAL_O_RDWR | OSAL_O_CREAT | OSAL_O_TRUNC,
@@ -256,7 +256,7 @@ TEST_CASE(test_osal_file_lseek_end)
 {
     int32_t fd;
     osal_ssize_t pos;
-    const str_t *data = "0123456789";
+    const char *data = "0123456789";
 
     /* 创建文件 */
     fd = OSAL_open(TEST_FILE_PATH, OSAL_O_RDWR | OSAL_O_CREAT | OSAL_O_TRUNC,
@@ -334,7 +334,7 @@ TEST_CASE(test_osal_file_read_empty)
 {
     int32_t fd;
     osal_ssize_t ret;
-    str_t buffer[64];
+    char buffer[64];
 
     fd = OSAL_open(TEST_FILE_PATH, OSAL_O_RDWR | OSAL_O_CREAT | OSAL_O_TRUNC,
                    OSAL_S_IRUSR | OSAL_S_IWUSR);

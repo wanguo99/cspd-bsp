@@ -21,7 +21,7 @@ typedef void (*fixture_func_t)(void);
 
 /* Test case structure */
 typedef struct {
-    const str_t *name;
+    const char *name;
     test_func_t func;
     fixture_func_t setup;
     fixture_func_t teardown;
@@ -29,9 +29,9 @@ typedef struct {
 
 /* Test suite structure */
 typedef struct {
-    const str_t *suite_name;
-    const str_t *module_name;
-    const str_t *layer_name;
+    const char *suite_name;
+    const char *module_name;
+    const char *layer_name;
     const test_case_t *cases;
     uint32_t case_count;
     fixture_func_t suite_setup;
@@ -58,20 +58,20 @@ void libutest_register_suite(const test_suite_t *suite);
 
 /* Core API - Test Execution */
 int32_t libutest_run_all(void);
-int32_t libutest_run_layer(const str_t *layer_name);
-int32_t libutest_run_module(const str_t *module_name);
-int32_t libutest_run_suite(const str_t *suite_name);
-int32_t libutest_run_test(const str_t *suite_name, const str_t *test_name);
+int32_t libutest_run_layer(const char *layer_name);
+int32_t libutest_run_module(const char *module_name);
+int32_t libutest_run_suite(const char *suite_name);
+int32_t libutest_run_test(const char *suite_name, const char *test_name);
 
 /* Core API - Test Discovery */
 void libutest_list_all(void);
-void libutest_list_layer(const str_t *layer_name);
-void libutest_list_module(const str_t *module_name);
+void libutest_list_layer(const char *layer_name);
+void libutest_list_module(const char *module_name);
 
 /* Core API - Test Case Printing */
 void libutest_print_all(void);
-void libutest_print_layer(const str_t *layer_name);
-void libutest_print_module(const str_t *module_name);
+void libutest_print_layer(const char *layer_name);
+void libutest_print_module(const char *module_name);
 
 /* Core API - Interactive Mode */
 int32_t libutest_interactive_menu(void);

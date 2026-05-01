@@ -54,7 +54,7 @@ typedef struct {
  * @brief UART接口配置
  */
 typedef struct {
-    const str_t *device;          /* 设备名（如"/dev/ttyS0"） */
+    const char *device;          /* 设备名（如"/dev/ttyS0"） */
     uint32_t       baudrate;        /* 波特率 */
     uint8_t        data_bits;       /* 数据位（5-8） */
     uint8_t        stop_bits;       /* 停止位（1-2） */

@@ -37,7 +37,7 @@
  * @return OSAL_SUCCESS 成功
  * @return OSAL_ERR_GENERIC 失败
  */
-int32_t OSAL_LogInit(const str_t *log_file_path, int32_t level);
+int32_t OSAL_LogInit(const char *log_file_path, int32_t level);
 
 /**
  * @brief 关闭日志系统
@@ -73,12 +73,12 @@ void OSAL_LogSetMaxFiles(uint32_t max_files);
  * @param[in] format 格式化字符串
  * @param[in] ... 可变参数
  */
-void OSAL_Log(int32_t level, const str_t *module, const str_t *format, ...);
+void OSAL_Log(int32_t level, const char *module, const char *format, ...);
 
 /**
  * @brief 简单打印（不带日志级别和模块名）
  */
-void OSAL_Printf(const str_t *format, ...);
+void OSAL_Printf(const char *format, ...);
 
 /*
  * 日志宏定义（推荐使用）
@@ -95,10 +95,10 @@ void OSAL_Printf(const str_t *format, ...);
 /*
  * 内部实现函数（仅供宏使用，请勿直接调用）
  */
-void OSAL_LogDebug(const str_t *module, const str_t *file, const str_t *func, int32_t line, const str_t *format, ...);
-void OSAL_LogInfo(const str_t *module, const str_t *file, const str_t *func, int32_t line, const str_t *format, ...);
-void OSAL_LogWarn(const str_t *module, const str_t *file, const str_t *func, int32_t line, const str_t *format, ...);
-void OSAL_LogError(const str_t *module, const str_t *file, const str_t *func, int32_t line, const str_t *format, ...);
-void OSAL_LogFatal(const str_t *module, const str_t *file, const str_t *func, int32_t line, const str_t *format, ...);
+void OSAL_LogDebug(const char *module, const char *file, const char *func, int32_t line, const char *format, ...);
+void OSAL_LogInfo(const char *module, const char *file, const char *func, int32_t line, const char *format, ...);
+void OSAL_LogWarn(const char *module, const char *file, const char *func, int32_t line, const char *format, ...);
+void OSAL_LogError(const char *module, const char *file, const char *func, int32_t line, const char *format, ...);
+void OSAL_LogFatal(const char *module, const char *file, const char *func, int32_t line, const char *format, ...);
 
 #endif /* OSAPI_LOG_H */

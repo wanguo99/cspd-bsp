@@ -154,7 +154,7 @@ uint32_t OSAL_if_nametoindex(const char *ifname)
     return result;
 }
 
-str_t *OSAL_if_indextoname(uint32_t ifindex, str_t *ifname)
+char *OSAL_if_indextoname(uint32_t ifindex, char *ifname)
 {
     uint32_t index = ifindex;
     char *result = if_indextoname(index, ifname);

@@ -49,7 +49,7 @@ typedef struct {
  * @brief IPMI over Serial配置（串口通道）
  */
 typedef struct {
-    const str_t *device;          /* 串口设备（如"/dev/ttyS0"） */
+    const char *device;          /* 串口设备（如"/dev/ttyS0"） */
     uint32_t       baudrate;        /* 波特率 */
     uint8_t        data_bits;       /* 数据位 */
     uint8_t        stop_bits;       /* 停止位 */

@@ -402,7 +402,7 @@ TEST_CASE(test_pdl_bmc_execute_command_success)
         .retry_count = 3,
         .health_check_interval = 10000
     };
-    str_t response[256];
+    char response[256];
 
     int32_t ret = PDL_BMC_Init(&config, &handle);
     TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
@@ -416,7 +416,7 @@ TEST_CASE(test_pdl_bmc_execute_command_success)
 /* 测试用例: 执行命令 - 空句柄 */
 TEST_CASE(test_pdl_bmc_execute_command_null_handle)
 {
-    str_t response[256];
+    char response[256];
 
     int32_t ret = PDL_BMC_ExecuteCommand(NULL, "chassis status", response, sizeof(response));
     TEST_ASSERT_TRUE(ret < 0);
@@ -440,7 +440,7 @@ TEST_CASE(test_pdl_bmc_execute_command_null_cmd)
         .retry_count = 3,
         .health_check_interval = 10000
     };
-    str_t response[256];
+    char response[256];
 
     int32_t ret = PDL_BMC_Init(&config, &handle);
     TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);

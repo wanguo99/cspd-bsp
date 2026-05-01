@@ -42,7 +42,7 @@ static uint32_t read_memory_from_proc(const char *field)
     if (NULL == fp)
         return 0;
 
-    str_t line[OSAL_HEAP_LINE_BUFFER_SIZE];
+    char line[OSAL_HEAP_LINE_BUFFER_SIZE];
     uint32_t value = 0;
     while (NULL != fgets(line, sizeof(line), fp)) {
         if (0 == strncmp(line, field, strlen(field))) {

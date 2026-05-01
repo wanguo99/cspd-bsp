@@ -50,7 +50,7 @@ typedef struct
  * @param line 创建行号
  */
 void OSAL_ResourceRegister(osal_id_t id, osal_resource_type_t type,
-                           const str_t *name, const str_t *file, int32_t line);
+                           const char *name, const char *file, int32_t line);
 
 /**
  * @brief 注销资源

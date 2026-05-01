@@ -46,7 +46,7 @@ const test_suite_t** test_get_all_suites(uint32_t *count)
 /**
  * Find suite by name
  */
-const test_suite_t* test_find_suite(const str_t *name)
+const test_suite_t* test_find_suite(const char *name)
 {
     if (NULL == name) {
         return NULL;
@@ -63,7 +63,7 @@ const test_suite_t* test_find_suite(const str_t *name)
 /**
  * Get suites by layer
  */
-uint32_t test_get_suites_by_layer(const str_t *layer_name, const test_suite_t **suites, uint32_t max_suites)
+uint32_t test_get_suites_by_layer(const char *layer_name, const test_suite_t **suites, uint32_t max_suites)
 {
     if (NULL == layer_name || NULL == suites) {
         return 0;
@@ -81,7 +81,7 @@ uint32_t test_get_suites_by_layer(const str_t *layer_name, const test_suite_t **
 /**
  * Get suites by module
  */
-uint32_t test_get_suites_by_module(const str_t *module_name, const test_suite_t **suites, uint32_t max_suites)
+uint32_t test_get_suites_by_module(const char *module_name, const test_suite_t **suites, uint32_t max_suites)
 {
     if (NULL == module_name || NULL == suites) {
         return 0;
@@ -99,7 +99,7 @@ uint32_t test_get_suites_by_module(const str_t *module_name, const test_suite_t 
 /**
  * Get unique layer names
  */
-uint32_t test_get_layers(const str_t **layers, uint32_t max_layers)
+uint32_t test_get_layers(const char **layers, uint32_t max_layers)
 {
     if (NULL == layers) {
         return 0;
@@ -107,7 +107,7 @@ uint32_t test_get_layers(const str_t **layers, uint32_t max_layers)
 
     uint32_t count = 0;
     for (uint32_t i = 0; i < g_suite_count && count < max_layers; i++) {
-        const str_t *layer = g_registered_suites[i]->layer_name;
+        const char *layer = g_registered_suites[i]->layer_name;
 
         /* Check if already in list */
         bool found = false;
@@ -128,7 +128,7 @@ uint32_t test_get_layers(const str_t **layers, uint32_t max_layers)
 /**
  * Get unique module names
  */
-uint32_t test_get_modules(const str_t **modules, uint32_t max_modules)
+uint32_t test_get_modules(const char **modules, uint32_t max_modules)
 {
     if (NULL == modules) {
         return 0;
@@ -136,7 +136,7 @@ uint32_t test_get_modules(const str_t **modules, uint32_t max_modules)
 
     uint32_t count = 0;
     for (uint32_t i = 0; i < g_suite_count && count < max_modules; i++) {
-        const str_t *module = g_registered_suites[i]->module_name;
+        const char *module = g_registered_suites[i]->module_name;
 
         /* Check if already in list */
         bool found = false;

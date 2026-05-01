@@ -369,7 +369,7 @@ int32_t PDL_BMC_ReadSensors(bmc_handle_t handle,
  */
 int32_t PDL_BMC_ExecuteCommand(bmc_handle_t handle,
                                   const char *cmd,
-                                  str_t *response,
+                                  char *response,
                                   uint32_t resp_size)
 {
     (void)handle;

@@ -99,9 +99,9 @@ TEST_CASE(test_osal_memcmp_not_equal)
 /* 测试用例: Strlen - 成功 */
 TEST_CASE(test_osal_strlen_success)
 {
-    const str_t *str1 = "Hello";
-    const str_t *str2 = "";
-    const str_t *str3 = "Hello, World!";
+    const char *str1 = "Hello";
+    const char *str2 = "";
+    const char *str3 = "Hello, World!";
 
     TEST_ASSERT_EQUAL(5, OSAL_Strlen(str1));
     TEST_ASSERT_EQUAL(0, OSAL_Strlen(str2));
@@ -111,8 +111,8 @@ TEST_CASE(test_osal_strlen_success)
 /* 测试用例: Strcmp - 相等 */
 TEST_CASE(test_osal_strcmp_equal)
 {
-    const str_t *str1 = "Hello";
-    const str_t *str2 = "Hello";
+    const char *str1 = "Hello";
+    const char *str2 = "Hello";
 
     int32_t ret = OSAL_Strcmp(str1, str2);
     TEST_ASSERT_EQUAL(0, ret);
@@ -121,8 +121,8 @@ TEST_CASE(test_osal_strcmp_equal)
 /* 测试用例: Strcmp - 不相等 */
 TEST_CASE(test_osal_strcmp_not_equal)
 {
-    const str_t *str1 = "Hello";
-    const str_t *str2 = "World";
+    const char *str1 = "Hello";
+    const char *str2 = "World";
 
     int32_t ret = OSAL_Strcmp(str1, str2);
     TEST_ASSERT_NOT_EQUAL(0, ret);
@@ -135,8 +135,8 @@ TEST_CASE(test_osal_strcmp_not_equal)
 /* 测试用例: Strncmp - 成功 */
 TEST_CASE(test_osal_strncmp_success)
 {
-    const str_t *str1 = "Hello World";
-    const str_t *str2 = "Hello Earth";
+    const char *str1 = "Hello World";
+    const char *str2 = "Hello Earth";
 
     /* 前5个字符相同 */
     int32_t ret = OSAL_Strncmp(str1, str2, 5);
@@ -150,9 +150,9 @@ TEST_CASE(test_osal_strncmp_success)
 /* 测试用例: Strcasecmp - 忽略大小写 */
 TEST_CASE(test_osal_strcasecmp_success)
 {
-    const str_t *str1 = "Hello";
-    const str_t *str2 = "HELLO";
-    const str_t *str3 = "hello";
+    const char *str1 = "Hello";
+    const char *str2 = "HELLO";
+    const char *str3 = "hello";
 
     int32_t ret = OSAL_Strcasecmp(str1, str2);
     TEST_ASSERT_EQUAL(0, ret);
@@ -167,9 +167,9 @@ TEST_CASE(test_osal_strcasecmp_success)
 /* 测试用例: Strcpy - 成功 */
 TEST_CASE(test_osal_strcpy_success)
 {
-    const str_t *src = "Hello";
-    str_t dest[32];
-    str_t *ret;
+    const char *src = "Hello";
+    char dest[32];
+    char *ret;
 
     OSAL_Memset(dest, 0, sizeof(dest));
 
@@ -182,9 +182,9 @@ TEST_CASE(test_osal_strcpy_success)
 /* 测试用例: Strncpy - 成功 */
 TEST_CASE(test_osal_strncpy_success)
 {
-    const str_t *src = "Hello World";
-    str_t dest[32];
-    str_t *ret;
+    const char *src = "Hello World";
+    char dest[32];
+    char *ret;
 
     OSAL_Memset(dest, 0, sizeof(dest));
 
@@ -198,9 +198,9 @@ TEST_CASE(test_osal_strncpy_success)
 /* 测试用例: Strcat - 成功 */
 TEST_CASE(test_osal_strcat_success)
 {
-    str_t dest[32] = "Hello";
-    const str_t *src = " World";
-    str_t *ret;
+    char dest[32] = "Hello";
+    const char *src = " World";
+    char *ret;
 
     ret = OSAL_Strcat(dest, src);
     TEST_ASSERT_NOT_NULL(ret);
@@ -211,9 +211,9 @@ TEST_CASE(test_osal_strcat_success)
 /* 测试用例: Strncat - 成功 */
 TEST_CASE(test_osal_strncat_success)
 {
-    str_t dest[32] = "Hello";
-    const str_t *src = " World";
-    str_t *ret;
+    char dest[32] = "Hello";
+    const char *src = " World";
+    char *ret;
 
     /* 只追加3个字符 */
     ret = OSAL_Strncat(dest, src, 3);
@@ -225,10 +225,10 @@ TEST_CASE(test_osal_strncat_success)
 /* 测试用例: Strstr - 找到子串 */
 TEST_CASE(test_osal_strstr_found)
 {
-    const str_t *haystack = "Hello World";
-    const str_t *needle = "World";
+    const char *haystack = "Hello World";
+    const char *needle = "World";
 
-    str_t *ret = OSAL_Strstr(haystack, needle);
+    char *ret = OSAL_Strstr(haystack, needle);
     TEST_ASSERT_NOT_NULL(ret);
     TEST_ASSERT_EQUAL(0, OSAL_Strcmp(ret, "World"));
 }
@@ -236,10 +236,10 @@ TEST_CASE(test_osal_strstr_found)
 /* 测试用例: Strstr - 未找到子串 */
 TEST_CASE(test_osal_strstr_not_found)
 {
-    const str_t *haystack = "Hello World";
-    const str_t *needle = "Earth";
+    const char *haystack = "Hello World";
+    const char *needle = "Earth";
 
-    str_t *ret = OSAL_Strstr(haystack, needle);
+    char *ret = OSAL_Strstr(haystack, needle);
     TEST_ASSERT_NULL(ret);
 }
 
@@ -250,7 +250,7 @@ TEST_CASE(test_osal_strstr_not_found)
 /* 测试用例: Sprintf - 成功 */
 TEST_CASE(test_osal_sprintf_success)
 {
-    str_t buffer[64];
+    char buffer[64];
     int32_t ret;
 
     ret = OSAL_Sprintf(buffer, "Hello %s, number %d", "World", 42);
@@ -261,7 +261,7 @@ TEST_CASE(test_osal_sprintf_success)
 /* 测试用例: Snprintf - 成功 */
 TEST_CASE(test_osal_snprintf_success)
 {
-    str_t buffer[16];
+    char buffer[16];
     int32_t ret;
 
     /* 正常情况 */
@@ -278,8 +278,8 @@ TEST_CASE(test_osal_snprintf_success)
 /* 测试用例: Sscanf - 成功 */
 TEST_CASE(test_osal_sscanf_success)
 {
-    const str_t *str = "Hello 42 3.14";
-    str_t word[32];
+    const char *str = "Hello 42 3.14";
+    char word[32];
     int32_t num;
 
     int32_t ret = OSAL_Sscanf(str, "%s %d", word, &num);
@@ -321,7 +321,7 @@ TEST_CASE(test_osal_atol_success)
 /* 测试用例: Strtol - 不同进制 */
 TEST_CASE(test_osal_strtol_base)
 {
-    str_t *endptr;
+    char *endptr;
     int64_t ret;
 
     /* 十进制 */

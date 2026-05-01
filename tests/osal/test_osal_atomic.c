@@ -179,7 +179,7 @@ TEST_CASE(test_atomic_multithread_increment)
     osal_atomic_uint32_t counter;
     osal_id_t threads[THREAD_COUNT];
     atomic_thread_data_t thread_data[THREAD_COUNT];
-    str_t task_name[32];
+    char task_name[32];
 
     OSAL_AtomicInit(&counter, 0);
 
@@ -232,7 +232,7 @@ TEST_CASE(test_atomic_multithread_cas)
     osal_atomic_uint32_t counter;
     osal_id_t threads[THREAD_COUNT];
     atomic_thread_data_t thread_data[THREAD_COUNT];
-    str_t task_name[32];
+    char task_name[32];
 
     OSAL_AtomicInit(&counter, 0);
 

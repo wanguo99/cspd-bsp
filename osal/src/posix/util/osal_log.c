@@ -31,14 +31,14 @@ typedef enum
 static log_level_t g_log_level = LOG_LEVEL_INFO;
 static FILE *g_log_file = NULL;
 static pthread_mutex_t g_log_mutex = PTHREAD_MUTEX_INITIALIZER;
-static str_t g_log_file_path[OSAL_LOG_PATH_SIZE] = {0};
+static char g_log_file_path[OSAL_LOG_PATH_SIZE] = {0};
 static uint32_t g_max_log_size = OSAL_LOG_FILE_MAX_SIZE_MB * 1024 * 1024;  /* 10MB */
 static uint32_t g_max_log_files = OSAL_LOG_FILE_BACKUP_COUNT;
 
 /*
  * 日志级别名称
  */
-static const str_t *log_level_names[] = {
+static const char *log_level_names[] = {
     "DEBUG",
     "INFO",
     "WARN",
@@ -49,7 +49,7 @@ static const str_t *log_level_names[] = {
 /*
  * 日志级别颜色（终端）
  */
-static const str_t *log_level_colors[] = {
+static const char *log_level_colors[] = {
     "\033[36m",  // DEBUG - 青色
     "\033[32m",  // INFO  - 绿色
     "\033[33m",  // WARN  - 黄色
@@ -57,7 +57,7 @@ static const str_t *log_level_colors[] = {
     "\033[35m"   // FATAL - 紫色
 };
 
-static const str_t *color_reset = "\033[0m";
+static const char *color_reset = "\033[0m";
 
 /**
  * @brief 初始化日志系统
@@ -67,7 +67,7 @@ static const str_t *color_reset = "\033[0m";
  *
  * @return OSAL_SUCCESS 成功
  */
-int32_t OSAL_LogInit(const str_t *log_file_path, int32_t level)
+int32_t OSAL_LogInit(const char *log_file_path, int32_t level)
 {
     if (level >= LOG_LEVEL_DEBUG && level <= LOG_LEVEL_FATAL)
     {
@@ -133,7 +133,7 @@ void OSAL_LogSetMaxFiles(uint32_t max_files)
 /**
  * @brief 获取当前时间字符串
  */
-static void get_timestamp(str_t *buffer, osal_size_t size)
+static void get_timestamp(char *buffer, osal_size_t size)
 {
     struct timeval tv;
     struct tm tm_info;
@@ -167,7 +167,7 @@ static void rotate_log_file(void)
     }
 
     /* 删除最旧的日志文件 */
-    str_t old_file[OSAL_LOG_FILENAME_SIZE];
+    char old_file[OSAL_LOG_FILENAME_SIZE];
     snprintf(old_file, sizeof(old_file), "%s.%u", g_log_file_path, g_max_log_files);
     if (remove(old_file) != 0 && errno != ENOENT)
     {
@@ -178,7 +178,7 @@ static void rotate_log_file(void)
     /* 重命名日志文件 */
     for (uint32_t i = g_max_log_files - 1; i > 0; i--)
     {
-        str_t from[OSAL_LOG_FILENAME_SIZE], to[OSAL_LOG_FILENAME_SIZE];
+        char from[OSAL_LOG_FILENAME_SIZE], to[OSAL_LOG_FILENAME_SIZE];
         snprintf(from, sizeof(from), "%s.%u", g_log_file_path, i - 1);
         snprintf(to, sizeof(to), "%s.%u", g_log_file_path, i);
         if (rename(from, to) != 0 && errno != ENOENT)
@@ -189,7 +189,7 @@ static void rotate_log_file(void)
     }
 
     /* 重命名当前日志文件 */
-    str_t current_backup[OSAL_LOG_FILENAME_SIZE];
+    char current_backup[OSAL_LOG_FILENAME_SIZE];
     snprintf(current_backup, sizeof(current_backup), "%s.1", g_log_file_path);
     if (rename(g_log_file_path, current_backup) != 0)
     {
@@ -232,22 +232,22 @@ static void check_and_rotate_log(void)
 /**
  * @brief 提取文件名（去掉路径）
  */
-static const str_t *extract_filename(const str_t *path)
+static const char *extract_filename(const char *path)
 {
-    const str_t *filename = strrchr(path, '/');
+    const char *filename = strrchr(path, '/');
     return filename ? filename + 1 : path;
 }
 
 /**
  * @brief 内部日志函数（带位置信息）
  */
-static void log_internal_ex(log_level_t level, const str_t *module,
-                            const str_t *file, const str_t *func, int32_t line,
-                            const str_t *format, va_list args)
+static void log_internal_ex(log_level_t level, const char *module,
+                            const char *file, const char *func, int32_t line,
+                            const char *format, va_list args)
 {
-    str_t timestamp[OSAL_LOG_TIMESTAMP_SIZE];
-    str_t message[OSAL_LOG_MESSAGE_SIZE];
-    const str_t *filename = extract_filename(file);
+    char timestamp[OSAL_LOG_TIMESTAMP_SIZE];
+    char message[OSAL_LOG_MESSAGE_SIZE];
+    const char *filename = extract_filename(file);
 
     /* 检查日志级别 */
     if (level < g_log_level)
@@ -298,11 +298,11 @@ static void log_internal_ex(log_level_t level, const str_t *module,
 /**
  * @brief 内部日志函数（不带位置信息，兼容旧接口）
  */
-static void log_internal(log_level_t level, const str_t *module,
-                         const str_t *format, va_list args)
+static void log_internal(log_level_t level, const char *module,
+                         const char *format, va_list args)
 {
-    str_t timestamp[OSAL_LOG_TIMESTAMP_SIZE];
-    str_t message[OSAL_LOG_MESSAGE_SIZE];
+    char timestamp[OSAL_LOG_TIMESTAMP_SIZE];
+    char message[OSAL_LOG_MESSAGE_SIZE];
 
     /* 检查日志级别 */
     if (level < g_log_level)
@@ -369,7 +369,7 @@ static void log_internal(log_level_t level, const str_t *module,
 /**
  * @brief 通用日志函数
  */
-void OSAL_Log(int32_t level, const str_t *module, const str_t *format, ...)
+void OSAL_Log(int32_t level, const char *module, const char *format, ...)
 {
     va_list args;
 
@@ -384,7 +384,7 @@ void OSAL_Log(int32_t level, const str_t *module, const str_t *format, ...)
 /**
  * @brief DEBUG级别日志（带位置信息）
  */
-void OSAL_LogDebug(const str_t *module, const str_t *file, const str_t *func, int32_t line, const str_t *format, ...)
+void OSAL_LogDebug(const char *module, const char *file, const char *func, int32_t line, const char *format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -395,7 +395,7 @@ void OSAL_LogDebug(const str_t *module, const str_t *file, const str_t *func, in
 /**
  * @brief INFO级别日志（带位置信息）
  */
-void OSAL_LogInfo(const str_t *module, const str_t *file, const str_t *func, int32_t line, const str_t *format, ...)
+void OSAL_LogInfo(const char *module, const char *file, const char *func, int32_t line, const char *format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -406,7 +406,7 @@ void OSAL_LogInfo(const str_t *module, const str_t *file, const str_t *func, int
 /**
  * @brief WARN级别日志（带位置信息）
  */
-void OSAL_LogWarn(const str_t *module, const str_t *file, const str_t *func, int32_t line, const str_t *format, ...)
+void OSAL_LogWarn(const char *module, const char *file, const char *func, int32_t line, const char *format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -417,7 +417,7 @@ void OSAL_LogWarn(const str_t *module, const str_t *file, const str_t *func, int
 /**
  * @brief ERROR级别日志（带位置信息）
  */
-void OSAL_LogError(const str_t *module, const str_t *file, const str_t *func, int32_t line, const str_t *format, ...)
+void OSAL_LogError(const char *module, const char *file, const char *func, int32_t line, const char *format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -428,7 +428,7 @@ void OSAL_LogError(const str_t *module, const str_t *file, const str_t *func, in
 /**
  * @brief FATAL级别日志（带位置信息）
  */
-void OSAL_LogFatal(const str_t *module, const str_t *file, const str_t *func, int32_t line, const str_t *format, ...)
+void OSAL_LogFatal(const char *module, const char *file, const char *func, int32_t line, const char *format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -439,7 +439,7 @@ void OSAL_LogFatal(const str_t *module, const str_t *file, const str_t *func, in
 /**
  * @brief 简单打印（不带日志级别和模块名）
  */
-void OSAL_Printf(const str_t *format, ...)
+void OSAL_Printf(const char *format, ...)
 {
     va_list args;
     va_start(args, format);

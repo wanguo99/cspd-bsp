@@ -68,7 +68,7 @@ TEST_CASE(test_queue_putget_success)
     uint8_t recv_data[64];
     uint32_t size_copied;
 
-    OSAL_Strcpy((str_t *)send_data, "Hello World");
+    OSAL_Strcpy((char *)send_data, "Hello World");
 
     /* 发送消息 */
     int32_t ret = OSAL_QueuePut(queue_id, send_data, 64, 0);
@@ -78,7 +78,7 @@ TEST_CASE(test_queue_putget_success)
     ret = OSAL_QueueGet(queue_id, recv_data, 64, &size_copied, 1000);
     TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
     TEST_ASSERT_EQUAL(64, size_copied);
-    TEST_ASSERT_STRING_EQUAL("Hello World", (str_t *)recv_data);
+    TEST_ASSERT_STRING_EQUAL("Hello World", (char *)recv_data);
 
     OSAL_QueueDelete(queue_id);
 }
@@ -146,7 +146,7 @@ TEST_CASE(test_queue_putget_multiple)
 
     /* 发送5条消息 */
     for (int32_t i = 0; i < 5; i++) {
-        OSAL_Sprintf((str_t *)send_data[i], "Message %d", i);
+        OSAL_Sprintf((char *)send_data[i], "Message %d", i);
         TEST_ASSERT_EQUAL(OSAL_SUCCESS,
                          OSAL_QueuePut(queue_id, send_data[i], 64, 0));
     }
@@ -156,9 +156,9 @@ TEST_CASE(test_queue_putget_multiple)
         TEST_ASSERT_EQUAL(OSAL_SUCCESS,
                          OSAL_QueueGet(queue_id, recv_data, 64, &size, 1000));
 
-        str_t expected[64];
+        char expected[64];
         OSAL_Sprintf(expected, "Message %d", i);
-        TEST_ASSERT_STRING_EQUAL(expected, (str_t *)recv_data);
+        TEST_ASSERT_STRING_EQUAL(expected, (char *)recv_data);
     }
 
     OSAL_QueueDelete(queue_id);
