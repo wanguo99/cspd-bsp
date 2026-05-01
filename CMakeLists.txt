@@ -139,7 +139,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_TARGET}/bin)
 find_package(Threads REQUIRED)
 
 # ============================================================================
-# 模块化构建（参考cFS架构）
+# 模块化构建
 # ============================================================================
 # 依赖层次：OSAL → HAL → XConfig → PDL → Apps
 #

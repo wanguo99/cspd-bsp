@@ -32,7 +32,7 @@ module/
 │   ├── api/             # 对外API（可选，仅顶层模块）
 │   ├── internal/        # 内部公共头文件（可选）
 │   ├── peripheral/      # 外设私有头文件（可选）
-│   └── config/          # 模块配置（必需）# TODO：config不是必须的
+│   └── config/          # 模块配置（可选）
 ├── src/                 # 源代码
 │   └── linux/          # Linux平台实现
 └── platform/            # 平台配置（仅PCL）

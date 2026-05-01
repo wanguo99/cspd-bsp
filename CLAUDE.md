@@ -81,9 +81,10 @@ Apps → PDL → HAL → OSAL → Linux System Calls
 ### OSAL - Operating System Abstraction Layer
 - **Only layer allowed to include system headers** (`<unistd.h>`, `<pthread.h>`, etc.)
 - Provides two types of interfaces:
-  1. High-level business APIs: `OSAL_TaskCreate()`, `OSAL_SocketOpen()`
+  1. High-level business APIs: `OSAL_TaskCreate()`, `OSAL_QueueCreate()`
   2. Raw system call wrappers: `OSAL_socket()`, `OSAL_open()`, `OSAL_close()`
 - All standard library functions must be wrapped here
+- Encapsulates operating system APIs for cross-platform portability
 - Platform-specific code in `src/posix/` (future: `src/freertos/`, `src/vxworks/`)
 
 ### HAL - Hardware Abstraction Layer
@@ -401,13 +402,6 @@ sudo ip link set can0 type can bitrate 500000
 sudo ip link set can0 up
 ```
 
-### Cross-Compilation
-```bash
-# Set platform and toolchain
-cmake ../.. -DPLATFORM=generic-linux -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc
-make -j$(nproc)
-```
-
 ## Build Output Structure
 
 ```
@@ -429,7 +423,7 @@ output/
 ## Project Stats
 
 - **Code Size**: ~22,000 lines (15,500 production, 4,500 test)
-- **Files**: 116 C/H files
+- **Files**: 118 C/H files
 - **Test Coverage**: 142+ test cases across all layers
   - OSAL: 50+ tests (10 modules)
   - HAL: 72 tests (CAN, UART, I2C, SPI)

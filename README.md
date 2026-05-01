@@ -228,13 +228,18 @@ pmc-bsp/
 
 ## 许可证
 
-本项目采用 [许可证名称] 许可证。
+本项目采用 GNU General Public License v3.0 许可证。详见 [LICENSE](LICENSE) 文件。
 
 ## 贡献
 
-欢迎提交Issue和Pull Request。
+欢迎贡献代码和反馈！请遵循以下规范：
+
+1. 阅读 [编码规范](docs/CODING_STANDARDS.md)
+2. 提交前运行测试：`./output/target/bin/unit-test -a`
+3. 确保代码通过编译：`./build.sh`
+4. 提交清晰的 commit message
 
 ## 联系方式
 
-- 项目主页：[项目URL]
-- 问题反馈：[Issue URL]
+- 问题反馈：请通过 GitHub Issues 提交
+- 代码贡献：请通过 Pull Request 提交

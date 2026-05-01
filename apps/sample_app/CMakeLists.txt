@@ -1,5 +1,5 @@
 # Sample应用
-# 参考cFS应用模块设计
+# 
 
 # 目录变量
 set(SAMPLE_APP_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)

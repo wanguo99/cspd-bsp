@@ -39,7 +39,7 @@
 │  │  ├── hal_can            - CAN驱动 (SocketCAN)         │ │
 │  │  └── hal_serial         - 串口驱动 (termios)          │ │
 │  ├────────────────────────────────────────────────────────┤ │
-│  │  OSAL层 (操作系统抽象层 - 参考NASA cFS OSAL)            │ │
+│  │  OSAL层 (操作系统抽象层)                                │ │
 │  │  ├── 任务管理  ├── 消息队列  ├── 互斥锁  ├── 日志系统  │ │
 │  │  ├── 网络抽象  ├── 文件操作  ├── 时间服务 └── 信号处理 │ │
 │  └────────────────────────────────────────────────────────┘ │
@@ -57,7 +57,7 @@
 
 **职责**：封装操作系统API，提供统一的跨平台接口
 
-**设计参考**：NASA cFS OSAL (Core Flight System Operating System Abstraction Layer)
+**设计理念**：跨平台操作系统抽象层，支持多种操作系统移植
 
 **核心模块**：
 
@@ -1353,7 +1353,7 @@ static int32 execute_ipmi_command(uint8_t cmd_type, uint32_t param, uint32_t *re
 
 ### 7.3 接口稳定性
 
-**OSAL接口**：参考NASA cFS OSAL，保持API稳定
+**OSAL接口**：跨平台操作系统抽象层，保持API稳定
 
 **HAL接口**：硬件抽象，上层应用无需修改
 
@@ -1388,11 +1388,11 @@ static int32 execute_ipmi_command(uint8_t cmd_type, uint32_t param, uint32_t *re
 
 ## 9. 参考资料
 
-- **NASA cFS OSAL**：https://github.com/nasa/osal
-- **IPMI规范**：https://www.intel.com/content/www/us/en/products/docs/servers/ipmi/ipmi-home.html
-- **Redfish规范**：https://www.dmtf.org/standards/redfish
-- **SocketCAN文档**：https://www.kernel.org/doc/Documentation/networking/can.txt
-- **Linux termios**：https://man7.org/linux/man-pages/man3/termios.3.html
+- POSIX标准文档
+- IPMI规范：https://www.intel.com/content/www/us/en/products/docs/servers/ipmi/ipmi-home.html
+- Redfish规范：https://www.dmtf.org/standards/redfish
+- SocketCAN文档：https://www.kernel.org/doc/Documentation/networking/can.txt
+- Linux termios：https://man7.org/linux/man-pages/man3/termios.3.html
 
 ## 10. 版本历史
 
