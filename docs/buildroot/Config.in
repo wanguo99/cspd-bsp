@@ -1,0 +1,36 @@
+config BR2_PACKAGE_BSP
+	bool "bsp"
+	depends on BR2_INSTALL_LIBSTDCPP
+	depends on BR2_TOOLCHAIN_HAS_THREADS
+	depends on !BR2_STATIC_LIBS
+	select BR2_PACKAGE_HAS_BSP
+	help
+	  PMC-BSP (Payload Management Controller Board Support Package)
+	  is a board support package for satellite payload management
+	  controllers.
+
+	  Features:
+	  - OSAL: Operating System Abstraction Layer
+	  - HAL: Hardware Abstraction Layer (CAN, UART, I2C, SPI)
+	  - PCL: Peripheral Configuration Library
+	  - PDL: Peripheral Driver Layer
+
+	  https://github.com/your-org/bsp
+
+if BR2_PACKAGE_BSP
+
+config BR2_PACKAGE_BSP_SAMPLE_APP
+	bool "install sample application"
+	default y
+	help
+	  Install the PMC-BSP sample application to /usr/bin/pmc-sample-app
+
+config BR2_PACKAGE_BSP_TESTS
+	bool "install unit tests"
+	help
+	  Build and install the PMC-BSP unit test suite to /usr/bin/pmc-unit-test
+
+endif
+
+comment "bsp needs a toolchain w/ C++, threads, dynamic library"
+	depends on !BR2_INSTALL_LIBSTDCPP || !BR2_TOOLCHAIN_HAS_THREADS || BR2_STATIC_LIBS

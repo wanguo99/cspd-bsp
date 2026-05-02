@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**PMC-BSP** (Payload Management Controller Board Support Package) is a board support package for satellite payload management controllers, serving as a communication bridge between satellite platforms and compute/storage payloads.
+**BSP** (Board Support Package) is a board support package for satellite payload management controllers, serving as a communication bridge between satellite platforms and compute/storage payloads.
 
 **System Architecture**:
 ```
-Satellite Platform <--CAN--> PMC Controller <--Ethernet/UART/CAN--> Compute/Storage Payload
+Satellite Platform <--CAN--> BSP Controller <--Ethernet/UART/CAN--> Compute/Storage Payload
 ```
 
 ## Quick Commands

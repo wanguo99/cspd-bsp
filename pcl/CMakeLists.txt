@@ -52,10 +52,10 @@ target_include_directories(pcl PRIVATE
 )
 
 # 依赖OSAL接口库（仅头文件依赖）
-target_link_libraries(pcl PUBLIC pmc::osal_public_api)
+target_link_libraries(pcl PUBLIC bsp::osal_public_api)
 
 # 链接OSAL实现库（运行时依赖）
-target_link_libraries(pcl PRIVATE pmc::osal)
+target_link_libraries(pcl PRIVATE bsp::osal)
 
 # 设置编译选项
 set(CMAKE_C_STANDARD 99)
@@ -82,7 +82,7 @@ install(DIRECTORY include/
 
 install(EXPORT pcl-targets
     FILE pcl-targets.cmake
-    NAMESPACE pmc::
+    NAMESPACE bsp::
     DESTINATION lib/cmake/pcl
 )
 
@@ -97,8 +97,8 @@ if(BUILD_PCL_EXAMPLES)
     )
 
     target_link_libraries(pcl_example
-        pmc::pcl
-        pmc::osal
+        bsp::pcl
+        bsp::osal
         pthread
     )
 

@@ -1,10 +1,10 @@
-# PMC-BSP 架构设计文档
+# BSP 架构设计文档
 
 ## 1. 系统概述
 
 ### 1.1 项目定位
 
-**PMC-BSP** (Payload Management Controller Board Support Package) 是为卫星算存载荷设计的板级支持包，作为卫星平台与算存载荷之间的通信桥接和管理中间层。
+**BSP** (Board Support Package) 是为卫星算存载荷设计的板级支持包，作为卫星平台与算存载荷之间的通信桥接和管理中间层。
 
 **设计目标**：
 - 高可靠性：航天级可靠性要求，支持故障检测和自动恢复
@@ -1097,7 +1097,7 @@ void Protocol_Converter_GetStats(uint32 *cmd_count, uint32 *success_count,
 ### 3.2 配置文件组织
 
 ```
-pmc-bsp/
+bsp/
 ├── osal/include/config/          # OSAL层配置
 │   ├── task_config.h             # 任务栈大小、优先级
 │   ├── queue_config.h            # 队列深度配置

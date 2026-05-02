@@ -1,14 +1,14 @@
-# PMC-BSP
+# BSP
 
-载荷管理控制器板级支持包 (Payload Management Controller Board Support Package)
+板级支持包 (Board Support Package)
 
 ## 项目简介
 
-PMC-BSP 是专为卫星算存载荷管理控制器设计的板级支持包。
+BSP 是专为卫星算存载荷管理控制器设计的板级支持包。
 
 **系统架构**：
 ```
-卫星平台 <--CAN--> 转接板(PMC-BSP) <--Ethernet/UART--> 算存载荷
+卫星平台 <--CAN--> 转接板(BSP) <--Ethernet/UART--> 算存载荷
 ```
 
 ## 快速开始
@@ -52,7 +52,7 @@ sudo apt-get install gcc-riscv64-linux-gnu        # RISC-V 64
 
 ## 模块组成
 
-PMC-BSP采用5层分层架构：
+BSP采用5层分层架构：
 
 ### OSAL - 操作系统抽象层
 跨平台的操作系统抽象接口，提供任务、队列、互斥锁、日志等基础服务，所有标准库函数、系统调用都应该在此进行封装。
@@ -101,7 +101,7 @@ PMC-BSP采用5层分层架构：
 ## 目录结构
 
 ```
-pmc-bsp/
+bsp/
 ├── osal/                   # 操作系统抽象层
 │   ├── include/           # 公共头文件
 │   ├── src/posix/         # POSIX实现

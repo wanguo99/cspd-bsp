@@ -54,10 +54,10 @@ add_library(hal ${HAL_SOURCES})
 target_link_libraries(hal PUBLIC hal_public_api)
 
 # 依赖OSAL接口库（仅头文件依赖）
-target_link_libraries(hal PUBLIC pmc::osal_public_api)
+target_link_libraries(hal PUBLIC bsp::osal_public_api)
 
 # 链接OSAL实现库（运行时依赖）
-target_link_libraries(hal PRIVATE pmc::osal)
+target_link_libraries(hal PRIVATE bsp::osal)
 
 # 设置编译选项
 target_compile_options(hal PRIVATE
@@ -82,7 +82,7 @@ install(DIRECTORY include/
 
 install(EXPORT hal-targets
     FILE hal-targets.cmake
-    NAMESPACE pmc::
+    NAMESPACE bsp::
     DESTINATION lib/cmake/hal
 )
 

@@ -63,11 +63,11 @@ target_compile_definitions(unit-test PRIVATE
 )
 
 target_link_libraries(unit-test
-    pmc::osal_public_api
-    pmc::osal
-    pmc::hal
-    pmc::pcl
-    pmc::pdl
+    bsp::osal_public_api
+    bsp::osal
+    bsp::hal
+    bsp::pcl
+    bsp::pdl
     Threads::Threads
 )
 

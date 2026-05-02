@@ -100,7 +100,7 @@ install(DIRECTORY include/
 
 install(EXPORT osal-targets
     FILE osal-targets.cmake
-    NAMESPACE pmc::
+    NAMESPACE bsp::
     DESTINATION lib/cmake/osal
 )
 
