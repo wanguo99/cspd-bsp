@@ -403,8 +403,8 @@ const pcl_bmc_t* PCL_GetBMCConfigs(uint32 *count)
 2. 定义外设配置结构：
    ```c
    typedef struct {
-       str_t name[64];
-       str_t description[128];
+       char name[64];
+       char description[128];
        pcl_interface_type_t interface_type;
        union {
            pcl_i2c_interface_t i2c_interface;
@@ -415,7 +415,7 @@ const pcl_bmc_t* PCL_GetBMCConfigs(uint32 *count)
    ```
 3. 在 `include/api/pcl_api.h` 添加查询接口：
    ```c
-   const pcl_sensor_t* PCL_GetSensorConfig(const str_t *name);
+   const pcl_sensor_t* PCL_GetSensorConfig(const char *name);
    const pcl_sensor_t* PCL_GetSensorByIndex(uint32 index);
    uint32 PCL_GetSensorCount(void);
    ```

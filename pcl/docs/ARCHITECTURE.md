@@ -73,7 +73,7 @@ typedef struct {
 #### MCU外设
 ```c
 typedef struct {
-    const str_t *name;
+    const char *name;
     bool enabled;
     
     /* 通信接口（内嵌） */
@@ -99,7 +99,7 @@ typedef struct {
 #### BMC外设（双通道）
 ```c
 typedef struct {
-    const str_t *name;
+    const char *name;
     bool enabled;
     
     /* 主通道（以太网） */
@@ -129,10 +129,10 @@ typedef struct {
 ```c
 typedef struct {
     /* 板级信息 */
-    const str_t *platform;
-    const str_t *product;
-    const str_t *version;
-    const str_t *description;
+    const char *platform;
+    const char *product;
+    const char *version;
+    const char *description;
     
     /* 外设配置列表（以外设为单位） */
     pcl_mcu_cfg_t **mcus;
@@ -200,7 +200,7 @@ void HW_Config_RegisterAll(void)
 const pcl_board_config_t* HW_Config_SelectDefault(void)
 {
     /* 1. 检查环境变量 */
-    const str_t *env = OSAL_Getenv("XCONFIG_PLATFORM");
+    const char *env = OSAL_Getenv("XCONFIG_PLATFORM");
     if (env != NULL) {
         return HW_Config_FindByName(env);
     }

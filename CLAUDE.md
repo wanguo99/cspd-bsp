@@ -139,7 +139,7 @@ OSAL_bind(sockfd, ...);  // CORRECT
 
 ```c
 /* String type */
-str_t                           // For strings (compatible with standard C library)
+char                           // For strings (compatible with standard C library)
 
 /* Fixed-size integers */
 int8, int16, int32, int64       // Signed integers
@@ -157,7 +157,7 @@ osal_id_t                       // Object ID (uint32)
 ```
 
 **Usage Rules**:
-- `str_t` for strings and text data
+- `char` for strings and text data
 - `uint8`/`int8` for binary data and bytes
 - Fixed-size types for numeric data
 - `osal_size_t`/`osal_ssize_t` for memory sizes and array indices
@@ -166,7 +166,7 @@ osal_id_t                       // Object ID (uint32)
 **Prohibited Native Types**:
 ```c
 /* ❌ NEVER USE THESE */
-char                // Use str_t (strings) or int8/uint8 (bytes)
+char                // Use char (strings) or int8/uint8 (bytes)
 int                 // Use int32 or int16
 unsigned int        // Use uint32 or uint16
 short               // Use int16
@@ -182,7 +182,7 @@ ssize_t             // Use osal_ssize_t
 **Correct Examples**:
 ```c
 /* ✅ CORRECT: Using OSAL types */
-int32 HAL_CAN_Init(const str_t *device, hal_can_handle_t *handle)
+int32 HAL_CAN_Init(const char *device, hal_can_handle_t *handle)
 {
     uint32 filter_id = 0x100;
     uint8 dlc = 8;

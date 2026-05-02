@@ -39,7 +39,7 @@
 
 ```c
 int32_t OSAL_TaskCreate(osal_id_t *task_id,
-                        const str_t *task_name,
+                        const char *task_name,
                         osal_task_entry entry_point,
                         void *arg,
                         uint32_t stack_size,
@@ -158,7 +158,7 @@ osal_id_t OSAL_TaskGetId(void);
 根据名称查找任务ID。
 
 ```c
-int32_t OSAL_TaskGetIdByName(osal_id_t *task_id, const str_t *task_name);
+int32_t OSAL_TaskGetIdByName(osal_id_t *task_id, const char *task_name);
 ```
 
 **参数**：
@@ -180,7 +180,7 @@ int32_t OSAL_TaskGetIdByName(osal_id_t *task_id, const str_t *task_name);
 
 ```c
 int32_t OSAL_QueueCreate(osal_id_t *queue_id,
-                         const str_t *queue_name,
+                         const char *queue_name,
                          uint32_t queue_depth,
                          uint32_t data_size,
                          uint32_t flags);
@@ -261,7 +261,7 @@ int32_t OSAL_QueuePut(osal_id_t queue_id,
 
 **示例**：
 ```c
-str_t msg[64] = "Hello";
+char msg[64] = "Hello";
 int32_t ret = OSAL_QueuePut(queue_id, msg, sizeof(msg), 1000);
 if (ret == OS_QUEUE_TIMEOUT) {
     LOG_WARN("Worker", "队列发送超时");
@@ -296,7 +296,7 @@ int32_t OSAL_QueueGet(osal_id_t queue_id,
 
 **示例**：
 ```c
-str_t msg[64];
+char msg[64];
 uint32_t size;
 int32_t ret = OSAL_QueueGet(queue_id, msg, sizeof(msg), &size, 5000);
 if (ret == OS_SUCCESS) {
@@ -309,7 +309,7 @@ if (ret == OS_SUCCESS) {
 根据名称查找队列ID。
 
 ```c
-int32_t OSAL_QueueGetIdByName(osal_id_t *queue_id, const str_t *queue_name);
+int32_t OSAL_QueueGetIdByName(osal_id_t *queue_id, const char *queue_name);
 ```
 
 **参数**：
@@ -331,7 +331,7 @@ int32_t OSAL_QueueGetIdByName(osal_id_t *queue_id, const str_t *queue_name);
 
 ```c
 int32_t OSAL_MutexCreate(osal_id_t *mutex_id,
-                         const str_t *mutex_name,
+                         const char *mutex_name,
                          uint32_t options);
 ```
 
@@ -415,7 +415,7 @@ int32_t OSAL_MutexUnlock(osal_id_t mutex_id);
 根据名称查找互斥锁ID。
 
 ```c
-int32_t OSAL_MutexGetIdByName(osal_id_t *mutex_id, const str_t *mutex_name);
+int32_t OSAL_MutexGetIdByName(osal_id_t *mutex_id, const char *mutex_name);
 ```
 
 **参数**：
@@ -522,7 +522,7 @@ int32_t OSAL_SignalUnregister(int32_t signal);
 打开文件。
 
 ```c
-int32_t OSAL_FileOpen(int32_t *fd, const str_t *path, int32_t flags, int32_t mode);
+int32_t OSAL_FileOpen(int32_t *fd, const char *path, int32_t flags, int32_t mode);
 ```
 
 **参数**：
@@ -611,7 +611,7 @@ int32_t OSAL_SelectSingle(int32_t fd, uint32_t timeout_ms);
 获取环境变量。
 
 ```c
-const str_t* OSAL_Getenv(const str_t *name);
+const char* OSAL_Getenv(const char *name);
 ```
 
 **参数**：
@@ -626,7 +626,7 @@ const str_t* OSAL_Getenv(const str_t *name);
 设置环境变量。
 
 ```c
-int32_t OSAL_Setenv(const str_t *name, const str_t *value, int32_t overwrite);
+int32_t OSAL_Setenv(const char *name, const char *value, int32_t overwrite);
 ```
 
 **参数**：
@@ -718,11 +718,11 @@ int32_t OSAL_SocketConnect(int32_t sock_id, const os_sockaddr_t *addr, int32_t t
 ### 字符串操作
 
 ```c
-uint32_t OSAL_Strlen(const str_t *str);
-int32_t OSAL_Strcmp(const str_t *s1, const str_t *s2);
-str_t* OSAL_Strcpy(str_t *dest, const str_t *src);
-str_t* OSAL_Strncpy(str_t *dest, const str_t *src, uint32_t n);
-int32_t OSAL_Snprintf(str_t *str, uint32_t size, const str_t *format, ...);
+uint32_t OSAL_Strlen(const char *str);
+int32_t OSAL_Strcmp(const char *s1, const char *s2);
+char* OSAL_Strcpy(char *dest, const char *src);
+char* OSAL_Strncpy(char *dest, const char *src, uint32_t n);
+int32_t OSAL_Snprintf(char *str, uint32_t size, const char *format, ...);
 ```
 
 ### 内存管理
@@ -741,7 +741,7 @@ void* OSAL_Memcpy(void *dest, const void *src, uint32_t n);
 获取错误描述。
 
 ```c
-const str_t* OSAL_GetErrorString(int32_t error_code);
+const char* OSAL_GetErrorString(int32_t error_code);
 ```
 
 **参数**：
@@ -801,7 +801,7 @@ LOG_WARN("Stats", "队列接收超时");
 简单打印（无格式）。
 
 ```c
-void OSAL_Printf(const str_t *format, ...);
+void OSAL_Printf(const char *format, ...);
 ```
 
 **参数**：
@@ -820,7 +820,7 @@ OSAL_Printf("应用版本: %s\n", APP_VERSION);
 获取OSAL版本字符串。
 
 ```c
-const str_t* OS_GetVersionString(void);
+const char* OS_GetVersionString(void);
 ```
 
 **返回值**：
@@ -864,7 +864,7 @@ OSAL_Printf("OSAL版本: %s\n", OS_GetVersionString());
 ## 类型定义
 
 ```c
-typedef char        str_t;      /* 字符串类型 */
+typedef char        char;      /* 字符串类型 */
 typedef int8_t      int8;       /* 8位有符号整数 */
 typedef uint8_t     uint8;      /* 8位无符号整数 */
 typedef int16_t     int16;      /* 16位有符号整数 */

@@ -486,7 +486,7 @@ typedef void (*satellite_cmd_callback_t)(uint8 cmd_type, const uint8 *data, void
 
 | 禁止使用 | 原因 | 必须使用 OSAL 类型 |
 |---------|------|-------------------|
-| `char` | 宽度不明确（可能是有符号或无符号） | `str_t`（字符串）或 `int8`/`uint8`（字节） |
+| `char` | 允许用于字符串，禁止用于数值计算 | 字符串使用 `char`，字节数据使用 `int8`/`uint8` |
 | `int` | 宽度平台相关（16/32位） | `int32` 或 `int16` |
 | `unsigned int` | 宽度平台相关 | `uint32` 或 `uint16` |
 | `short` | 宽度不明确 | `int16` |
@@ -529,16 +529,16 @@ uint64    // 64位无符号整数 (0 ~ 2^64-1)
 #### 5.3.2 字符串类型
 
 ```c
-str_t     // 字符串类型（底层是 char，与标准 C 库兼容）
+char      // 字符串类型（与标准 C 库兼容）
 ```
 
 **使用场景**：
-- 设备名称：`str_t device_name[64];`
-- 日志消息：`str_t log_message[256];`
-- 字符串指针：`const str_t *interface;`
-- 单个字符：`str_t parity = 'N';`
+- 设备名称：`char device_name[64];`
+- 日志消息：`char log_message[256];`
+- 字符串指针：`const char *interface;`
+- 单个字符：`char parity = 'N';`
 
-**重要**：`str_t` 用于文本数据，`uint8` 用于二进制字节数据。
+**重要**：`char` 用于文本数据，`uint8` 用于二进制字节数据。
 
 #### 5.3.3 布尔类型
 
@@ -577,7 +577,7 @@ osal_id_t      // OSAL 对象 ID（底层是 uint32）
 
 ```c
 /* ✅ 正确：使用 OSAL 类型 */
-int32 HAL_CAN_Init(const str_t *device, hal_can_handle_t *handle)
+int32 HAL_CAN_Init(const char *device, hal_can_handle_t *handle)
 {
     uint32 filter_id = 0x100;
     uint8 dlc = 8;
@@ -590,10 +590,10 @@ int32 HAL_CAN_Init(const str_t *device, hal_can_handle_t *handle)
     return OSAL_SUCCESS;
 }
 
-/* ✅ 正确：字符串使用 str_t */
-void log_device_info(const str_t *device_name)
+/* ✅ 正确：字符串使用 char */
+void log_device_info(const char *device_name)
 {
-    str_t buffer[256];
+    char buffer[256];
     OSAL_Snprintf(buffer, sizeof(buffer), "Device: %s", device_name);
     OSAL_INFO("HAL", "%s", buffer);
 }
@@ -674,7 +674,7 @@ uint32 unsigned_value = signed_value;  // ❌ 隐式转换，结果错误
 1. **OSAL 层内部实现**：封装系统调用时，与系统 API 交互
    ```c
    /* osal_file.c - OSAL 层内部实现 */
-   int32 OSAL_open(const str_t *pathname, int32 flags, int32 mode)
+   int32 OSAL_open(const char *pathname, int32 flags, int32 mode)
    {
        int fd = open(pathname, flags, mode);  // ✓ 系统调用返回 int
        if (fd < 0) {
@@ -710,7 +710,7 @@ uint32 unsigned_value = signed_value;  // ❌ 隐式转换，结果错误
 - [ ] 无 `int`/`unsigned int`（除了第三方库交互）
 - [ ] 无 `short`/`long`/`long long`
 - [ ] 无 `size_t`/`ssize_t`（使用 `osal_size_t`/`osal_ssize_t`）
-- [ ] 字符串使用 `str_t`，二进制数据使用 `uint8`
+- [ ] 二进制数据使用 `uint8`
 - [ ] 所有整数使用固定宽度类型（`int8`/`int16`/`int32`/`int64`）
 - [ ] 指针转换使用 `uintptr_t`
 - [ ] 有符号/无符号转换有范围检查

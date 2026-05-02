@@ -395,7 +395,7 @@ if (ret < 0) {
 **修复方案**:
 ```c
 /* 修改接口签名，通过输出参数返回文件描述符 */
-int32 OSAL_open(const str_t pathname, int32 flags, int32 mode, int32 *fd_out)
+int32 OSAL_open(const char *pathname, int32 flags, int32 mode, int32 *fd_out)
 {
     int fd = open(pathname, flags, mode);
     if (fd < 0) {

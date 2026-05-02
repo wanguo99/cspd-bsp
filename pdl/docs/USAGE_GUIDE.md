@@ -73,7 +73,7 @@ mcu_pdl_config_t config = {
 MCUPDL_Init(&config);
 
 /* 查询版本 */
-str_t version[32];
+char version[32];
 MCUPDL_GetVersion(version, sizeof(version));
 LOG_INFO("App", "MCU版本: %s", version);
 

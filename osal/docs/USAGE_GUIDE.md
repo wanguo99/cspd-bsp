@@ -106,7 +106,7 @@ int main(void)
 ```c
 typedef struct {
     uint32_t interval_ms;
-    const str_t *name;
+    const char *name;
 } task_config_t;
 
 static void configurable_task(void *arg)
@@ -163,7 +163,7 @@ static void producer_task(void *arg)
     
     while (!OSAL_TaskShouldShutdown())
     {
-        str_t msg[MSG_SIZE];
+        char msg[MSG_SIZE];
         OSAL_Snprintf(msg, sizeof(msg), "Message #%u", counter++);
         
         /* 发送消息（超时1秒） */
@@ -183,7 +183,7 @@ static void consumer_task(void *arg)
 {
     while (!OSAL_TaskShouldShutdown())
     {
-        str_t msg[MSG_SIZE];
+        char msg[MSG_SIZE];
         uint32_t size;
         
         /* 接收消息（超时2秒） */
@@ -420,7 +420,7 @@ int32_t ret = OSAL_TaskCreate(&task_id, "MyTask", task_entry, NULL,
                                16*1024, 100, 0);
 if (ret != OS_SUCCESS) {
     /* 获取错误描述 */
-    const str_t *err_str = OSAL_GetErrorString(ret);
+    const char *err_str = OSAL_GetErrorString(ret);
     LOG_ERROR("Main", "创建任务失败: %s (%d)", err_str, ret);
     return -1;
 }

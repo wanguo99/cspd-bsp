@@ -306,7 +306,7 @@ PDL_Satellite_Init(&sat_cfg, &sat_handle);
 - ❌ 禁止直接调用系统调用：`socket()`, `pthread_create()`
 - ✅ 使用OSAL日志：`LOG_INFO()`, `LOG_ERROR()`
 - ❌ 禁止使用：`printf()`, `fprintf()`
-- ✅ 使用OSAL类型：`int32`, `uint32`, `str_t`
+- ✅ 使用OSAL类型：`int32`, `uint32`, `char`
 - ❌ 禁止使用：`int`, `unsigned int`, `char`
 
 **示例**：

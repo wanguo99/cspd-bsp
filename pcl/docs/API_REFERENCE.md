@@ -38,35 +38,35 @@ void HW_Config_Print(const pcl_board_config_t *board);
 查找MCU外设配置。
 ```c
 const pcl_mcu_cfg_t* XCONFIG_HW_FindMCU(const pcl_board_config_t *board,
-                                            const str_t *name);
+                                            const char *name);
 ```
 
 ### XCONFIG_HW_FindBMC
 查找BMC外设配置。
 ```c
 const pcl_bmc_cfg_t* XCONFIG_HW_FindBMC(const pcl_board_config_t *board,
-                                            const str_t *name);
+                                            const char *name);
 ```
 
 ### XCONFIG_HW_FindSatellite
 查找卫星平台接口配置。
 ```c
 const pcl_satellite_cfg_t* XCONFIG_HW_FindSatellite(const pcl_board_config_t *board,
-                                                        const str_t *name);
+                                                        const char *name);
 ```
 
 ### XCONFIG_HW_FindSensor
 查找传感器外设配置。
 ```c
 const pcl_sensor_cfg_t* XCONFIG_HW_FindSensor(const pcl_board_config_t *board,
-                                                  const str_t *name);
+                                                  const char *name);
 ```
 
 ### XCONFIG_HW_FindStorage
 查找存储设备配置。
 ```c
 const pcl_storage_cfg_t* XCONFIG_HW_FindStorage(const pcl_board_config_t *board,
-                                                    const str_t *name);
+                                                    const char *name);
 ```
 
 ## 配置数据结构

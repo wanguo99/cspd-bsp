@@ -290,7 +290,7 @@ sudo apt-get install libpthread-stubs0-dev
 
 **Q: 如何查看OSAL版本？**
 ```c
-const str_t *version = OS_GetVersionString();
+const char *version = OS_GetVersionString();
 OSAL_Printf("OSAL Version: %s\n", version);
 ```
 

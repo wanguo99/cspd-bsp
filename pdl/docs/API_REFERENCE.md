@@ -81,13 +81,13 @@ int32_t MCUPDL_Deinit(void);
 ### MCUPDL_GetVersion
 获取MCU版本。
 ```c
-int32_t MCUPDL_GetVersion(str_t *version, uint32_t size);
+int32_t MCUPDL_GetVersion(char *version, uint32_t size);
 ```
 
 ### MCUPDL_FirmwareUpgrade
 固件升级。
 ```c
-int32_t MCUPDL_FirmwareUpgrade(const str_t *firmware_path);
+int32_t MCUPDL_FirmwareUpgrade(const char *firmware_path);
 ```
 
 详细参数说明请参考头文件 `pdl_satellite.h`、`pdl_bmc.h`、`pdl_mcu.h`。
