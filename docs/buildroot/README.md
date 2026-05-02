@@ -8,19 +8,19 @@
 Buildroot package makefile，定义了如何下载、配置、编译和安装 BSP。
 
 **主要配置项：**
-- `PMC_BSP_VERSION`: 版本号或 Git 提交哈希
-- `PMC_BSP_SITE`: 源码仓库地址
-- `PMC_BSP_SITE_METHOD`: 下载方式（git/wget/local）
-- `PMC_BSP_DEPENDENCIES`: 依赖的其他 Buildroot packages
-- `PMC_BSP_CONF_OPTS`: CMake 配置选项
+- `BSP_VERSION`: 版本号或 Git 提交哈希
+- `BSP_SITE`: 源码仓库地址
+- `BSP_SITE_METHOD`: 下载方式（git/wget/local）
+- `BSP_DEPENDENCIES`: 依赖的其他 Buildroot packages
+- `BSP_CONF_OPTS`: CMake 配置选项
 
 ### 2. Config.in
 Buildroot menuconfig 配置文件，定义了 BSP 在配置菜单中的选项。
 
 **可配置选项：**
-- `BR2_PACKAGE_PMC_BSP`: 启用 BSP package
-- `BR2_PACKAGE_PMC_BSP_SAMPLE_APP`: 安装示例应用程序
-- `BR2_PACKAGE_PMC_BSP_TESTS`: 安装单元测试
+- `BR2_PACKAGE_BSP`: 启用 BSP package
+- `BR2_PACKAGE_BSP_SAMPLE_APP`: 安装示例应用程序
+- `BR2_PACKAGE_BSP_TESTS`: 安装单元测试
 
 **依赖要求：**
 - C++ 工具链支持
@@ -106,14 +106,14 @@ SysV init 启动脚本，将被安装到 `/etc/init.d/S90bsp`。
 
 1. **修改 `bsp.mk` 中的源码位置：**
    ```makefile
-   PMC_BSP_SITE = /path/to/bsp
-   PMC_BSP_SITE_METHOD = local
-   PMC_BSP_VERSION = local
+   BSP_SITE = /path/to/bsp
+   BSP_SITE_METHOD = local
+   BSP_VERSION = local
    ```
 
 2. **或者在 Buildroot 配置中设置 override：**
    ```bash
-   echo 'PMC_BSP_OVERRIDE_SRCDIR = /path/to/bsp' >> local.mk
+   echo 'BSP_OVERRIDE_SRCDIR = /path/to/bsp' >> local.mk
    ```
 
 ## 目标系统文件布局
@@ -134,8 +134,8 @@ SysV init 启动脚本，将被安装到 `/etc/init.d/S90bsp`。
 └── pdl/
 
 /usr/bin/
-├── pmc-sample-app      # 示例应用（可选）
-└── pmc-unit-test       # 单元测试（可选）
+├── bsp-sample-app      # 示例应用（可选）
+└── bsp-unit-test       # 单元测试（可选）
 
 /etc/
 ├── bsp.conf        # 配置文件
@@ -188,10 +188,10 @@ BSP 在 Buildroot 中的依赖：
 
 ### 修改 CMake 配置选项
 
-编辑 `bsp.mk` 中的 `PMC_BSP_CONF_OPTS`：
+编辑 `bsp.mk` 中的 `BSP_CONF_OPTS`：
 
 ```makefile
-PMC_BSP_CONF_OPTS = \
+BSP_CONF_OPTS = \
 	-DCMAKE_BUILD_TYPE=Release \
 	-DBUILD_SHARED_LIBS=ON \
 	-DBUILD_TESTING=OFF \
@@ -200,13 +200,13 @@ PMC_BSP_CONF_OPTS = \
 
 ### 添加额外的安装文件
 
-在 `bsp.mk` 中添加 `define PMC_BSP_INSTALL_TARGET_CMDS`：
+在 `bsp.mk` 中添加 `define BSP_INSTALL_TARGET_CMDS`：
 
 ```makefile
-define PMC_BSP_INSTALL_TARGET_CMDS
-	$(INSTALL) -D -m 0755 $(@D)/build/apps/sample_app $(TARGET_DIR)/usr/bin/pmc-sample-app
-	$(INSTALL) -D -m 0644 $(PMC_BSP_PKGDIR)/bsp.conf $(TARGET_DIR)/etc/bsp.conf
-	$(INSTALL) -D -m 0755 $(PMC_BSP_PKGDIR)/S90bsp $(TARGET_DIR)/etc/init.d/S90bsp
+define BSP_INSTALL_TARGET_CMDS
+	$(INSTALL) -D -m 0755 $(@D)/build/release/bin/bsp-sample-app $(TARGET_DIR)/usr/bin/bsp-sample-app
+	$(INSTALL) -D -m 0644 $(BSP_PKGDIR)/bsp.conf $(TARGET_DIR)/etc/bsp.conf
+	$(INSTALL) -D -m 0755 $(BSP_PKGDIR)/S90bsp $(TARGET_DIR)/etc/init.d/S90bsp
 	# 添加自定义安装命令
 	$(INSTALL) -D -m 0644 $(@D)/custom-file $(TARGET_DIR)/etc/custom-file
 endef
@@ -219,24 +219,24 @@ endef
 修改 `bsp.mk`：
 
 ```makefile
-PMC_BSP_VERSION = v1.0.0
-PMC_BSP_SITE = https://github.com/your-org/bsp.git
-PMC_BSP_SITE_METHOD = git
+BSP_VERSION = v1.0.0
+BSP_SITE = https://github.com/wanguo99/bsp.git
+BSP_SITE_METHOD = git
 ```
 
 ### 使用特定 Git 提交
 
 ```makefile
-PMC_BSP_VERSION = abc123def456
+BSP_VERSION = abc123def456
 ```
 
 ### 使用 tarball
 
 ```makefile
-PMC_BSP_VERSION = 1.0.0
-PMC_BSP_SITE = https://github.com/your-org/bsp/releases/download/v$(PMC_BSP_VERSION)
-PMC_BSP_SOURCE = bsp-$(PMC_BSP_VERSION).tar.gz
-PMC_BSP_SITE_METHOD = wget
+BSP_VERSION = 1.0.0
+BSP_SITE = https://github.com/wanguo99/bsp/releases/download/v$(BSP_VERSION)
+BSP_SOURCE = bsp-$(BSP_VERSION).tar.gz
+BSP_SITE_METHOD = wget
 ```
 
 ## 技术支持

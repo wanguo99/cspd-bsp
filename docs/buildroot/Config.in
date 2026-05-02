@@ -5,9 +5,8 @@ config BR2_PACKAGE_BSP
 	depends on !BR2_STATIC_LIBS
 	select BR2_PACKAGE_HAS_BSP
 	help
-	  PMC-BSP (Payload Management Controller Board Support Package)
-	  is a board support package for satellite payload management
-	  controllers.
+	  BSP (Board Support Package) is a lightweight embedded software
+	  framework providing hardware abstraction and peripheral drivers.
 
 	  Features:
 	  - OSAL: Operating System Abstraction Layer
@@ -15,7 +14,7 @@ config BR2_PACKAGE_BSP
 	  - PCL: Peripheral Configuration Library
 	  - PDL: Peripheral Driver Layer
 
-	  https://github.com/your-org/bsp
+	  https://github.com/wanguo99/bsp
 
 if BR2_PACKAGE_BSP
 
@@ -23,12 +22,12 @@ config BR2_PACKAGE_BSP_SAMPLE_APP
 	bool "install sample application"
 	default y
 	help
-	  Install the PMC-BSP sample application to /usr/bin/pmc-sample-app
+	  Install the BSP sample application to /usr/bin/bsp-sample-app
 
 config BR2_PACKAGE_BSP_TESTS
 	bool "install unit tests"
 	help
-	  Build and install the PMC-BSP unit test suite to /usr/bin/pmc-unit-test
+	  Build and install the BSP unit test suite to /usr/bin/bsp-unit-test
 
 endif
 
