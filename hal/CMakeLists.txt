@@ -21,7 +21,17 @@ target_include_directories(hal_public_api INTERFACE
 # ============================================================================
 
 # HAL源文件（根据平台选择）
-if(PLATFORM STREQUAL "native" OR PLATFORM STREQUAL "generic-linux")
+if(APPLE)
+    # macOS平台：使用打桩实现（仅用于编译）
+    set(HAL_SOURCES
+        ${HAL_SRC_DIR}/macos/hal_can.c
+        ${HAL_SRC_DIR}/macos/hal_serial.c
+        ${HAL_SRC_DIR}/macos/hal_i2c.c
+        ${HAL_SRC_DIR}/macos/hal_spi.c
+    )
+    message(STATUS "HAL: Using macOS stub implementation (compile-only)")
+elseif(PLATFORM STREQUAL "native" OR PLATFORM STREQUAL "generic-linux")
+    # Linux平台：使用真实硬件实现
     set(HAL_SOURCES
         ${HAL_SRC_DIR}/linux/hal_can.c
         ${HAL_SRC_DIR}/linux/hal_serial.c

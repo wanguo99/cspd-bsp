@@ -69,8 +69,12 @@ target_link_libraries(unit-test
     pmc::pcl
     pmc::pdl
     Threads::Threads
-    rt
 )
+
+# macOS 不需要 librt
+if(NOT APPLE)
+    target_link_libraries(unit-test rt)
+endif()
 
 # Set output directory
 set_target_properties(unit-test PROPERTIES
