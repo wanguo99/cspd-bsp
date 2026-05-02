@@ -18,10 +18,7 @@ target_link_libraries(sample_app
     Threads::Threads
 )
 
-# 设置输出目录
-set_target_properties(sample_app PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_TARGET}/bin
-)
+# 输出目录由顶层 CMakeLists.txt 的 CMAKE_RUNTIME_OUTPUT_DIRECTORY 控制
 
 # 安装规则
 install(TARGETS sample_app

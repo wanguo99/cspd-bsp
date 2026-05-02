@@ -20,33 +20,23 @@ target_include_directories(pdl_public_api INTERFACE
 # 2. 实现库 (pdl) - 包含外设驱动实现
 # ============================================================================
 
-# 根据平台选择实现
-if(PLATFORM STREQUAL "native" OR PLATFORM STREQUAL "generic-linux")
-    # Linux平台实现
-    set(PDL_SOURCES
-        # MCU外设驱动（独立封装）
-        ${PDL_SRC_DIR}/pdl_mcu/pdl_mcu.c
-        ${PDL_SRC_DIR}/pdl_mcu/pdl_mcu_can.c
-        ${PDL_SRC_DIR}/pdl_mcu/pdl_mcu_serial.c
-        ${PDL_SRC_DIR}/pdl_mcu/pdl_mcu_protocol.c
+# PDL 源文件（所有平台通用）
+set(PDL_SOURCES
+    # MCU外设驱动（独立封装）
+    ${PDL_SRC_DIR}/pdl_mcu/pdl_mcu.c
+    ${PDL_SRC_DIR}/pdl_mcu/pdl_mcu_can.c
+    ${PDL_SRC_DIR}/pdl_mcu/pdl_mcu_serial.c
+    ${PDL_SRC_DIR}/pdl_mcu/pdl_mcu_protocol.c
 
-        # 卫星平台服务（独立封装）
-        ${PDL_SRC_DIR}/pdl_satellite/pdl_satellite.c
-        ${PDL_SRC_DIR}/pdl_satellite/pdl_satellite_can.c
+    # 卫星平台服务（独立封装）
+    ${PDL_SRC_DIR}/pdl_satellite/pdl_satellite.c
+    ${PDL_SRC_DIR}/pdl_satellite/pdl_satellite_can.c
 
-        # BMC服务（独立封装）
-        ${PDL_SRC_DIR}/pdl_bmc/pdl_bmc.c
-        ${PDL_SRC_DIR}/pdl_bmc/pdl_bmc_redfish.c
-        ${PDL_SRC_DIR}/pdl_bmc/pdl_bmc_ipmi.c
-    )
-elseif(PLATFORM STREQUAL "rtems")
-    # RTEMS平台实现（预留）
-    set(PDL_SOURCES
-        # TODO: RTEMS实现
-    )
-else()
-    message(FATAL_ERROR "Unsupported platform: ${PLATFORM}")
-endif()
+    # BMC服务（独立封装）
+    ${PDL_SRC_DIR}/pdl_bmc/pdl_bmc.c
+    ${PDL_SRC_DIR}/pdl_bmc/pdl_bmc_redfish.c
+    ${PDL_SRC_DIR}/pdl_bmc/pdl_bmc_ipmi.c
+)
 
 # 创建PDL库（类型由BUILD_SHARED_LIBS控制）
 add_library(pdl ${PDL_SOURCES})

@@ -30,21 +30,15 @@ if(APPLE)
         ${HAL_SRC_DIR}/macos/hal_spi.c
     )
     message(STATUS "HAL: Using macOS stub implementation (compile-only)")
-elseif(PLATFORM STREQUAL "native" OR PLATFORM STREQUAL "generic-linux")
-    # Linux平台：使用真实硬件实现
+else()
+    # Linux/其他平台：使用真实硬件实现
     set(HAL_SOURCES
         ${HAL_SRC_DIR}/linux/hal_can.c
         ${HAL_SRC_DIR}/linux/hal_serial.c
         ${HAL_SRC_DIR}/linux/hal_i2c.c
         ${HAL_SRC_DIR}/linux/hal_spi.c
     )
-elseif(PLATFORM STREQUAL "rtems")
-    # RTEMS平台实现（预留）
-    set(HAL_SOURCES
-        # TODO: RTEMS实现
-    )
-else()
-    message(FATAL_ERROR "Unsupported platform: ${PLATFORM}")
+    message(STATUS "HAL: Using Linux hardware implementation")
 endif()
 
 # 创建HAL库（类型由BUILD_SHARED_LIBS控制）

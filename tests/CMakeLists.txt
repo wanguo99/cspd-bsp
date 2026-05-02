@@ -76,22 +76,19 @@ if(NOT APPLE)
     target_link_libraries(unit-test rt)
 endif()
 
-# Set output directory
-set_target_properties(unit-test PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_TARGET}/bin
-)
+# 输出目录由顶层 CMakeLists.txt 的 CMAKE_RUNTIME_OUTPUT_DIRECTORY 控制
 
 # ============================================================================
 # Custom Test Targets
 # ============================================================================
 add_custom_target(run_tests
-    COMMAND ${OUTPUT_TARGET}/bin/unit-test --all
+    COMMAND $<TARGET_FILE:unit-test> --all
     DEPENDS unit-test
     COMMENT "Running all unit tests"
 )
 
 add_custom_target(run_tests_interactive
-    COMMAND ${OUTPUT_TARGET}/bin/unit-test --interactive
+    COMMAND $<TARGET_FILE:unit-test> --interactive
     DEPENDS unit-test
     COMMENT "Running tests in interactive mode"
 )

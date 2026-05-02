@@ -13,125 +13,27 @@ option(BUILD_TESTING "Build unit tests" ON)
 option(BUILD_SHARED_LIBS "Build shared libraries instead of static" ON)
 
 # ============================================================================
-# 平台配置
-# ============================================================================
-if(NOT DEFINED PLATFORM)
-    set(PLATFORM "native" CACHE STRING "Target platform: native, arm32-linux, arm64-linux, riscv64-linux")
-endif()
-
-message(STATUS "Target platform: ${PLATFORM}")
-
-# 根据平台设置编译器和选项
-if(PLATFORM STREQUAL "native")
-    # 本地编译 - 使用系统默认编译器
-    message(STATUS "Building for native platform")
-
-elseif(PLATFORM STREQUAL "arm32-linux")
-    # ARM32 Linux 交叉编译
-    message(STATUS "Building for ARM32 Linux (cross-compile)")
-
-    # 设置交叉编译工具链
-    if(NOT DEFINED CMAKE_C_COMPILER)
-        set(CMAKE_C_COMPILER "arm-linux-gnueabihf-gcc" CACHE STRING "C compiler")
-    endif()
-
-    # 设置系统信息
-    set(CMAKE_SYSTEM_NAME Linux)
-    set(CMAKE_SYSTEM_PROCESSOR arm)
-
-    # ARM32 特定编译选项
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv7-a -mfpu=neon-vfpv4 -mfloat-abi=hard")
-
-    # 设置查找路径
-    set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-    set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-
-elseif(PLATFORM STREQUAL "arm64-linux")
-    # ARM64 Linux 交叉编译
-    message(STATUS "Building for ARM64 Linux (cross-compile)")
-
-    # 设置交叉编译工具链
-    if(NOT DEFINED CMAKE_C_COMPILER)
-        set(CMAKE_C_COMPILER "aarch64-linux-gnu-gcc" CACHE STRING "C compiler")
-    endif()
-
-    # 设置系统信息
-    set(CMAKE_SYSTEM_NAME Linux)
-    set(CMAKE_SYSTEM_PROCESSOR aarch64)
-
-    # ARM64 特定编译选项
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv8-a")
-
-    # 设置查找路径
-    set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-    set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-
-elseif(PLATFORM STREQUAL "riscv64-linux")
-    # RISC-V 64 Linux 交叉编译
-    message(STATUS "Building for RISC-V 64 Linux (cross-compile)")
-
-    # 设置交叉编译工具链
-    if(NOT DEFINED CMAKE_C_COMPILER)
-        set(CMAKE_C_COMPILER "riscv64-linux-gnu-gcc" CACHE STRING "C compiler")
-    endif()
-
-    # 设置系统信息
-    set(CMAKE_SYSTEM_NAME Linux)
-    set(CMAKE_SYSTEM_PROCESSOR riscv64)
-
-    # RISC-V 64 特定编译选项
-    # rv64imafdc = RV64I base + M(乘除法) + A(原子) + F(单精度浮点) + D(双精度浮点) + C(压缩指令)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=rv64imafdc -mabi=lp64d")
-
-    # 设置查找路径
-    set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-    set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-
-elseif(PLATFORM STREQUAL "generic-linux")
-    # 保留旧的 generic-linux 选项以兼容现有脚本
-    message(WARNING "PLATFORM=generic-linux is deprecated, use arm32-linux instead")
-    message(STATUS "Building for generic Linux (cross-compile)")
-
-    # 设置交叉编译工具链
-    if(NOT DEFINED CMAKE_C_COMPILER)
-        set(CMAKE_C_COMPILER "arm-linux-gnueabihf-gcc" CACHE STRING "C compiler")
-    endif()
-
-    # 设置系统信息
-    set(CMAKE_SYSTEM_NAME Linux)
-    set(CMAKE_SYSTEM_PROCESSOR arm)
-
-    # 设置查找路径
-    set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-    set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-
-else()
-    message(FATAL_ERROR "Unknown platform: ${PLATFORM}. Supported: native, arm32-linux, arm64-linux, riscv64-linux")
-endif()
-
-# ============================================================================
 # 编译选项
 # ============================================================================
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Werror -D_POSIX_C_SOURCE=200809L")
+
+# 设置默认构建类型为 Release
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type (Debug/Release)" FORCE)
+endif()
+
 set(CMAKE_C_FLAGS_DEBUG "-g -O0")
 set(CMAKE_C_FLAGS_RELEASE "-O2")
 
-# ============================================================================
-# 输出目录配置（参考buildroot设计）
-# ============================================================================
-set(OUTPUT_BUILD ${CMAKE_BINARY_DIR})
-set(OUTPUT_TARGET ${CMAKE_BINARY_DIR}/../target)
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
-# CMake中间文件目录（当前构建目录）
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_BUILD}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_BUILD}/lib)
-
-# 最终目标产物目录
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_TARGET}/bin)
+# ============================================================================
+# 输出目录配置
+# ============================================================================
+# 使用更简洁的输出目录结构
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # ============================================================================
 # 查找依赖库
@@ -188,30 +90,19 @@ if(BUILD_TESTING)
 endif()
 
 # ============================================================================
-# 创建输出目录结构
-# ============================================================================
-file(MAKE_DIRECTORY ${OUTPUT_BUILD}/lib)
-file(MAKE_DIRECTORY ${OUTPUT_TARGET}/bin)
-file(MAKE_DIRECTORY ${OUTPUT_TARGET}/lib)
-
-# ============================================================================
-# 复制最终库文件到target/lib（构建后执行）
-# ============================================================================
-add_custom_target(copy_libs ALL
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${OUTPUT_BUILD}/lib ${OUTPUT_TARGET}/lib
-    COMMENT "Copying libraries to target directory"
-    DEPENDS osal hal pcl pdl
-)
-
-# ============================================================================
 # 打印配置信息
 # ============================================================================
 message(STATUS "")
 message(STATUS "========================================")
-message(STATUS "BSP v${PROJECT_VERSION} | ${PLATFORM} | ${CMAKE_BUILD_TYPE}")
+message(STATUS "BSP v${PROJECT_VERSION}")
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "System: ${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_PROCESSOR}")
+message(STATUS "Compiler: ${CMAKE_C_COMPILER}")
 if(BUILD_TESTING)
-message(STATUS "Tests: Enabled | Output: ${OUTPUT_TARGET}")
+message(STATUS "Tests: Enabled")
 else()
-message(STATUS "Tests: Disabled | Output: ${OUTPUT_TARGET}")
+message(STATUS "Tests: Disabled")
 endif()
+message(STATUS "Output: ${CMAKE_BINARY_DIR}")
 message(STATUS "========================================")
+message(STATUS "")
