@@ -15,25 +15,46 @@ BSP 是专为卫星算存载荷管理控制器设计的板级支持包。
 
 ### 编译
 
-**本地编译**：
+BSP 支持三种编译方式，推荐使用 CMake Presets。
+
+**方式一：CMake Presets（推荐）**
+
+```bash
+# 本地编译
+cmake --preset release          # Release 模式
+cmake --build --preset release
+
+cmake --preset debug            # Debug 模式
+cmake --build --preset debug
+
+# 交叉编译
+cmake --preset arm32 && cmake --build build/arm32      # ARM32
+cmake --preset arm64 && cmake --build build/arm64      # ARM64
+cmake --preset riscv64 && cmake --build build/riscv64  # RISC-V 64
+```
+
+**方式二：标准 CMake 命令**
+
+```bash
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+```
+
+**方式三：build.sh 脚本（向后兼容）**
+
 ```bash
 ./build.sh              # Release模式
 ./build.sh -d           # Debug模式
 ./build.sh -c           # 清理
+./build.sh -a arm32     # ARM32 交叉编译
 ```
 
-**交叉编译**（支持 ARM32/ARM64/RISC-V 64）：
+详细编译指南：[docs/QUICK_BUILD.md](docs/QUICK_BUILD.md)
+
+**安装交叉编译工具链：**
+
 ```bash
-# ARM32 (ARMv7-A)
-./build.sh -a arm32
-
-# ARM64 (ARMv8-A)
-./build.sh -a arm64
-
-# RISC-V 64
-./build.sh -a riscv64
-
-# 安装交叉编译工具链 (Ubuntu/Debian)
+# Ubuntu/Debian
 sudo apt-get install gcc-arm-linux-gnueabihf      # ARM32
 sudo apt-get install gcc-aarch64-linux-gnu        # ARM64
 sudo apt-get install gcc-riscv64-linux-gnu        # RISC-V 64
@@ -43,11 +64,11 @@ sudo apt-get install gcc-riscv64-linux-gnu        # RISC-V 64
 
 ```bash
 # 运行示例应用
-./output/target/bin/sample_app
+./build/release/bin/sample_app
 
 # 运行测试
-./output/target/bin/unit-test -i    # 交互式菜单
-./output/target/bin/unit-test -a    # 运行所有测试
+./build/release/bin/unit-test -i    # 交互式菜单
+./build/release/bin/unit-test -a    # 运行所有测试
 ```
 
 ## 模块组成
