@@ -61,10 +61,18 @@ add_library(osal ${OSAL_SOURCES})
 target_link_libraries(osal PUBLIC osal_public_api)
 
 # 链接系统库
-target_link_libraries(osal PUBLIC
-    Threads::Threads
-    rt
-)
+if(APPLE)
+    # macOS 不需要 librt (实时扩展已集成到系统库中)
+    target_link_libraries(osal PUBLIC
+        Threads::Threads
+    )
+else()
+    # Linux 需要 librt (POSIX 实时扩展)
+    target_link_libraries(osal PUBLIC
+        Threads::Threads
+        rt
+    )
+endif()
 
 # 设置编译选项
 target_compile_options(osal PRIVATE

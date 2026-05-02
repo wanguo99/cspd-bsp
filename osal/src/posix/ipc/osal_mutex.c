@@ -253,7 +253,33 @@ int32_t OSAL_MutexLockTimeout(osal_id_t mutex_id, uint32_t timeout_msec)
         abs_timeout.tv_nsec -= OSAL_NSEC_PER_SEC;
     }
 
+#ifdef __APPLE__
+    /* macOS 不支持 pthread_mutex_timedlock，使用 trylock + sleep 模拟 */
+    struct timespec sleep_time = {0, 1000000};  /* 1ms */
+    while (1)
+    {
+        ret = pthread_mutex_trylock(target_mutex);
+        if (ret == 0)
+        {
+            break;  /* 成功获取锁 */
+        }
+
+        /* 检查是否超时 */
+        clock_gettime(CLOCK_REALTIME, &current_time);
+        if (current_time.tv_sec > abs_timeout.tv_sec ||
+            (current_time.tv_sec == abs_timeout.tv_sec &&
+             current_time.tv_nsec >= abs_timeout.tv_nsec))
+        {
+            ret = ETIMEDOUT;
+            break;
+        }
+
+        /* 短暂休眠后重试 */
+        nanosleep(&sleep_time, NULL);
+    }
+#else
     ret = pthread_mutex_timedlock(target_mutex, &abs_timeout);
+#endif
 
     if (ETIMEDOUT == ret)
     {
