@@ -4,10 +4,10 @@
 
 ### 1.1 项目定位
 
-**BSP** (Board Support Package) 是为卫星算存载荷设计的板级支持包，作为卫星平台与算存载荷之间的通信桥接和管理中间层。
+**BSP** (Board Support Package) 是通用嵌入式板级支持包，为嵌入式系统提供硬件抽象和外设管理服务。
 
 **设计目标**：
-- 高可靠性：航天级可靠性要求，支持故障检测和自动恢复
+- 高可靠性：工业级可靠性要求，支持故障检测和自动恢复
 - 实时性：CAN消息延迟 < 10ms，命令处理时间 < 100ms
 - 可移植性：分层架构，支持跨平台移植（Linux/RTOS）
 - 可维护性：模块化设计，配置独立，便于多人协作
@@ -16,20 +16,20 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    卫星平台 (OBC)                            │
+│                    主机系统 (Host)                           │
 │              CAN总线 (500Kbps, ID: 0x100/0x200)             │
 └──────────────────────────┬──────────────────────────────────┘
                            │ CAN通信
 ┌──────────────────────────▼──────────────────────────────────┐
-│                  PMC-BSP 管理板                             │
+│                  BSP 控制板                                  │
 │  ┌────────────────────────────────────────────────────────┐ │
 │  │  Apps层 (应用层)                                        │ │
 │  │  ├── can_gateway        - CAN网关应用                  │ │
 │  │  └── protocol_converter - 协议转换应用                 │ │
 │  ├────────────────────────────────────────────────────────┤ │
 │  │  PDL层 (外设驱动层 - Peripheral Driver Layer)          │ │
-│  │  ├── pdl_satellite      - 卫星平台服务                 │ │
-│  │  ├── pdl_bmc            - BMC载荷服务                  │ │
+│  │  ├── pdl_satellite      - 主机接口服务                 │ │
+│  │  ├── pdl_bmc            - BMC设备服务                  │ │
 │  │  └── pdl_mcu            - MCU外设服务                  │ │
 │  ├────────────────────────────────────────────────────────┤ │
 │  │  PCL层 (硬件配置库 - 仅供PDL层使用)                 │ │
@@ -46,7 +46,7 @@
 └──────────────────────────┬──────────────────────────────────┘
                            │ 以太网/UART
 ┌──────────────────────────▼──────────────────────────────────┐
-│              算存载荷 (BMC/Linux Payload)                    │
+│              外部设备 (BMC/Linux Device)                     │
 │         IPMI/Redfish (以太网:623 / UART:115200)             │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -212,7 +212,7 @@
    - 使用 `gettimeofday()` 获取微秒级时间
 
 **配置**（`log_config.h`）：
-- 日志文件路径：`/var/log/pmc-bsp.log`
+- 日志文件路径：`/var/log/bsp.log`
 - 最大文件大小：10MB
 - 备份文件数：5个
 
@@ -315,7 +315,7 @@
 typedef struct {
     uint32 can_id;        // CAN ID (11位标准帧或29位扩展帧)
     uint8  dlc;           // 数据长度码 (0-8)
-    uint8  data[8];       // 数据载荷
+    uint8  data[8];       // 数据字段
     uint32 timestamp;     // 接收时间戳（由驱动填充）
 } can_frame_t;
 
@@ -487,7 +487,7 @@ pcl/platform/{vendor}/{soc}/{product}_{variant}.c
 ```
 
 **硬件配置结构**：
-- **外设类型**：MCU、BMC、卫星接口、传感器、存储设备
+- **外设类型**：MCU、BMC、主机接口、传感器、存储设备
 - **接口类型**：CAN、UART、I2C、SPI、Ethernet、1553B
 - **配置继承**：base → v1 → v2（版本演进）
 
@@ -495,7 +495,7 @@ pcl/platform/{vendor}/{soc}/{product}_{variant}.c
 - `PCL_Init()` - 初始化配置系统
 - `PCL_HW_GetMCU(id)` - 获取MCU配置
 - `PCL_HW_GetBMC(id)` - 获取BMC配置
-- `PCL_HW_GetSatellite(id)` - 获取卫星接口配置
+- `PCL_HW_GetSatellite(id)` - 获取主机接口配置
 - `PCL_HW_GetSensor(id)` - 获取传感器配置
 - `PCL_HW_GetStorage(id)` - 获取存储设备配置
 
@@ -520,7 +520,7 @@ typedef struct {
 **外设映射**：
 ```c
 typedef struct {
-    const char *logical_name;     // 逻辑名称（如"satellite_comm"）
+    const char *logical_name;     // 逻辑名称（如"host_comm"）
     hw_device_type_t device_type; // 外设类型（如HW_DEVICE_SATELLITE）
     uint32_t device_id;           // 外设ID（如0）
     uint32_t backup_device_id;    // 备用外设ID（冗余配置）
@@ -542,15 +542,15 @@ const hw_app_config_t *app = PCL_APP_Find("can_gateway");
 
 // 3. 查找外设映射
 const hw_app_device_mapping_t *mapping = 
-    PCL_APP_FindDevice(app, "satellite_comm");
+    PCL_APP_FindDevice(app, "host_comm");
 
 // 4. 获取硬件配置
 const void *device = PCL_APP_GetDeviceByMapping(mapping);
-const hw_satellite_config_t *sat = (const hw_satellite_config_t *)device;
+const hw_satellite_config_t *host = (const hw_satellite_config_t *)device;
 
 // 5. 使用硬件配置
-if (sat->interface.type == HW_INTERFACE_CAN) {
-    can_id = sat->interface.config.can.can_id;
+if (host->interface.type == HW_INTERFACE_CAN) {
+    can_id = host->interface.config.can.can_id;
 }
 ```
 
@@ -558,7 +558,7 @@ if (sat->interface.type == HW_INTERFACE_CAN) {
 ```c
 static hw_app_device_mapping_t app_can_gateway_devices_v1[] = {
     {
-        .logical_name = "satellite_comm",
+        .logical_name = "host_comm",
         .device_type = HW_DEVICE_SATELLITE,
         .device_id = 0,              // 主接口：CAN0
         .backup_device_id = 1        // 备用接口：CAN1（冗余）
@@ -580,13 +580,13 @@ static hw_app_config_t app_can_gateway_v1 = {
 
 ### 2.4 PDL层 (外设驱动层)
 
-**职责**：管理卫星/载荷/MCU等外设，提供统一的外设服务接口
+**职责**：管理各类外部设备，提供统一的外设服务接口
 
-**设计理念**：管理板为核心，卫星/载荷/BMC/MCU统一抽象为外设
+**设计理念**：控制板为核心，将各类外部设备统一抽象为外设
 
 **核心模块**：
 
-#### 2.4.1 卫星平台服务 (pdl_satellite)
+#### 2.4.1 主机接口服务 (pdl_satellite)
 
 **文件**：
 - `pdl_satellite.h` - 对外业务接口
@@ -597,7 +597,7 @@ static hw_app_config_t app_can_gateway_v1 = {
 **通信方式**：CAN总线
 
 **关键接口**：
-- `PDL_Satellite_Init()` - 初始化卫星平台服务
+- `PDL_Satellite_Init()` - 初始化主机接口服务
 - `PDL_Satellite_RegisterCallback()` - 注册命令回调函数
 - `PDL_Satellite_SendResponse()` - 发送命令响应
 - `PDL_Satellite_SendHeartbeat()` - 发送心跳
@@ -606,7 +606,7 @@ static hw_app_config_t app_can_gateway_v1 = {
 **实现细节**：
 
 1. **CAN协议定义**（`pdl_satellite_internal.h`）：
-   - **CAN ID**：RX=0x100（卫星→管理板），TX=0x101（管理板→卫星）
+   - **CAN ID**：RX=0x100（主机→控制板），TX=0x101（控制板→主机）
    - **消息类型**：0x01=命令请求，0x02=命令响应，0x03=心跳
    - **帧格式**（8字节）：`[msg_type][seq_num][cmd_type][reserved][data(4字节)]`
 
@@ -630,7 +630,7 @@ static hw_app_config_t app_can_gateway_v1 = {
 - 发送计数（tx_count）
 - 错误计数（error_count）
 
-#### 2.4.2 BMC载荷服务 (pdl_bmc)
+#### 2.4.2 BMC设备服务 (pdl_bmc)
 
 **文件**：
 - `pdl_bmc.h` - 对外业务接口
@@ -797,7 +797,7 @@ static hw_app_config_t app_can_gateway_v1 = {
 - `config/app_config.h` - 版本号定义
 - `config/can_protocol.h` - CAN协议定义（177行）
 
-**功能定位**：作为卫星平台的CAN通信前端，负责接收/发送CAN消息、维护心跳、提供消息队列
+**功能定位**：作为主机系统的CAN通信前端，负责接收/发送CAN消息、维护心跳、提供消息队列
 
 **架构设计**：
 
@@ -847,8 +847,8 @@ typedef struct {
 - 配置管理：`SET_CONFIG/GET_CONFIG`
 
 **CAN ID分配**：
-- `0x100` - 卫星→管理板
-- `0x200` - 管理板→卫星
+- `0x100` - 主机→控制板
+- `0x200` - 控制板→主机
 
 **消息处理流程**：
 
@@ -900,9 +900,9 @@ void CAN_Gateway_GetStats(uint32 *rx_count, uint32 *tx_count, uint32 *err_count)
 
 **文件**：
 - `protocol_converter.h` - 转换器接口
-- `payload_pdl.h` - 载荷服务接口
+- `payload_pdl.h` - 设备服务接口
 - `protocol_converter.c` - 转换逻辑（375行）
-- `payload_pdl.c` - 载荷服务实现（709行）
+- `payload_pdl.c` - 设备服务实现（709行）
 - `main.c` - 启动入口（121行）
 - `config/app_config.h` - 超时/重试配置
 - `config/ethernet_config.h` - 以太网配置
@@ -1119,11 +1119,11 @@ bsp/
 
 **依赖关系**：
 
-PMC-BSP采用分层架构，各层职责清晰：
+BSP采用分层架构，各层职责清晰：
 
 - **OSAL层（操作系统抽象层）**：所有层的基础，封装操作系统API（任务、队列、互斥锁、网络socket、文件操作等）
 - **HAL层（硬件抽象层）**：封装硬件设备驱动（CAN、UART等），依赖OSAL
-- **PDL层（外设驱动层）**：管理外设服务（卫星、BMC、MCU），依赖HAL和OSAL
+- **PDL层（外设驱动层）**：管理外设服务（主机接口、BMC、MCU），依赖HAL和OSAL
 - **PCL层（硬件配置库）**：以外设为单位的硬件配置管理，纯数据结构，无依赖
 - **Apps层（应用层）**：业务应用，依赖PDL、HAL、OSAL
 
@@ -1312,7 +1312,7 @@ static int32 execute_ipmi_command(uint8_t cmd_type, uint32_t param, uint32_t *re
 |---------|---------|---------|
 | CAN总线故障 | 错误计数统计 | 自动重试（1次）、日志记录 |
 | 以太网故障 | 连续5次失败 | 自动切换到UART |
-| 载荷离线 | 超时检测 | 返回离线状态码、定期重试 |
+| 设备离线 | 超时检测 | 返回离线状态码、定期重试 |
 | 任务死锁 | 死锁检测（5秒） | 触发回调、记录日志 |
 | 内存泄漏 | 引用计数 | 自动释放资源 |
 

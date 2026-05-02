@@ -13,8 +13,8 @@ PCL (Peripheral Configuration Library) 是硬件配置库，参考Linux设备树
 
 **支持的外设类型**：
 - MCU外设（微控制器）
-- 卫星平台接口
-- BMC载荷（基板管理控制器）
+- 主机接口
+- BMC设备（基板管理控制器）
 - 传感器外设
 - 存储设备
 - 应用配置
@@ -177,7 +177,7 @@ pcl/
 │   │   ├── pcl_hardware_interface.h  # 硬件接口定义
 │   │   ├── pcl_mcu.h           # MCU外设配置
 │   │   ├── pcl_bmc.h           # BMC外设配置
-│   │   ├── pcl_satellite.h     # 卫星平台接口配置
+│   │   ├── pcl_satellite.h     # 主机接口配置
 │   │   ├── pcl_sensor.h        # 传感器外设配置
 │   │   ├── pcl_storage.h       # 存储设备配置
 │   │   └── pcl_app.h           # APP配置
@@ -248,11 +248,11 @@ int main(void)
         }
     }
     
-    /* 查询卫星平台配置 */
-    const pcl_satellite_t *sat = PCL_GetSatelliteConfig();
-    if (sat != NULL) {
-        LOG_INFO("APP", "Satellite: %s, Protocol: %d",
-                 sat->name, sat->protocol);
+    /* 查询主机接口配置 */
+    const pcl_satellite_t *host = PCL_GetSatelliteConfig();
+    if (host != NULL) {
+        LOG_INFO("APP", "Host Interface: %s, Protocol: %d",
+                 host->name, host->protocol);
     }
     
     /* 查询BMC配置 */
@@ -344,13 +344,13 @@ const pcl_satellite_t* PCL_GetSatelliteConfig(void)
 }
 ```
 
-### BMC载荷配置
+### BMC外设配置
 
 ```c
 static const pcl_bmc_t bmc_configs[] = {
     {
         .name = "bmc0",
-        .description = "主BMC载荷",
+        .description = "主BMC外设",
         .protocol = PCL_BMC_PROTOCOL_REDFISH,
         .ethernet_interface = {
             .ip_address = "192.168.1.100",

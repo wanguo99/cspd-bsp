@@ -1,5 +1,5 @@
 /************************************************************************
- * PMC-BSP - Payload Management Controller Board Support Package
+ * BSP - Board Support Package
  *
  * 轻量化操作系统抽象层
  *
@@ -59,7 +59,7 @@
 /**
  * @brief 获取OSAL版本字符串
  *
- * @return 版本字符串，例如 "PMC-BSP OSAL v1.0.0"
+ * @return 版本字符串，例如 "BSP OSAL v1.0.0"
  */
 const char *OSAL_GetVersionString(void);
 

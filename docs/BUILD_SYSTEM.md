@@ -355,7 +355,7 @@ make install DESTDIR=/path/to/install
 每个模块生成CMake配置文件，支持`find_package`：
 
 ```cmake
-# 在其他项目中使用PMC-BSP
+# 在其他项目中使用BSP
 find_package(osal REQUIRED)
 find_package(hal REQUIRED)
 

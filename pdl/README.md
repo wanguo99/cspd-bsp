@@ -2,36 +2,36 @@
 
 ## 模块概述
 
-PDL (Peripheral Driver Layer) 是外设驱动层，统一管理卫星平台、载荷（BMC/Linux）、MCU等外设。
+PDL (Peripheral Driver Layer) 是外设驱动层，统一管理各类外部设备和模块。
 
 **设计理念**：
-- 管理板为核心，卫星/载荷/MCU统一抽象为外设
+- 主控制器为核心，将各类外部设备统一抽象为外设
 - 完全平台无关，通过HAL层访问底层硬件
 - 使用PCL配置外设硬件接口
 - 提供统一的外设管理接口
 
-**支持的外设**：
+**支持的外设类型**：
 - MCU外设（微控制器）
-- 卫星平台接口
-- BMC载荷（基板管理控制器）
-- Linux载荷（操作系统载荷）
+- 主机接口（Host Interface）
+- BMC设备（基板管理控制器）
+- Linux设备（运行操作系统的设备）
 
 ## 主要特性
 
-- **统一外设管理**：卫星/载荷/MCU统一抽象为外设
+- **统一外设管理**：各类外部设备统一抽象为外设
 - **多通道冗余**：支持主备双通道（如BMC的以太网+串口）
 - **自动故障切换**：5次连续失败自动切换通道
-- **心跳机制**：卫星平台5秒心跳检测
+- **心跳机制**：主机接口5秒心跳检测
 - **协议支持**：IPMI、Redfish、自定义协议
 
 ## 支持的外设服务
 
-### 卫星平台服务 (Satellite PDL)
+### 主机接口服务 (Host Interface PDL)
 - **通信方式**：CAN总线或1553B
-- **功能**：命令接收、遥测上报、心跳检测
+- **功能**：命令接收、数据上报、心跳检测
 - **接口**：`pdl_satellite.h`
 
-### BMC载荷服务 (BMC PDL)
+### BMC设备服务 (BMC PDL)
 - **通信方式**：以太网（主）+ 串口（备）
 - **协议**：IPMI over LAN、Redfish
 - **功能**：电源管理、传感器读取、固件升级
@@ -85,7 +85,7 @@ PDL模块根据 `PLATFORM` 参数选择不同的实现：
 cmake ../.. -DPLATFORM=native
 ```
 - 使用Linux平台实现
-- 支持MCU/卫星/BMC外设
+- 支持MCU/主机接口/BMC外设
 
 **交叉编译（通用Linux）**：
 ```bash
@@ -177,19 +177,19 @@ cat output/build.log | grep -A 10 "PDL"
 pdl/
 ├── include/                    # 公共接口头文件
 │   ├── pdl_mcu.h               # MCU外设接口
-│   ├── pdl_satellite.h         # 卫星平台接口
-│   ├── pdl_bmc.h               # BMC载荷接口
-│   └── pdl_linux.h             # Linux载荷接口
+│   ├── pdl_satellite.h         # 主机接口
+│   ├── pdl_bmc.h               # BMC设备接口
+│   └── pdl_linux.h             # Linux设备接口
 └── src/
     ├── pdl_mcu/                # MCU外设驱动
     │   ├── pdl_mcu.c           # MCU管理
     │   ├── pdl_mcu_can.c       # MCU CAN通信
     │   ├── pdl_mcu_serial.c    # MCU串口通信
     │   └── pdl_mcu_protocol.c  # MCU协议处理
-    ├── pdl_satellite/          # 卫星平台服务
-    │   ├── pdl_satellite.c     # 卫星接口管理
-    │   └── pdl_satellite_can.c # 卫星CAN通信
-    └── pdl_bmc/                # BMC载荷服务
+    ├── pdl_satellite/          # 主机接口服务
+    │   ├── pdl_satellite.c     # 主机接口管理
+    │   └── pdl_satellite_can.c # 主机CAN通信
+    └── pdl_bmc/                # BMC设备服务
         ├── pdl_bmc.c           # BMC管理
         ├── pdl_bmc_redfish.c   # Redfish接口
         └── pdl_bmc_ipmi.c      # IPMI接口
@@ -242,20 +242,20 @@ int main(void)
     uint8 cmd_data[] = {0x01, 0x02, 0x03};
     PDL_MCU_SendCommand(&mcu_handle, 0x100, cmd_data, sizeof(cmd_data));
     
-    /* 初始化卫星接口 */
-    pdl_satellite_config_t sat_cfg = {
+    /* 初始化主机接口 */
+    pdl_satellite_config_t host_cfg = {
         .can_interface = "can1",
         .baudrate = 1000000
     };
-    pdl_satellite_handle_t sat_handle;
-    PDL_Satellite_Init(&sat_cfg, &sat_handle);
+    pdl_satellite_handle_t host_handle;
+    PDL_Satellite_Init(&host_cfg, &host_handle);
     
-    /* 接收卫星遥测数据 */
+    /* 接收主机数据 */
     uint8 telemetry[64];
     uint32 len;
-    PDL_Satellite_ReceiveTelemetry(&sat_handle, telemetry, &len, 1000);
+    PDL_Satellite_ReceiveTelemetry(&host_handle, telemetry, &len, 1000);
     
-    /* 初始化BMC载荷 */
+    /* 初始化BMC设备 */
     pdl_bmc_config_t bmc_cfg = {
         .ip_address = "192.168.1.100",
         .port = 443,
@@ -399,7 +399,7 @@ if (mcu_cfg != NULL) {
 
 **Q: PDL和HAL的区别？**
 - HAL：硬件抽象层，封装底层驱动（CAN/串口/网络）
-- PDL：外设驱动层，管理外设（MCU/卫星/BMC），使用HAL接口
+- PDL：外设驱动层，管理外设（MCU/主机接口/BMC），使用HAL接口
 
 **Q: 如何添加新的通信协议？**
 ```c
@@ -435,7 +435,7 @@ if (ret != OS_SUCCESS) {
 ## 设计原则
 
 1. **平台无关**：PDL层必须保持完全平台无关，通过HAL/OSAL访问底层
-2. **外设抽象**：将卫星/载荷/MCU统一抽象为外设
+2. **外设抽象**：将各类外部设备统一抽象为外设
 3. **冗余设计**：关键外设支持多通道冗余
 4. **自动恢复**：故障自动切换，无需人工干预
 5. **协议分层**：通信协议与传输层分离
