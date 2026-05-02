@@ -223,10 +223,10 @@ osal/
 **CMakeLists.txt配置**：
 ```cmake
 # 链接OSAL接口库（获取头文件路径）
-target_link_libraries(your_module PUBLIC pmc::osal_public_api)
+target_link_libraries(your_module PUBLIC bsp::osal_public_api)
 
 # 链接OSAL实现库（运行时链接）
-target_link_libraries(your_module PRIVATE pmc::osal)
+target_link_libraries(your_module PRIVATE bsp::osal)
 ```
 
 **代码中使用**：

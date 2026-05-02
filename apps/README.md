@@ -172,9 +172,9 @@ add_executable(my_app ${MY_APP_SOURCES})
 
 # 链接依赖
 target_link_libraries(my_app
-    pmc::osal       # OSAL层
-    pmc::hal        # HAL层（可选）
-    pmc::pdl        # PDL层（可选）
+    bsp::osal       # OSAL层
+    bsp::hal        # HAL层（可选）
+    bsp::pdl        # PDL层（可选）
     Threads::Threads
 )
 

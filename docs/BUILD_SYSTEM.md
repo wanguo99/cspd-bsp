@@ -66,12 +66,12 @@
 1. **接口库 (`<module>_public_api`)**
    - 类型：INTERFACE库（仅头文件）
    - 用途：供上层模块使用，提供头文件路径
-   - 命名空间：`pmc::<module>_public_api`
+   - 命名空间：`bsp::<module>_public_api`
 
 2. **实现库 (`<module>`)**
    - 类型：STATIC库（静态库）
    - 用途：包含实际代码实现
-   - 命名空间：`pmc::<module>`
+   - 命名空间：`bsp::<module>`
 
 ### 2.3 依赖关系
 
@@ -79,10 +79,10 @@
 
 ```cmake
 # PUBLIC依赖：接口库（继承头文件路径）
-target_link_libraries(hal PUBLIC pmc::osal_public_api)
+target_link_libraries(hal PUBLIC bsp::osal_public_api)
 
 # PRIVATE依赖：实现库（运行时链接）
-target_link_libraries(hal PRIVATE pmc::osal)
+target_link_libraries(hal PRIVATE bsp::osal)
 ```
 
 这种设计的优点：
@@ -112,8 +112,8 @@ target_link_libraries(hal PRIVATE pmc::osal)
 **使用示例**：
 ```cmake
 target_link_libraries(my_module
-    PUBLIC pmc::osal_public_api   # 头文件
-    PRIVATE pmc::osal             # 实现
+    PUBLIC bsp::osal_public_api   # 头文件
+    PRIVATE bsp::osal             # 实现
 )
 ```
 
@@ -126,8 +126,8 @@ target_link_libraries(my_module
 - `hal` - 实现库
 
 **依赖**：
-- `pmc::osal_public_api` (PUBLIC)
-- `pmc::osal` (PRIVATE)
+- `bsp::osal_public_api` (PUBLIC)
+- `bsp::osal` (PRIVATE)
 
 **特点**：
 - 唯一允许包含硬件平台相关代码的层
@@ -143,8 +143,8 @@ target_link_libraries(my_module
 - `pcl` - 实现库
 
 **依赖**：
-- `pmc::osal_public_api` (PUBLIC)
-- `pmc::osal` (PRIVATE)
+- `bsp::osal_public_api` (PUBLIC)
+- `bsp::osal` (PRIVATE)
 
 **特点**：
 - 纯数据配置库，类似Linux设备树
@@ -171,12 +171,12 @@ pcl/platform/
 - `pdl` - 实现库
 
 **依赖**：
-- `pmc::osal_public_api` (PUBLIC)
-- `pmc::hal_public_api` (PUBLIC)
-- `pmc::pcl_public_api` (PUBLIC)
-- `pmc::osal` (PRIVATE)
-- `pmc::hal` (PRIVATE)
-- `pmc::pcl` (PRIVATE)
+- `bsp::osal_public_api` (PUBLIC)
+- `bsp::hal_public_api` (PUBLIC)
+- `bsp::pcl_public_api` (PUBLIC)
+- `bsp::osal` (PRIVATE)
+- `bsp::hal` (PRIVATE)
+- `bsp::pcl` (PRIVATE)
 
 **特点**：
 - 统一外设管理层
@@ -188,7 +188,7 @@ pcl/platform/
 **文件**：`apps/sample_app/CMakeLists.txt`
 
 **依赖**：
-- `pmc::osal`（或其他需要的模块）
+- `bsp::osal`（或其他需要的模块）
 
 **特点**：
 - 应用层代码
@@ -203,9 +203,9 @@ pcl/platform/
 - `test_runner` - 测试运行器库
 
 **依赖**：
-- `pmc::pdl`
-- `pmc::hal`
-- `pmc::osal`
+- `bsp::pdl`
+- `bsp::hal`
+- `bsp::osal`
 
 **特点**：
 - 统一测试入口（unit-test）
@@ -240,8 +240,8 @@ add_subdirectory(tests)
 
 3. **创建命名空间别名**
 ```cmake
-add_library(pmc::osal_public_api ALIAS osal_public_api)
-add_library(pmc::osal ALIAS osal)
+add_library(bsp::osal_public_api ALIAS osal_public_api)
+add_library(bsp::osal ALIAS osal)
 # ... 其他模块
 ```
 
@@ -360,8 +360,8 @@ find_package(osal REQUIRED)
 find_package(hal REQUIRED)
 
 target_link_libraries(my_app
-    pmc::osal
-    pmc::hal
+    bsp::osal
+    bsp::hal
 )
 ```
 
@@ -404,7 +404,7 @@ target_link_libraries(my_app
 target_include_directories(my_module PRIVATE ${OSAL_INCLUDE_DIR})
 
 # 正确
-target_link_libraries(my_module PUBLIC pmc::osal_public_api)
+target_link_libraries(my_module PUBLIC bsp::osal_public_api)
 ```
 
 ### 9.2 链接错误
@@ -414,8 +414,8 @@ target_link_libraries(my_module PUBLIC pmc::osal_public_api)
 **解决**：
 ```cmake
 target_link_libraries(my_module
-    PUBLIC pmc::osal_public_api   # 头文件
-    PRIVATE pmc::osal             # 实现（必须）
+    PUBLIC bsp::osal_public_api   # 头文件
+    PRIVATE bsp::osal             # 实现（必须）
 )
 ```
 
