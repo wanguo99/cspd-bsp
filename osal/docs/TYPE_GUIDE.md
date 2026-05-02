@@ -56,10 +56,10 @@ struct packet {
 用于文本数据（设备名、日志消息、配置字符串）。
 
 ```c
-str_t device_name[64];           // 设备名称
-str_t log_message[256];          // 日志消息
-const str_t *interface = "can0"; // 字符串常量
-str_t parity = 'N';              // 单个字符
+char device_name[64];           // 设备名称
+char log_message[256];          // 日志消息
+const char *interface = "can0"; // 字符串常量
+char parity = 'N';              // 单个字符
 ```
 
 **使用场景**：
@@ -69,7 +69,7 @@ str_t parity = 'N';              // 单个字符
 - 与标准 C 库交互（`strcpy`, `strlen`, `fopen`）
 
 **重要**：
-- `str_t` 底层是 `char`，与标准 C 库完全兼容
+- `char` 底层是 `char`，与标准 C 库完全兼容
 - 用于文本数据，区别于 `uint8_t`（二进制数据）
 
 ### 3. 平台相关大小类型
@@ -308,13 +308,13 @@ osal_size_t count = OSAL_ARRAY_SIZE(array);  // 10
 /* 结构体成员偏移 */
 struct config {
     uint32_t id;
-    str_t name[32];
+    char name[32];
 };
 osal_size_t offset = OSAL_OFFSETOF(struct config, name);
 
 /* 通过成员指针获取结构体指针 */
 struct config cfg;
-str_t *name_ptr = cfg.name;
+char *name_ptr = cfg.name;
 struct config *cfg_ptr = OSAL_CONTAINER_OF(name_ptr, struct config, name);
 ```
 
@@ -424,7 +424,7 @@ unsigned int flags;           // 应使用 uint32_t
 long offset;                  // 应使用 int32_t/int64_t/osal_off_t
 
 /* 错误2：字符串使用 uint8_t */
-uint8_t name[32];             // 应使用 str_t
+uint8_t name[32];             // 应使用 char
 strcpy(name, "device");       // 类型不匹配
 
 /* 错误3：指针转整数不安全 */
@@ -443,8 +443,8 @@ int32_t count;
 uint32_t flags;
 osal_off_t offset;
 
-/* 正确2：字符串使用 str_t */
-str_t name[32];
+/* 正确2：字符串使用 char */
+char name[32];
 OSAL_Strcpy(name, "device");
 
 /* 正确3：安全的指针转换 */
@@ -474,7 +474,7 @@ if (OSAL_IS_ALIGNED(ptr, 64)) {
 1. **永远不要使用 C 基本类型**（`int`, `long`, `unsigned`）
 2. **固定宽度类型**用于协议、硬件、二进制数据
 3. **平台相关类型**用于内存大小、数组索引
-4. **str_t** 用于文本，**uint8_t** 用于二进制
+4. **char** 用于文本，**uint8_t** 用于二进制
 5. **原子类型**用于多线程无锁编程
 6. **使用辅助宏**进行类型转换和对齐操作
 7. **编译时断言**确保类型大小正确
