@@ -1,15 +1,28 @@
-# BSP
+# BSP - Board Support Package
 
-板级支持包 (Board Support Package)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Build](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
+[![Platform](https://img.shields.io/badge/platform-Linux-lightgrey.svg)]()
+[![Architecture](https://img.shields.io/badge/arch-x86__64%20%7C%20ARM32%20%7C%20ARM64%20%7C%20RISC--V64-orange.svg)]()
 
-## 项目简介
+通用嵌入式系统的板级支持包，提供完整的5层软件架构，支持多种外设和通信协议。
 
-BSP 是通用嵌入式系统的板级支持包，支持多种外设和通信协议。
+## 概述
+
+BSP 是一个模块化、可移植的嵌入式软件框架，采用分层架构设计，从操作系统抽象到应用层提供完整的软件栈。适用于需要管理多种外设、支持多种通信协议的嵌入式控制系统。
 
 **典型应用场景**：
 ```
 外部系统 <--CAN--> 控制器(BSP) <--Ethernet/UART--> 设备模块
 ```
+
+**核心特性**：
+- 🏗️ **5层分层架构**：OSAL、HAL、PCL、PDL、Apps，职责清晰
+- 🔧 **跨平台设计**：POSIX实现，易于移植到RTOS
+- 🖥️ **多架构支持**：x86_64、ARM32、ARM64、RISC-V 64
+- 🔌 **丰富驱动**：CAN、串口、I2C、SPI等常用总线
+- ✅ **完整测试**：142+测试用例，覆盖核心功能
+- 📚 **详细文档**：每个模块都有完整的架构、API、使用文档
 
 ## 快速开始
 
@@ -92,7 +105,7 @@ BSP采用5层分层架构：
 **文档**: [hal/README.md](hal/README.md) | [详细文档](hal/docs/)
 
 ### PDL - 外设驱动层
-统一管理卫星平台、BMC载荷、MCU等外设服务，对应用提供访问外设的统一接口，，只允许APP和TEST层访问该库的接口。。
+统一管理外部系统、BMC设备、MCU等外设服务，对应用提供访问外设的统一接口，只允许APP和TEST层访问该库的接口。
 
 **特性**：统一外设管理、多通道冗余、自动故障切换、心跳机制
 
@@ -159,28 +172,35 @@ bsp/
     └── CLAUDE.md          # 开发指南
 ```
 
-## 核心特性
+## 技术亮点
 
-- **跨平台设计**：POSIX实现，易于移植到RTOS
-- **多架构支持**：支持 x86_64、ARM32、ARM64、RISC-V 64
-  - 固定大小类型（`uint32_t`、`int64_t`）保证跨架构一致性
-  - 自动字节序检测和转换（`OSAL_HTONS/HTONL`）
-  - C11 原子操作支持所有架构
-- **模块化架构**：5层分层，职责清晰
-- **完整测试**：142+测试用例，覆盖核心功能
-  - OSAL层：50+测试用例
+### 多架构支持
+- 支持 x86_64、ARM32、ARM64、RISC-V 64
+- 固定大小类型（`uint32_t`、`int64_t`）保证跨架构一致性
+- 自动字节序检测和转换（`OSAL_HTONS/HTONL`）
+- C11 原子操作支持所有架构
+
+### 测试覆盖
+- **142+测试用例**覆盖核心功能
+  - OSAL层：50+测试用例（任务、队列、互斥锁、日志等）
   - HAL层：72测试用例（CAN、串口、I2C、SPI）
-  - PCL层：5+测试用例
-  - PDL层：15+测试用例
-- **丰富驱动**：支持CAN、串口、I2C、SPI等常用总线
-- **详细文档**：每个模块都有完整的架构、API、使用文档
+  - PCL层：5+测试用例（配置管理）
+  - PDL层：15+测试用例（外设服务）
+- 交互式测试菜单和命令行模式
+- 详细的测试报告和错误诊断
+
+### 代码质量
+- 遵循 MISRA C 编码规范
+- 完整的错误处理和资源管理
+- 线程安全设计
+- 详细的 API 文档和使用示例
 
 ## 文档导航
 
 ### 模块文档
 - [OSAL层](osal/README.md) - 操作系统抽象层（任务、队列、互斥锁、日志等）
 - [HAL层](hal/README.md) - 硬件抽象层（CAN、串口等驱动）
-- [PDL层](pdl/README.md) - 外设驱动层（卫星平台、BMC载荷、MCU服务）
+- [PDL层](pdl/README.md) - 外设驱动层（外部系统、BMC设备、MCU服务）
 - [PCL层](pcl/README.md) - 硬件配置库（设备树式配置管理）
 - [Apps层](apps/README.md) - 应用层（示例应用）
 - [Tests层](tests/README.md) - 测试框架（70+测试用例）
@@ -191,12 +211,15 @@ bsp/
 - [PDL详细文档](pdl/docs/) - 服务设计、协议文档
 - [PCL详细文档](pcl/docs/) - 配置规范、平台适配
 - [Apps详细文档](apps/docs/) - 应用开发指南
-- [Tests详细文档](tests/docs/) - 测试框架、测试指南
 
 ### 项目文档
 - [架构设计](docs/ARCHITECTURE.md) - 系统架构和设计理念
 - [编码规范](docs/CODING_STANDARDS.md) - 代码风格和规范
-- [开发指南](CLAUDE.md) - 开发者指南
+- [构建系统](docs/BUILD_SYSTEM.md) - 构建系统详解
+- [快速构建](docs/QUICK_BUILD.md) - 快速构建指南
+- [开发指南](CLAUDE.md) - AI辅助开发指南
+- [贡献指南](CONTRIBUTING.md) - 如何贡献代码
+- [更新日志](CHANGELOG.md) - 版本历史
 
 ## 测试
 
@@ -253,14 +276,25 @@ bsp/
 
 ## 贡献
 
-欢迎贡献代码和反馈！请遵循以下规范：
+欢迎贡献代码和反馈！请查看 [CONTRIBUTING.md](CONTRIBUTING.md) 了解详细的贡献指南。
 
-1. 阅读 [编码规范](docs/CODING_STANDARDS.md)
-2. 提交前运行测试：`./output/target/bin/unit-test -a`
-3. 确保代码通过编译：`./build.sh`
-4. 提交清晰的 commit message
+简要流程：
+1. Fork 项目并创建特性分支
+2. 遵循 [编码规范](docs/CODING_STANDARDS.md)
+3. 添加测试并确保所有测试通过
+4. 更新相关文档
+5. 提交 Pull Request
+
+## 更新日志
+
+查看 [CHANGELOG.md](CHANGELOG.md) 了解版本历史和更新内容。
+
+## 许可证
+
+本项目采用 GNU General Public License v3.0 许可证。详见 [LICENSE](LICENSE) 文件。
 
 ## 联系方式
 
 - 问题反馈：请通过 GitHub Issues 提交
 - 代码贡献：请通过 Pull Request 提交
+- 文档改进：欢迎提交文档相关的 PR

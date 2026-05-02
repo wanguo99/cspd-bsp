@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**BSP** (Board Support Package) is a board support package for satellite payload management controllers, serving as a communication bridge between satellite platforms and compute/storage payloads.
+**BSP** (Board Support Package) is a general-purpose embedded system board support package, providing hardware abstraction and peripheral management services for embedded controllers.
 
-**System Architecture**:
+**Typical Application**:
 ```
-Satellite Platform <--CAN--> BSP Controller <--Ethernet/UART/CAN--> Compute/Storage Payload
+External System <--CAN--> BSP Controller <--Ethernet/UART/CAN--> Device Modules
 ```
 
 ## Quick Commands
