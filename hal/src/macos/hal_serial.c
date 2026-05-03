@@ -30,8 +30,9 @@ int32_t HAL_Serial_Close(hal_serial_handle_t handle)
 int32_t HAL_Serial_Write(hal_serial_handle_t handle, const void *buffer,
                        uint32_t size, int32_t timeout)
 {
-    (void)handle;
-    (void)buffer;
+    if (NULL == handle || NULL == buffer)
+        return OSAL_ERR_INVALID_POINTER;
+
     (void)size;
     (void)timeout;
     return OSAL_ERR_NOT_IMPLEMENTED;
@@ -40,8 +41,9 @@ int32_t HAL_Serial_Write(hal_serial_handle_t handle, const void *buffer,
 int32_t HAL_Serial_Read(hal_serial_handle_t handle, void *buffer,
                       uint32_t size, int32_t timeout)
 {
-    (void)handle;
-    (void)buffer;
+    if (NULL == handle || NULL == buffer)
+        return OSAL_ERR_INVALID_POINTER;
+
     (void)size;
     (void)timeout;
     return OSAL_ERR_NOT_IMPLEMENTED;

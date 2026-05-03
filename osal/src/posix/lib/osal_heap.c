@@ -56,19 +56,28 @@ static uint32_t read_memory_from_proc(const char *field)
 
 int32_t OSAL_HeapGetInfo(uint32_t *free_bytes, uint32_t *total_bytes)
 {
+    if (NULL == free_bytes || NULL == total_bytes)
+        return OSAL_ERR_INVALID_POINTER;
+
     uint32_t vm_rss = read_memory_from_proc("VmRSS:");
     uint32_t vm_peak = read_memory_from_proc("VmPeak:");
 
     pthread_mutex_lock(&g_heap_monitor.lock);
-    g_heap_monitor.current_usage = vm_rss;
-    if (vm_rss > g_heap_monitor.peak_usage)
-        g_heap_monitor.peak_usage = vm_rss;
+
+    /* 如果无法从/proc读取（如macOS），使用内部统计 */
+    if (vm_rss == 0 && vm_peak == 0) {
+        vm_rss = g_heap_monitor.current_usage;
+        vm_peak = g_heap_monitor.peak_usage;
+    } else {
+        g_heap_monitor.current_usage = vm_rss;
+        if (vm_rss > g_heap_monitor.peak_usage)
+            g_heap_monitor.peak_usage = vm_rss;
+    }
+
     pthread_mutex_unlock(&g_heap_monitor.lock);
 
-    if (NULL != free_bytes)
-        *free_bytes = (vm_peak > vm_rss) ? (vm_peak - vm_rss) : 0;
-    if (NULL != total_bytes)
-        *total_bytes = vm_peak;
+    *free_bytes = (vm_peak > vm_rss) ? (vm_peak - vm_rss) : 0;
+    *total_bytes = vm_peak;
 
     return OSAL_SUCCESS;
 }

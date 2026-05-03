@@ -53,7 +53,8 @@ int32_t HAL_CAN_GetStats(hal_can_handle_t handle,
                        uint32_t *rx_count,
                        uint32_t *err_count)
 {
-    (void)handle;
+    if (NULL == handle)
+        return OSAL_ERR_INVALID_ID;
 
     if (tx_count != NULL)
         *tx_count = 0;

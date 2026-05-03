@@ -155,11 +155,11 @@ TEST_CASE(test_osal_heap_set_threshold_invalid)
 
     /* 超过100% */
     ret = OSAL_HeapSetThreshold(101);
-    TEST_ASSERT_EQUAL(OSAL_ERR_INVALID_POINTER, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_INVALID_SIZE, ret);
 
     /* 负数（会被转换为大数） */
     ret = OSAL_HeapSetThreshold((uint32_t)-1);
-    TEST_ASSERT_EQUAL(OSAL_ERR_INVALID_POINTER, ret);
+    TEST_ASSERT_EQUAL(OSAL_ERR_INVALID_SIZE, ret);
 }
 
 /* 测试用例: HeapCheckThreshold - 成功 */

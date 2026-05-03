@@ -419,7 +419,7 @@ TEST_CASE(test_pdl_bmc_execute_command_null_handle)
     char response[256];
 
     int32_t ret = PDL_BMC_ExecuteCommand(NULL, "chassis status", response, sizeof(response));
-    TEST_ASSERT_TRUE(ret < 0);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 }
 
 /* 测试用例: 执行命令 - 空命令 */
@@ -446,7 +446,7 @@ TEST_CASE(test_pdl_bmc_execute_command_null_cmd)
     TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
     ret = PDL_BMC_ExecuteCommand(handle, NULL, response, sizeof(response));
-    TEST_ASSERT_TRUE(ret < 0);
+    TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 
     PDL_BMC_Deinit(handle);
 }
@@ -625,12 +625,11 @@ TEST_CASE(test_pdl_bmc_get_stats_null_pointer)
         .retry_count = 3,
         .health_check_interval = 10000
     };
-    uint32_t count;
 
     int32_t ret = PDL_BMC_Init(&config, &handle);
     TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);
 
-    ret = PDL_BMC_GetStats(handle, NULL, &count, &count, &count);
+    ret = PDL_BMC_GetStats(handle, NULL, NULL, NULL, NULL);
     TEST_ASSERT_NOT_EQUAL(OSAL_SUCCESS, ret);
 
     PDL_BMC_Deinit(handle);

@@ -154,7 +154,7 @@ TEST_CASE(test_hal_serial_write_null_handle)
     uint8_t data[] = "test";
 
     int32_t ret = HAL_Serial_Write(NULL, data, sizeof(data), 1000);
-    TEST_ASSERT_TRUE(ret < 0);
+    TEST_ASSERT_EQUAL(OSAL_ERR_INVALID_POINTER, ret);
 }
 
 /* 测试用例: 串口写入 - 空缓冲区 */
@@ -234,7 +234,7 @@ TEST_CASE(test_hal_serial_read_null_handle)
     uint8_t buffer[64];
 
     int32_t ret = HAL_Serial_Read(NULL, buffer, sizeof(buffer), 100);
-    TEST_ASSERT_TRUE(ret < 0);
+    TEST_ASSERT_EQUAL(OSAL_ERR_INVALID_POINTER, ret);
 }
 
 /* 测试用例: 串口读取 - 空缓冲区 */

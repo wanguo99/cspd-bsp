@@ -372,8 +372,11 @@ int32_t PDL_BMC_ExecuteCommand(bmc_handle_t handle,
                                   char *response,
                                   uint32_t resp_size)
 {
-    (void)handle;
-    (void)cmd;
+    if (NULL == handle || NULL == cmd)
+    {
+        return OSAL_ERR_GENERIC;
+    }
+
     (void)response;
     (void)resp_size;
     /* TODO: 实现原始命令执行 */
@@ -475,6 +478,13 @@ int32_t PDL_BMC_GetStats(bmc_handle_t handle,
     if (NULL == handle)
     {
         return OSAL_ERR_GENERIC;
+    }
+
+    /* At least one output parameter must be non-NULL */
+    if (NULL == cmd_count && NULL == success_count &&
+        NULL == fail_count && NULL == switch_count)
+    {
+        return OSAL_ERR_INVALID_POINTER;
     }
 
     bmc_context_t *ctx = (bmc_context_t *)handle;

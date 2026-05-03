@@ -250,7 +250,9 @@ TEST_CASE(test_osal_log_multithread)
 
     /* 创建多个任务 */
     for (int32_t i = 0; i < 3; i++) {
-        ret = OSAL_TaskCreate(&task_ids[i], "LOG_TEST",
+        char task_name[32];
+        OSAL_Snprintf(task_name, sizeof(task_name), "LOG_TEST_%d", i);
+        ret = OSAL_TaskCreate(&task_ids[i], task_name,
                              log_test_task, &task_args[i],
                              32 * 1024, 100, 0);
         TEST_ASSERT_EQUAL(OSAL_SUCCESS, ret);

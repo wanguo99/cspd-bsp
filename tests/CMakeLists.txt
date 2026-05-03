@@ -28,6 +28,10 @@ add_executable(unit-test
     osal/test_osal_string.c
     osal/test_osal_file.c
     osal/test_osal_time.c
+    osal/test_osal_clock.c
+    osal/test_osal_env.c
+    osal/test_osal_errno.c
+    osal/test_osal_version.c
     osal/test_osal_heap.c
     osal/test_osal_log.c
     osal/test_osal_resource_tracker.c
